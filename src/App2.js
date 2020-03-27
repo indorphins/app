@@ -1,37 +1,43 @@
-import React, { createContext, useState } from 'react';
+import React, { createContext, useState, useReducer } from 'react';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
 import Landing from './Views/Landing';
 import InstructorView from './Views/InstructorView';
+import ParticipantView from './Views/ParticipantView';
+import AppReducer from './Reducers/AppReducer';
 
-export const ClassContext = createContext({
-	classes: [],
-	updateClasses: () => {}
+// export const ClassContext = createContext({
+// 	classes: [],
+// 	updateClasses: () => {}
+// });
+
+export const AppStateContext = createContext({
+	state: {},
+	setState: () => {}
 });
 
 const App = () => {
-	const [classes, setClasses] = useState([]);
-
-	const updateClasses = c => {
-		setClasses([...classes, c]);
-	};
+	// setup initial state
+	const [state, dispatch] = useReducer(AppReducer, {
+		classes: {}
+	});
 
 	return (
-		<ClassContext.Provider value={{ classes, updateClasses }}>
+		<AppStateContext.Provider value={{ state, dispatch }}>
 			<Router>
 				<Switch>
 					<Route path='/instructor'>
 						<InstructorView />
 					</Route>
-					{/* <Route path='/classes'>
-						<Home />
-					</Route> */}
+					<Route path='/classes'>
+						<ParticipantView />
+					</Route>
 
 					<Route path='/'>
 						<Landing />
 					</Route>
 				</Switch>
 			</Router>
-		</ClassContext.Provider>
+		</AppStateContext.Provider>
 	);
 };
 

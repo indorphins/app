@@ -3,7 +3,6 @@ import Button from './Components/Button';
 import Toolbar from './Components/Toolbar';
 
 import DailyIframe from '@daily-co/daily-js';
-import { createContext } from 'vm';
 import { get } from 'https';
 
 const createRoomEndpoint =
@@ -96,8 +95,6 @@ const App = () => {
 	};
 
 	const joinCall = url => {};
-
-	console.log('RENDER');
 
 	return (
 		<div>

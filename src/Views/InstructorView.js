@@ -1,21 +1,22 @@
 import React, { useEffect, useState, useContext } from 'react';
 import Toolbar from '../Components/Toolbar';
 import Button from '../Components/Button';
-import { ClassContext } from '../App2';
+import { AppStateContext } from '../App2';
 import DailyIframe from '@daily-co/daily-js';
 import { get } from 'https';
 import { createRoomEndpoint } from '../constants';
+import Class from '../Classes/Class';
 
 const InstructorView = props => {
 	const [name, setName] = useState();
 	const [startClass, setStartClass] = useState(false);
 	const [myClass, setMyClass] = useState({});
 	const [participants, setParticipants] = useState([]);
-	const { classes, updateClasses } = useContext(ClassContext);
+	const { state, dispatch } = useContext(AppStateContext);
 
 	useEffect(() => {
 		if (window.location.hash) {
-			setName(window.location.hash);
+			setName(window.location.hash.substring(1));
 		} else {
 			setName('Instructor');
 		}
@@ -58,12 +59,13 @@ const InstructorView = props => {
 			});
 			callFrame.join();
 			window.location = '#' + url;
-			const c = {
-				url: url,
-				instructor: name
-			};
+			const c = new Class(url, name);
+			console.log('Created Instructor class ', c);
 			setMyClass(c);
-			updateClasses(c);
+			dispatch({
+				type: 'addClass',
+				payload: c
+			});
 		} catch (e) {
 			console.log('url fetch failed - retrying in 2s: ', e);
 			setTimeout(() => createClass(), 2000);
