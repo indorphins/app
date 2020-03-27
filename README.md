@@ -1,5 +1,6 @@
-<<<<<<< HEAD
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Source code for the Indorphins video chat application
+
+** Setup instructions and more to be added upon release **
 
 ## Available Scripts
 
@@ -66,8 +67,10 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/de
 
 ### `npm run build` fails to minify
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
-=======
+# This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+
 # websiteTemplate
+
 A basic website template using react hooks
->>>>>>> 9a9b2e05c3003f19e72864fe47609f2134f676d0
+
+> > > > > > > 9a9b2e05c3003f19e72864fe47609f2134f676d0
