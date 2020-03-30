@@ -6,28 +6,63 @@ import DailyIframe from '@daily-co/daily-js';
 import { get } from 'https';
 import { createRoomEndpoint } from '../constants';
 import Class from '../Classes/Class';
+import '../Styles/css-grid.css';
+import ClassView from './ClassView';
+import VideoFrame from './VideoFrame';
+import CallFrame from '../Classes/CallFrame';
+import ClassToolbar from '../Components/ClassToolbar';
+import { findGetParameter } from '../Helpers/utils';
+
+var __html = require('./InstructorView2.html.js');
+var template = { __html: __html };
 
 const InstructorView = props => {
 	const [name, setName] = useState();
-	const [startClass, setStartClass] = useState(false);
 	const [myClass, setMyClass] = useState({});
 	const [participants, setParticipants] = useState([]);
 	const { state, dispatch } = useContext(AppStateContext);
+	const [classUrl, setClassUrl] = useState();
+	let room, ownerLink, callFrame;
 
 	useEffect(() => {
-		if (window.location.hash) {
-			setName(window.location.hash.substring(1));
-		} else {
-			setName('Instructor');
-		}
-		return;
+		createClassUrl();
+		setupCallObject();
 	}, []);
+
+	useEffect(() => {
+		console.log('INSTUCTOR VIEW- inClass? useEffect ', state.inClass);
+		if (!state.inClass) {
+			endClassHandler();
+		}
+	}, [state.inClass]);
 
 	const startClassHandler = () => {
 		console.log('Start Class!');
-		setStartClass(true);
-		// TODO send alert about not refreshing/backing out etc.
-		createClass();
+		dispatch({
+			type: 'updateInClass',
+			payload: true
+		});
+	};
+
+	const endClassHandler = () => {
+		// Redundant update to state (class toolbar does it first)
+		dispatch({
+			type: 'updateInClass',
+			payload: false
+		});
+	};
+
+	const setupCallObject = () => {
+		console.log('setup call obj');
+		const callObj = DailyIframe.createCallObject({
+			dailyConfig: {
+				experimentalChromeVideoMuteLightOff: true
+			}
+		});
+		dispatch({
+			type: 'updateCallFrame',
+			payload: callObj
+		});
 	};
 
 	const getClassUrl = () => {
@@ -48,48 +83,96 @@ const InstructorView = props => {
 		});
 	};
 
-	async function createClass() {
+	// const callFrameProperties = {
+	//   url: <required: url of the meeting to join>
+	//   token: <optional: meeting join token>,
+	//   lang: <optional: 'en' | 'fr' | 'user'>,
+	//   showLeaveButton: <optional: show the "leave call" button in the bottom menu bar>
+	//   showFullscreenButton: <optional: show a floating "full screen" button on supported browsers>
+	//   iframeStyle: <optional: used only by `createFrame()`>
+	//   customLayout: <optional: use a custom in-call UI>
+	//   cssFile: <optional: for a custom UI, an external css stylesheet to load>
+	//   cssText: <optional: for a custom UI, an inline css style text to load>
+	//   bodyClass: <optional: for a custom UI, class attributes to apply to the iframe body element>
+	// };
+
+	const showEvent = e => {
+		console.log('Show event ', e);
+	};
+
+	const joinedCall = e => {
+		console.log('joined call');
+		showEvent(e);
+	};
+
+	const leftCall = e => {
+		console.log('left call ');
+		showEvent(e);
+	};
+
+	const updateEvent = e => {
+		console.log('update event');
+		showEvent(e);
+	};
+
+	const newRoomEndpoint =
+			'https://fu6720epic.execute-api.us-west-2.amazonaws.com/default/dailyWwwApiDemoNewCall',
+		tokenEndpoint =
+			'https://dwdd5s2bp7.execute-api.us-west-2.amazonaws.com/default/dailyWWWApiDemoToken';
+
+	async function createMtgRoom() {
 		try {
-			const response = await fetch(createRoomEndpoint);
-			console.log('got response ', response);
-			const data = await response.json();
-			const url = data.url;
-			const callFrame = DailyIframe.createFrame({
-				url: url
+			let response = await fetch(createRoomEndpoint),
+				room = await response.json();
+			return room.url;
+		} catch (e) {
+			console.error(e);
+		}
+	}
+
+	async function createMtgLinkWithToken(room, properties = {}) {
+		try {
+			let response = await fetch(tokenEndpoint, {
+				method: 'POST',
+				body: JSON.stringify({
+					properties: {
+						room_name: room.name,
+						...properties
+					}
+				})
 			});
-			callFrame.join();
-			window.location = '#' + url;
-			const c = new Class(url, name);
-			console.log('Created Instructor class ', c);
-			setMyClass(c);
-			dispatch({
-				type: 'addClass',
-				payload: c
-			});
+			let token = await response.text();
+			console.log('TOKEN text is ', token);
+			return `${room.url}?t=${token}`;
+		} catch (e) {
+			console.error(e);
+		}
+	}
+
+	async function createClassUrl() {
+		try {
+			room = await createMtgRoom();
+			console.log('GOT ROOM as ', room);
+			setClassUrl(room);
 		} catch (e) {
 			console.log('url fetch failed - retrying in 2s: ', e);
-			setTimeout(() => createClass(), 2000);
+			setTimeout(() => createClassUrl(), 2000);
 		}
 	}
 
 	return (
 		<div>
-			<Toolbar text='Toolbar' menuClicked={() => console.log('menu clicked')} />
+			{state.inClass ? (
+				<ClassToolbar />
+			) : (
+				<Toolbar
+					text='Toolbar'
+					menuClicked={() => console.log('menu clicked')}
+				/>
+			)}
 			{/* Make 2 columns */}
-			{startClass ? (
-				<div id='instructor-view-container' className='grid grid-cols-2'>
-					<div id='participant-list-container'>
-						<div>Participants</div>
-						<div id='participant-list'>
-							<ul>
-								<li>Me</li>
-								<li>Myself</li>
-								<li>I</li>
-							</ul>
-						</div>
-					</div>
-					<div id='video-container'>{/* Insert Iframe w/in div */}</div>
-				</div>
+			{state.inClass ? (
+				<VideoFrame url={classUrl} viewerType='instructor' />
 			) : (
 				<div id='start-class-container'>
 					<p>Press start to begin your class</p>
@@ -100,6 +183,7 @@ const InstructorView = props => {
 					/>
 				</div>
 			)}
+			<div id='footer' className='h-50px bg-gray-300' />
 		</div>
 	);
 };

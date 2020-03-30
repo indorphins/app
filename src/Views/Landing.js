@@ -1,24 +1,39 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import Toolbar from '../Components/Toolbar';
 import Button from '../Components/Button';
 import { useHistory } from 'react-router-dom';
+import { AppStateContext } from '../App2';
+import Profile from '../Classes/Profile';
 
 const Landing = props => {
 	const history = useHistory();
 	const [name, setName] = useState('');
 	const [nameSubmitted, setNameSubmitted] = useState(false);
+	const { dispatch } = useContext(AppStateContext);
 
 	const instructorBtnHandler = () => {
+		dispatch({
+			type: 'updateProfile',
+			payload: new Profile(name, 'instructor')
+		});
 		history.push(`/instructor#${name}`);
 	};
 
 	const participantBtnHandler = () => {
+		dispatch({
+			type: 'updateProfile',
+			payload: new Profile(name, 'participant')
+		});
 		history.push(`/classes#${name}`);
 	};
 
 	const nameSubmitBtnHandler = () => {
 		const inputName = document.getElementById('name-input').value;
 		setName(inputName);
+		dispatch({
+			type: 'updateName',
+			payload: inputName
+		});
 		setNameSubmitted(true);
 	};
 

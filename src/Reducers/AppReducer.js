@@ -13,7 +13,7 @@ const AppReducer = (state, action) => {
 			});
 			return { ...state, classes: { ...state.classes, [c.id]: c } };
 		case 'removeClass':
-			const classList = state.classes;
+			let classList = state.classes ? state.classes : {};
 			c = action.payload;
 			if (state.classes[c.id]) {
 				delete classList[c.id];
@@ -26,7 +26,7 @@ const AppReducer = (state, action) => {
 		case 'updateClass':
 			// update current class, do nothing if class doesn't exist
 			// payload = {id: '', class: ''}
-			classList = state.classes;
+			classList = state.classes ? state.classes : {};
 			const id = action.payload.id;
 			if (classList[id] && action.payload.class) {
 				classList[id] = action.payload.class;
@@ -36,6 +36,17 @@ const AppReducer = (state, action) => {
 				classes: classList
 			});
 			return { ...state, classes: classList };
+		case 'updateCallFrame':
+			return { ...state, myCallFrame: action.payload };
+		case 'removeCallFrame':
+			// Handle destroy here?
+			return { ...state, myCallFrame: {} };
+		case 'updateProfile':
+			return { ...state, myProfile: action.payload };
+		case 'removeProfile':
+			return { ...state, myProfile: null };
+		case 'updateInClass':
+			return { ...state, inClass: action.payload };
 		default:
 			return state;
 	}

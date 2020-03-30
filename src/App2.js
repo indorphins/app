@@ -18,7 +18,10 @@ export const AppStateContext = createContext({
 const App = () => {
 	// setup initial state
 	const [state, dispatch] = useReducer(AppReducer, {
-		classes: {}
+		classes: {},
+		myCallFrame: {},
+		myProfile: {},
+		inClass: false
 	});
 
 	return (
