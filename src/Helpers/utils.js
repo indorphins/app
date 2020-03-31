@@ -9,6 +9,11 @@ function findGetParameter(parameterName) {
 	return result;
 }
 
+function getRandomInt(max) {
+	return Math.floor(Math.random() * Math.floor(max));
+}
+
 module.exports = {
-	findGetParameter: findGetParameter
+	findGetParameter: findGetParameter,
+	getRandomInt: getRandomInt
 };

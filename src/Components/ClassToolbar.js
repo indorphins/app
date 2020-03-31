@@ -54,11 +54,12 @@ const Toolbar = props => {
 			<div className='text-xl'>
 				<p>{name}'s Class</p>
 			</div>
-			<div id='leave-class-container'>
+			<div id='leave-class-container' className='flex-auto text-right'>
 				<Button
 					clicked={leaveClassHandler}
 					text='Leave Class'
 					id='leave-class-btn'
+					bgcolor='red'
 				/>
 			</div>
 			<nav className={styles.DesktopOnly}>{/* <NavigationItems /> */}</nav>

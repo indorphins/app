@@ -12,6 +12,7 @@ import VideoFrame from './VideoFrame';
 import CallFrame from '../Classes/CallFrame';
 import ClassToolbar from '../Components/ClassToolbar';
 import { findGetParameter } from '../Helpers/utils';
+import { createRoom, createToken } from '../Controllers/DailycoController';
 
 var __html = require('./InstructorView2.html.js');
 var template = { __html: __html };
@@ -22,7 +23,6 @@ const InstructorView = props => {
 	const [participants, setParticipants] = useState([]);
 	const { state, dispatch } = useContext(AppStateContext);
 	const [classUrl, setClassUrl] = useState();
-	let room, ownerLink, callFrame;
 
 	useEffect(() => {
 		createClassUrl();
@@ -115,45 +115,20 @@ const InstructorView = props => {
 		showEvent(e);
 	};
 
-	const newRoomEndpoint =
-			'https://fu6720epic.execute-api.us-west-2.amazonaws.com/default/dailyWwwApiDemoNewCall',
-		tokenEndpoint =
-			'https://dwdd5s2bp7.execute-api.us-west-2.amazonaws.com/default/dailyWWWApiDemoToken';
-
-	async function createMtgRoom() {
-		try {
-			let response = await fetch(createRoomEndpoint),
-				room = await response.json();
-			return room.url;
-		} catch (e) {
-			console.error(e);
-		}
-	}
-
-	async function createMtgLinkWithToken(room, properties = {}) {
-		try {
-			let response = await fetch(tokenEndpoint, {
-				method: 'POST',
-				body: JSON.stringify({
-					properties: {
-						room_name: room.name,
-						...properties
-					}
-				})
-			});
-			let token = await response.text();
-			console.log('TOKEN text is ', token);
-			return `${room.url}?t=${token}`;
-		} catch (e) {
-			console.error(e);
-		}
-	}
-
 	async function createClassUrl() {
 		try {
-			room = await createMtgRoom();
+			const room = await createRoom({
+				exp: Math.floor(Date.now() / 1000) + 200, // + secs
+				max_participants: 11,
+				eject_at_room_exp: true
+			});
 			console.log('GOT ROOM as ', room);
-			setClassUrl(room);
+			const tokens = await createToken({
+				room_name: room.name,
+				is_owner: true
+			});
+			console.log('got mtg token', tokens);
+			setClassUrl(room.url + `?t=${tokens.token}`);
 		} catch (e) {
 			console.log('url fetch failed - retrying in 2s: ', e);
 			setTimeout(() => createClassUrl(), 2000);

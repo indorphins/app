@@ -52,18 +52,26 @@ const Landing = props => {
 				</div>
 				{nameSubmitted ? (
 					<div id='body-container' className='grid grid-cols-2 '>
-						<div id='landing-participant-container' className='col-span-1'>
+						<div
+							id='landing-participant-container'
+							className='col-span-1 text-right pr-1'
+						>
 							<Button
 								text='Participant'
 								id='participant-btn'
 								clicked={participantBtnHandler}
+								bgcolor='green'
 							/>
 						</div>
-						<div id='landing-instructor-container' className='col-span-1'>
+						<div
+							id='landing-instructor-container'
+							className='col-span-1 text-left pl-1'
+						>
 							<Button
 								text='Instructor'
 								id='instructor-btn'
 								clicked={instructorBtnHandler}
+								bgcolor='blue'
 							/>
 						</div>
 					</div>
