@@ -1,35 +1,22 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AppStateContext } from '../App2';
-import DailyIframe from '@daily-co/daily-js';
 import Toolbar from '../Components/Toolbar';
-import ClassToolbar from '../Components/ClassToolbar';
-import VideoFrame from './VideoFrame';
+import ClassView from './ClassView';
 
 const ParticipantView = props => {
 	const { state, dispatch } = useContext(AppStateContext);
 	const { classes } = state;
 	const [joinedClass, setJoinedClass] = useState(false);
-	const [name, setName] = useState();
-	const [classUrl, setClassUrl] = useState('');
+	const [roomName, setRoomName] = useState('');
 
 	let classListItems = [];
-
-	// Fetch name from url
-	useEffect(() => {
-		let participantName = 'Participant';
-		if (window.location.hash) {
-			participantName = window.location.hash.substring(1);
-		}
-		setupCallObject();
-		setName(participantName);
-		return;
-	}, []);
 
 	// Load classes from API on mount
 	useEffect(() => {
 		// TODO fetch classes + store on client side
 	}, []);
 
+	// set up class tile elements with room names
 	useEffect(() => {
 		classListItems = [];
 		console.log('iterating over classes - ', classes);
@@ -49,93 +36,42 @@ const ParticipantView = props => {
 				</li>
 			);
 		});
-		const inputClass = (
-			<form onSubmit={() => joinClassHandler(classUrl)}>
-				<input
-					type='text'
-					value={classUrl}
-					placeholder='input class url here'
-				></input>
-				<input type='submit'>Join</input>
-			</form>
-		);
-		classListItems.push(inputClass);
 	}, [classes]);
 
 	const inputChangedHandler = event => {
-		setClassUrl(event.target.value);
+		setRoomName(event.target.value);
 	};
 
-	const setupCallObject = () => {
-		console.log('setup call obj');
-		const callObj = DailyIframe.createCallObject({
-			dailyConfig: {
-				experimentalChromeVideoMuteLightOff: true
-			}
-		});
-		dispatch({
-			type: 'updateCallFrame',
-			payload: callObj
-		});
-	};
-
-	const joinClassHandler = id => {
-		// Get Class
-		const c = classes[id] ? classes[id] : null;
-
-		const url = c ? c : id;
-		console.log('joinClass - got url ', url);
-		setClassUrl(url);
-
-		window.location = '#' + url;
-		setJoinedClass(true);
-	};
-
-	const submitFormHandler = event => {
-		console.log('submit: event:', event, '  - url: ', classUrl);
+	const joinClassHandler = event => {
+		console.log('submit room name: ', roomName);
 		event.preventDefault();
-		joinClassHandler(classUrl);
+		dispatch({
+			type: 'updateInClass',
+			payload: true
+		});
 	};
+
+	console.log('Rendered participant view with inClass ', state.inClass);
 
 	return (
-		<div id='participant-view-container'>
-			{state.inClass ? (
-				<ClassToolbar />
-			) : (
-				<Toolbar
-					text='Toolbar'
-					menuClicked={() => console.log('menu clicked')}
-				/>
-			)}
-			{!joinedClass ? (
+		<div id='participant-view-container' className='text-center'>
+			<Toolbar text='Toolbar' menuClicked={() => console.log('menu clicked')} />
+			{!state.inClass ? (
 				<div id='class-list-container'>
 					<div>Classes</div>
-					<form onSubmit={submitFormHandler}>
+					<form onSubmit={joinClassHandler}>
 						<input
 							type='text'
-							value={classUrl}
+							value={roomName}
 							onChange={inputChangedHandler}
-							placeholder='input class url here'
+							placeholder='input class name here'
 						></input>
 						<input type='submit' value='Submit'></input>
 					</form>
 					{/* <ul id='class-list'>{classListItems}</ul> */}
 				</div>
 			) : (
-				<VideoFrame url={classUrl} viewerType='participant' />
-				// <div id='participant-in-class-container'>
-				// 	<div id='participant-list-container'>
-				// 		<div>Participants</div>
-				// 		<div id='participant-list'>
-				// 			<ul>
-				// 				<li>{name}</li>
-				// 				<li>Myself</li>
-				// 				<li>I</li>
-				// 			</ul>
-				// 		</div>
-				// 		You're in the class!
-				// 	</div>
-				// </div>
+				<ClassView roomName={roomName} />
 			)}
 		</div>
 	);

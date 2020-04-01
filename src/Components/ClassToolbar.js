@@ -22,21 +22,17 @@ const Toolbar = props => {
 		// change route back to classes/instructor page
 		const profType = _get(state.myProfile, 'type', 'PARTICIPANT');
 		const name = _get(state.myProfile, 'name', '');
-		console.log('CLASS TOOLBAR - State profile is ', state.myProfile);
 		if (profType === 'INSTRUCTOR') {
-			const n = name ? name : 'Instructor';
-			history.push(`/instructor#${n}`);
+			history.replace(`/instructor#${name}`);
 		} else {
-			const n = name ? name : 'Participant';
-			history.push(`/classes#${n}`);
+			history.replace(`/classes#${name}`);
 		}
 		dispatch({
 			type: 'updateInClass',
 			payload: false
 		});
+		window.location.reload();
 	};
-
-	console.log('State is ', state);
 
 	const name = !_isEmpty(state.myProfile) ? state.myProfile.name : 'Instructor';
 

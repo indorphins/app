@@ -1,7 +1,4 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
-import DailyIframe from '@daily-co/daily-js';
-import Class from '../Classes/Class';
-import '../Styles/css-grid.css';
 import { AppStateContext } from '../App2';
 import _ from 'lodash';
 import { useHistory } from 'react-router-dom';
@@ -11,16 +8,15 @@ const VideoFrame = props => {
 	const { state, dispatch } = useContext(AppStateContext);
 	const history = useHistory();
 
+	// Don't start call until url and token are passed in TODO type check props these 2 are required
 	useEffect(() => {
-		console.log('in use effect');
-
-		if (!props.url) {
+		if (!props.url || !props.token) {
 			console.error('please set REACT_APP_DAILY_ROOM_URL env variable!');
 			return;
 		} else {
 			run();
 		}
-	}, [props.url]);
+	}, [props.url, props.token]);
 
 	// Set up rotating participant views
 	useEffect(() => {
@@ -35,7 +31,26 @@ const VideoFrame = props => {
 	};
 
 	const run = async () => {
-		const cFrame = state.myCallFrame;
+		const cFrame = _.get(state, 'myCallFrame', false);
+
+		if (!cFrame) {
+			return errorHandler({
+				errorMsg: 'No Call Frame Initialized'
+			});
+		}
+		console.log('RUN - props: ', props);
+		const url = props.url
+			? props.url
+			: window.location.hash
+			? window.location.hash.substr(1)
+			: false;
+		const token = props.token ? props.token : '';
+
+		if (!url) {
+			return errorHandler({
+				errorMsg: 'No class url'
+			});
+		}
 
 		cFrame
 			.on('track-started', trackStarted)
@@ -54,37 +69,40 @@ const VideoFrame = props => {
 			.on('network-connection', showEvent);
 
 		await cFrame.load({
-			url: props.url
+			url: url,
+			token: token
 		});
 
 		await cFrame.join({
-			url: props.url
+			url: url,
+			token: token
 		});
 
+		// TODO Update class name to url WHEN CLASSES FLOW IS FINISHED
 		window.location = '#' + props.url;
+		console.log('VideoFrame - callFrame run is ', cFrame);
 		return cFrame;
 	};
 
 	const errorHandler = e => {
-		// Create Alert w/ error message
-		console.log('error is ', e);
-		window.alert(e.errorMsg);
-
 		// Duplicate code in classToolbar
 		const myCallFrame = state.myCallFrame;
-		if (!_.isEmpty(myCallFrame)) {
-			myCallFrame.destroy();
-		}
+
 		// change route back to classes/instructor page
 		const profType = _.get(state.myProfile, 'type', 'PARTICIPANT');
 		const name = _.get(state.myProfile, 'name', '');
 		if (profType === 'INSTRUCTOR') {
-			const n = name ? name : 'Instructor';
-			history.push(`/instructor#${n}`);
+			history.push(`/instructor#${name}`);
 		} else {
-			const n = name ? name : 'Participant';
-			history.push(`/classes#${n}`);
+			history.push(`/classes#${name}`);
 		}
+		window.alert(e.errorMsg);
+		window.location.reload();
+
+		if (!_.isEmpty(myCallFrame)) {
+			myCallFrame.destroy();
+		}
+
 		dispatch({
 			type: 'updateInClass',
 			payload: false
@@ -134,9 +152,10 @@ const VideoFrame = props => {
 		console.log('finished while update vid sources');
 	};
 
+	// Get 4 new ids that from the list of all ids
 	const getNewIds = (allIds, usedIds) => {
 		const newIds = [];
-		console.log('getNewIds w/ all ', allIds, ' and used ', usedIds);
+		console.log('getNewIds from all ', allIds);
 
 		while (newIds.length < 4) {
 			let i = getRandomInt(allIds.length);
@@ -149,8 +168,20 @@ const VideoFrame = props => {
 		return newIds;
 	};
 
+	// Find and return the room owner else return false
 	const getOwner = () => {
 		// todo maybe take in participant list
+		const callFrame = state.myCallFrame;
+		const participants = callFrame.participants();
+		participants.forEach(p => {
+			if (p.owner) {
+				return p;
+			}
+			if (p.session_id === 'local' && state.myProfile.type === 'INSTRUCTOR') {
+				return p;
+			}
+		});
+		return false;
 	};
 
 	const getParticipantVideos = () => {
@@ -167,16 +198,15 @@ const VideoFrame = props => {
 		if (!(e.track && e.track.kind === 'video')) {
 			return;
 		}
+
 		const participants = callFrame.participants();
-		let vidsContainer =
-			!_.isEmpty(participants) && Object.keys(participants).length > 1
-				? document.getElementById('participant-videos')
-				: document.getElementById('instructor-video');
+		let vidsContainer = !e.participant.owner
+			? document.getElementById('participant-videos')
+			: document.getElementById('instructor-video');
 
 		// Only add if space allows
 		// local + 4 others
 		let vid = findVideoForParticipant(e.participant.session_id);
-		console.log('vids container holds ', vidsContainer.childNodes);
 		if (!vid) {
 			// Only create a new video element if less than 5 exist
 			if (vidsContainer.childNodes.length < 4) {

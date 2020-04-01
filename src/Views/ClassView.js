@@ -1,248 +1,104 @@
-import React, { useEffect } from 'react';
-import '../Styles/css-grid.css';
+import React, { useEffect, useContext, useState } from 'react';
 import DailyIframe from '@daily-co/daily-js';
+import ClassToolbar from '../Components/ClassToolbar';
+import VideoFrame from './VideoFrame';
+import {
+	createRoom,
+	createToken,
+	getRoom
+} from '../Controllers/DailycoController';
+import { AppStateContext } from '../App2';
 
 const ClassView = props => {
-	let callFrame, room, ownerLink, showNames;
-	let url, token, isCurrentlyScreenSharing;
+	const [classUrl, setClassUrl] = useState();
+	const [token, setToken] = useState();
+	const { state, dispatch } = useContext(AppStateContext);
 
-	console.log('Class View');
-
-	useEffect(() => {
-		async function loadPage() {
-			if (props.viewerType.toLowerCase() === 'instructor') {
-				await run();
-			} else {
-				// load as participant
-			}
+	useEffect(async () => {
+		try {
+			setupCallObject();
+			const { url, token } = await createRoomAndToken();
+			console.log('SET STATE VARS to t: ', token, ' url: ', url);
+			setClassUrl(url);
+			setToken(token);
+		} catch (e) {
+			console.log('Error in Class View initialization: ', e);
+			window.location.reload();
 		}
-		// Execute the created function directly
-		loadPage();
 	}, []);
 
-	function showEvent(e) {
-		console.log('video call event -->', e);
-	}
+	// Setups up Daily.co call object and stores in state as "myCallFrame"
+	const setupCallObject = () => {
+		console.log('setup call obj');
+		const callObj = DailyIframe.createCallObject({
+			dailyConfig: {
+				experimentalChromeVideoMuteLightOff: true
+			}
+		});
+		dispatch({
+			type: 'updateCallFrame',
+			payload: callObj
+		});
+	};
 
-	async function joinedCall(e) {
-		console.log('joinedCall');
-		showEvent(e);
-		document.getElementById('leave-call-label').innerHTML = 'Leave call';
-		document.getElementById('leave-call-div').onclick = () => callFrame.leave();
-	}
+	// Create the room url and add owner token for instructor
+	async function createRoomAndToken() {
+		console.log('Create Class URL w/ profile ', state.myProfile);
+		console.log('Profile type is ', state.myProfile.type);
 
-	async function leftCall(e) {
-		console.log('leftCall start');
-		showEvent(e);
-		document.getElementById('leave-call-label').innerHTML = 'Join call';
-		document.getElementById('leave-call-div').onclick = () => callFrame.join();
-	}
+		try {
+			let room;
+			if (state.myProfile.type === 'INSTRUCTOR') {
+				room = await createRoom({
+					privacy: 'private',
+					properties: {
+						exp: Math.floor(Date.now() / 1000) + 100, // + secs
+						max_participants: 11,
+						eject_at_room_exp: true
+					}
+				});
+				window.alert(`ROOM NAME: ${room.name}`);
+			} else {
+				// participants have room passed from /classes page as a prop
 
-	async function updateEvent(e) {
-		console.log('run start');
-		showEvent(e);
-		let ps = callFrame.participants();
-		if (Object.keys(ps).length < 2) {
-			document.getElementById('ui-local').style.display = 'none';
-			document.getElementById('ui-alone').style.display = 'block';
-			let wrapper = document.getElementById('ui-participant');
-			wrapper.innerHTML = '';
-		} else {
-			document.getElementById('ui-local').style.display = 'none';
-			document.getElementById('ui-alone').style.display = 'none';
-			let wrapper = document.getElementById('ui-participant');
-			wrapper.innerHTML = '';
-			Object.keys(ps).forEach(p => {
-				if (p === 'local') {
+				const roomName = false; //props.roomName ? props.roomName : false;
+				if (!roomName) {
+					// Room name required, bounce them back to classes
+					dispatch({
+						type: 'updateInClass',
+						payload: false
+					});
 					return;
 				}
-				let participant = ps[p];
-				let name = participant.user_name;
-				wrapper.innerHTML += `
-                <div class="ui-participant-guest">
-                <p>{ ${name} || 'Guest'}</p>
-                  <img src="icon-eject.svg" alt="Kick user out of meeting"
-                        onclick="callFrame.updateParticipant({participant},{eject:true})" />
-                </div>`;
-			});
-		}
-		// update controller ui for joining/leaving the meeting and
-		// for local screenshare start/stop
-		if (ps.local) {
-			if (ps.local.screen && !isCurrentlyScreenSharing) {
-				isCurrentlyScreenSharing = true;
-				document.getElementById('screenshare-label').innerHTML =
-					'Stop sharing your screen';
-			} else if (!ps.local.screen && isCurrentlyScreenSharing) {
-				isCurrentlyScreenSharing = false;
-				document.getElementById('screenshare-label').innerHTML =
-					'Start a screen share';
+				room = await getRoom(roomName);
 			}
-		}
-	}
 
-	const newRoomEndpoint =
-			'https://fu6720epic.execute-api.us-west-2.amazonaws.com/default/dailyWwwApiDemoNewCall',
-		tokenEndpoint =
-			'https://dwdd5s2bp7.execute-api.us-west-2.amazonaws.com/default/dailyWWWApiDemoToken';
-
-	async function createMtgRoom() {
-		try {
-			let response = await fetch(newRoomEndpoint),
-				room = await response.json();
-			return room;
-		} catch (e) {
-			console.error(e);
-		}
-	}
-
-	async function createMtgLinkWithToken(room, properties = {}) {
-		try {
-			let response = await fetch(tokenEndpoint, {
-				method: 'POST',
-				body: JSON.stringify({
-					properties: {
-						room_name: room.name,
-						...properties
-					}
-				})
+			console.log('GOT ROOM as ', room);
+			console.log(
+				'CREATE token as owner? ',
+				state.myProfile.type === 'INSTRUCTOR' ? true : false
+			);
+			const tokens = await createToken({
+				room_name: room.name,
+				is_owner: state.myProfile.type === 'INSTRUCTOR' ? true : false
 			});
-			let token = await response.text();
-			return `${room.url}?t=${token}`;
+			console.log('got mtg token', tokens);
+			console.log('Set URL as ', room.url);
+			return { url: room.url, token: tokens.token };
 		} catch (e) {
-			console.error(e);
-		}
-	}
-
-	async function run() {
-		console.log('RUN start');
-		// create a short-lived demo room and a join token with
-		// is_owner set to true. if you just want to
-		// hard-code a meeting link for testing you could do
-		// something like this:
-		//
-		//   room = { url: 'https://your-domain.daily.co/hello' }
-		//   ownerLink = room.url;
-		//
-		room = await createMtgRoom();
-		ownerLink = await createMtgLinkWithToken(room, {
-			is_owner: true
-		});
-
-		callFrame = window.DailyIframe.wrap(document.getElementById('call-frame'));
-		callFrame
-			.on('joining-meeting', showEvent)
-			.on('joined-meeting', joinedCall)
-			.on('left-meeting', leftCall)
-			.on('participant-joined', updateEvent)
-			.on('participant-updated', updateEvent)
-			.on('participant-left', updateEvent)
-			.on('recording-started', showEvent)
-			.on('recording-stopped', showEvent)
-			.on('recording-stats', showEvent)
-			.on('recording-error', showEvent)
-			.on('recording-upload-completed', showEvent)
-			.on('error', showEvent);
-		await callFrame.join({
-			url: ownerLink,
-			cssFile: 'css-grid.css'
-		});
-
-		console.log(
-			' You are connected to',
-			room.url,
-			'\n',
-			'Join from another tab or machine, or use the',
-			'\n',
-			'callFrame.addFakeParticipant() method to test',
-			'\n',
-			'this layout.'
-		);
-	}
-
-	async function toggleScreenShare() {
-		if (!isCurrentlyScreenSharing) {
-			callFrame.startScreenShare();
-		} else {
-			callFrame.stopScreenShare();
+			console.log('url fetch failed - retrying in 2s: ', e);
+			setTimeout(() => createRoomAndToken(), 2000);
 		}
 	}
 
 	return (
-		<div onLoad={run}>
-			<div
-				onClick={callFrame
-					.join({ url })
-					.then(ps => console.log('joined and have participants', ps))}
-			>
-				[ join mtg ]
-			</div>
-			<div onClick={console.log('PARTICIPANTS', callFrame.participants())}>
-				[ get participants ]
-			</div>
-			{/* <!--
-        <div>&nbsp;</div>
-        <div onclick="callFrame.startRecording()">
-        [ start recording ]
-        </div>
-        <div onclick="callFrame.stopRecording()">
-        [ stop recording ]
-        </div>
-        --> */}
-
-			<div onClick={callFrame.stopScreenShare()}>[ stop screen share ]</div>
-			<div
-				onClick={() => {
-					showNames = !showNames;
-					// callFrame.loadCss({ bodyClass: "." });
-				}}
-			>
-				[ toggle names ]
-			</div>
-
-			<iframe id='call-frame' allow='camera; microphone; autoplay'></iframe>
-
-			<div id='ui-container'>
-				<div id='ui-local'>
-					<p>Loading your video feed…</p>
-				</div>
-				<div id='ui-alone'></div>
-				<div id='ui-controller'>
-					<div
-						onclick='callFrame.setLocalVideo(!callFrame.localVideo())'
-						class='ui-controller-control'
-					>
-						<p>Toggle camera</p>
-						<img
-							src='../shared-assets/icon-camera.svg'
-							alt='Toggle Camera On/Off'
-						/>
-					</div>
-					<div
-						onClick={callFrame.setLocalAudio(!callFrame.localAudio())}
-						class='ui-controller-control'
-					>
-						<p>Toggle microphone</p>
-						<img
-							src='../shared-assets/icon-microphone.svg'
-							alt='Toggle Microphone On/Off'
-						/>
-					</div>
-					<div onClick={toggleScreenShare} class='ui-controller-control'>
-						<p id='screenshare-label'>Start a screen share</p>
-						<img
-							src='../shared-assets/icon-screenshare.svg'
-							alt='Screen share'
-						/>
-					</div>
-					<hr />
-					<div id='leave-call-div' class='ui-controller-control'>
-						<p id='leave-call-label' style='color:#ff3b30'></p>
-						<img src='../shared-assets/icon-leave.svg' alt='Leave call' />
-					</div>
-				</div>
-				<div id='ui-participant'></div>
-			</div>
+		<div>
+			<ClassToolbar />
+			<VideoFrame
+				url={classUrl}
+				token={token}
+				viewerType={state.myProfile.type}
+			/>
 		</div>
 	);
 };
