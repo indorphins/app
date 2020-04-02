@@ -4,7 +4,6 @@ import Landing from './Views/Landing';
 import InstructorView from './Views/InstructorView';
 import ParticipantView from './Views/ParticipantView';
 import AppReducer from './Reducers/AppReducer';
-import ClassView from './Views/ClassView';
 
 export const AppStateContext = createContext({
 	state: {},
@@ -25,9 +24,6 @@ const App = () => {
 			<Router>
 				<Switch>
 					<Route path='/instructor' component={InstructorView} />
-					{/* <Route path='/class'>
-						<ClassView />
-					</Route> */}
 					<Route path='/classes' component={ParticipantView} />
 					<Route path='/' component={Landing} />
 				</Switch>

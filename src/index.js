@@ -4,6 +4,8 @@ import './Styles/main.css';
 import App from './App2';
 import * as serviceWorker from './serviceWorker';
 
+console.log('INDEX - url is ', process.env.REACT_APP_AWS_SERVER_DOMAIN);
+
 ReactDOM.render(<App />, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change

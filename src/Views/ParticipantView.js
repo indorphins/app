@@ -55,20 +55,25 @@ const ParticipantView = props => {
 
 	return (
 		<div id='participant-view-container' className='text-center'>
-			<Toolbar text='Toolbar' menuClicked={() => console.log('menu clicked')} />
 			{!state.inClass ? (
-				<div id='class-list-container'>
-					<div>Classes</div>
-					<form onSubmit={joinClassHandler}>
-						<input
-							type='text'
-							value={roomName}
-							onChange={inputChangedHandler}
-							placeholder='input class name here'
-						></input>
-						<input type='submit' value='Submit'></input>
-					</form>
-					{/* <ul id='class-list'>{classListItems}</ul> */}
+				<div>
+					<Toolbar
+						text='Toolbar'
+						menuClicked={() => console.log('menu clicked')}
+					/>
+					<div id='class-list-container'>
+						<div>Classes</div>
+						<form onSubmit={joinClassHandler}>
+							<input
+								type='text'
+								value={roomName}
+								onChange={inputChangedHandler}
+								placeholder='input class name here'
+							></input>
+							<input type='submit' value='Submit'></input>
+						</form>
+						{/* <ul id='class-list'>{classListItems}</ul> */}
+					</div>
 				</div>
 			) : (
 				<ClassView roomName={roomName} />

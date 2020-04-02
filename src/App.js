@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Button from './Components/Button';
 import Toolbar from './Components/Toolbar';
-
 import DailyIframe from '@daily-co/daily-js';
 import { get } from 'https';
 

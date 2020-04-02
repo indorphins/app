@@ -1,82 +1,90 @@
-//TODO move this to server side
-var request = require('request');
+const fetch = require('node-fetch');
 const dailyCoUrl = 'https://api.daily.co';
+const DAILY_CO_SERVER_DOMAIN = 'http://localhost:3001/dailco';
+// process.env.REACT_APP_AWS_SERVER_DOMAIN + '/dailyco';
 
 // create room properties are { name: '', privacy: '', properties: {} }
 async function createRoom(properties) {
-	try {
-		var url = dailyCoUrl + '/v1/rooms';
-		var body = properties;
-
-		var options = {
-			method: 'POST',
-			headers: {
-				'content-type': 'application/json',
-				authorization: `Bearer C9dc8ed6d58c6e656319cd7bb105f36057c598d3d8d613adc14344c6b7a4cb7c`
-			},
-			body: JSON.stringify(body)
-		};
-
-		const response = await fetch(url, options);
-		const json = await response.json();
-		return json;
-	} catch (e) {
-		console.log('createRoom error: ', e);
-		throw new Error(e);
-	}
+	const options = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(properties)
+	};
+	const url = DAILY_CO_SERVER_DOMAIN + '/room';
+	return fetch(url, options)
+		.then(response => {
+			return response.json();
+		})
+		.then(result => {
+			return result;
+		})
+		.catch(e => {
+			console.log('ERROR is ', e);
+		});
 }
 
 // get room by name
 async function getRoom(name) {
-	try {
-		var url = dailyCoUrl + '/v1/rooms/' + name;
-
-		var options = {
-			method: 'GET',
-			headers: {
-				'content-type': 'application/json',
-				authorization: `Bearer C9dc8ed6d58c6e656319cd7bb105f36057c598d3d8d613adc14344c6b7a4cb7c`
-			}
-		};
-
-		const response = await fetch(url, options);
-		const json = await response.json();
-		console.log('GET ROOM returned - ', json);
-		return json;
-	} catch (e) {
-		console.log('getRoom error: ', e);
-		throw new Error(e);
-	}
+	const options = {
+		method: 'GET'
+	};
+	const url = DAILY_CO_SERVER_DOMAIN + '/room?name=' + name;
+	return fetch(url, options)
+		.then(response => {
+			return response.json();
+		})
+		.then(result => {
+			return result;
+		})
+		.catch(e => {
+			console.log('ERROR is ', e);
+		});
 }
 
-async function deleteRoom(properties) {}
+async function deleteRoom(name) {
+	const options = {
+		method: 'DELETE'
+	};
+	const url = DAILY_CO_SERVER_DOMAIN + '/room?name=' + name;
+	return fetch(url, options)
+		.then(response => {
+			return response.json();
+		})
+		.then(result => {
+			return result;
+		})
+		.catch(e => {
+			console.log('ERROR is ', e);
+		});
+}
 
 // create a token with input properties
 async function createToken(properties) {
-	try {
-		var url = dailyCoUrl + '/v1/meeting-tokens';
-		var body = { properties: properties };
-
-		var options = {
-			method: 'POST',
-			headers: {
-				'content-type': 'application/json',
-				authorization: `Bearer C9dc8ed6d58c6e656319cd7bb105f36057c598d3d8d613adc14344c6b7a4cb7c`
-			},
-			body: JSON.stringify(body)
-		};
-
-		const response = await fetch(url, options);
-		const json = await response.json();
-		return json;
-	} catch (e) {
-		console.log('createToken error: ', e);
-		throw new Error(e);
-	}
+	const options = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		body: JSON.stringify(properties)
+	};
+	const url = DAILY_CO_SERVER_DOMAIN + '/token';
+	return fetch(url, options)
+		.then(response => {
+			return response.json();
+		})
+		.then(result => {
+			return result;
+		})
+		.catch(e => {
+			console.log('ERROR is ', e);
+		});
 }
 
 module.exports = {
 	createRoom: createRoom,
 	createToken: createToken,
-	getRoom: getRoom
+	getRoom: getRoom,
+	deleteRoom: deleteRoom
 };

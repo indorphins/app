@@ -8,12 +8,18 @@ import Profile from '../Classes/Profile';
 import _isEmpty from 'lodash/isEmpty';
 import ClassView from './ClassView';
 
+import {
+	createRoom,
+	createToken,
+	deleteRoom,
+	getRoom
+} from '../Controllers/DailycoController';
+
 const InstructorView = props => {
 	const { state, dispatch } = useContext(AppStateContext);
 	const history = useHistory();
 
 	useEffect(() => {
-		console.log('I View - useEffect stateInclass changed: ', state);
 		if (!state.inClass) {
 			endClassHandler();
 		}
@@ -31,9 +37,8 @@ const InstructorView = props => {
 	}, []);
 
 	// Updates state.inClass to true and change url to load ClassView
-	const startClassHandler = () => {
+	const startClassHandler = async () => {
 		console.log('Start Class!');
-		// history.push('/class');
 		dispatch({
 			type: 'updateInClass',
 			payload: true
@@ -48,7 +53,6 @@ const InstructorView = props => {
 		});
 	};
 
-	console.log('I VIEW return');
 	return (
 		<div>
 			{!state.inClass ? (
