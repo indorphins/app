@@ -1,8 +1,6 @@
 import React, { useContext } from 'react';
 import styles from '../Styles/Toolbar.module.css';
-// import NavigationItems from '../NavigationItems/NavigationItems';
 import Menu from './Menu';
-import Logo from './Logo';
 import Button from './Button';
 import { AppStateContext } from '../App';
 import _isEmpty from 'lodash/isEmpty';

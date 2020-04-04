@@ -38,7 +38,6 @@ const InstructorView = props => {
 
 	// Updates state.inClass to true and change url to load ClassView
 	const startClassHandler = async () => {
-		console.log('Start Class!');
 		dispatch({
 			type: 'updateInClass',
 			payload: true

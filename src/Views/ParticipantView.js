@@ -20,11 +20,9 @@ const ParticipantView = props => {
 	// set up class tile elements with room names
 	useEffect(() => {
 		classListItems = [];
-		console.log('iterating over classes - ', classes);
 		const keys = Object.keys(classes);
 		keys.forEach(id => {
 			const c = classes[id];
-			console.log('class is ', c);
 			// Todo create Class components
 			classListItems.push(
 				<li
@@ -44,7 +42,6 @@ const ParticipantView = props => {
 	};
 
 	const joinClassHandler = event => {
-		console.log('submit room name: ', roomName);
 		event.preventDefault();
 		dispatch({
 			type: 'updateInClass',

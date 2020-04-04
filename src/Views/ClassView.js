@@ -18,7 +18,6 @@ const ClassView = props => {
 		setupCallObject();
 		return createRoomAndToken()
 			.then(({ url, token }) => {
-				console.log('SET STATE VARS to t: ', token, ' url: ', url);
 				if (!url || !token) {
 					throw Error('missing token or url');
 				}
@@ -33,7 +32,6 @@ const ClassView = props => {
 
 	// Setups up Daily.co call object and stores in state as "myCallFrame"
 	const setupCallObject = () => {
-		console.log('setup call obj');
 		const callObj = DailyIframe.createCallObject({
 			dailyConfig: {
 				experimentalChromeVideoMuteLightOff: true
@@ -79,7 +77,6 @@ const ClassView = props => {
 				return;
 			}
 			return getRoom(roomName).then(room => {
-				console.log('got room as participant', room);
 				return createToken({
 					properties: {
 						room_name: room.name,

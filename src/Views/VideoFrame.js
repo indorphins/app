@@ -11,7 +11,6 @@ const VideoFrame = props => {
 	// Don't start call until url and token are passed in TODO type check props these 2 are required
 	useEffect(() => {
 		if (!props.url || !props.token) {
-			console.error('please set REACT_APP_DAILY_ROOM_URL env variable!');
 			return;
 		} else {
 			run();
@@ -114,7 +113,6 @@ const VideoFrame = props => {
 		const participants = state.myCallFrame.participants();
 
 		const mediaList = getParticipantMedia();
-		console.log('Got media list as ', mediaList);
 
 		const participantIds = Object.keys(participants);
 
