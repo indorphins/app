@@ -45,7 +45,9 @@ const ClassView = props => {
 
 	// Create the room url and add owner token for instructor
 	async function createRoomAndToken() {
+		console.log('Class View - create room and token start w/ state: ', state);
 		if (state.myProfile.type === 'INSTRUCTOR') {
+			console.log('instructor flow - create room');
 			return createRoom({
 				privacy: 'private',
 				properties: {
@@ -76,6 +78,7 @@ const ClassView = props => {
 				});
 				return;
 			}
+			console.log('Participant flow - get room ');
 			return getRoom(roomName).then(room => {
 				return createToken({
 					properties: {
