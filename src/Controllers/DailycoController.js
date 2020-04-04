@@ -1,5 +1,5 @@
-const DAILY_CO_SERVER_DOMAIN = 'https://localhost:3001/dailco';
-//process.env.REACT_APP_AWS_SERVER_DOMAIN + '/dailyco';
+const DAILY_CO_SERVER_DOMAIN =
+	process.env.REACT_APP_AWS_SERVER_DOMAIN + '/dailyco'; //'http://localhost:3001/dailco';
 
 // create room properties are { name: '', privacy: '', properties: {} }
 export async function createRoom(properties) {
