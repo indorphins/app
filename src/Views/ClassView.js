@@ -49,8 +49,8 @@ const ClassView = props => {
 			return createRoom({
 				privacy: 'private',
 				properties: {
-					exp: Math.floor(Date.now() / 1000) + 100, // + secs
-					max_participants: 11,
+					exp: Math.floor(Date.now() / 1000) + 4200, // 70 mins
+					max_participants: 11, // 10 participants + 1 instructor
 					eject_at_room_exp: true
 				}
 			}).then(room => {
