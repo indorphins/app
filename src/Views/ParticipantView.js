@@ -7,7 +7,6 @@ import Button from '../Components/Button';
 const ParticipantView = props => {
 	const { state, dispatch } = useContext(AppStateContext);
 	const { classes } = state;
-	const [joinedClass, setJoinedClass] = useState(false);
 	const [roomName, setRoomName] = useState('');
 
 	let classListItems = [];
