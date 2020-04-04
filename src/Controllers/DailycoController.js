@@ -11,6 +11,9 @@ export async function createRoom(properties) {
 		body: JSON.stringify(properties)
 	};
 	const url = DAILY_CO_SERVER_DOMAIN + '/room';
+	console.log('*****');
+	console.log('URL - ', url);
+	console.log('options are ', options);
 	return fetch(url, options)
 		.then(response => {
 			return response.json();
