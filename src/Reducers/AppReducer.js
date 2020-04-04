@@ -4,7 +4,7 @@
 const AppReducer = (state, action) => {
 	switch (action.type) {
 		case 'addClass':
-			const c = action.payload; // the class
+			let c = action.payload; // the class
 			return { ...state, classes: { ...state.classes, [c.id]: c } };
 		case 'removeClass':
 			let classList = state.classes ? state.classes : {};
