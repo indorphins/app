@@ -1,5 +1,3 @@
-import React from 'react';
-
 // Reducer to manage App level state
 // state object holds: classes, ...
 // classes is hash map ex. {id: Class, id: Class, ...}
@@ -25,7 +23,6 @@ const AppReducer = (state, action) => {
 			return { ...state, classes: classList };
 		case 'updateClass':
 			// update current class, do nothing if class doesn't exist
-			// payload = {id: '', class: ''}
 			classList = state.classes ? state.classes : {};
 			const id = action.payload.id;
 			if (classList[id] && action.payload.class) {
@@ -42,6 +39,7 @@ const AppReducer = (state, action) => {
 			// Handle destroy here?
 			return { ...state, myCallFrame: {} };
 		case 'updateProfile':
+			// update profile in state and local storage
 			return { ...state, myProfile: action.payload };
 		case 'removeProfile':
 			return { ...state, myProfile: null };

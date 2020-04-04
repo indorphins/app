@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './Styles/main.css';
-import App from './App2';
+import App from './App';
 import * as serviceWorker from './serviceWorker';
 
 console.log('INDEX - url is ', process.env.REACT_APP_AWS_SERVER_DOMAIN);

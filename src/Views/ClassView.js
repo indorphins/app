@@ -6,8 +6,8 @@ import {
 	createRoom,
 	createToken,
 	getRoom
-} from '../Controllers/DailycoController';
-import { AppStateContext } from '../App2';
+} from '../Controllers/DailycoController.js';
+import { AppStateContext } from '../App';
 
 const ClassView = props => {
 	const [classUrl, setClassUrl] = useState();
@@ -47,10 +47,6 @@ const ClassView = props => {
 
 	// Create the room url and add owner token for instructor
 	async function createRoomAndToken() {
-		console.log('*Create Class URL w/ profile ', state.myProfile);
-		console.log('**Profile type is ', state.myProfile.type);
-
-		let room;
 		if (state.myProfile.type === 'INSTRUCTOR') {
 			return createRoom({
 				privacy: 'private',
@@ -60,16 +56,14 @@ const ClassView = props => {
 					eject_at_room_exp: true
 				}
 			}).then(room => {
-				window.alert(`ROOM NAME: ${room.name}`);
-				console.log('ROOM is ', room);
+				window.alert(`ROOM CODE: ${room.name}`);
 				return createToken({
 					properties: {
 						room_name: room.name,
-						is_owner: state.myProfile.type === 'INSTRUCTOR' ? true : false
+						start_audio_off: false,
+						is_owner: true
 					}
 				}).then(tokens => {
-					console.log('got mtg token', tokens);
-					console.log('Set URL as ', room.url);
 					return { url: room.url, token: tokens.token };
 				});
 			});
@@ -89,11 +83,10 @@ const ClassView = props => {
 				return createToken({
 					properties: {
 						room_name: room.name,
-						is_owner: state.myProfile.type === 'INSTRUCTOR' ? true : false
+						is_owner: false,
+						start_audio_off: true
 					}
 				}).then(tokens => {
-					console.log('got mtg token', tokens);
-					console.log('Set URL as ', room.url);
 					return { url: room.url, token: tokens.token };
 				});
 			});

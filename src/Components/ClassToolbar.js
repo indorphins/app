@@ -4,7 +4,7 @@ import styles from '../Styles/Toolbar.module.css';
 import Menu from './Menu';
 import Logo from './Logo';
 import Button from './Button';
-import { AppStateContext } from '../App2';
+import { AppStateContext } from '../App';
 import _isEmpty from 'lodash/isEmpty';
 import _get from 'lodash/get';
 import { useHistory } from 'react-router-dom';
@@ -34,6 +34,22 @@ const Toolbar = props => {
 		window.location.reload();
 	};
 
+	const toggleVideoHandler = () => {
+		console.log('toggle video handler');
+		if (_isEmpty(state.myCallFrame)) {
+			return; // Throw error?
+		}
+		state.myCallFrame.setLocalVideo(!state.myCallFrame.localVideo());
+	};
+
+	const toggleMicrophoneHandler = () => {
+		console.log('toggle microphone handler');
+		if (_isEmpty(state.myCallFrame)) {
+			return; // Throw error?
+		}
+		state.myCallFrame.setLocalAudio(!state.myCallFrame.localAudio());
+	};
+
 	const name = !_isEmpty(state.myProfile) ? state.myProfile.name : 'Instructor';
 
 	return (
@@ -49,6 +65,22 @@ const Toolbar = props => {
 			/>
 			<div className='text-xl'>
 				<p>{name}'s Class</p>
+			</div>
+			<div id='toggle-mic-container' className='flex-auto text-right'>
+				<Button
+					clicked={toggleMicrophoneHandler}
+					text='Toggle Microphone'
+					id='toggle-mic-btn'
+					bgcolor='green'
+				/>
+			</div>
+			<div id='toggle-video-container' className='flex-auto text-right'>
+				<Button
+					clicked={toggleVideoHandler}
+					text='Toggle Video'
+					id='toggle-video-btn'
+					bgcolor='teal'
+				/>
 			</div>
 			<div id='leave-class-container' className='flex-auto text-right'>
 				<Button

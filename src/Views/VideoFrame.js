@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
-import { AppStateContext } from '../App2';
+import { AppStateContext } from '../App';
 import _ from 'lodash';
 import { useHistory } from 'react-router-dom';
 import { getRandomInt } from '../Helpers/utils';
@@ -38,7 +38,6 @@ const VideoFrame = props => {
 				errorMsg: 'No Call Frame Initialized'
 			});
 		}
-		console.log('RUN - props: ', props);
 		const url = props.url
 			? props.url
 			: window.location.hash
@@ -80,7 +79,6 @@ const VideoFrame = props => {
 
 		// TODO Update class name to url WHEN CLASSES FLOW IS FINISHED
 		window.location = '#' + props.url;
-		console.log('VideoFrame - callFrame run is ', cFrame);
 		return cFrame;
 	};
 
@@ -112,50 +110,49 @@ const VideoFrame = props => {
 	const updateParticipantVideos = () => {
 		// TODO add check for owner (don't add owner to participant vids)
 
-		console.log('updateParVids start');
 		// if 4 or less participants, don't update
 		const participants = state.myCallFrame.participants();
 
+		const mediaList = getParticipantMedia();
+		console.log('Got media list as ', mediaList);
+
 		const participantIds = Object.keys(participants);
-		console.log('parIds ', participantIds);
 
 		if (participantIds.length <= 5) {
-			console.log(' 5 or less participants');
 			return;
 		}
 		// get current participant id's
 
-		const vidList = getParticipantVideos();
 		const currParticipants = [];
+		const vidList = [];
+		const audioList = [];
 
-		vidList.forEach(vid => {
-			currParticipants.push(vid.session_id);
+		mediaList.forEach(media => {
+			if (media.nodeName === 'AUDIO') {
+				audioList.push(media);
+			} else if (media.type === 'VIDEO') {
+				vidList.push(media);
+				currParticipants.push(media.session_id);
+			}
 		});
-
-		console.log();
 
 		// create new vid sources for other participants
 		const newIds = getNewIds(participantIds, currParticipants);
-		console.log('got new ids ', newIds);
 		let i = 0;
-		console.log(
-			'vidlist length ',
-			vidList.length,
-			' - newIds len ',
-			newIds.length
-		);
-		while (i < vidList.length && i < newIds.length) {
-			let newSource = new MediaStream([participants[newIds[i]].videoTrack]);
-			vidList[i].srcObject = newSource;
+		while (i < vidList.length && i < newIds.length && i < audioList.length) {
+			vidList[i].srcObject = new MediaStream([
+				participants[newIds[i]].videoTrack
+			]);
+			audioList[i].srcObject = new MediaStream(
+				[participants[newIds[i]]].audioTrack
+			);
 			i++;
 		}
-		console.log('finished while update vid sources');
 	};
 
 	// Get 4 new ids that from the list of all ids
 	const getNewIds = (allIds, usedIds) => {
 		const newIds = [];
-		console.log('getNewIds from all ', allIds);
 
 		while (newIds.length < 4) {
 			let i = getRandomInt(allIds.length);
@@ -164,7 +161,6 @@ const VideoFrame = props => {
 				newIds.push(allIds[i]);
 			}
 		}
-		console.log('returning new ids ', newIds);
 		return newIds;
 	};
 
@@ -184,43 +180,57 @@ const VideoFrame = props => {
 		return false;
 	};
 
-	const getParticipantVideos = () => {
+	const getParticipantMedia = () => {
 		const container = document.getElementById('participant-videos');
-		console.log('Container - ', container);
-		const children = container.childNodes;
-		console.log('CHildren - ', children);
-		return children;
+		return container.childNodes;
 	};
 
 	const trackStarted = e => {
 		const callFrame = state.myCallFrame;
 		showEvent(e);
-		if (!(e.track && e.track.kind === 'video')) {
+		if (!(e.track && (e.track.kind === 'video' || e.track.kind == 'audio'))) {
 			return;
 		}
 
-		const participants = callFrame.participants();
-		let vidsContainer = !e.participant.owner
+		// Only add if space allows
+		// local + 4 others
+		const container = !e.participant.owner
 			? document.getElementById('participant-videos')
 			: document.getElementById('instructor-video');
 
-		// Only add if space allows
-		// local + 4 others
-		let vid = findVideoForParticipant(e.participant.session_id);
-		if (!vid) {
-			// Only create a new video element if less than 5 exist
-			if (vidsContainer.childNodes.length < 4) {
-				vid = document.createElement('video');
-				vid.session_id = e.participant.session_id;
-				vid.style.width = '100%';
-				vid.autoplay = true;
-				vid.muted = true;
-				vid.playsInline = true;
-				vidsContainer.appendChild(vid);
+		if (e.track && e.track.kind === 'audio') {
+			let audio = findAudioForParticipant(e.participant.session_id);
+			if (container.childNodes.length < 4) {
+				if (!audio) {
+					if (container.childNodes.length < 4) {
+						audio = document.createElement('audio');
+						audio.session_id = e.participant.session_id;
+						audio.autoplay = true;
+						container.appendChild(audio);
+						audio.srcObject = new MediaStream([e.track]);
+					}
+				} else {
+					audio.srcObject = new MediaStream([e.track]);
+				}
+			}
+		}
+
+		if (e.track && e.track.kind === 'video') {
+			let vid = findVideoForParticipant(e.participant.session_id);
+			if (!vid) {
+				// Only create a new video element if less than 5 exist
+				if (container.childNodes.length < 4) {
+					vid = document.createElement('video');
+					vid.session_id = e.participant.session_id;
+					vid.style.width = '100%';
+					vid.autoplay = true;
+					vid.playsInline = true;
+					container.appendChild(vid);
+					vid.srcObject = new MediaStream([e.track]);
+				}
+			} else {
 				vid.srcObject = new MediaStream([e.track]);
 			}
-		} else {
-			vid.srcObject = new MediaStream([e.track]);
 		}
 	};
 
@@ -229,6 +239,29 @@ const VideoFrame = props => {
 		let vid = findVideoForTrack(e.track && e.track.id);
 		if (vid) {
 			vid.remove();
+		}
+		let audio = findAudioForTrack(e.track && e.track.id);
+		if (audio) {
+			audio.remove();
+		}
+	};
+
+	const findAudioForParticipant = session_id => {
+		for (const audio of document.getElementsByTagName('audio')) {
+			if (audio.session_id === session_id) {
+				return audio;
+			}
+		}
+	};
+
+	const findAudioForTrack = trackId => {
+		for (const audio of document.getElementsByTagName('audio')) {
+			if (
+				audio.srcObject &&
+				audio.srcObject.getTracks().find(t => t.id === trackId)
+			) {
+				return audio;
+			}
 		}
 	};
 
@@ -260,8 +293,14 @@ const VideoFrame = props => {
 		<div>
 			<div id='videos' />
 			<div id='call-container' className='block text-center'>
-				<div id='instructor-video' className='inline-block max-w-3xl pt-6' />
-				<div id='participants-container' className='inline-block max-w-3xl'>
+				<div
+					id='instructor-video'
+					className='inline-block max-w-6xl pt-6 px-1 w-11/12'
+				/>
+				<div
+					id='participants-container'
+					className='inline-block max-w-6xl border-t border-blue-800 w-11/12 pt-3 mx-6'
+				>
 					<div id='participant-videos' className='grid grid-cols-4 col-gap-2' />
 				</div>
 			</div>

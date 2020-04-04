@@ -1,7 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { AppStateContext } from '../App2';
+import { AppStateContext } from '../App';
 import Toolbar from '../Components/Toolbar';
 import ClassView from './ClassView';
+import Button from '../Components/Button';
 
 const ParticipantView = props => {
 	const { state, dispatch } = useContext(AppStateContext);
@@ -51,8 +52,6 @@ const ParticipantView = props => {
 		});
 	};
 
-	console.log('Rendered participant view with inClass ', state.inClass);
-
 	return (
 		<div id='participant-view-container' className='text-center'>
 			{!state.inClass ? (
@@ -62,16 +61,21 @@ const ParticipantView = props => {
 						menuClicked={() => console.log('menu clicked')}
 					/>
 					<div id='class-list-container'>
-						<div>Classes</div>
-						<form onSubmit={joinClassHandler}>
-							<input
-								type='text'
-								value={roomName}
-								onChange={inputChangedHandler}
-								placeholder='input class name here'
-							></input>
-							<input type='submit' value='Submit'></input>
-						</form>
+						<p>Enter your room code below</p>
+						<br />
+
+						<input
+							type='text'
+							value={roomName}
+							className='border border-gray-400 pl-1 mr-1 h-10'
+							onChange={inputChangedHandler}
+							placeholder='Room Code...'
+						></input>
+						<Button
+							id='join-class-btn'
+							clicked={joinClassHandler}
+							text='Join'
+						/>
 						{/* <ul id='class-list'>{classListItems}</ul> */}
 					</div>
 				</div>

@@ -1,10 +1,8 @@
-const fetch = require('node-fetch');
-const dailyCoUrl = 'https://api.daily.co';
 const DAILY_CO_SERVER_DOMAIN =
 	process.env.REACT_APP_AWS_SERVER_DOMAIN + '/dailyco'; //'http://localhost:3001/dailco';
 
 // create room properties are { name: '', privacy: '', properties: {} }
-async function createRoom(properties) {
+export async function createRoom(properties) {
 	const options = {
 		method: 'POST',
 		headers: {
@@ -26,7 +24,7 @@ async function createRoom(properties) {
 }
 
 // get room by name
-async function getRoom(name) {
+export async function getRoom(name) {
 	const options = {
 		method: 'GET'
 	};
@@ -43,7 +41,7 @@ async function getRoom(name) {
 		});
 }
 
-async function deleteRoom(name) {
+export async function deleteRoom(name) {
 	const options = {
 		method: 'DELETE'
 	};
@@ -61,7 +59,7 @@ async function deleteRoom(name) {
 }
 
 // create a token with input properties
-async function createToken(properties) {
+export async function createToken(properties) {
 	const options = {
 		method: 'POST',
 		headers: {
@@ -81,10 +79,3 @@ async function createToken(properties) {
 			console.log('ERROR is ', e);
 		});
 }
-
-module.exports = {
-	createRoom: createRoom,
-	createToken: createToken,
-	getRoom: getRoom,
-	deleteRoom: deleteRoom
-};

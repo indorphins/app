@@ -1,113 +1,60 @@
-import React, { useEffect, useState } from 'react';
-import Button from './Components/Button';
-import Toolbar from './Components/Toolbar';
-import DailyIframe from '@daily-co/daily-js';
-import { get } from 'https';
+import React, { createContext, useEffect, useReducer } from 'react';
+import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
+import Landing from './Views/Landing';
+import InstructorView from './Views/InstructorView';
+import ParticipantView from './Views/ParticipantView';
+import AppReducer from './Reducers/AppReducer';
 
-const createRoomEndpoint =
-	'https://create-daily-chat-room.alexlindsay1.repl.co';
-
-export const ClassesContext = createContext({
-	classes: []
+export const AppStateContext = createContext({
+	state: {},
+	setState: () => {}
 });
 
 const App = () => {
-	const [classes, setClasses] = useState([]); // class obj {url: 'url', instructor: 'name'}
-	const [myCallUrl, setMyCallUrl] = useState('');
-	let callFrame;
+	// setup initial state
+	const [state, dispatch] = useReducer(AppReducer, {
+		classes: {},
+		myCallFrame: {},
+		myProfile: {},
+		inClass: false
+	});
 
-	useEffect(() => {
-		console.log('MOUNT');
-		if (window.location.hash) {
-			setMyCallUrl(window.location.hash.substring(1));
-			startCall(window.location.hash.substring(1));
-		}
-	}, []);
-
-	const startClassButtonHandler = () => {
-		startCall();
-	};
-
-	const startCall = startUrl => {
-		console.log(
-			'start Call w/ my url ',
-			startUrl,
-			' which is a ',
-			typeof startUrl
-		);
-
-		if (!startUrl) {
-			get(createRoomEndpoint, response => {
-				console.log('fetched response', response);
-
-				response.on('data', data => {
-					const roomData = JSON.parse(data);
-					const url = roomData.url;
-					setMyCallUrl(url);
-					setClasses([...classes, { url: url }]);
-					console.log('Call url is ', url);
-
-					if (!callFrame) {
-						callFrame = DailyIframe.createFrame({
-							url: url
-						});
-					}
-					console.log('connecting to ', url);
-					callFrame.join();
-					window.location = '#' + url;
-					const button = document.getElementById('start-class-btn');
-					button.innerHTML = 'end call';
-					button.onclick = () => {
-						callFrame.leave();
-						button.innerHTML = 'start call';
-						button.onclick = startCall;
-						// window.location.origin is this page's url
-						// without the hash fragment
-						window.location = window.location.origin;
-					};
-				});
-			}).on('error', error => {
-				console.log('error getting chat room url - ', error);
-				console.log('fetch failed (retrying in 2s)');
-				setTimeout(() => startCall(), 2000);
-			});
-		} else {
-			if (!callFrame) {
-				callFrame = DailyIframe.createFrame({
-					url: startUrl
-				});
-				console.log('connecting to ', startUrl);
-				callFrame.join();
-				window.location = '#' + startUrl;
-				const button = document.getElementById('start-class-btn');
-				button.innerHTML = 'end call';
-				button.onclick = () => {
-					callFrame.leave();
-					button.innerHTML = 'start call';
-					button.onclick = startCall;
-					// window.location.origin is this page's url
-					// without the hash fragment
-					window.location = window.location.origin;
-				};
-			}
-		}
-	};
-
-	const joinCall = url => {};
+	// TODO store and load local storage correctly
+	// useEffect(() => {
+	// 	console.log('App Use Effect for local storage');
+	// 	if (window.localStorage.getItem('myProfile')) {
+	// 		console.log(
+	// 			'I have local storage myProfile! ',
+	// 			window.localStorage.getItem('myProfile')
+	// 		);
+	// 		dispatch({
+	// 			type: 'updateProfile',
+	// 			payload: window.localStorage.getItem('myProfile')
+	// 		});
+	// 	}
+	// 	if (window.localStorage.getItem('inClass')) {
+	// 		console.log(
+	// 			'I have local storage inClass! ',
+	// 			window.localStorage.getItem('inClass')
+	// 		);
+	// 		dispatch({
+	// 			type: 'updateInClass',
+	// 			payload: window.localStorage.getItem('inClass')
+	// 		});
+	// 	}
+	// 	console.log('profile is ', JSON.stringify(state.myProfile));
+	// }, []);
 
 	return (
-		<div>
-			<Toolbar text='Toolbar' menuClicked={() => console.log('menu clicked')} />
-			<div>
-				<p>Welcome to my page</p>
-				<Button
-					text='Start Class'
-					id='start-class-btn'
-					clicked={startClassButtonHandler}
-				/>
-				<Button text='Join Class' clicked={joinCall} />
-			</div>
-		</div>
+		<AppStateContext.Provider value={{ state, dispatch }}>
+			<Router>
+				<Switch>
+					<Route path='/instructor' component={InstructorView} />
+					<Route path='/classes' component={ParticipantView} />
+					<Route path='/' component={Landing} />
+				</Switch>
+			</Router>
+		</AppStateContext.Provider>
 	);
 };
 

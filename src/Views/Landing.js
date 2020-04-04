@@ -2,7 +2,7 @@ import React, { useState, useContext } from 'react';
 import Toolbar from '../Components/Toolbar';
 import Button from '../Components/Button';
 import { useHistory } from 'react-router-dom';
-import { AppStateContext } from '../App2';
+import { AppStateContext } from '../App';
 import Profile from '../Classes/Profile';
 
 const Landing = props => {

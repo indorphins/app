@@ -7,7 +7,7 @@ const Button = props => {
 	} else {
 		switch (props.bgcolor) {
 			case 'teal':
-				css += ' bg-teal-400 text-black';
+				css += ' bg-teal-500 text-white';
 				break;
 			case 'red':
 				css += ' bg-red-600 text-white';
@@ -18,7 +18,6 @@ const Button = props => {
 			case 'green':
 				css += ' bg-green-500 text-white';
 			default:
-				console.log('DEFAULT BG COLOR SET FOR BTN');
 				css += ' bg-gray-300 text-black';
 				break;
 		}
