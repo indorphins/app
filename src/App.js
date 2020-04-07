@@ -4,7 +4,7 @@ import Landing from './Views/Landing';
 import InstructorView from './Views/InstructorView';
 import ParticipantView from './Views/ParticipantView';
 import AppReducer from './Reducers/AppReducer';
-import LoginView from './Views/Login';
+import LoginView from './Views/LoginView';
 import SignupView from './Views/SignupView';
 
 export const AppStateContext = createContext({

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import Toolbar from '../Components/Toolbar';
+import { useHistory } from 'react-router-dom';
 
 const LoginView = (props) => {
 	const [userName, setUserName] = useState('');
 	const [password, setPassword] = useState('');
+	const history = useHistory();
 
 	const userNameInputHandler = (event) => {
 		setUserName(event.target.value);
@@ -20,6 +22,7 @@ const LoginView = (props) => {
 
 	const loadSignUpForm = () => {
 		console.log('Load sign up form');
+		history.push('/register');
 	};
 
 	return (
@@ -61,7 +64,7 @@ const LoginView = (props) => {
 						<input
 							type='submit'
 							value='Login'
-							className='bg-green-500 p-2 w-2/6 rounded'
+							className='bg-green-500 p-2 px-5 rounded shadow text-white'
 						/>
 					</div>
 				</form>

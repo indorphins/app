@@ -38,34 +38,57 @@ const SignupView = (props) => {
 	return (
 		<div id='signup-view'>
 			<Toolbar />
-			<div id='signup-form-container'>
-				<form id='signup-form' onSubmit={formSubmittedHandler}>
+			<div
+				id='signup-form-container'
+				className=' max-w-xl mx-auto border-2 border-gray-400 rounded p-6 shadow'
+			>
+				<form
+					id='signup-form'
+					onSubmit={formSubmittedHandler}
+					// className='inline-block'
+				>
 					<div id='first-name-container'>
 						<div>First Name:</div>
-						<input type='text' placeholder='John' onChange={firstNameHandler} />
+						<input
+							type='text'
+							placeholder='John'
+							onChange={firstNameHandler}
+							className='w-full h-7 p-3 border rounded color-gray-300 shadow'
+						/>
 					</div>
 					<div id='last-name-container'>
 						<div>Last Name:</div>
-						<input type='text' placeholder='Doe' onChange={lastNameHandler} />
+						<input
+							type='text'
+							placeholder='Doe'
+							onChange={lastNameHandler}
+							className='w-full h-7 p-3 border rounded color-gray-300 shadow'
+						/>
 					</div>
-					<div id='first-name-container'>
+					<div id='email-container'>
 						<div>Email:</div>
 						<input
 							type='text'
 							placeholder='example@email.com'
 							onChange={emailHandler}
+							className='w-full h-7 p-3 border rounded color-gray-300 shadow'
 						/>
 					</div>
-					<div id='first-name-container'>
+					<div id='password-container'>
 						<div>Password:</div>
 						<input
 							type='password'
 							placeholder='password'
 							onChange={passwordHandler}
+							className='w-full h-7 p-3 border rounded color-gray-300 shadow'
 						/>
 					</div>
-					<div id='account-type-container'>
-						<span>What kind of user are you?</span>
+					<br />
+					<div
+						id='account-type-container'
+						className='pl-3 border rounded border-gray-300'
+					>
+						<span className='pr-8'>Which kind of user are you?</span>
 						<input
 							type='radio'
 							id='participant'
@@ -73,19 +96,27 @@ const SignupView = (props) => {
 							value='0'
 							onChange={accountTypeHandler}
 						/>
-						<label for='participant'>Participant</label>
+						<label for='participant' className='pr-3'>
+							Participant
+						</label>
 						<input
 							type='radio'
 							id='instructor'
 							name='acct-type'
 							value='1'
 							onChange={accountTypeHandler}
+							className='pl-1'
 						/>
 						<label for='instructor'>Instructor</label>
 					</div>
-					<input type='submit' value='Finish'>
-						Submit
-					</input>
+					<br />
+					<div className='text-center'>
+						<input
+							type='submit'
+							value='Create Account'
+							className='bg-blue-500 p-2 px-5 rounded text-white shadow'
+						/>
+					</div>
 				</form>
 			</div>
 		</div>
