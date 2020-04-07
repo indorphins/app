@@ -44,8 +44,8 @@ const App = () => {
 				<Switch>
 					<Route path='/instructor' component={InstructorView} />
 					<Route path='/classes' component={ParticipantView} />
-					{/* <Route path='/login' component={LoginView} /> */}
-					{/* <Route path='/register' component={SignupView} /> */}
+					<Route path='/login' component={LoginView} />
+					<Route path='/register' component={SignupView} />
 					<Route path='/' component={Landing} />
 				</Switch>
 			</Router>
