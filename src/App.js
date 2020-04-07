@@ -4,10 +4,12 @@ import Landing from './Views/Landing';
 import InstructorView from './Views/InstructorView';
 import ParticipantView from './Views/ParticipantView';
 import AppReducer from './Reducers/AppReducer';
+import LoginView from './Views/Login';
+import SignupView from './Views/SignupView';
 
 export const AppStateContext = createContext({
 	state: {},
-	setState: () => {}
+	setState: () => {},
 });
 
 const App = () => {
@@ -16,7 +18,7 @@ const App = () => {
 		classes: {},
 		myCallFrame: {},
 		myProfile: {},
-		inClass: false
+		inClass: false,
 	});
 
 	// TODO store and load local storage correctly
@@ -51,7 +53,9 @@ const App = () => {
 				<Switch>
 					<Route path='/instructor' component={InstructorView} />
 					<Route path='/classes' component={ParticipantView} />
-					<Route path='/' component={Landing} />
+					<Route path='/login' component={LoginView} />
+					<Route path='/register' component={SignupView} />
+					<Route path='/' component={LoginView} />
 				</Switch>
 			</Router>
 		</AppStateContext.Provider>
