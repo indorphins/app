@@ -6,9 +6,11 @@ import { useHistory } from 'react-router-dom';
 import Profile from '../Classes/Profile';
 import _isEmpty from 'lodash/isEmpty';
 import ClassView from './ClassView';
+import { useCookies } from 'react-cookie';
 
-const InstructorView = props => {
+const InstructorView = (props) => {
 	const { state, dispatch } = useContext(AppStateContext);
+	const [cookies, setCookie] = useCookies('profile');
 	const history = useHistory();
 
 	useEffect(() => {
@@ -19,12 +21,19 @@ const InstructorView = props => {
 
 	// Load default instructor name
 	useEffect(() => {
+		console.log('I View start w/ profile ', state.myProfile);
 		if (_isEmpty(state.myProfile)) {
-			console.log('no profile - load instructor default profile');
-			dispatch({
-				type: 'updateProfile',
-				payload: new Profile('Instructor', 'instructor')
-			});
+			console.log('no state profile - load from cookies profile');
+			if (cookies.profile) {
+				console.log('Cookies profile is ', cookies.profile);
+				dispatch({
+					type: 'updateProfile',
+					payload: cookies.profile,
+				});
+			} else {
+				// Send them to login page
+				history.push('/login');
+			}
 		}
 	}, []);
 
@@ -32,7 +41,7 @@ const InstructorView = props => {
 	const startClassHandler = async () => {
 		dispatch({
 			type: 'updateInClass',
-			payload: true
+			payload: true,
 		});
 	};
 
@@ -40,7 +49,7 @@ const InstructorView = props => {
 	const endClassHandler = () => {
 		dispatch({
 			type: 'updateInClass',
-			payload: false
+			payload: false,
 		});
 	};
 

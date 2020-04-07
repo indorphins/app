@@ -8,7 +8,7 @@ import _get from 'lodash/get';
 import { useHistory } from 'react-router-dom';
 
 // Differs from regular toolbar by replacing the logo w/ class name and adding leave class button
-const Toolbar = props => {
+const Toolbar = (props) => {
 	const { state, dispatch } = useContext(AppStateContext);
 	const history = useHistory();
 
@@ -18,16 +18,16 @@ const Toolbar = props => {
 			myCallFrame.destroy();
 		}
 		// change route back to classes/instructor page
-		const profType = _get(state.myProfile, 'type', 'PARTICIPANT');
+		const profType = _get(state.myProfile, 'type', 'participant');
 		const name = _get(state.myProfile, 'name', '');
-		if (profType === 'INSTRUCTOR') {
+		if (profType === 'instructor') {
 			history.replace(`/instructor#${name}`);
 		} else {
 			history.replace(`/classes#${name}`);
 		}
 		dispatch({
 			type: 'updateInClass',
-			payload: false
+			payload: false,
 		});
 		window.location.reload();
 	};

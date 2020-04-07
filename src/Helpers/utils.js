@@ -1,4 +1,4 @@
-function findGetParameter(parameterName) {
+const findGetParameter = (parameterName) => {
 	var result = null,
 		tmp = [];
 	var items = window.location.search.substr(1).split('&');
@@ -7,13 +7,21 @@ function findGetParameter(parameterName) {
 		if (tmp[0] === parameterName) result = decodeURIComponent(tmp[1]);
 	}
 	return result;
-}
+};
 
-function getRandomInt(max) {
+const getRandomInt = (max) => {
 	return Math.floor(Math.random() * Math.floor(max));
-}
+};
+
+const getExpiryHoursFromNow = (hours) => {
+	const date = new Date();
+	date.setTime(date.getTime() + hours * 60 * 60 * 1000);
+	console.log('getExpiryHoursFromNow - date is ', date);
+	return date;
+};
 
 module.exports = {
 	findGetParameter: findGetParameter,
-	getRandomInt: getRandomInt
+	getRandomInt: getRandomInt,
+	getExpiryHoursFromNow: getExpiryHoursFromNow,
 };

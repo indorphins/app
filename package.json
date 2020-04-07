@@ -8,16 +8,16 @@
 		"@testing-library/react": "^9.5.0",
 		"@testing-library/user-event": "^7.2.1",
 		"babel-plugin-react-css-modules": "^5.2.6",
-		"dotenv": "^8.2.0",
 		"lodash": "^4.17.15",
 		"node-fetch": "^2.6.0",
 		"react": "^16.13.1",
+		"react-cookie": "^4.0.3",
 		"react-dom": "^16.13.1",
 		"react-router-dom": "^5.1.2",
 		"react-scripts": "2.0.4"
 	},
 	"scripts": {
-		"start": "source .env && npm run watch:css && react-scripts start",
+		"start": "source .env.development && npm run watch:css && react-scripts start",
 		"build": "npm run build:css && react-scripts build",
 		"test": "react-scripts test",
 		"eject": "react-scripts eject",

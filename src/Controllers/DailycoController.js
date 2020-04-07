@@ -3,6 +3,7 @@ const DAILY_CO_SERVER_DOMAIN =
 
 // create room properties are { name: '', privacy: '', properties: {} }
 export async function createRoom(properties) {
+	console.log('Called create room');
 	const options = {
 		method: 'POST',
 		headers: {

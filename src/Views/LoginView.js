@@ -1,10 +1,16 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import Toolbar from '../Components/Toolbar';
 import { useHistory } from 'react-router-dom';
+import Profile from '../Classes/Profile';
+import { getExpiryHoursFromNow } from '../Helpers/utils';
+import { useCookies } from 'react-cookie';
+import { AppStateContext } from '../App';
 
 const LoginView = (props) => {
 	const [userName, setUserName] = useState('');
 	const [password, setPassword] = useState('');
+	const [cookies, setCookie] = useCookies('profile');
+	const { state, dispatch } = useContext(AppStateContext);
 	const history = useHistory();
 
 	const userNameInputHandler = (event) => {
@@ -19,6 +25,23 @@ const LoginView = (props) => {
 		console.log('Login Form submitted event: ', event.target);
 		event.preventDefault();
 		// make api call to get user and store in cookies
+		// const user = UsersController.getUser({});
+		const user = { first_name: 'Alex', user_type: 0 };
+		// create user's profile and store in cookies
+		const userProfile = new Profile(
+			user.first_name,
+			user.user_type === 0 ? 'instructor' : 'participant'
+		);
+		setCookie('profile', userProfile, { expires: getExpiryHoursFromNow(2) });
+		dispatch({
+			type: 'updateProfile',
+			payload: userProfile,
+		});
+		if (user.user_type === 0) {
+			history.push(`/instructor#${user.first_name}`);
+		} else {
+			history.push(`/classes#${user.first_name}`);
+		}
 	};
 
 	const loadSignUpForm = () => {
@@ -45,7 +68,7 @@ const LoginView = (props) => {
 							type='text'
 							placeholder='example@email.com'
 							onChange={userNameInputHandler}
-							className='w-full h-7 p-3'
+							className='w-full h-7 p-3 border rounded color-gray-300 shadow'
 						/>
 					</div>
 					<br />
@@ -57,7 +80,7 @@ const LoginView = (props) => {
 							type='password'
 							placeholder='password'
 							onChange={passwordInputHandler}
-							className='w-full h-7 p-3'
+							className='w-full h-7 p-3 border rounded color-gray-300 shadow'
 						/>
 					</div>
 					<br />
