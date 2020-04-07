@@ -16,7 +16,8 @@ const LoginView = (props) => {
 	};
 
 	const formSubmittedHandler = (event) => {
-		console.log('Login Form submitted event: ', event);
+		console.log('Login Form submitted event: ', event.target);
+		event.preventDefault();
 		// make api call to get user and store in cookies
 	};
 

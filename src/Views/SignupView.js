@@ -24,11 +24,12 @@ const SignupView = (props) => {
 	};
 
 	const accountTypeHandler = (event) => {
-		console.log('acct type event: ', event.target);
+		console.log('acct type event: ', event.target.value);
 	};
 
 	const formSubmittedHandler = (event) => {
-		console.log('Sign Up Form submitted event: ', event);
+		console.log('Sign Up Form submitted event: ', event.target);
+		event.preventDefault();
 		// check if user exists already
 	};
 
@@ -93,7 +94,7 @@ const SignupView = (props) => {
 							type='radio'
 							id='participant'
 							name='acct-type'
-							value='0'
+							value='1'
 							onChange={accountTypeHandler}
 						/>
 						<label for='participant' className='pr-3'>
@@ -103,7 +104,7 @@ const SignupView = (props) => {
 							type='radio'
 							id='instructor'
 							name='acct-type'
-							value='1'
+							value='0'
 							onChange={accountTypeHandler}
 							className='pl-1'
 						/>
