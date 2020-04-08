@@ -5,6 +5,7 @@ import Profile from '../Classes/Profile';
 import { getExpiryHoursFromNow } from '../Helpers/utils';
 import { useCookies } from 'react-cookie';
 import { AppStateContext } from '../App';
+import { loginUser } from '../Controllers/UsersController';
 
 const LoginView = (props) => {
 	const [userName, setUserName] = useState('');
@@ -21,31 +22,41 @@ const LoginView = (props) => {
 		setPassword(event.target.value);
 	};
 
-	const formSubmittedHandler = (event) => {
-		console.log('Login Form submitted event: ', event.target);
+	const formSubmittedHandler = async (event) => {
 		event.preventDefault();
 		// make api call to get user and store in cookies
-		// const user = UsersController.getUser({});
-		const user = { first_name: 'Alex', user_type: 0 };
-		// create user's profile and store in cookies
-		const userProfile = new Profile(
-			user.first_name,
-			user.user_type === 0 ? 'instructor' : 'participant'
-		);
-		setCookie('profile', userProfile, { expires: getExpiryHoursFromNow(2) });
-		dispatch({
-			type: 'updateProfile',
-			payload: userProfile,
-		});
-		if (user.user_type === 0) {
-			history.push(`/instructor#${user.first_name}`);
-		} else {
-			history.push(`/classes#${user.first_name}`);
-		}
+		await loginUser(userName, password)
+			.then((response) => {
+				if (response.success) {
+					const user = response.user;
+					// create user's profile and store in cookies
+					const userProfile = new Profile(
+						user.first_name,
+						user.user_type === 0 ? 'instructor' : 'participant'
+					);
+					setCookie('profile', userProfile, {
+						expires: getExpiryHoursFromNow(2),
+					});
+					dispatch({
+						type: 'updateProfile',
+						payload: userProfile,
+					});
+					const name = user.first_name ? user.first_name : '';
+					if (user.user_type === 0) {
+						history.push(`/instructor#${name}`);
+					} else {
+						history.push(`/classes#${name}`);
+					}
+				} else {
+					window.alert('Invalid Login. Please try again.');
+				}
+			})
+			.catch((error) => {
+				console.log('Login submit error : ', error);
+			});
 	};
 
 	const loadSignUpForm = () => {
-		console.log('Load sign up form');
 		history.push('/register');
 	};
 

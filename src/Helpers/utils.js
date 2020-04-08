@@ -16,7 +16,6 @@ const getRandomInt = (max) => {
 const getExpiryHoursFromNow = (hours) => {
 	const date = new Date();
 	date.setTime(date.getTime() + hours * 60 * 60 * 1000);
-	console.log('getExpiryHoursFromNow - date is ', date);
 	return date;
 };
 

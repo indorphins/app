@@ -1,11 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import Toolbar from '../Components/Toolbar';
+import { createUser } from '../Controllers/UsersController';
+import Profile from '../Classes/Profile';
+import { getExpiryHoursFromNow } from '../Helpers/utils';
+import { useCookies } from 'react-cookie';
+import { useHistory } from 'react-router-dom';
+import { AppStateContext } from '../App';
 
 const SignupView = (props) => {
 	const [firstName, setFirstName] = useState();
 	const [lastName, setLastName] = useState();
 	const [email, setEmail] = useState();
 	const [password, setPassword] = useState();
+	const [phone, setPhone] = useState();
+	const [cookies, setCookie] = useCookies('profile');
+	const { dispatch } = useContext(AppStateContext);
+	const history = useHistory();
 
 	const firstNameHandler = (event) => {
 		setFirstName(event.target.value);
@@ -27,14 +37,40 @@ const SignupView = (props) => {
 		console.log('acct type event: ', event.target.value);
 	};
 
-	const formSubmittedHandler = (event) => {
-		console.log('Sign Up Form submitted event: ', event.target);
-		event.preventDefault();
-		// check if user exists already
+	const phoneHandler = (event) => {
+		setPhone(event.target.value);
 	};
 
-	// Validates username and pw
-	const validateForm = () => {};
+	const formSubmittedHandler = async (event) => {
+		event.preventDefault();
+		// check if user exists already
+		await createUser(firstName, lastName, email, password, phone, 0)
+			.then((response) => {
+				if (response.success) {
+					const userProfile = new Profile(firstName, 'participant');
+					setCookie('profile', userProfile, {
+						expires: getExpiryHoursFromNow(3),
+					}); // three hours before cookie expiry and login needed
+					dispatch({
+						type: 'updateProfile',
+						payload: userProfile,
+					});
+
+					history.push(`/classes#${firstName}`);
+				} else {
+					if (response.error === 'email_taken') {
+						window.alert('That email already exists with a user');
+					} else {
+						window.alert(
+							'Sign up failed. Please check that all fields are filled.'
+						);
+					}
+				}
+			})
+			.catch((error) => {
+				console.log('error submitting sign up ', error);
+			});
+	};
 
 	return (
 		<div id='signup-view'>
@@ -85,7 +121,16 @@ const SignupView = (props) => {
 						/>
 					</div>
 					<br />
-					<div
+					<div id='phone-container'>
+						<div>Phone Number:</div>
+						<input
+							type='tel'
+							placeholder='123-456-7890'
+							onChange={phoneHandler}
+							className='w-full h-7 p-3 border rounded color-gray-300 shadow'
+						/>
+					</div>
+					{/* <div
 						id='account-type-container'
 						className='pl-3 border rounded border-gray-300'
 					>
@@ -109,7 +154,7 @@ const SignupView = (props) => {
 							className='pl-1'
 						/>
 						<label for='instructor'>Instructor</label>
-					</div>
+					</div> */}
 					<br />
 					<div className='text-center'>
 						<input
