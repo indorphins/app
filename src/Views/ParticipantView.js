@@ -3,8 +3,9 @@ import { AppStateContext } from '../App';
 import Toolbar from '../Components/Toolbar';
 import ClassView from './ClassView';
 import Button from '../Components/Button';
+import { getClasses } from '../Controllers/ClassesController';
 
-const ParticipantView = props => {
+const ParticipantView = (props) => {
 	const { state, dispatch } = useContext(AppStateContext);
 	const { classes } = state;
 	const [roomName, setRoomName] = useState('');
@@ -14,13 +15,20 @@ const ParticipantView = props => {
 	// Load classes from API on mount
 	useEffect(() => {
 		// TODO fetch classes + store on client side
+		getClasses()
+			.then((response) => {
+				console.log('Got classes - ', response);
+			})
+			.catch((error) => {
+				console.log('ParticipantView - error fetching classes: ', error);
+			});
 	}, []);
 
 	// set up class tile elements with room names
 	useEffect(() => {
 		classListItems = [];
 		const keys = Object.keys(classes);
-		keys.forEach(id => {
+		keys.forEach((id) => {
 			const c = classes[id];
 			// Todo create Class components
 			classListItems.push(
@@ -36,15 +44,15 @@ const ParticipantView = props => {
 		});
 	}, [classes]);
 
-	const inputChangedHandler = event => {
+	const inputChangedHandler = (event) => {
 		setRoomName(event.target.value);
 	};
 
-	const joinClassHandler = event => {
+	const joinClassHandler = (event) => {
 		event.preventDefault();
 		dispatch({
 			type: 'updateInClass',
-			payload: true
+			payload: true,
 		});
 	};
 

@@ -3,7 +3,6 @@ import Toolbar from '../Components/Toolbar';
 import Button from '../Components/Button';
 import { AppStateContext } from '../App';
 import { useHistory } from 'react-router-dom';
-import Profile from '../Classes/Profile';
 import _isEmpty from 'lodash/isEmpty';
 import ClassView from './ClassView';
 import { useCookies } from 'react-cookie';

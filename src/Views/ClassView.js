@@ -7,6 +7,7 @@ import {
 	createToken,
 	getRoom,
 } from '../Controllers/DailycoController.js';
+import { createClass } from '../Controllers/ClassesController';
 import { AppStateContext } from '../App';
 
 const ClassView = (props) => {
@@ -69,7 +70,16 @@ const ClassView = (props) => {
 							is_owner: true,
 						},
 					}).then((tokens) => {
-						return { url: room.url, token: tokens.token };
+						// Create Class in backend
+						return createClass(
+							'active',
+							state.myProfile.name,
+							room.name,
+							11
+						).then((response) => {
+							console.log('Created class on backend reponse ', response);
+							return { url: room.url, token: tokens.token };
+						});
 					});
 				})
 				.catch((error) => {
