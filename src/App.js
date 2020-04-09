@@ -25,7 +25,7 @@ const App = () => {
 	// fetch cookies - only render state change on profile for now
 	const [cookies, setCookies] = useCookies('profile');
 
-	console.log('DOMAIN - ', process.env.REACT_APP_AWS_SERVER_DOMAIN);
+	// console.log('DOMAIN - ', process.env.REACT_APP_AWS_SERVER_DOMAIN);
 	console.log('ENV VARS- ', process.env);
 
 	useEffect(() => {

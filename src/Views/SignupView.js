@@ -6,13 +6,14 @@ import { getExpiryHoursFromNow } from '../Helpers/utils';
 import { useCookies } from 'react-cookie';
 import { useHistory } from 'react-router-dom';
 import { AppStateContext } from '../App';
+import { emailRegex, phoneRegex } from '../Helpers/regex';
 
 const SignupView = (props) => {
-	const [firstName, setFirstName] = useState();
-	const [lastName, setLastName] = useState();
-	const [email, setEmail] = useState();
-	const [password, setPassword] = useState();
-	const [phone, setPhone] = useState();
+	const [firstName, setFirstName] = useState('');
+	const [lastName, setLastName] = useState('');
+	const [email, setEmail] = useState('');
+	const [password, setPassword] = useState('');
+	const [phone, setPhone] = useState('');
 	const [cookies, setCookie] = useCookies('profile');
 	const { dispatch } = useContext(AppStateContext);
 	const history = useHistory();
@@ -41,35 +42,89 @@ const SignupView = (props) => {
 		setPhone(event.target.value);
 	};
 
+	const validateEmail = () => {
+		console.log('validate email: ', email);
+		console.log('email valid: ', emailRegex.test(email));
+		if (!emailRegex.test(email)) {
+			window.alert('Email must be in example@email.com format');
+			return false;
+		}
+		return true;
+	};
+
+	const formatPhone = () => {
+		if (phone.includes('-')) {
+			const newPhone = phone.replace(/-/g, '');
+			console.log('removed - in phone ', newPhone);
+			setPhone(newPhone);
+		}
+	};
+
+	const validatePhone = () => {
+		console.log('Validate phone - ', phone, ' len: ', typeof phone);
+		console.log('valid? ', /^d{10}$/.test(phone));
+		if (!phoneRegex.test(phone)) {
+			window.alert('Phone Number must be 10 digits');
+			return false;
+		}
+		return true;
+	};
+
+	const validatePassword = () => {
+		// TODO add stricter pw requirements
+		if (password.length === 0) {
+			window.alert('Password cannot be blank');
+			return false;
+		}
+		return true;
+	};
+
+	const validateForm = () => {
+		if (firstName.length === 0) {
+			window.alert('First Name cannot be blank');
+			return false;
+		}
+		if (lastName.length === 0) {
+			window.alert('Last Name cannot be blank');
+			return false;
+		}
+		return validatePhone() && validateEmail() && validatePassword();
+	};
+
 	const formSubmittedHandler = async (event) => {
 		event.preventDefault();
-		// check if user exists already
-		await createUser(firstName, lastName, email, password, phone, 0)
-			.then((response) => {
-				if (response.success) {
-					const userProfile = new Profile(firstName, 'participant');
-					setCookie('profile', userProfile, {
-						expires: getExpiryHoursFromNow(3),
-					}); // three hours before cookie expiry and login needed
-					dispatch({
-						type: 'updateProfile',
-						payload: userProfile,
-					});
+		// Validate form fields
 
-					history.push(`/classes#${firstName}`);
-				} else {
-					if (response.error === 'email_taken') {
-						window.alert('That email already exists with a user');
+		if (validateForm()) {
+			await createUser(firstName, lastName, email, password, phone, 0)
+				.then((response) => {
+					if (response.success) {
+						const userProfile = new Profile(firstName, 'participant');
+						setCookie('profile', userProfile, {
+							expires: getExpiryHoursFromNow(3),
+						}); // three hours before cookie expiry and login needed
+						dispatch({
+							type: 'updateProfile',
+							payload: userProfile,
+						});
+
+						history.push(`/classes#${firstName}`);
 					} else {
-						window.alert(
-							'Sign up failed. Please check that all fields are filled.'
-						);
+						if (response.error === 'duplicate_email') {
+							window.alert('That email already exists with a user');
+						} else if (response.error === 'duplicate_phone') {
+							window.alert('That phone number already exists with a user');
+						} else {
+							window.alert(
+								'Sign up failed. Please check that all fields are filled.'
+							);
+						}
 					}
-				}
-			})
-			.catch((error) => {
-				console.log('error submitting sign up ', error);
-			});
+				})
+				.catch((error) => {
+					console.log('error submitting sign up ', error);
+				});
+		}
 	};
 
 	return (
@@ -127,6 +182,7 @@ const SignupView = (props) => {
 							type='tel'
 							placeholder='123-456-7890'
 							onChange={phoneHandler}
+							onBlur={formatPhone}
 							className='w-full h-7 p-3 border rounded color-gray-300 shadow'
 						/>
 					</div>
