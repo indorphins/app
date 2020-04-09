@@ -1,12 +1,14 @@
 // TODO add duration
 export const createClass = async (
 	status,
+	instructor_id,
 	instructor_name,
 	chat_room_name,
 	total_spots
 ) => {
 	const body = {
 		status: status,
+		instructor_id: instructor_id,
 		instructor_name: instructor_name,
 		chat_room_name: chat_room_name,
 		total_spots: total_spots,

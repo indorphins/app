@@ -1,23 +1,95 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AppStateContext } from '../App';
 import Toolbar from '../Components/Toolbar';
+import _isEmpty from 'lodash/isEmpty';
 import ClassView from './ClassView';
+import { useCookies } from 'react-cookie';
+import Profile from '../Classes/Profile';
 import Button from '../Components/Button';
 import { getClasses } from '../Controllers/ClassesController';
+import ClassTile from '../Components/ClassTile';
 
 const ParticipantView = (props) => {
 	const { state, dispatch } = useContext(AppStateContext);
 	const { classes } = state;
 	const [roomName, setRoomName] = useState('');
+	const [classTiles, setClassTiles] = useState([]);
+	const [cookies, setCookie] = useCookies('profile');
 
-	let classListItems = [];
+	// FOR TESTING
+	// useEffect(() => {
+	// 	console.log('I View start w/ profile ', state.myProfile);
+	// 	console.log('no state profile - load from cookies profile');
+	// 	// For testing
+	// 	const p = new Profile('BOB', 'participant');
+	// 	console.log('Updated Participant Profile');
+	// 	setCookie('profile', p);
+	// 	// if (cookies.profile) {
+	// 	// 	console.log('Cookies profile is ', cookies.profile);
+	// 	dispatch({
+	// 		type: 'updateProfile',
+	// 		payload: p,
+	// 	});
+	// 	// } else {
+	// 	// 	// Send them to login page
+	// 	// 	history.push('/login');
+	// 	// }
+	// }, []);
 
 	// Load classes from API on mount
 	useEffect(() => {
 		// TODO fetch classes + store on client side
 		getClasses()
 			.then((response) => {
-				console.log('Got classes - ', response);
+				// returns array of class objects with fields instructor_name, chat_room_name, class_id, participants, total_spots, duration
+				response = [
+					{
+						instructor_name: 'Alex',
+						chat_room_name: 'x9llkeJtP2MIRAKXTkaz',
+						class_id: '11',
+						participants: {},
+						total_spots: 11,
+						duration: 60,
+					},
+					{
+						instructor_name: 'Alex',
+						chat_room_name: '8asfhalksdg',
+						class_id: '22',
+						participants: {},
+						total_spots: 11,
+						duration: 60,
+					},
+					{
+						instructor_name: 'Alex',
+						chat_room_name: '8asfhalksdg',
+						class_id: '33',
+						participants: {},
+						total_spots: 11,
+						duration: 60,
+					},
+					{
+						instructor_name: 'Alex',
+						chat_room_name: '8asfhalksdg',
+						class_id: '666',
+						participants: {},
+						total_spots: 11,
+						duration: 60,
+					},
+					{
+						instructor_name: 'Megan Trainer',
+						chat_room_name: '6969420XXX',
+						class_id: '667',
+						participants: {},
+						total_spots: 11,
+						duration: 60,
+					},
+				];
+				response.forEach((c) => {
+					dispatch({
+						type: 'addClass',
+						payload: c,
+					});
+				});
 			})
 			.catch((error) => {
 				console.log('ParticipantView - error fetching classes: ', error);
@@ -26,21 +98,23 @@ const ParticipantView = (props) => {
 
 	// set up class tile elements with room names
 	useEffect(() => {
-		classListItems = [];
+		const classListItems = [];
 		const keys = Object.keys(classes);
 		keys.forEach((id) => {
 			const c = classes[id];
-			// Todo create Class components
 			classListItems.push(
-				<li
-					id={`class_${c.id}`}
-					onClick={() => {
-						joinClassHandler(c.id);
+				<ClassTile
+					id={c.id}
+					classCode={c.chat_room_name}
+					instructor={c.instructor_name}
+					totalSpots={c.total_spots}
+					participants={c.participants}
+					clicked={() => {
+						joinClassHandler(c);
 					}}
-				>
-					{`${c.instructor()}'s Class`}
-				</li>
+				/>
 			);
+			setClassTiles(classListItems);
 		});
 	}, [classes]);
 
@@ -48,7 +122,17 @@ const ParticipantView = (props) => {
 		setRoomName(event.target.value);
 	};
 
-	const joinClassHandler = (event) => {
+	const joinClassHandler = (c) => {
+		console.log('Join Class -', c);
+		setRoomName(c.chat_room_name);
+		dispatch({
+			type: 'updateInClass',
+			payload: true,
+		});
+	};
+
+	const oldJoinClassHandler = (event) => {
+		console.log('');
 		event.preventDefault();
 		dispatch({
 			type: 'updateInClass',
@@ -64,23 +148,31 @@ const ParticipantView = (props) => {
 						text='Toolbar'
 						menuClicked={() => console.log('menu clicked')}
 					/>
-					<div id='class-list-container'>
-						<p>Enter your room code below</p>
-						<br />
+					<div className='text-center'>
+						<div
+							id='class-list-container'
+							className='bg-gray-300 w-11/12 m-auto rounded block justify-center items-center h-auto'
+						>
+							{classTiles}
+						</div>
+						<div id='beta-class-list-container'>
+							<p>Enter your room code below</p>
+							<br />
 
-						<input
-							type='text'
-							value={roomName}
-							className='border border-gray-400 pl-1 mr-1 h-10'
-							onChange={inputChangedHandler}
-							placeholder='Room Code...'
-						></input>
-						<Button
-							id='join-class-btn'
-							clicked={joinClassHandler}
-							text='Join'
-						/>
-						{/* <ul id='class-list'>{classListItems}</ul> */}
+							<input
+								type='text'
+								value={roomName}
+								className='border border-gray-400 pl-1 mr-1 h-10'
+								onChange={inputChangedHandler}
+								placeholder='Room Code...'
+							></input>
+							<Button
+								id='join-class-btn'
+								clicked={oldJoinClassHandler}
+								text='Join'
+							/>
+							{/* <ul id='class-list'>{classListItems}</ul> */}
+						</div>
 					</div>
 				</div>
 			) : (

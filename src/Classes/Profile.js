@@ -1,7 +1,8 @@
 export default class Profile {
-	constructor(name, type) {
+	constructor(name, type, id = 0) {
 		this.name = name;
 		this.type = type;
+		this.id = id;
 	}
 
 	// get type() {

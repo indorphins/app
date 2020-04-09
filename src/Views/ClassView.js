@@ -52,7 +52,6 @@ const ClassView = (props) => {
 		);
 		console.log('state myprofile type is ', state.myProfile.type);
 		if (state.myProfile.type === 'instructor') {
-			console.log('instructor flow - create room fxn: ', createRoom);
 			return createRoom({
 				privacy: 'private',
 				properties: {
@@ -73,12 +72,16 @@ const ClassView = (props) => {
 						// Create Class in backend
 						return createClass(
 							'active',
+							state.myProfile.id,
 							state.myProfile.name,
 							room.name,
 							11
 						).then((response) => {
-							console.log('Created class on backend reponse ', response);
-							return { url: room.url, token: tokens.token };
+							if (response.success) {
+								return { url: room.url, token: tokens.token };
+							} else {
+								throw response.error;
+							}
 						});
 					});
 				})
