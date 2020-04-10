@@ -5,7 +5,7 @@ import { useHistory } from 'react-router-dom';
 import { AppStateContext } from '../App';
 import Profile from '../Classes/Profile';
 
-const Landing = props => {
+const Landing = (props) => {
 	const history = useHistory();
 	const [name, setName] = useState('');
 	const [nameSubmitted, setNameSubmitted] = useState(false);
@@ -14,7 +14,7 @@ const Landing = props => {
 	const instructorBtnHandler = () => {
 		dispatch({
 			type: 'updateProfile',
-			payload: new Profile(name, 'instructor')
+			payload: new Profile(name, 'instructor'),
 		});
 		history.push(`/instructor#${name}`);
 	};
@@ -22,7 +22,7 @@ const Landing = props => {
 	const participantBtnHandler = () => {
 		dispatch({
 			type: 'updateProfile',
-			payload: new Profile(name, 'participant')
+			payload: new Profile(name, 'participant'),
 		});
 		history.push(`/classes#${name}`);
 	};
@@ -32,7 +32,7 @@ const Landing = props => {
 		setName(inputName);
 		dispatch({
 			type: 'updateName',
-			payload: inputName
+			payload: inputName,
 		});
 		setNameSubmitted(true);
 	};
@@ -84,6 +84,7 @@ const Landing = props => {
 							className='border-gray-400 border-solid border'
 						/>
 						<Button
+							type='button'
 							text='Submit'
 							clicked={nameSubmitBtnHandler}
 							id='name-submit-btn'
