@@ -1,6 +1,6 @@
 import React from 'react';
 
-const Button = props => {
+const Button = (props) => {
 	let css = 'p-2 rounded-sm inline-block';
 	if (!props.bgcolor) {
 		css += ' bg-gray-300 text-black';
