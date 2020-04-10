@@ -55,7 +55,9 @@ const ClassView = (props) => {
 			return createRoom({
 				privacy: 'private',
 				properties: {
-					exp: Math.floor(Date.now() / 1000) + 4200, // 70 mins
+					exp:
+						Math.floor(Date.now() / 1000) +
+						parseInt(process.env.REACT_APP_DEFAULT_CLASS_DURATION), // 70 mins = 4200
 					max_participants: 11, // 10 participants + 1 instructor
 					eject_at_room_exp: true,
 				},
@@ -109,7 +111,7 @@ const ClassView = (props) => {
 						properties: {
 							room_name: room.name,
 							is_owner: false,
-							start_audio_off: true,
+							start_audio_off: false,
 						},
 					}).then((tokens) => {
 						return { url: room.url, token: tokens.token };

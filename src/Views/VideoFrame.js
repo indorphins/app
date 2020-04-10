@@ -4,7 +4,7 @@ import _ from 'lodash';
 import { useHistory } from 'react-router-dom';
 import { getRandomInt } from '../Helpers/utils';
 
-const VideoFrame = props => {
+const VideoFrame = (props) => {
 	const { state, dispatch } = useContext(AppStateContext);
 	const history = useHistory();
 
@@ -25,7 +25,7 @@ const VideoFrame = props => {
 		return () => clearInterval(interval);
 	});
 
-	const showEvent = e => {
+	const showEvent = (e) => {
 		console.log('video call event -->', e);
 	};
 
@@ -34,7 +34,7 @@ const VideoFrame = props => {
 
 		if (!cFrame) {
 			return errorHandler({
-				errorMsg: 'No Call Frame Initialized'
+				errorMsg: 'No Call Frame Initialized',
 			});
 		}
 		const url = props.url
@@ -46,7 +46,7 @@ const VideoFrame = props => {
 
 		if (!url) {
 			return errorHandler({
-				errorMsg: 'No class url'
+				errorMsg: 'No class url',
 			});
 		}
 
@@ -68,12 +68,12 @@ const VideoFrame = props => {
 
 		await cFrame.load({
 			url: url,
-			token: token
+			token: token,
 		});
 
 		await cFrame.join({
 			url: url,
-			token: token
+			token: token,
 		});
 
 		// TODO Update class name to url WHEN CLASSES FLOW IS FINISHED
@@ -81,7 +81,7 @@ const VideoFrame = props => {
 		return cFrame;
 	};
 
-	const errorHandler = e => {
+	const errorHandler = (e) => {
 		// Duplicate code in classToolbar
 		const myCallFrame = state.myCallFrame;
 
@@ -102,7 +102,7 @@ const VideoFrame = props => {
 
 		dispatch({
 			type: 'updateInClass',
-			payload: false
+			payload: false,
 		});
 	};
 
@@ -125,7 +125,7 @@ const VideoFrame = props => {
 		const vidList = [];
 		const audioList = [];
 
-		mediaList.forEach(media => {
+		mediaList.forEach((media) => {
 			if (media.nodeName === 'AUDIO') {
 				audioList.push(media);
 			} else if (media.type === 'VIDEO') {
@@ -139,7 +139,7 @@ const VideoFrame = props => {
 		let i = 0;
 		while (i < vidList.length && i < newIds.length && i < audioList.length) {
 			vidList[i].srcObject = new MediaStream([
-				participants[newIds[i]].videoTrack
+				participants[newIds[i]].videoTrack,
 			]);
 			audioList[i].srcObject = new MediaStream(
 				[participants[newIds[i]]].audioTrack
@@ -167,7 +167,7 @@ const VideoFrame = props => {
 		// todo maybe take in participant list
 		const callFrame = state.myCallFrame;
 		const participants = callFrame.participants();
-		participants.forEach(p => {
+		participants.forEach((p) => {
 			if (p.owner) {
 				return p;
 			}
@@ -183,7 +183,7 @@ const VideoFrame = props => {
 		return container.childNodes;
 	};
 
-	const trackStarted = e => {
+	const trackStarted = (e) => {
 		const callFrame = state.myCallFrame;
 		showEvent(e);
 		if (!(e.track && (e.track.kind === 'video' || e.track.kind == 'audio'))) {
@@ -206,6 +206,7 @@ const VideoFrame = props => {
 						audio.autoplay = true;
 						container.appendChild(audio);
 						audio.srcObject = new MediaStream([e.track]);
+						audio.muted = e.participant.local; // Mute your own audio track
 					}
 				} else {
 					audio.srcObject = new MediaStream([e.track]);
@@ -232,7 +233,7 @@ const VideoFrame = props => {
 		}
 	};
 
-	const trackStopped = e => {
+	const trackStopped = (e) => {
 		showEvent(e);
 		let vid = findVideoForTrack(e.track && e.track.id);
 		if (vid) {
@@ -244,7 +245,7 @@ const VideoFrame = props => {
 		}
 	};
 
-	const findAudioForParticipant = session_id => {
+	const findAudioForParticipant = (session_id) => {
 		for (const audio of document.getElementsByTagName('audio')) {
 			if (audio.session_id === session_id) {
 				return audio;
@@ -252,18 +253,18 @@ const VideoFrame = props => {
 		}
 	};
 
-	const findAudioForTrack = trackId => {
+	const findAudioForTrack = (trackId) => {
 		for (const audio of document.getElementsByTagName('audio')) {
 			if (
 				audio.srcObject &&
-				audio.srcObject.getTracks().find(t => t.id === trackId)
+				audio.srcObject.getTracks().find((t) => t.id === trackId)
 			) {
 				return audio;
 			}
 		}
 	};
 
-	const findVideoForParticipant = session_id => {
+	const findVideoForParticipant = (session_id) => {
 		for (const vid of document.getElementsByTagName('video')) {
 			if (vid.session_id === session_id) {
 				return vid;
@@ -271,18 +272,18 @@ const VideoFrame = props => {
 		}
 	};
 
-	const findVideoForTrack = trackId => {
+	const findVideoForTrack = (trackId) => {
 		for (const vid of document.getElementsByTagName('video')) {
 			if (
 				vid.srcObject &&
-				vid.srcObject.getTracks().find(t => t.id === trackId)
+				vid.srcObject.getTracks().find((t) => t.id === trackId)
 			) {
 				return vid;
 			}
 		}
 	};
 
-	const leftMeeting = e => {
+	const leftMeeting = (e) => {
 		showEvent(e);
 		document.getElementById('instructor-video').innerHTML = '';
 	};
