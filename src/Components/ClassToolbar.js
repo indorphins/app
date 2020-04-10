@@ -60,7 +60,7 @@ const Toolbar = (props) => {
 	const name = !_isEmpty(state.myProfile) ? state.myProfile.name : 'Instructor';
 
 	return (
-		<header className={styles.Toolbar}>
+		<header className={styles.ClassToolbar}>
 			<Menu
 				clicked={
 					props.menuClicked
@@ -70,33 +70,39 @@ const Toolbar = (props) => {
 						  }
 				}
 			/>
-			<div className='text-xl'>
+			<div className='text-xl float-left pt-1'>
 				<p>In Class</p>
 			</div>
-			<div id='toggle-mic-container' className='flex-auto text-right'>
-				<Button
-					clicked={toggleMicrophoneHandler}
-					text={audioOn ? AUDIO_OFF_TEXT : AUDIO_ON_TEXT}
-					id='toggle-mic-btn'
-					bgcolor='green'
-				/>
+			<div id='btn-container' className='inline-flex float-right'>
+				<div id='toggle-mic-container' className='flex-auto text-right pr-4'>
+					<Button
+						clicked={toggleMicrophoneHandler}
+						text={audioOn ? AUDIO_OFF_TEXT : AUDIO_ON_TEXT}
+						id='toggle-mic-btn'
+						bgcolor='green'
+						className='px-5'
+					/>
+				</div>
+				<div id='toggle-video-container' className='flex-auto text-right pr-4'>
+					<Button
+						clicked={toggleVideoHandler}
+						text={videoOn ? VIDEO_OFF_TEXT : VIDEO_ON_TEXT}
+						id='toggle-video-btn'
+						bgcolor='teal'
+						className='px-5'
+					/>
+				</div>
+				<div id='leave-class-container' className='flex-auto text-right'>
+					<Button
+						clicked={leaveClassHandler}
+						text='Leave Class'
+						id='leave-class-btn'
+						bgcolor='red'
+						className='px-5'
+					/>
+				</div>
 			</div>
-			<div id='toggle-video-container' className='flex-auto text-right'>
-				<Button
-					clicked={toggleVideoHandler}
-					text={videoOn ? VIDEO_OFF_TEXT : VIDEO_ON_TEXT}
-					id='toggle-video-btn'
-					bgcolor='teal'
-				/>
-			</div>
-			<div id='leave-class-container' className='flex-auto text-right'>
-				<Button
-					clicked={leaveClassHandler}
-					text='Leave Class'
-					id='leave-class-btn'
-					bgcolor='red'
-				/>
-			</div>
+
 			<nav className={styles.DesktopOnly}>{/* <NavigationItems /> */}</nav>
 		</header>
 	);

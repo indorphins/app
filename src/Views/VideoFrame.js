@@ -89,9 +89,9 @@ const VideoFrame = (props) => {
 		const profType = _.get(state.myProfile, 'type', 'PARTICIPANT');
 		const name = _.get(state.myProfile, 'name', '');
 		if (profType === 'INSTRUCTOR') {
-			history.push(`/instructor#${name}`);
+			window.location.pathname = `/instructor#${name}`;
 		} else {
-			history.push(`/classes#${name}`);
+			window.location.pathname = `/classes#${name}`;
 		}
 		window.alert(e.errorMsg);
 		window.location.reload();
@@ -294,11 +294,11 @@ const VideoFrame = (props) => {
 			<div id='call-container' className='block text-center'>
 				<div
 					id='instructor-video'
-					className='inline-block max-w-6xl pt-6 px-1 w-11/12'
+					className='inline-block max-w-6xl px-1 w-11/12'
 				/>
 				<div
 					id='participants-container'
-					className='inline-block max-w-6xl border-t border-blue-800 w-11/12 pt-3 mx-6'
+					className='inline-block max-w-6xl border-t border-blue-800 w-11/12 pt-2 mx-6'
 				>
 					<div id='participant-videos' className='grid grid-cols-4 col-gap-2' />
 				</div>
