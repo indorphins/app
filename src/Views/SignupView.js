@@ -99,7 +99,16 @@ const SignupView = (props) => {
 			await createUser(firstName, lastName, email, password, phone, 0)
 				.then((response) => {
 					if (response.success) {
-						const userProfile = new Profile(firstName, 'participant');
+						console.log('Sign up return ', response);
+						const user = response.user;
+						const userProfile = new Profile(
+							user.first_name,
+							user.last_name,
+							user.user_type === 0 ? 'instructor' : 'participant',
+							user.user_id,
+							user.email,
+							user.phone_number
+						);
 						setCookie('profile', userProfile, {
 							expires: getExpiryHoursFromNow(3),
 						}); // three hours before cookie expiry and login needed

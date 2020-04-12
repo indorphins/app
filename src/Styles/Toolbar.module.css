@@ -19,6 +19,18 @@
 	height: 100%;
 }
 
+.Toolbar ul {
+	height: 5em;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+
+.Toolbar li {
+	vertical-align: top;
+	display: inline-block;
+}
+
 .Logo {
 	height: 80%;
 }
