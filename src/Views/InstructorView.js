@@ -3,10 +3,10 @@ import Toolbar from '../Components/Toolbar';
 import Button from '../Components/Button';
 import { AppStateContext } from '../App';
 import { useHistory } from 'react-router-dom';
-import Profile from '../Classes/Profile';
 import _isEmpty from 'lodash/isEmpty';
 import ClassView from './ClassView';
 import { useCookies } from 'react-cookie';
+import Profile from '../Classes/Profile';
 
 const InstructorView = (props) => {
 	const { state, dispatch } = useContext(AppStateContext);
@@ -19,23 +19,27 @@ const InstructorView = (props) => {
 		}
 	}, [state.inClass]);
 
-	// Load default instructor name
-	useEffect(() => {
-		console.log('I View start w/ profile ', state.myProfile);
-		if (_isEmpty(state.myProfile)) {
-			console.log('no state profile - load from cookies profile');
-			if (cookies.profile) {
-				console.log('Cookies profile is ', cookies.profile);
-				dispatch({
-					type: 'updateProfile',
-					payload: cookies.profile,
-				});
-			} else {
-				// Send them to login page
-				history.push('/login');
-			}
-		}
-	}, []);
+	// Load default instructor name TESTING
+	// useEffect(() => {
+	// 	console.log('I View start w/ profile ', state.myProfile);
+	// 	// if (_isEmpty(state.myProfile)) {
+	// 	console.log('no state profile - load from cookies profile');
+	// 	// For testing
+	// 	const p = new Profile('Alex', 'Lindsay', 'instructor');
+	// 	console.log('Updated Instructor Profile');
+	// 	setCookie('profile', p);
+	// 	// if (cookies.profile) {
+	// 	// 	console.log('Cookies profile is ', cookies.profile);
+	// 	dispatch({
+	// 		type: 'updateProfile',
+	// 		payload: p,
+	// 	});
+	// 	// } else {
+	// 	// 	// Send them to login page
+	// 	// 	history.push('/login');
+	// 	// }
+	// 	// }
+	// }, []);
 
 	// Updates state.inClass to true and change url to load ClassView
 	const startClassHandler = async () => {

@@ -7,6 +7,7 @@ import {
 	createToken,
 	getRoom,
 } from '../Controllers/DailycoController.js';
+import { createClass } from '../Controllers/ClassesController';
 import { AppStateContext } from '../App';
 
 const ClassView = (props) => {
@@ -51,7 +52,6 @@ const ClassView = (props) => {
 		);
 		console.log('state myprofile type is ', state.myProfile.type);
 		if (state.myProfile.type === 'instructor') {
-			console.log('instructor flow - create room');
 			return createRoom({
 				privacy: 'private',
 				properties: {
@@ -71,7 +71,25 @@ const ClassView = (props) => {
 							is_owner: true,
 						},
 					}).then((tokens) => {
-						return { url: room.url, token: tokens.token };
+						// Create Class in backend
+
+						return createClass(
+							'active',
+							state.myProfile.firstName,
+							room.name,
+							11,
+							1 // instructor
+						).then((response) => {
+							if (response.success) {
+								dispatch({
+									type: 'updateCurrentClass',
+									payload: response.class,
+								});
+								return { url: room.url, token: tokens.token };
+							} else {
+								throw response.error;
+							}
+						});
 					});
 				})
 				.catch((error) => {

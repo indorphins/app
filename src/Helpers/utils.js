@@ -16,12 +16,20 @@ const getRandomInt = (max) => {
 const getExpiryHoursFromNow = (hours) => {
 	const date = new Date();
 	date.setTime(date.getTime() + hours * 60 * 60 * 1000);
-	console.log('getExpiryHoursFromNow - date is ', date);
 	return date;
+};
+
+const formatPhone = (phone) => {
+	if (phone.length !== 10) {
+		console.log('formatPhone - Phone must be 10 digits to format');
+		return phone;
+	}
+	return `${phone.slice(0, 3)}-${phone.slice(3, 6)}-${phone.slice(6, 10)}`;
 };
 
 module.exports = {
 	findGetParameter: findGetParameter,
 	getRandomInt: getRandomInt,
 	getExpiryHoursFromNow: getExpiryHoursFromNow,
+	formatPhone: formatPhone,
 };

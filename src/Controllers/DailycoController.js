@@ -22,8 +22,9 @@ export async function createRoom(properties) {
 		.then((result) => {
 			return result;
 		})
-		.catch((e) => {
-			console.log('DailycoController - createRoom - Error is ', e);
+		.catch((error) => {
+			console.log('DailycoController - createRoom - Error is ', error);
+			throw error;
 		});
 }
 
@@ -40,8 +41,9 @@ export async function getRoom(name) {
 		.then((result) => {
 			return result;
 		})
-		.catch((e) => {
-			console.log('DailycoController - getRoom - Error is ', e);
+		.catch((error) => {
+			console.log('DailycoController - getRoom - Error is ', error);
+			throw error;
 		});
 }
 
@@ -52,13 +54,12 @@ export async function deleteRoom(name) {
 	const url = DAILY_CO_SERVER_DOMAIN + '/room?name=' + name;
 	return fetch(url, options)
 		.then((response) => {
+			console.log('DailycoController - deleteRoom - success');
 			return response.json();
 		})
-		.then((result) => {
-			return result;
-		})
-		.catch((e) => {
-			console.log('DailycoController - deleteRoom - Error is ', e);
+		.catch((error) => {
+			console.log('DailycoController - deleteRoom - Error is ', error);
+			throw error;
 		});
 }
 
@@ -79,7 +80,8 @@ export async function createToken(properties) {
 		.then((result) => {
 			return result;
 		})
-		.catch((e) => {
-			console.log('DailycoController - createToken - Error is ', e);
+		.catch((error) => {
+			console.log('DailycoController - createToken - Error is ', error);
+			throw error;
 		});
 }

@@ -5,18 +5,18 @@ const AppReducer = (state, action) => {
 	switch (action.type) {
 		case 'addClass':
 			let c = action.payload; // the class
-			return { ...state, classes: { ...state.classes, [c.id]: c } };
+			return { ...state, classes: { ...state.classes, [c.class_id]: c } };
 		case 'removeClass':
 			let classList = state.classes ? state.classes : {};
 			c = action.payload;
-			if (state.classes[c.id]) {
-				delete classList[c.id];
+			if (state.classes[c.class_id]) {
+				delete classList[c.class_id];
 			}
 			return { ...state, classes: classList };
 		case 'updateClass':
 			// update current class, do nothing if class doesn't exist
 			classList = state.classes ? state.classes : {};
-			const id = action.payload.id;
+			const id = action.payload.class_id;
 			if (classList[id] && action.payload.class) {
 				classList[id] = action.payload.class;
 			}
@@ -33,6 +33,10 @@ const AppReducer = (state, action) => {
 			return { ...state, myProfile: null };
 		case 'updateInClass':
 			return { ...state, inClass: action.payload };
+		case 'updateCurrentClass':
+			return { ...state, currentClass: action.payload };
+		case 'removeCurrentClass':
+			return { ...state, currentClass: {} };
 		default:
 			return state;
 	}

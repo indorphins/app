@@ -6,6 +6,8 @@ import { AppStateContext } from '../App';
 import _isEmpty from 'lodash/isEmpty';
 import _get from 'lodash/get';
 import { useHistory } from 'react-router-dom';
+import { endClass } from '../Controllers/ClassesController';
+import { deleteRoom } from '../Controllers/DailycoController';
 
 const AUDIO_OFF_TEXT = 'Toggle Microphone Off';
 const AUDIO_ON_TEXT = 'Toggle Microphone On';
@@ -32,10 +34,7 @@ const Toolbar = (props) => {
 		} else {
 			history.replace(`/classes#${name}`);
 		}
-		dispatch({
-			type: 'updateInClass',
-			payload: false,
-		});
+
 		window.location.reload();
 	};
 
@@ -57,6 +56,35 @@ const Toolbar = (props) => {
 		state.myCallFrame.setLocalAudio(!state.myCallFrame.localAudio());
 	};
 
+	const finishClass = async (classId) => {
+		if (!_isEmpty(state.currentClass)) {
+			console.log('Got current class to finish: ', state.currentClass);
+			dispatch({
+				type: 'updateInClass',
+				payload: false,
+			});
+			return endClass(state.currentClass.class_id)
+				.then((response) => {
+					return deleteRoom(state.currentClass.chat_room_name);
+				})
+				.then((response) => {
+					leaveClassHandler();
+				})
+				.catch((error) => {
+					console.log('ClassToolbar - finishClass - error: ', error);
+				});
+		}
+		leaveClassHandler();
+	};
+
+	const leaveClass = () => {
+		dispatch({
+			type: 'updateInClass',
+			payload: false,
+		});
+		leaveClassHandler();
+	};
+
 	const name = !_isEmpty(state.myProfile) ? state.myProfile.name : 'Instructor';
 
 	return (
@@ -73,34 +101,38 @@ const Toolbar = (props) => {
 			<div className='text-xl float-left pt-1'>
 				<p>In Class</p>
 			</div>
-			<div id='btn-container' className='inline-flex float-right'>
-				<div id='toggle-mic-container' className='flex-auto text-right pr-4'>
+			<div id='toggle-mic-container' className='flex-auto text-right'>
+				<Button
+					clicked={toggleMicrophoneHandler}
+					text={audioOn ? AUDIO_OFF_TEXT : AUDIO_ON_TEXT}
+					id='toggle-mic-btn'
+					bgcolor='green'
+				/>
+			</div>
+			<div id='toggle-video-container' className='flex-auto text-right'>
+				<Button
+					clicked={toggleVideoHandler}
+					text={videoOn ? VIDEO_OFF_TEXT : VIDEO_ON_TEXT}
+					id='toggle-video-btn'
+					bgcolor='teal'
+				/>
+			</div>
+			<div id='leave-class-container' className='flex-auto text-right'>
+				{state.myProfile.type === 'instructor' ? (
 					<Button
-						clicked={toggleMicrophoneHandler}
-						text={audioOn ? AUDIO_OFF_TEXT : AUDIO_ON_TEXT}
-						id='toggle-mic-btn'
-						bgcolor='green'
-						className='px-5'
+						clicked={finishClass}
+						text='End Class'
+						id='leave-class-btn'
+						bgcolor='red'
 					/>
-				</div>
-				<div id='toggle-video-container' className='flex-auto text-right pr-4'>
+				) : (
 					<Button
-						clicked={toggleVideoHandler}
-						text={videoOn ? VIDEO_OFF_TEXT : VIDEO_ON_TEXT}
-						id='toggle-video-btn'
-						bgcolor='teal'
-						className='px-5'
-					/>
-				</div>
-				<div id='leave-class-container' className='flex-auto text-right'>
-					<Button
-						clicked={leaveClassHandler}
+						clicked={leaveClass}
 						text='Leave Class'
 						id='leave-class-btn'
 						bgcolor='red'
-						className='px-5'
 					/>
-				</div>
+				)}
 			</div>
 
 			<nav className={styles.DesktopOnly}>{/* <NavigationItems /> */}</nav>
