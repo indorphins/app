@@ -2,6 +2,7 @@ import React from 'react';
 import icon from '../assets/favicon.png';
 
 const ClassTile = (props) => {
+	const participants = props.participants ? props.participants : [];
 	return (
 		<div
 			id={`class_tile_${props.id}`}
@@ -12,9 +13,7 @@ const ClassTile = (props) => {
 			</div>
 			<div id='class-name'>{`${props.instructor}'s Class`}</div>
 			<div id='spots-left'>
-				{`${
-					props.totalSpots - Object.keys(props.participants).length
-				} Spots Left`}
+				{`${props.totalSpots - Object.keys(participants).length} Spots Left`}
 			</div>
 			<button
 				id='join-btn'

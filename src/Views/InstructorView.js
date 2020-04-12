@@ -19,14 +19,13 @@ const InstructorView = (props) => {
 		}
 	}, [state.inClass]);
 
-	// Load default instructor name
-	// TODO move cookie profile fetching to app level
+	// Load default instructor name TESTING
 	// useEffect(() => {
 	// 	console.log('I View start w/ profile ', state.myProfile);
 	// 	// if (_isEmpty(state.myProfile)) {
 	// 	console.log('no state profile - load from cookies profile');
 	// 	// For testing
-	// 	const p = new Profile('Alex', 'instructor');
+	// 	const p = new Profile('Alex', 'Lindsay', 'instructor');
 	// 	console.log('Updated Instructor Profile');
 	// 	setCookie('profile', p);
 	// 	// if (cookies.profile) {

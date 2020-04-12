@@ -72,14 +72,19 @@ const ClassView = (props) => {
 						},
 					}).then((tokens) => {
 						// Create Class in backend
+
 						return createClass(
 							'active',
-							state.myProfile.id,
-							state.myProfile.name,
+							state.myProfile.firstName,
 							room.name,
-							11
+							11,
+							1 // instructor
 						).then((response) => {
 							if (response.success) {
+								dispatch({
+									type: 'updateCurrentClass',
+									payload: response.class,
+								});
 								return { url: room.url, token: tokens.token };
 							} else {
 								throw response.error;

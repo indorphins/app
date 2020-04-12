@@ -19,6 +19,7 @@ const App = () => {
 		myCallFrame: {},
 		myProfile: {},
 		inClass: false,
+		currentClass: {},
 	});
 
 	// testing

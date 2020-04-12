@@ -6,6 +6,8 @@ import { AppStateContext } from '../App';
 import _isEmpty from 'lodash/isEmpty';
 import _get from 'lodash/get';
 import { useHistory } from 'react-router-dom';
+import { endClass } from '../Controllers/ClassesController';
+import { deleteRoom } from '../Controllers/DailycoController';
 
 const AUDIO_OFF_TEXT = 'Toggle Microphone Off';
 const AUDIO_ON_TEXT = 'Toggle Microphone On';
@@ -32,10 +34,7 @@ const Toolbar = (props) => {
 		} else {
 			history.replace(`/classes#${name}`);
 		}
-		dispatch({
-			type: 'updateInClass',
-			payload: false,
-		});
+
 		window.location.reload();
 	};
 
@@ -55,6 +54,35 @@ const Toolbar = (props) => {
 		}
 		setAudioOn(!audioOn);
 		state.myCallFrame.setLocalAudio(!state.myCallFrame.localAudio());
+	};
+
+	const finishClass = async (classId) => {
+		if (!_isEmpty(state.currentClass)) {
+			console.log('Got current class to finish: ', state.currentClass);
+			dispatch({
+				type: 'updateInClass',
+				payload: false,
+			});
+			return endClass(state.currentClass.class_id)
+				.then((response) => {
+					return deleteRoom(state.currentClass.chat_room_name);
+				})
+				.then((response) => {
+					leaveClassHandler();
+				})
+				.catch((error) => {
+					console.log('ClassToolbar - finishClass - error: ', error);
+				});
+		}
+		leaveClassHandler();
+	};
+
+	const leaveClass = () => {
+		dispatch({
+			type: 'updateInClass',
+			payload: false,
+		});
+		leaveClassHandler();
 	};
 
 	const name = !_isEmpty(state.myProfile) ? state.myProfile.name : 'Instructor';
@@ -90,12 +118,21 @@ const Toolbar = (props) => {
 				/>
 			</div>
 			<div id='leave-class-container' className='flex-auto text-right'>
-				<Button
-					clicked={leaveClassHandler}
-					text='Leave Class'
-					id='leave-class-btn'
-					bgcolor='red'
-				/>
+				{state.myProfile.type === 'instructor' ? (
+					<Button
+						clicked={finishClass}
+						text='End Class'
+						id='leave-class-btn'
+						bgcolor='red'
+					/>
+				) : (
+					<Button
+						clicked={leaveClass}
+						text='Leave Class'
+						id='leave-class-btn'
+						bgcolor='red'
+					/>
+				)}
 			</div>
 			<nav className={styles.DesktopOnly}>{/* <NavigationItems /> */}</nav>
 		</header>

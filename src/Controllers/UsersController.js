@@ -23,8 +23,9 @@ export async function createUser(firstName, lastName, email, pw, phone, type) {
 		.then((response) => {
 			return response.json();
 		})
-		.catch((e) => {
-			console.log('UsersController - createUser - Error is ', e);
+		.catch((error) => {
+			console.log('UsersController - createUser - Error is ', error);
+			throw error;
 		});
 }
 
@@ -45,8 +46,9 @@ export async function deleteUser(id) {
 		.then((result) => {
 			return result;
 		})
-		.catch((e) => {
-			console.log('UsersController - deleteUser - Error is ', e);
+		.catch((error) => {
+			console.log('UsersController - deleteUser - Error is ', error);
+			throw error;
 		});
 }
 
@@ -65,8 +67,9 @@ export async function getAllUsers() {
 		.then((result) => {
 			return result;
 		})
-		.catch((e) => {
-			console.log('UsersController - getAllUsers - Error is ', e);
+		.catch((error) => {
+			console.log('UsersController - getAllUsers - Error is ', error);
+			throw error;
 		});
 }
 
@@ -89,8 +92,9 @@ export async function loginUser(email, password) {
 		.then((response) => {
 			return response.json();
 		})
-		.catch((e) => {
-			console.log('UsersController - createUser - Error is ', e);
+		.catch((error) => {
+			console.log('UsersController - createUser - Error is ', error);
+			throw error;
 		});
 }
 
@@ -103,8 +107,6 @@ export async function getUser(id) {
 	};
 	const url = USERS_DOMAIN + `?id=${id}`;
 
-	// '/profile  '
-
 	return fetch(url, options)
 		.then((response) => {
 			return response.json();
@@ -112,8 +114,9 @@ export async function getUser(id) {
 		.then((result) => {
 			return result;
 		})
-		.catch((e) => {
-			console.log('UsersController - getUser - Error is ', e);
+		.catch((error) => {
+			console.log('UsersController - getUser - Error is ', error);
+			throw error;
 		});
 }
 
@@ -134,7 +137,8 @@ export async function updateUser(id) {
 		.then((result) => {
 			return result;
 		})
-		.catch((e) => {
-			console.log('UsersController - updateUser - Error is ', e);
+		.catch((error) => {
+			console.log('UsersController - updateUser - Error is ', error);
+			throw error;
 		});
 }

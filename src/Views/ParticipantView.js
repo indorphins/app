@@ -8,6 +8,7 @@ import Profile from '../Classes/Profile';
 import Button from '../Components/Button';
 import { getClasses } from '../Controllers/ClassesController';
 import ClassTile from '../Components/ClassTile';
+import { getExpiryHoursFromNow } from '../Helpers/utils';
 
 const ParticipantView = (props) => {
 	const { state, dispatch } = useContext(AppStateContext);
@@ -21,7 +22,7 @@ const ParticipantView = (props) => {
 	// 	console.log('I View start w/ profile ', state.myProfile);
 	// 	console.log('no state profile - load from cookies profile');
 	// 	// For testing
-	// 	const p = new Profile('BOB', 'participant');
+	// 	const p = new Profile('BOB', 'SHNEIDER', 'participant');
 	// 	console.log('Updated Participant Profile');
 	// 	setCookie('profile', p);
 	// 	// if (cookies.profile) {
@@ -42,54 +43,17 @@ const ParticipantView = (props) => {
 		getClasses()
 			.then((response) => {
 				// returns array of class objects with fields instructor_name, chat_room_name, class_id, participants, total_spots, duration
-				response = [
-					{
-						instructor_name: 'Alex',
-						chat_room_name: 'x9llkeJtP2MIRAKXTkaz',
-						class_id: '11',
-						participants: {},
-						total_spots: 11,
-						duration: 60,
-					},
-					{
-						instructor_name: 'Alex',
-						chat_room_name: '8asfhalksdg',
-						class_id: '22',
-						participants: {},
-						total_spots: 11,
-						duration: 60,
-					},
-					{
-						instructor_name: 'Alex',
-						chat_room_name: '8asfhalksdg',
-						class_id: '33',
-						participants: {},
-						total_spots: 11,
-						duration: 60,
-					},
-					{
-						instructor_name: 'Alex',
-						chat_room_name: '8asfhalksdg',
-						class_id: '666',
-						participants: {},
-						total_spots: 11,
-						duration: 60,
-					},
-					{
-						instructor_name: 'Megan Trainer',
-						chat_room_name: '6969420XXX',
-						class_id: '667',
-						participants: {},
-						total_spots: 11,
-						duration: 60,
-					},
-				];
-				response.forEach((c) => {
-					dispatch({
-						type: 'addClass',
-						payload: c,
+				if (response.success) {
+					response.classes.forEach((c) => {
+						// Only show active classes
+						if (c.status === 'active') {
+							dispatch({
+								type: 'addClass',
+								payload: c,
+							});
+						}
 					});
-				});
+				}
 			})
 			.catch((error) => {
 				console.log('ParticipantView - error fetching classes: ', error);
@@ -104,7 +68,7 @@ const ParticipantView = (props) => {
 			const c = classes[id];
 			classListItems.push(
 				<ClassTile
-					id={c.id}
+					id={c.class_id}
 					classCode={c.chat_room_name}
 					instructor={c.instructor_name}
 					totalSpots={c.total_spots}
@@ -124,6 +88,11 @@ const ParticipantView = (props) => {
 
 	const joinClassHandler = (c) => {
 		console.log('Join Class -', c);
+		dispatch({
+			type: 'updateCurrentClass',
+			payload: c,
+		});
+		setCookie('currentClass', c);
 		setRoomName(c.chat_room_name);
 		dispatch({
 			type: 'updateInClass',

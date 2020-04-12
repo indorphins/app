@@ -33,6 +33,10 @@ const AppReducer = (state, action) => {
 			return { ...state, myProfile: null };
 		case 'updateInClass':
 			return { ...state, inClass: action.payload };
+		case 'updateCurrentClass':
+			return { ...state, currentClass: action.payload };
+		case 'removeCurrentClass':
+			return { ...state, currentClass: {} };
 		default:
 			return state;
 	}
