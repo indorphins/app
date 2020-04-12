@@ -101,38 +101,40 @@ const Toolbar = (props) => {
 			<div className='text-xl float-left pt-1'>
 				<p>In Class</p>
 			</div>
-			<div id='toggle-mic-container' className='flex-auto text-right'>
-				<Button
-					clicked={toggleMicrophoneHandler}
-					text={audioOn ? AUDIO_OFF_TEXT : AUDIO_ON_TEXT}
-					id='toggle-mic-btn'
-					bgcolor='green'
-				/>
-			</div>
-			<div id='toggle-video-container' className='flex-auto text-right'>
-				<Button
-					clicked={toggleVideoHandler}
-					text={videoOn ? VIDEO_OFF_TEXT : VIDEO_ON_TEXT}
-					id='toggle-video-btn'
-					bgcolor='teal'
-				/>
-			</div>
-			<div id='leave-class-container' className='flex-auto text-right'>
-				{state.myProfile.type === 'instructor' ? (
+			<div id='btn-container' className='inline-flex float-right'>
+				<div id='toggle-mic-container' className='flex-auto text-right pr-4'>
 					<Button
-						clicked={finishClass}
-						text='End Class'
-						id='leave-class-btn'
-						bgcolor='red'
+						clicked={toggleMicrophoneHandler}
+						text={audioOn ? AUDIO_OFF_TEXT : AUDIO_ON_TEXT}
+						id='toggle-mic-btn'
+						bgcolor='green'
 					/>
-				) : (
+				</div>
+				<div id='toggle-video-container' className='flex-auto text-right pr-4'>
 					<Button
-						clicked={leaveClass}
-						text='Leave Class'
-						id='leave-class-btn'
-						bgcolor='red'
+						clicked={toggleVideoHandler}
+						text={videoOn ? VIDEO_OFF_TEXT : VIDEO_ON_TEXT}
+						id='toggle-video-btn'
+						bgcolor='teal'
 					/>
-				)}
+				</div>
+				<div id='leave-class-container' className='flex-auto text-right'>
+					{state.myProfile.type === 'instructor' ? (
+						<Button
+							clicked={finishClass}
+							text='End Class'
+							id='leave-class-btn'
+							bgcolor='red'
+						/>
+					) : (
+						<Button
+							clicked={leaveClass}
+							text='Leave Class'
+							id='leave-class-btn'
+							bgcolor='red'
+						/>
+					)}
+				</div>
 			</div>
 
 			<nav className={styles.DesktopOnly}>{/* <NavigationItems /> */}</nav>
