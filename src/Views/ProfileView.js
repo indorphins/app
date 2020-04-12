@@ -1,10 +1,19 @@
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Toolbar from '../Components/Toolbar';
 import { AppStateContext } from '../App';
+import { formatPhone } from '../Helpers/utils';
 
 const ProfileView = (props) => {
 	const { state, dispatch } = useContext(AppStateContext);
+	const [formattedPhone, setFormattedPhone] = useState();
 	console.log('Profile view - State is ', state);
+
+	useEffect(() => {
+		if (state.myProfile.phone) {
+			setFormattedPhone(formatPhone(state.myProfile.phone));
+		}
+	}, [state.myProfile.phone]);
+
 	return (
 		<div>
 			<Toolbar />
@@ -43,7 +52,9 @@ const ProfileView = (props) => {
 						<label for='phone' className='ml-5'>
 							Phone Number:
 						</label>
-						<div id='phone' className='mr-5'>{`${state.myProfile.phone}`}</div>
+						<div id='phone' className='mr-5'>
+							{formattedPhone}
+						</div>
 					</div>
 				</div>
 			</div>
