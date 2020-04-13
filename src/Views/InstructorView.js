@@ -14,6 +14,13 @@ const InstructorView = (props) => {
 	const history = useHistory();
 
 	useEffect(() => {
+		// if not an instructor redirect away from page
+		if (!state.myProfile || state.myProfile.type !== 'instructor') {
+			history.push('/classes');
+		}
+	}, []);
+
+	useEffect(() => {
 		if (!state.inClass) {
 			endClassHandler();
 		}

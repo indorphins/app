@@ -7,8 +7,7 @@ import NavigationItems from './NavigationItems';
 const Toolbar = (props) => {
 	return (
 		<div id='toolbar' className={styles.Toolbar}>
-			<Menu clicked={props.menuClicked} />
-			<div className={styles.Logo}>
+			<div>
 				<Logo />
 			</div>
 			<div>

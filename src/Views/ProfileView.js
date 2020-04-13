@@ -2,17 +2,42 @@ import React, { useContext, useEffect, useState } from 'react';
 import Toolbar from '../Components/Toolbar';
 import { AppStateContext } from '../App';
 import { formatPhone } from '../Helpers/utils';
+import { useCookies } from 'react-cookie';
+import _isEmpty from 'lodash/isEmpty';
+import { useHistory } from 'react-router-dom';
 
 const ProfileView = (props) => {
 	const { state, dispatch } = useContext(AppStateContext);
 	const [formattedPhone, setFormattedPhone] = useState();
-	console.log('Profile view - State is ', state);
+	const [fullName, setFullName] = useState('');
+	const [email, setEmail] = useState('');
+	const [removeCookie] = useCookies();
+	const history = useHistory();
 
 	useEffect(() => {
-		if (state.myProfile.phone) {
+		if (!_isEmpty(state.myProfile) && state.myProfile.phone) {
 			setFormattedPhone(formatPhone(state.myProfile.phone));
 		}
-	}, [state.myProfile.phone]);
+		if (
+			!_isEmpty(state.myProfile) &&
+			state.myProfile.firstName &&
+			state.myProfile.lastName
+		) {
+			setFullName(`${state.myProfile.firstName} ${state.myProfile.lastName}`);
+		}
+		if (!_isEmpty(state.myProfile) && state.myProfile.email) {
+			setEmail(state.myProfile.email);
+		}
+	}, [state.myProfile]);
+
+	const logoutHandler = () => {
+		dispatch({
+			type: 'removeProfile',
+			payload: null,
+		});
+		removeCookie('profile');
+		history.push('/login');
+	};
 
 	return (
 		<div>
@@ -33,7 +58,7 @@ const ProfileView = (props) => {
 							Name:
 						</label>
 						<div id='name' className='mr-5'>
-							{`${state.myProfile.firstName} ${state.myProfile.lastName}`}
+							{fullName}
 						</div>
 					</div>
 					<div
@@ -43,7 +68,9 @@ const ProfileView = (props) => {
 						<label for='email' className='ml-5'>
 							Email:
 						</label>
-						<div id='email' className='mr-5'>{`${state.myProfile.email}`}</div>
+						<div id='email' className='mr-5'>
+							{email}
+						</div>
 					</div>
 					<div
 						id='phone-container'
@@ -57,6 +84,15 @@ const ProfileView = (props) => {
 						</div>
 					</div>
 				</div>
+			</div>
+			<div id='logout-btn-container' className='mt-5 text-center'>
+				<button
+					id='logout-btn'
+					className='rounded bg-red-600 p-3'
+					onClick={logoutHandler}
+				>
+					Logout
+				</button>
 			</div>
 		</div>
 	);

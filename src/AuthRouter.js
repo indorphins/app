@@ -8,6 +8,7 @@ import ParticipantView from './Views/ParticipantView';
 import _isEmpty from 'lodash/isEmpty';
 import Profile from './Classes/Profile';
 import ProfileView from './Views/ProfileView';
+import isEmpty from 'lodash/isEmpty';
 
 // Router for pages accessed once user's Profile is loaded
 const AuthRouter = (props) => {
@@ -17,12 +18,11 @@ const AuthRouter = (props) => {
 
 	useEffect(() => {
 		if (_isEmpty(state.myProfile)) {
-			if (cookies.profile) {
+			if (_isEmpty(cookies.profile) && cookies.profile !== 'undefined') {
 				dispatch({
 					type: 'updateProfile',
 					payload: cookies.profile,
 				});
-				console.log('Loaded profile from cookies ', cookies.profile);
 			} else {
 				// Send them to login page
 				history.push('/login');

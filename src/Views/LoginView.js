@@ -1,4 +1,4 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import Toolbar from '../Components/Toolbar';
 import { useHistory } from 'react-router-dom';
 import Profile from '../Classes/Profile';
@@ -13,6 +13,19 @@ const LoginView = (props) => {
 	const [cookies, setCookie] = useCookies('profile');
 	const { state, dispatch } = useContext(AppStateContext);
 	const history = useHistory();
+
+	useEffect(() => {
+		// grab profile from cookie if present and redirect to page
+		if (cookies.profile && cookies.profile !== 'undefined') {
+			dispatch({
+				type: 'updateProfile',
+				payload: cookies.profile,
+			});
+			history.push(
+				cookies.profile.type === 'instructor' ? '/instructor' : '/classes'
+			);
+		}
+	});
 
 	const userNameInputHandler = (event) => {
 		setUserName(event.target.value);

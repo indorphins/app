@@ -75,7 +75,7 @@ export async function getAllUsers() {
 
 export async function loginUser(email, password) {
 	const properties = {
-		username: email,
+		email: email,
 		password: password,
 	};
 	const options = {
