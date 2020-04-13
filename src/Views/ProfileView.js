@@ -11,7 +11,7 @@ const ProfileView = (props) => {
 	const [formattedPhone, setFormattedPhone] = useState();
 	const [fullName, setFullName] = useState('');
 	const [email, setEmail] = useState('');
-	const [removeCookie] = useCookies();
+	const [cookies, removeCookie] = useCookies();
 	const history = useHistory();
 
 	useEffect(() => {
