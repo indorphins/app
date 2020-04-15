@@ -96,15 +96,15 @@ const SignupView = (props) => {
 		// Validate form fields
 
 		if (validateForm()) {
-			await createUser(firstName, lastName, email, password, phone, 0)
+			await createUser(firstName, lastName, email, password, phone, 1)
 				.then((response) => {
 					if (response.success) {
 						console.log('Sign up return ', response);
-						const user = response.user;
+						const user = response.user[0];
 						const userProfile = new Profile(
 							user.first_name,
 							user.last_name,
-							user.user_type === 0 ? 'instructor' : 'participant',
+							user.user_type === 1 ? 'instructor' : 'participant',
 							user.user_id,
 							user.email,
 							user.phone_number

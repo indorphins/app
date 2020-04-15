@@ -38,27 +38,27 @@ const ParticipantView = (props) => {
 	// }, []);
 
 	// Load classes from API on mount
-	useEffect(() => {
-		// TODO fetch classes + store on client side
-		getClasses()
-			.then((response) => {
-				// returns array of class objects with fields instructor_name, chat_room_name, class_id, participants, total_spots, duration
-				if (response.success) {
-					response.classes.forEach((c) => {
-						// Only show active classes
-						if (c.status === 'active') {
-							dispatch({
-								type: 'addClass',
-								payload: c,
-							});
-						}
-					});
-				}
-			})
-			.catch((error) => {
-				console.log('ParticipantView - error fetching classes: ', error);
-			});
-	}, []);
+	// useEffect(() => {
+	// 	// TODO fetch classes + store on client side
+	// 	getClasses()
+	// 		.then((response) => {
+	// 			// returns array of class objects with fields instructor_name, chat_room_name, class_id, participants, total_spots, duration
+	// 			if (response.success) {
+	// 				response.classes.forEach((c) => {
+	// 					// Only show active classes
+	// 					if (c.status === 'active') {
+	// 						dispatch({
+	// 							type: 'addClass',
+	// 							payload: c,
+	// 						});
+	// 					}
+	// 				});
+	// 			}
+	// 		})
+	// 		.catch((error) => {
+	// 			console.log('ParticipantView - error fetching classes: ', error);
+	// 		});
+	// }, []);
 
 	// set up class tile elements with room names
 	useEffect(() => {

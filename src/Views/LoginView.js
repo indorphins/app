@@ -41,13 +41,13 @@ const LoginView = (props) => {
 		await loginUser(userName, password)
 			.then((response) => {
 				if (response.success) {
-					console.log('REsponse on signup is ', response);
+					console.log('REsponse on Login is ', response);
 					const user = response.user;
 					// create user's profile and store in cookies
 					const userProfile = new Profile(
 						user.first_name,
 						user.last_name,
-						user.user_type === 0 ? 'instructor' : 'participant',
+						user.user_type === 1 ? 'instructor' : 'participant',
 						user.user_id,
 						user.email,
 						user.phone_number

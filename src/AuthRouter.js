@@ -18,7 +18,7 @@ const AuthRouter = (props) => {
 
 	useEffect(() => {
 		if (_isEmpty(state.myProfile)) {
-			if (_isEmpty(cookies.profile) && cookies.profile !== 'undefined') {
+			if (!_isEmpty(cookies.profile) && cookies.profile !== 'undefined') {
 				dispatch({
 					type: 'updateProfile',
 					payload: cookies.profile,
