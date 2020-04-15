@@ -41,7 +41,6 @@ const LoginView = (props) => {
 		await loginUser(userName, password)
 			.then((response) => {
 				if (response.success) {
-					console.log('REsponse on Login is ', response);
 					const user = response.user;
 					// create user's profile and store in cookies
 					const userProfile = new Profile(

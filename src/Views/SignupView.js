@@ -99,7 +99,6 @@ const SignupView = (props) => {
 			await createUser(firstName, lastName, email, password, phone, 0)
 				.then((response) => {
 					if (response.success) {
-						console.log('Sign up return ', response);
 						const user = response.user[0];
 						const userProfile = new Profile(
 							user.first_name,
@@ -117,7 +116,7 @@ const SignupView = (props) => {
 							payload: userProfile,
 						});
 
-						history.push(`/classes#${firstName}`);
+						history.push(`/classes`);
 					} else {
 						if (response.error === 'duplicate_email') {
 							window.alert('That email already exists with a user');
