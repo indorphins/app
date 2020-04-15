@@ -96,7 +96,7 @@ const SignupView = (props) => {
 		// Validate form fields
 
 		if (validateForm()) {
-			await createUser(firstName, lastName, email, password, phone, 1)
+			await createUser(firstName, lastName, email, password, phone, 0)
 				.then((response) => {
 					if (response.success) {
 						console.log('Sign up return ', response);
