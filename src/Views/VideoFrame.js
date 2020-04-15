@@ -106,6 +106,52 @@ const VideoFrame = (props) => {
 		});
 	};
 
+	const togglePiP = () => {
+		const container = document.getElementById('picture-in-picture');
+		const attrs = container.attributes;
+		const isHidden = attrs.hidden ? attrs.hidden.value : false;
+		const toggleTo = isHidden === 'false' ? 'true' : 'false';
+
+		const pipAudio = findPiPAudio();
+		if (pipAudio) {
+			pipAudio.setAttribute('muted', toggleTo);
+		}
+		if (isHidden) {
+			container.removeAttribute('hidden');
+		} else {
+			container.setAttribute('hidden', true);
+		}
+	};
+
+	const setupInstructorPiP = (instructor) => {
+		const container = document.getElementById('picture-in-picture');
+
+		const audio = findPiPAudio();
+		if (!audio) {
+			const audio = document.createElement('audio');
+			audio.session_id = 'pip-audio';
+			audio.autoplay = true;
+			container.appendChild(audio);
+			audio.srcObject = new MediaStream([instructor.audioTrack]);
+			audio.muted = instructor.local; // Mute your own audio track
+		} else {
+			audio.srcObject = new MediaStream([instructor.audioTrack]);
+		}
+
+		const video = findPiPVideo();
+		if (!video) {
+			const vid = document.createElement('video');
+			vid.session_id = 'pip-video';
+			vid.style.width = '100%';
+			vid.autoplay = true;
+			vid.playsInline = true;
+			container.appendChild(vid);
+			vid.srcObject = new MediaStream([instructor.videoTrack]);
+		} else {
+			video.srcObject = new MediaStream([instructor.videoTrack]);
+		}
+	};
+
 	const updateParticipantVideos = () => {
 		// TODO add check for owner (don't add owner to participant vids)
 
@@ -231,6 +277,8 @@ const VideoFrame = (props) => {
 				vid.srcObject = new MediaStream([e.track]);
 			}
 		}
+		// setup Picture in Picture
+		setupInstructorPiP(e.participant);
 	};
 
 	const trackStopped = (e) => {
@@ -243,11 +291,35 @@ const VideoFrame = (props) => {
 		if (audio) {
 			audio.remove();
 		}
+		const pipAudio = findPiPAudio();
+		if (pipAudio) {
+			pipAudio.remove();
+		}
+		const pipVideo = findPiPVideo();
+		if (pipVideo) {
+			pipVideo.remove();
+		}
 	};
 
 	const findAudioForParticipant = (session_id) => {
 		for (const audio of document.getElementsByTagName('audio')) {
 			if (audio.session_id === session_id) {
+				return audio;
+			}
+		}
+	};
+
+	const findPiPAudio = () => {
+		for (const audio of document.getElementsByTagName('audio')) {
+			if (audio.session_id === 'pip-audio') {
+				return audio;
+			}
+		}
+	};
+
+	const findPiPVideo = () => {
+		for (const audio of document.getElementsByTagName('video')) {
+			if (audio.session_id === 'pip-video') {
 				return audio;
 			}
 		}
@@ -297,11 +369,15 @@ const VideoFrame = (props) => {
 					className='inline-block max-w-6xl px-1 w-11/12'
 				/>
 				<div
+					id='picture-in-picture'
+					className='fixed w-1/3 bottom-0 pb-3 pr-3 right-0'
+				/>
+				{/* <div
 					id='participants-container'
 					className='inline-block max-w-6xl border-t border-blue-800 w-11/12 pt-2 mx-6'
 				>
 					<div id='participant-videos' className='grid grid-cols-4 col-gap-2' />
-				</div>
+				</div> */}
 			</div>
 		</div>
 	);
