@@ -18,7 +18,7 @@ const InstructorView = (props) => {
 		if (!state.myProfile || state.myProfile.type !== 'instructor') {
 			history.push('/classes');
 		}
-	}, []);
+	}, [state.myProfile]);
 
 	useEffect(() => {
 		if (!state.inClass) {

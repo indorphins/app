@@ -3,7 +3,7 @@ export default class Profile {
 		firstName,
 		lastName,
 		type,
-		id = 0,
+		id = 1,
 		email = 'dummy@email.me',
 		phone = '420-666-6969'
 	) {

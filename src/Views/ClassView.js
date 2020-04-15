@@ -78,7 +78,8 @@ const ClassView = (props) => {
 							state.myProfile.firstName,
 							room.name,
 							11,
-							1 // instructor
+							1, // instructor
+							state.myProfile.id
 						).then((response) => {
 							if (response.success) {
 								dispatch({

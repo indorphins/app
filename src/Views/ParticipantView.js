@@ -9,6 +9,7 @@ import Button from '../Components/Button';
 import { getClasses } from '../Controllers/ClassesController';
 import ClassTile from '../Components/ClassTile';
 import { getExpiryHoursFromNow } from '../Helpers/utils';
+import { useHistory } from 'react-router-dom';
 
 const ParticipantView = (props) => {
 	const { state, dispatch } = useContext(AppStateContext);
@@ -16,6 +17,7 @@ const ParticipantView = (props) => {
 	const [roomName, setRoomName] = useState('');
 	const [classTiles, setClassTiles] = useState([]);
 	const [cookies, setCookie] = useCookies('profile');
+	const history = useHistory();
 
 	// FOR TESTING
 	// useEffect(() => {
@@ -59,6 +61,13 @@ const ParticipantView = (props) => {
 	// 			console.log('ParticipantView - error fetching classes: ', error);
 	// 		});
 	// }, []);
+
+	useEffect(() => {
+		// if instructor redirect to instructor page
+		if (state.myProfile && state.myProfile.type === 'instructor') {
+			history.push('/instructor');
+		}
+	}, [state.myProfile]);
 
 	// set up class tile elements with room names
 	useEffect(() => {

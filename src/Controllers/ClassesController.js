@@ -4,7 +4,8 @@ export const createClass = async (
 	instructor_name,
 	chat_room_name,
 	total_spots,
-	user_type
+	user_type,
+	user_id
 ) => {
 	const body = {
 		status: status,
@@ -12,6 +13,7 @@ export const createClass = async (
 		chat_room_name: chat_room_name,
 		total_spots: total_spots,
 		user_type: user_type,
+		user_id: user_id,
 	};
 	const options = {
 		method: 'POST',

@@ -59,11 +59,10 @@ const LoginView = (props) => {
 						type: 'updateProfile',
 						payload: userProfile,
 					});
-					const name = user.first_name ? user.first_name : '';
-					if (user.user_type === 0) {
-						history.push(`/instructor#${name}`);
+					if (user.user_type === 1) {
+						history.push(`/instructor`);
 					} else {
-						history.push(`/classes#${name}`);
+						history.push(`/classes`);
 					}
 				} else {
 					window.alert('Invalid Login. Please try again.');
