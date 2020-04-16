@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import styles from '../Styles/Toolbar.module.css';
 import Menu from './Menu';
 import Button from './Button';
@@ -20,6 +20,13 @@ const Toolbar = (props) => {
 	const [videoOn, setVideoOn] = useState(true);
 	const [audioOn, setAudioOn] = useState(true);
 	const history = useHistory();
+
+	useEffect(() => {
+		if (!_isEmpty(state.myCallFrame) && state.myCallFrame._participants.local) {
+			setAudioOn(state.myCallFrame._participants.local.audio);
+			setVideoOn(state.myCallFrame._participants.local.video);
+		}
+	});
 
 	const leaveClassHandler = () => {
 		const myCallFrame = state.myCallFrame;

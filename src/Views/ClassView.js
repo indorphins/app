@@ -117,7 +117,7 @@ const ClassView = (props) => {
 						properties: {
 							room_name: room.name,
 							is_owner: false,
-							start_audio_off: false,
+							start_audio_off: true,
 						},
 					}).then((tokens) => {
 						return { url: room.url, token: tokens.token };
