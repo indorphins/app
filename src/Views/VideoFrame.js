@@ -1,12 +1,15 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
 import { AppStateContext } from '../App';
 import _ from 'lodash';
-import { useHistory } from 'react-router-dom';
 import { getRandomInt } from '../Helpers/utils';
 
 const VideoFrame = (props) => {
 	const { state, dispatch } = useContext(AppStateContext);
-	const history = useHistory();
+	const [instructor, setInstructor] = useState();
+	const [participantIndex, setParticipantIndex] = useState();
+	const [instructorLive, setInstructorLive] = useState(true);
+	const [timerIndex, setTimerIndex] = useState(0);
+	const [participantList, setParticipantList] = useState([]);
 
 	// Don't start call until url and token are passed in TODO type check props these 2 are required
 	useEffect(() => {
@@ -20,13 +23,31 @@ const VideoFrame = (props) => {
 	// Set up rotating participant views
 	useEffect(() => {
 		const interval = setInterval(() => {
-			updateParticipantVideos();
+			// if (timerIndex === 3) {
+			// 	console.log('Interval - bring I back');
+			// 	updateMainFeed(); // bring Instructor back to main view
+			// } else if (timerIndex === 2) {
+			// 	console.log('interval - set P view as main');
+			// 	updateMainFeed(); // bring Participant to main view
+			// }
+			// const newIndex = timerIndex === 3 ? 0 : timerIndex + 1;
+			// setTimerIndex(newIndex);
+			updatePiP();
 		}, 10000);
 		return () => clearInterval(interval);
 	});
 
 	const showEvent = (e) => {
 		console.log('video call event -->', e);
+	};
+
+	const participantJoined = (e) => {
+		console.log('participant joined -->', e);
+		// TODO add participant name to list in view
+	};
+
+	const participantLeft = (e) => {
+		console.log('participant left -->', e);
 	};
 
 	const run = async () => {
@@ -60,8 +81,8 @@ const VideoFrame = (props) => {
 			.on('camera-error', showEvent)
 			.on('joining-meeting', showEvent)
 			.on('joined-meeting', showEvent)
-			.on('participant-joined', showEvent)
-			.on('participant-updated', showEvent)
+			.on('participant-joined', participantJoined)
+			.on('participant-updated', participantLeft)
 			.on('participant-left', showEvent)
 			.on('error', errorHandler)
 			.on('network-connection', showEvent);
@@ -106,6 +127,74 @@ const VideoFrame = (props) => {
 		});
 	};
 
+	const updatePiP = () => {
+		const participants = state.myCallFrame.participants();
+		const participantIds = Object.keys(participants);
+
+		let index = participantIndex ? participantIndex : 0;
+		let newId = participantIds[index];
+
+		// If only instructor don't show PiP
+		if (participantIds.length <= 1) {
+			return;
+		}
+
+		if (participants[newId].owner || !participants[newId].videoTrack) {
+			index = index + 1 >= participantIds.length ? 0 : index + 1;
+			newId = participantIds[index];
+		}
+		index = index + 1 >= participantIds.length ? 0 : index + 1;
+		setParticipantIndex(index);
+		loadParticipantPiP(participants[newId]);
+	};
+
+	const updateMainFeed = () => {
+		const participants = state.myCallFrame.participants();
+		const participantIds = Object.keys(participants);
+
+		// Do nothing if only one person in class
+		if (participantIds.length <= 1) {
+			return;
+		}
+
+		// If Instructor is live, set view to be a participant
+		if (instructorLive) {
+			setInstructorLive(false);
+			let index = participantIndex;
+			let newId = participantIds[index];
+			// If participant is you, skip update. If it's instructor, get a new participant. If they have no video, skip
+			if (participants[newId].owner || !participants[newId].videoTrack) {
+				index = index + 1 >= participantIds.length ? 0 : index + 1;
+				newId = participantIds[index];
+			}
+			setParticipantIndex(index);
+			const participant = participants[newId];
+			if (!participants[newId].local) {
+				const mainFeed = getInstructorMedia();
+				mainFeed.forEach((feed) => {
+					if (feed.nodeName === 'AUDIO' && participants[newId].audioTrack) {
+						feed.srcObject = new MediaStream([participants[newId].audioTrack]);
+					} else if (feed.nodeName === 'VIDEO') {
+						feed.srcObject = new MediaStream([participants[newId].videoTrack]);
+					}
+				});
+				togglePiP();
+			}
+		} else {
+			// Set Instructor back in main view
+			const mainFeed = getInstructorMedia();
+			mainFeed.forEach((feed) => {
+				if (feed.nodeName === 'AUDIO') {
+					feed.srcObject = new MediaStream([instructor.audioTrack]);
+				} else if (feed.nodeName === 'VIDEO') {
+					feed.srcObject = new MediaStream([instructor.videoTrack]);
+				}
+			});
+			setInstructorLive(true);
+			togglePiP();
+		}
+	};
+
 	const togglePiP = () => {
 		const container = document.getElementById('picture-in-picture');
 		const attrs = container.attributes;
@@ -123,32 +212,32 @@ const VideoFrame = (props) => {
 		}
 	};
 
-	const setupInstructorPiP = (instructor) => {
+	const loadParticipantPiP = (participant) => {
 		const container = document.getElementById('picture-in-picture');
 
-		const audio = findPiPAudio();
-		if (!audio) {
-			const audio = document.createElement('audio');
-			audio.session_id = 'pip-audio';
-			audio.autoplay = true;
-			container.appendChild(audio);
-			audio.srcObject = new MediaStream([instructor.audioTrack]);
-			audio.muted = instructor.local; // Mute your own audio track
-		} else {
-			audio.srcObject = new MediaStream([instructor.audioTrack]);
-		}
-
 		const video = findPiPVideo();
-		if (!video) {
+		if (!video && participant.videoTrack) {
 			const vid = document.createElement('video');
 			vid.session_id = 'pip-video';
 			vid.style.width = '100%';
 			vid.autoplay = true;
 			vid.playsInline = true;
 			container.appendChild(vid);
-			vid.srcObject = new MediaStream([instructor.videoTrack]);
+			vid.srcObject = new MediaStream([participant.videoTrack]);
 		} else {
-			video.srcObject = new MediaStream([instructor.videoTrack]);
+			video.srcObject = new MediaStream([participant.videoTrack]);
+		}
+
+		const audio = findPiPAudio();
+		if (!audio && participant.audioTrack) {
+			const audio = document.createElement('audio');
+			audio.session_id = 'pip-audio';
+			audio.autoplay = true;
+			container.appendChild(audio);
+			audio.srcObject = new MediaStream([participant.audioTrack]);
+			audio.muted = participant.local; // Mute your own audio track
+		} else {
+			audio.srcObject = new MediaStream([participant.audioTrack]);
 		}
 	};
 
@@ -194,6 +283,10 @@ const VideoFrame = (props) => {
 		}
 	};
 
+	const randomPickFromIds = (ids) => {
+		return ids[getRandomInt(ids.length)];
+	};
+
 	// Get 4 new ids that from the list of all ids
 	const getNewIds = (allIds, usedIds) => {
 		const newIds = [];
@@ -229,18 +322,26 @@ const VideoFrame = (props) => {
 		return container.childNodes;
 	};
 
+	const getInstructorMedia = () => {
+		const container = document.getElementById('instructor-video');
+		return container.childNodes;
+	};
+
 	const trackStarted = (e) => {
-		const callFrame = state.myCallFrame;
+		if (!e.participant.owner) {
+			// Don't add participants to main view
+			return;
+		}
+		// set instructor when their tracks start
+		setInstructor(e.participant);
 		showEvent(e);
+
 		if (!(e.track && (e.track.kind === 'video' || e.track.kind == 'audio'))) {
 			return;
 		}
 
-		// Only add if space allows
-		// local + 4 others
-		const container = !e.participant.owner
-			? document.getElementById('participant-videos')
-			: document.getElementById('instructor-video');
+		// Only show instructor
+		const container = document.getElementById('instructor-video');
 
 		if (e.track && e.track.kind === 'audio') {
 			let audio = findAudioForParticipant(e.participant.session_id);
@@ -277,8 +378,6 @@ const VideoFrame = (props) => {
 				vid.srcObject = new MediaStream([e.track]);
 			}
 		}
-		// setup Picture in Picture
-		setupInstructorPiP(e.participant);
 	};
 
 	const trackStopped = (e) => {
@@ -368,16 +467,21 @@ const VideoFrame = (props) => {
 					id='instructor-video'
 					className='inline-block max-w-6xl px-1 w-11/12'
 				/>
-				<div
-					id='picture-in-picture'
-					className='fixed w-1/3 bottom-0 pb-3 pr-3 right-0'
-				/>
 				{/* <div
 					id='participants-container'
 					className='inline-block max-w-6xl border-t border-blue-800 w-11/12 pt-2 mx-6'
 				>
 					<div id='participant-videos' className='grid grid-cols-4 col-gap-2' />
 				</div> */}
+			</div>
+			<div id='side-container'>
+				{/* <div id='participant-list'>
+					<ul>Participants:</ul>
+				</div> */}
+				<div
+					id='picture-in-picture'
+					className='fixed w-1/4 bottom-0 pb-4 pr-4 right-0'
+				/>
 			</div>
 		</div>
 	);
