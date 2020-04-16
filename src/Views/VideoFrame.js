@@ -215,28 +215,28 @@ const VideoFrame = (props) => {
 	const loadParticipantPiP = (participant) => {
 		const container = document.getElementById('picture-in-picture');
 
-		const video = findPiPVideo();
-		if (!video && participant.videoTrack) {
-			const vid = document.createElement('video');
-			vid.session_id = 'pip-video';
-			vid.style.width = '100%';
-			vid.autoplay = true;
-			vid.playsInline = true;
-			container.appendChild(vid);
+		let vid = findPiPVideo();
+		if (participant.videoTrack) {
+			if (!vid) {
+				vid = document.createElement('video');
+				vid.session_id = 'pip-video';
+				vid.style.width = '100%';
+				vid.autoplay = true;
+				vid.playsInline = true;
+				container.appendChild(vid);
+			}
 			vid.srcObject = new MediaStream([participant.videoTrack]);
-		} else {
-			video.srcObject = new MediaStream([participant.videoTrack]);
 		}
 
-		const audio = findPiPAudio();
-		if (!audio && participant.audioTrack) {
-			const audio = document.createElement('audio');
-			audio.session_id = 'pip-audio';
-			audio.autoplay = true;
-			container.appendChild(audio);
-			audio.srcObject = new MediaStream([participant.audioTrack]);
-			audio.muted = participant.local; // Mute your own audio track
-		} else {
+		let audio = findPiPAudio();
+		if (participant.audioTrack) {
+			if (!audio) {
+				audio = document.createElement('audio');
+				audio.session_id = 'pip-audio';
+				audio.autoplay = true;
+				audio.muted = participant.local; // Mute your own audio track
+				container.appendChild(audio);
+			}
 			audio.srcObject = new MediaStream([participant.audioTrack]);
 		}
 	};

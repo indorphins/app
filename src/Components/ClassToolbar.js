@@ -21,13 +21,6 @@ const Toolbar = (props) => {
 	const [audioOn, setAudioOn] = useState(true);
 	const history = useHistory();
 
-	useEffect(() => {
-		if (!_isEmpty(state.myCallFrame) && state.myCallFrame._participants.local) {
-			setAudioOn(state.myCallFrame._participants.local.audio);
-			setVideoOn(state.myCallFrame._participants.local.video);
-		}
-	});
-
 	const leaveClassHandler = () => {
 		const myCallFrame = state.myCallFrame;
 		if (!_isEmpty(myCallFrame)) {
