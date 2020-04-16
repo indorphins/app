@@ -33,7 +33,7 @@ const VideoFrame = (props) => {
 			// const newIndex = timerIndex === 3 ? 0 : timerIndex + 1;
 			// setTimerIndex(newIndex);
 			updatePiP();
-		}, 10000);
+		}, 30000);
 		return () => clearInterval(interval);
 	});
 
