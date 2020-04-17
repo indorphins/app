@@ -8,8 +8,11 @@ const VideoFrame = (props) => {
 	const [instructor, setInstructor] = useState();
 	const [participantIndex, setParticipantIndex] = useState();
 	const [instructorLive, setInstructorLive] = useState(true);
-	const [timerIndex, setTimerIndex] = useState(0);
-	const [participantList, setParticipantList] = useState([]);
+	const [isInstructor, setIsInstructor] = useState(true);
+
+	useEffect(() => {
+		setIsInstructor(state.myProfile.type === 'instructor');
+	}, [state.myProfile]);
 
 	// Don't start call until url and token are passed in TODO type check props these 2 are required
 	useEffect(() => {
@@ -22,19 +25,13 @@ const VideoFrame = (props) => {
 
 	// Set up rotating participant views
 	useEffect(() => {
-		const interval = setInterval(() => {
-			// if (timerIndex === 3) {
-			// 	console.log('Interval - bring I back');
-			// 	updateMainFeed(); // bring Instructor back to main view
-			// } else if (timerIndex === 2) {
-			// 	console.log('interval - set P view as main');
-			// 	updateMainFeed(); // bring Participant to main view
-			// }
-			// const newIndex = timerIndex === 3 ? 0 : timerIndex + 1;
-			// setTimerIndex(newIndex);
+		if (!_.isEmpty(state.myCallFrame)) {
 			updatePiP();
-		}, 30000);
-		return () => clearInterval(interval);
+			const interval = setInterval(() => {
+				updatePiP();
+			}, 30000);
+			return () => clearInterval(interval);
+		}
 	});
 
 	const showEvent = (e) => {
@@ -43,11 +40,16 @@ const VideoFrame = (props) => {
 
 	const participantJoined = (e) => {
 		console.log('participant joined -->', e);
+		if (Object.keys(state.myCallFrame.participants()).length === 2) {
+			updatePiP();
+		}
 		// TODO add participant name to list in view
+		// Add sound effect
 	};
 
 	const participantLeft = (e) => {
 		console.log('participant left -->', e);
+		// Add sound effect
 	};
 
 	const run = async () => {
@@ -131,7 +133,7 @@ const VideoFrame = (props) => {
 		const participants = state.myCallFrame.participants();
 		const participantIds = Object.keys(participants);
 
-		let index = participantIndex ? participantIndex : 0;
+		let index = participantIndex ? participantIndex : 1; // start at index one to avoid local
 		let newId = participantIds[index];
 
 		// If only instructor don't show PiP
@@ -148,72 +150,22 @@ const VideoFrame = (props) => {
 		loadParticipantPiP(participants[newId]);
 	};
 
-	const updateMainFeed = () => {
-		const participants = state.myCallFrame.participants();
-		const participantIds = Object.keys(participants);
-
-		// Do nothing if only one person in class
-		if (participantIds.length <= 1) {
-			return;
-		}
-
-		// If Instructor is live, set view to be a participant
-		if (instructorLive) {
-			setInstructorLive(false);
-			let index = participantIndex;
-			let newId = participantIds[index];
-			// If participant is you, skip update. If it's instructor, get a new participant. If they have no video, skip
-			if (participants[newId].owner || !participants[newId].videoTrack) {
-				index = index + 1 >= participantIds.length ? 0 : index + 1;
-				newId = participantIds[index];
-			}
-			setParticipantIndex(index);
-			const participant = participants[newId];
-			if (!participants[newId].local) {
-				const mainFeed = getInstructorMedia();
-				mainFeed.forEach((feed) => {
-					if (feed.nodeName === 'AUDIO' && participants[newId].audioTrack) {
-						feed.srcObject = new MediaStream([participants[newId].audioTrack]);
-					} else if (feed.nodeName === 'VIDEO') {
-						feed.srcObject = new MediaStream([participants[newId].videoTrack]);
-					}
-				});
-				togglePiP();
-			}
-		} else {
-			// Set Instructor back in main view
-			const mainFeed = getInstructorMedia();
-			mainFeed.forEach((feed) => {
-				if (feed.nodeName === 'AUDIO') {
-					feed.srcObject = new MediaStream([instructor.audioTrack]);
-				} else if (feed.nodeName === 'VIDEO') {
-					feed.srcObject = new MediaStream([instructor.videoTrack]);
-				}
-			});
-			setInstructorLive(true);
-			togglePiP();
-		}
-	};
-
-	const togglePiP = () => {
+	// Hides or shows the participant's picture in picture based on toggleOn input boolean
+	const togglePiP = (toggleOn) => {
 		const container = document.getElementById('picture-in-picture');
 		const attrs = container.attributes;
 		const isHidden = attrs.hidden ? attrs.hidden.value : false;
-		const toggleTo = isHidden === 'false' ? 'true' : 'false';
 
-		const pipAudio = findPiPAudio();
-		if (pipAudio) {
-			pipAudio.setAttribute('muted', toggleTo);
-		}
-		if (isHidden) {
+		if (isHidden && toggleOn) {
 			container.removeAttribute('hidden');
-		} else {
+		} else if (!toggleOn) {
 			container.setAttribute('hidden', true);
 		}
 	};
 
 	const loadParticipantPiP = (participant) => {
 		const container = document.getElementById('picture-in-picture');
+		togglePiP(true); // unhide PiP
 
 		let vid = findPiPVideo();
 		if (participant.videoTrack) {
@@ -226,18 +178,6 @@ const VideoFrame = (props) => {
 				container.appendChild(vid);
 			}
 			vid.srcObject = new MediaStream([participant.videoTrack]);
-		}
-
-		let audio = findPiPAudio();
-		if (participant.audioTrack) {
-			if (!audio) {
-				audio = document.createElement('audio');
-				audio.session_id = 'pip-audio';
-				audio.autoplay = true;
-				audio.muted = participant.local; // Mute your own audio track
-				container.appendChild(audio);
-			}
-			audio.srcObject = new MediaStream([participant.audioTrack]);
 		}
 	};
 
@@ -283,10 +223,6 @@ const VideoFrame = (props) => {
 		}
 	};
 
-	const randomPickFromIds = (ids) => {
-		return ids[getRandomInt(ids.length)];
-	};
-
 	// Get 4 new ids that from the list of all ids
 	const getNewIds = (allIds, usedIds) => {
 		const newIds = [];
@@ -318,7 +254,7 @@ const VideoFrame = (props) => {
 	};
 
 	const getParticipantMedia = () => {
-		const container = document.getElementById('participant-videos');
+		const container = document.getElementById('participant-feeds');
 		return container.childNodes;
 	};
 
@@ -328,89 +264,74 @@ const VideoFrame = (props) => {
 	};
 
 	const trackStarted = (e) => {
-		if (!e.participant.owner) {
-			// Don't add participants to main view
-			return;
+		if (e.participant.owner) {
+			setInstructor(e.participant);
 		}
 		// set instructor when their tracks start
-		setInstructor(e.participant);
 		showEvent(e);
 
 		if (!(e.track && (e.track.kind === 'video' || e.track.kind == 'audio'))) {
 			return;
 		}
 
-		// Only show instructor
-		const container = document.getElementById('instructor-video');
+		let audioContainer = document.getElementById('participant-feeds');
+		let videoContainer = document.getElementById('self-picture-in-picture');
+		if (e.participant.owner) {
+			audioContainer = document.getElementById('instructor-video');
+			videoContainer = document.getElementById('instructor-video');
+		}
 
 		if (e.track && e.track.kind === 'audio') {
 			let audio = findAudioForParticipant(e.participant.session_id);
-			if (container.childNodes.length < 4) {
-				if (!audio) {
-					if (container.childNodes.length < 4) {
-						audio = document.createElement('audio');
-						audio.session_id = e.participant.session_id;
-						audio.autoplay = true;
-						container.appendChild(audio);
-						audio.srcObject = new MediaStream([e.track]);
-						audio.muted = e.participant.local; // Mute your own audio track
-					}
-				} else {
-					audio.srcObject = new MediaStream([e.track]);
-				}
+			if (!audio) {
+				audio = document.createElement('audio');
+				audio.session_id = e.participant.session_id;
+				audio.autoplay = true;
+				audio.muted = e.participant.local; // Mute your own audio track
+				audioContainer.appendChild(audio);
 			}
+			audio.srcObject = new MediaStream([e.track]);
 		}
 
-		if (e.track && e.track.kind === 'video') {
+		// Only add instructor video feed
+		if (
+			(e.participant.owner || e.participant.local) &&
+			e.track &&
+			e.track.kind === 'video'
+		) {
 			let vid = findVideoForParticipant(e.participant.session_id);
 			if (!vid) {
-				// Only create a new video element if less than 5 exist
-				if (container.childNodes.length < 4) {
-					vid = document.createElement('video');
-					vid.session_id = e.participant.session_id;
-					vid.style.width = '100%';
-					vid.autoplay = true;
-					vid.playsInline = true;
-					container.appendChild(vid);
-					vid.srcObject = new MediaStream([e.track]);
-				}
-			} else {
-				vid.srcObject = new MediaStream([e.track]);
+				vid = document.createElement('video');
+				vid.session_id = e.participant.session_id;
+				vid.style.width = '100%';
+				vid.autoplay = true;
+				vid.playsInline = true;
+				videoContainer.appendChild(vid);
 			}
+			vid.srcObject = new MediaStream([e.track]);
 		}
 	};
 
 	const trackStopped = (e) => {
 		showEvent(e);
-		let vid = findVideoForTrack(e.track && e.track.id);
-		if (vid) {
-			vid.remove();
+		let vids = findVideosForTrack(e.track && e.track.id);
+		if (vids.length > 0) {
+			vids.forEach((vid) => {
+				if (vid.parentNode.id === 'picture-in-picture') {
+					togglePiP(false);
+				}
+				vid.remove();
+			});
 		}
 		let audio = findAudioForTrack(e.track && e.track.id);
 		if (audio) {
 			audio.remove();
-		}
-		const pipAudio = findPiPAudio();
-		if (pipAudio) {
-			pipAudio.remove();
-		}
-		const pipVideo = findPiPVideo();
-		if (pipVideo) {
-			pipVideo.remove();
 		}
 	};
 
 	const findAudioForParticipant = (session_id) => {
 		for (const audio of document.getElementsByTagName('audio')) {
 			if (audio.session_id === session_id) {
-				return audio;
-			}
-		}
-	};
-
-	const findPiPAudio = () => {
-		for (const audio of document.getElementsByTagName('audio')) {
-			if (audio.session_id === 'pip-audio') {
 				return audio;
 			}
 		}
@@ -443,15 +364,17 @@ const VideoFrame = (props) => {
 		}
 	};
 
-	const findVideoForTrack = (trackId) => {
+	const findVideosForTrack = (trackId) => {
+		const vids = [];
 		for (const vid of document.getElementsByTagName('video')) {
 			if (
 				vid.srcObject &&
 				vid.srcObject.getTracks().find((t) => t.id === trackId)
 			) {
-				return vid;
+				vids.push(vid);
 			}
 		}
+		return vids;
 	};
 
 	const leftMeeting = (e) => {
@@ -463,24 +386,21 @@ const VideoFrame = (props) => {
 		<div>
 			<div id='videos' />
 			<div id='call-container' className='block text-center'>
-				<div
-					id='instructor-video'
-					className='inline-block max-w-6xl px-1 w-11/12'
-				/>
-				{/* <div
-					id='participants-container'
-					className='inline-block max-w-6xl border-t border-blue-800 w-11/12 pt-2 mx-6'
-				>
-					<div id='participant-videos' className='grid grid-cols-4 col-gap-2' />
-				</div> */}
+				<div id='instructor-video' className='' />
+				<div id='participants-container' className='inline-block'>
+					<div id='participant-feeds' className='grid grid-cols-4 col-gap-2' />
+				</div>
 			</div>
 			<div id='side-container'>
-				{/* <div id='participant-list'>
-					<ul>Participants:</ul>
-				</div> */}
+				{!isInstructor ? (
+					<div
+						id='self-picture-in-picture'
+						className='fixed w-1/4 bottom-0 border-2 border-black left-0'
+					/>
+				) : null}
 				<div
 					id='picture-in-picture'
-					className='fixed w-1/4 bottom-0 pb-4 pr-4 right-0'
+					className='fixed w-1/4 bottom-0 border-2 border-black right-0'
 				/>
 			</div>
 		</div>

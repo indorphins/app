@@ -19,7 +19,12 @@ const Toolbar = (props) => {
 	const { state, dispatch } = useContext(AppStateContext);
 	const [videoOn, setVideoOn] = useState(true);
 	const [audioOn, setAudioOn] = useState(true);
+	const [isInstructor, setIsInstructor] = useState(true);
 	const history = useHistory();
+
+	useEffect(() => {
+		setIsInstructor(state.myProfile.type === 'instructor');
+	}, [state.myProfile]);
 
 	const leaveClassHandler = () => {
 		const myCallFrame = state.myCallFrame;
@@ -85,54 +90,74 @@ const Toolbar = (props) => {
 		leaveClassHandler();
 	};
 
-	const name = !_isEmpty(state.myProfile) ? state.myProfile.name : 'Instructor';
+	const toggleSelfPiP = () => {
+		const container = document.getElementById('self-picture-in-picture');
+		if (!container) {
+			return;
+		}
+		const attrs = container.attributes;
+		const isHidden = attrs.hidden ? attrs.hidden.value : false;
+		const toggleTo = isHidden === 'false' ? 'true' : 'false';
+
+		if (isHidden) {
+			container.removeAttribute('hidden');
+		} else {
+			container.setAttribute('hidden', true);
+		}
+	};
 
 	return (
 		<header className={styles.ClassToolbar}>
-			<Menu
-				clicked={
-					props.menuClicked
-						? props.menuClicked
-						: () => {
-								console.log('default memu clicked fxn');
-						  }
-				}
-			/>
 			<div className='text-xl float-left pt-1'>
-				<p>In Class</p>
+				<p>Indorphins</p>
 			</div>
 			<div id='btn-container' className='inline-flex float-right'>
+				{!isInstructor ? (
+					<div id='toggle-pip-container' className='flex-auto text-right pr-4'>
+						<button
+							onClick={toggleSelfPiP}
+							id='toggle-pip-btn'
+							className='bg-transparent p-2 border-black border-2 rounded-full inline-block'
+						>
+							Toggle Self View
+						</button>
+					</div>
+				) : null}
 				<div id='toggle-mic-container' className='flex-auto text-right pr-4'>
-					<Button
-						clicked={toggleMicrophoneHandler}
-						text={audioOn ? AUDIO_OFF_TEXT : AUDIO_ON_TEXT}
+					<button
+						onClick={toggleMicrophoneHandler}
 						id='toggle-mic-btn'
-						bgcolor='green'
-					/>
+						className='bg-transparent p-2 border-black border-2 rounded-full inline-block'
+					>
+						{audioOn ? AUDIO_OFF_TEXT : AUDIO_ON_TEXT}
+					</button>
 				</div>
 				<div id='toggle-video-container' className='flex-auto text-right pr-4'>
-					<Button
-						clicked={toggleVideoHandler}
-						text={videoOn ? VIDEO_OFF_TEXT : VIDEO_ON_TEXT}
+					<button
+						onClick={toggleVideoHandler}
 						id='toggle-video-btn'
-						bgcolor='teal'
-					/>
+						className='bg-transparent p-2 border-black border-2 rounded-full inline-block'
+					>
+						{videoOn ? VIDEO_OFF_TEXT : VIDEO_ON_TEXT}
+					</button>
 				</div>
 				<div id='leave-class-container' className='flex-auto text-right'>
-					{state.myProfile.type === 'instructor' ? (
-						<Button
-							clicked={finishClass}
-							text='End Class'
+					{isInstructor ? (
+						<button
+							onClick={finishClass}
 							id='leave-class-btn'
-							bgcolor='red'
-						/>
+							className='bg-transparent p-2 border-black border-2 rounded-full inline-block'
+						>
+							End Class
+						</button>
 					) : (
-						<Button
-							clicked={leaveClass}
-							text='Leave Class'
+						<button
+							onClick={leaveClass}
 							id='leave-class-btn'
-							bgcolor='red'
-						/>
+							className='bg-transparent p-2 border-black border-2 rounded-full inline-block'
+						>
+							Leave Class
+						</button>
 					)}
 				</div>
 			</div>
