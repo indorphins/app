@@ -6,9 +6,11 @@ import { getRandomInt } from '../Helpers/utils';
 const VideoFrame = (props) => {
 	const { state, dispatch } = useContext(AppStateContext);
 	const [instructor, setInstructor] = useState();
-	const [participantIndex, setParticipantIndex] = useState();
+	const [participantIndex, setParticipantIndex] = useState(1); // start index on non-local index
 	const [instructorLive, setInstructorLive] = useState(true);
 	const [isInstructor, setIsInstructor] = useState(true);
+	const [startParticipantLoop, setStartParticipantLoop] = useState(false);
+	const [trackCount, setTrackCount] = useState(0);
 
 	useEffect(() => {
 		setIsInstructor(state.myProfile.type === 'instructor');
@@ -25,13 +27,10 @@ const VideoFrame = (props) => {
 
 	// Set up rotating participant views
 	useEffect(() => {
-		if (!_.isEmpty(state.myCallFrame)) {
+		const interval = setInterval(() => {
 			updatePiP();
-			const interval = setInterval(() => {
-				updatePiP();
-			}, 30000);
-			return () => clearInterval(interval);
-		}
+		}, 10000);
+		return () => clearInterval(interval);
 	});
 
 	const showEvent = (e) => {
@@ -40,9 +39,6 @@ const VideoFrame = (props) => {
 
 	const participantJoined = (e) => {
 		console.log('participant joined -->', e);
-		if (Object.keys(state.myCallFrame.participants()).length === 2) {
-			updatePiP();
-		}
 		// TODO add participant name to list in view
 		// Add sound effect
 	};
@@ -133,18 +129,26 @@ const VideoFrame = (props) => {
 		const participants = state.myCallFrame.participants();
 		const participantIds = Object.keys(participants);
 
-		let index = participantIndex ? participantIndex : 1; // start at index one to avoid local
+		let index = participantIndex;
 		let newId = participantIds[index];
+		let count = 0;
 
 		// If only instructor don't show PiP
 		if (participantIds.length <= 1) {
 			return;
 		}
 
-		if (participants[newId].owner || !participants[newId].videoTrack) {
+		while (participants[newId].owner || !participants[newId].videoTrack) {
 			index = index + 1 >= participantIds.length ? 0 : index + 1;
 			newId = participantIds[index];
+			count = count + 1;
+			if (count > participantIds.length) {
+				// break out of loop if cycled through everyone and found nobody valid
+				return;
+			}
 		}
+
+		// Store next index in state
 		index = index + 1 >= participantIds.length ? 0 : index + 1;
 		setParticipantIndex(index);
 		loadParticipantPiP(participants[newId]);
@@ -164,6 +168,9 @@ const VideoFrame = (props) => {
 	};
 
 	const loadParticipantPiP = (participant) => {
+		if (participant.owner) {
+			return;
+		}
 		const container = document.getElementById('picture-in-picture');
 		togglePiP(true); // unhide PiP
 
@@ -274,6 +281,8 @@ const VideoFrame = (props) => {
 			return;
 		}
 
+		setTrackCount(trackCount + 1);
+
 		let audioContainer = document.getElementById('participant-feeds');
 		let videoContainer = document.getElementById('self-picture-in-picture');
 		if (e.participant.owner) {
@@ -310,6 +319,12 @@ const VideoFrame = (props) => {
 			}
 			vid.srcObject = new MediaStream([e.track]);
 		}
+
+		// Handle adding a participant to the PiP
+		const pipContainer = document.getElementById('picture-in-picture');
+		if (!e.participant.owner && pipContainer.childNodes.length === 0) {
+			updatePiP();
+		}
 	};
 
 	const trackStopped = (e) => {
@@ -327,6 +342,7 @@ const VideoFrame = (props) => {
 		if (audio) {
 			audio.remove();
 		}
+		setTrackCount(trackCount - 1);
 	};
 
 	const findAudioForParticipant = (session_id) => {
