@@ -29,7 +29,7 @@ const VideoFrame = (props) => {
 	useEffect(() => {
 		const interval = setInterval(() => {
 			updatePiP();
-		}, 10000);
+		}, 30000);
 		return () => clearInterval(interval);
 	});
 
