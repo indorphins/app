@@ -2,6 +2,11 @@ import React, { useEffect, useState, useRef, useContext } from 'react';
 import { AppStateContext } from '../App';
 import _ from 'lodash';
 import { getRandomInt } from '../Helpers/utils';
+import {
+	storeInSession,
+	getFromSession,
+	removeItemFromSession,
+} from '../Helpers/sessionHelper';
 
 const VideoFrame = (props) => {
 	const { state, dispatch } = useContext(AppStateContext);
@@ -18,12 +23,28 @@ const VideoFrame = (props) => {
 
 	// Don't start call until url and token are passed in TODO type check props these 2 are required
 	useEffect(() => {
-		if (!props.url || !props.token) {
+		console.log('*** V FRAME Effect *** w/ loaded: ', props.loaded);
+		console.log('daily class ', getFromSession('dailyClass'));
+		console.log('curr class : ', getFromSession('currentClass'));
+		console.log('call Frame ', state.myCallFrame);
+		if (
+			!getFromSession('dailyClass') ||
+			!getFromSession('currentClass') ||
+			_.isEmpty(state.myCallFrame)
+		) {
+			console.log(
+				'Video Frame use effect - no daily or curr class or callframe'
+			);
 			return;
 		} else {
+			if (!state.myCallFrame.on) {
+				console.log('NO ON!');
+				return;
+			}
+			console.log('V Frame use effect has daily and curr class and callFrame');
 			run();
 		}
-	}, [props.url, props.token]);
+	}, [state.myCallFrame, props.loaded]);
 
 	// Set up rotating participant views
 	useEffect(() => {
@@ -49,23 +70,22 @@ const VideoFrame = (props) => {
 	};
 
 	const run = async () => {
-		const cFrame = _.get(state, 'myCallFrame', false);
+		const cFrame = state.myCallFrame;
+		console.log('cFrame on run = ', cFrame);
+		console.log('cFrame on is ', cFrame.on);
+		console.log('CFrame loaded ', cFrame._loaded);
 
-		if (!cFrame) {
+		if (_.isEmpty(cFrame) || cFrame === 'undefined') {
 			return errorHandler({
 				errorMsg: 'No Call Frame Initialized',
 			});
 		}
-		const url = props.url
-			? props.url
-			: window.location.hash
-			? window.location.hash.substr(1)
-			: false;
-		const token = props.token ? props.token : '';
+		// storeInSession('callFrame', cFrame); don't store
+		const dailyClass = getFromSession('dailyClass');
 
-		if (!url) {
+		if (!dailyClass) {
 			return errorHandler({
-				errorMsg: 'No class url',
+				errorMsg: 'No daily class loaded',
 			});
 		}
 
@@ -86,47 +106,51 @@ const VideoFrame = (props) => {
 			.on('network-connection', showEvent);
 
 		await cFrame.load({
-			url: url,
-			token: token,
+			url: dailyClass.url,
+			token: dailyClass.token,
 		});
 
 		await cFrame.join({
-			url: url,
-			token: token,
+			url: dailyClass.url,
+			token: dailyClass.token,
 		});
 
 		// TODO Update class name to url WHEN CLASSES FLOW IS FINISHED
-		window.location = '#' + props.url;
+		window.location = '#' + dailyClass.name;
 		return cFrame;
 	};
 
 	const errorHandler = (e) => {
 		// Duplicate code in classToolbar
-		const myCallFrame = state.myCallFrame;
+		const myCallFrame = getFromSession('callFrame');
 
 		// change route back to classes/instructor page
 		const profType = _.get(state.myProfile, 'type', 'PARTICIPANT');
-		const name = _.get(state.myProfile, 'name', '');
-		if (profType === 'INSTRUCTOR') {
-			window.location.pathname = `/instructor#${name}`;
+		if (profType === 'instructor') {
+			window.location.pathname = `/instructor`;
 		} else {
-			window.location.pathname = `/classes#${name}`;
+			window.location.pathname = `/classes`;
 		}
 		window.alert(e.errorMsg);
-		window.location.reload();
+
+		removeItemFromSession('dailyClass');
+		removeItemFromSession('currentClass');
+		dispatch({
+			type: 'removeCallFrame',
+		});
+		storeInSession('inClass', false);
 
 		if (!_.isEmpty(myCallFrame)) {
 			myCallFrame.destroy();
 		}
-
-		dispatch({
-			type: 'updateInClass',
-			payload: false,
-		});
 	};
 
 	const updatePiP = () => {
-		const participants = state.myCallFrame.participants();
+		const callFrame = getFromSession('callFrame');
+		if (!callFrame.participants()) {
+			return;
+		}
+		const participants = callFrame.participants();
 		const participantIds = Object.keys(participants);
 
 		let index = participantIndex;
@@ -190,9 +214,9 @@ const VideoFrame = (props) => {
 
 	const updateParticipantVideos = () => {
 		// TODO add check for owner (don't add owner to participant vids)
-
 		// if 4 or less participants, don't update
-		const participants = state.myCallFrame.participants();
+		const callFrame = getFromSession('callFrame');
+		const participants = callFrame.participants();
 
 		const mediaList = getParticipantMedia();
 
@@ -247,7 +271,7 @@ const VideoFrame = (props) => {
 	// Find and return the room owner else return false
 	const getOwner = () => {
 		// todo maybe take in participant list
-		const callFrame = state.myCallFrame;
+		const callFrame = getFromSession('callFrame');
 		const participants = callFrame.participants();
 		participants.forEach((p) => {
 			if (p.owner) {

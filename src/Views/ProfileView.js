@@ -5,6 +5,7 @@ import { formatPhone } from '../Helpers/utils';
 import { useCookies } from 'react-cookie';
 import _isEmpty from 'lodash/isEmpty';
 import { useHistory } from 'react-router-dom';
+import { removeItemFromSession } from '../Helpers/sessionHelper';
 
 const ProfileView = (props) => {
 	const { state, dispatch } = useContext(AppStateContext);
@@ -33,9 +34,14 @@ const ProfileView = (props) => {
 	const logoutHandler = () => {
 		dispatch({
 			type: 'removeProfile',
-			payload: null,
+		});
+		dispatch({
+			type: 'removeCallFrame',
 		});
 		removeCookie('profile');
+		removeItemFromSession('dailyClass');
+		removeItemFromSession('currentClass');
+		removeItemFromSession('inClass');
 		history.push('/login');
 	};
 

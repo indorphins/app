@@ -21,22 +21,15 @@ const AppReducer = (state, action) => {
 				classList[id] = action.payload.class;
 			}
 			return { ...state, classes: classList };
-		case 'updateCallFrame':
-			return { ...state, myCallFrame: action.payload };
-		case 'removeCallFrame':
-			// Handle destroy here?
-			return { ...state, myCallFrame: {} };
 		case 'updateProfile':
 			// update profile in state and local storage
 			return { ...state, myProfile: action.payload };
 		case 'removeProfile':
-			return { ...state, myProfile: null };
-		case 'updateInClass':
-			return { ...state, inClass: action.payload };
-		case 'updateCurrentClass':
-			return { ...state, currentClass: action.payload };
-		case 'removeCurrentClass':
-			return { ...state, currentClass: {} };
+			return { ...state, myProfile: {} };
+		case 'updateCallFrame':
+			return { ...state, myCallFrame: action.payload };
+		case 'removeCallFrame':
+			return { ...state, myCallFrame: {} };
 		default:
 			return state;
 	}

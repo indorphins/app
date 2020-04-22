@@ -8,6 +8,12 @@ import _get from 'lodash/get';
 import { useHistory } from 'react-router-dom';
 import { endClass } from '../Controllers/ClassesController';
 import { deleteRoom } from '../Controllers/DailycoController';
+import {
+	storeInSession,
+	getFromSession,
+	removeItemFromSession,
+} from '../Helpers/sessionHelper';
+import isEmpty from 'lodash/isEmpty';
 
 const AUDIO_OFF_TEXT = 'Toggle Microphone Off';
 const AUDIO_ON_TEXT = 'Toggle Microphone On';
@@ -19,60 +25,65 @@ const Toolbar = (props) => {
 	const { state, dispatch } = useContext(AppStateContext);
 	const [videoOn, setVideoOn] = useState(true);
 	const [audioOn, setAudioOn] = useState(true);
+	const [myCallFrame, setMyCallFrame] = useState();
 	const [isInstructor, setIsInstructor] = useState(true);
 	const history = useHistory();
+
+	useEffect(() => {
+		if (!isEmpty(state.myCallFrame)) {
+			setMyCallFrame(state.myCallFrame);
+		}
+	}, [state.myCallFrame]);
 
 	useEffect(() => {
 		setIsInstructor(state.myProfile.type === 'instructor');
 	}, [state.myProfile]);
 
 	const leaveClassHandler = () => {
-		const myCallFrame = state.myCallFrame;
+		removeItemFromSession('dailyClass');
+		removeItemFromSession('currentClass');
+
+		// change route back to classes/instructor page
+		const profType = _get(state.myProfile, 'type', 'participant');
+		if (profType === 'instructor') {
+			window.location.pathname = `/instructor`;
+		} else {
+			window.location.pathname = `/classes`;
+		}
+
 		if (!_isEmpty(myCallFrame)) {
 			myCallFrame.destroy();
 		}
-		// change route back to classes/instructor page
-		const profType = _get(state.myProfile, 'type', 'participant');
-		const name = _get(state.myProfile, 'name', '');
-		if (profType === 'instructor') {
-			history.replace(`/instructor#${name}`);
-		} else {
-			history.replace(`/classes#${name}`);
-		}
-
-		window.location.reload();
 	};
 
 	const toggleVideoHandler = () => {
 		console.log('toggle video handler');
-		if (_isEmpty(state.myCallFrame)) {
+		if (_isEmpty(myCallFrame)) {
 			return; // Throw error?
 		}
 		setVideoOn(!videoOn);
-		state.myCallFrame.setLocalVideo(!state.myCallFrame.localVideo());
+		myCallFrame.setLocalVideo(!myCallFrame.localVideo());
 	};
 
 	const toggleMicrophoneHandler = () => {
 		console.log('toggle microphone handler');
-		if (_isEmpty(state.myCallFrame)) {
+		if (_isEmpty(myCallFrame)) {
 			return; // Throw error?
 		}
 		setAudioOn(!audioOn);
-		state.myCallFrame.setLocalAudio(!state.myCallFrame.localAudio());
+		myCallFrame.setLocalAudio(!myCallFrame.localAudio());
 	};
 
+	// End class - set class object status to closed and delete Daily room
 	const finishClass = async (classId) => {
-		if (!_isEmpty(state.currentClass)) {
-			console.log('Got current class to finish: ', state.currentClass);
-			dispatch({
-				type: 'updateInClass',
-				payload: false,
-			});
-			return endClass(state.currentClass.class_id)
-				.then((response) => {
-					return deleteRoom(state.currentClass.chat_room_name);
+		const currentClass = getFromSession('currentClass');
+		if (!_isEmpty(currentClass)) {
+			storeInSession('inClass', false);
+			return endClass(currentClass.class_id)
+				.then(() => {
+					return deleteRoom(currentClass.chat_room_name);
 				})
-				.then((response) => {
+				.then(() => {
 					leaveClassHandler();
 				})
 				.catch((error) => {
@@ -83,10 +94,7 @@ const Toolbar = (props) => {
 	};
 
 	const leaveClass = () => {
-		dispatch({
-			type: 'updateInClass',
-			payload: false,
-		});
+		storeInSession('inClass', false);
 		leaveClassHandler();
 	};
 

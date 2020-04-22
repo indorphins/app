@@ -9,6 +9,7 @@ import _isEmpty from 'lodash/isEmpty';
 import Profile from './Classes/Profile';
 import ProfileView from './Views/ProfileView';
 import isEmpty from 'lodash/isEmpty';
+import ClassView from './Views/ClassView';
 
 // Router for pages accessed once user's Profile is loaded
 const AuthRouter = (props) => {
@@ -34,7 +35,8 @@ const AuthRouter = (props) => {
 		<Switch>
 			<Route path='/profile' component={ProfileView} />
 			<Route path='/instructor' component={InstructorView} />
-			<Route path='/classes' component={ParticipantView} />
+			<Route exact path='/classes' component={ParticipantView} />
+			<Route path='/class' component={ClassView} />
 		</Switch>
 	);
 };
