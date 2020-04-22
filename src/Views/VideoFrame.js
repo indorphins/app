@@ -147,7 +147,7 @@ const VideoFrame = (props) => {
 
 	const updatePiP = () => {
 		const callFrame = getFromSession('callFrame');
-		if (!callFrame.participants()) {
+		if (!callFrame.participants) {
 			return;
 		}
 		const participants = callFrame.participants();

@@ -20,22 +20,6 @@ const App = () => {
 		myCallFrame: {},
 	});
 
-	// testing
-	// const [cookies, setCookie] = useCookies();
-
-	// console.log('DOMAIN - ', process.env.REACT_APP_AWS_SERVER_DOMAIN);
-	// console.log('ENV VARS- ', process.env);
-
-	// useEffect(() => {
-	// 	const p = new Profile('First', 'Last', 0, 1, 'email@test.co', '8004206969');
-	// 	// console.log('App set test profile as ', p);
-	// 	dispatch({
-	// 		type: 'updateProfile',
-	// 		payload: p,
-	// 	});
-	// 	setCookie('profile', p);
-	// }, []);
-
 	return (
 		<AppStateContext.Provider value={{ state, dispatch }}>
 			<Router>

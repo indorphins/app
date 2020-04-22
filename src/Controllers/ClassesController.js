@@ -1,11 +1,11 @@
-// TODO add duration
 export const createClass = async (
 	status,
 	instructor_name,
 	chat_room_name,
 	total_spots,
 	user_type,
-	user_id
+	user_id,
+	duration
 ) => {
 	const body = {
 		status: status,
@@ -14,6 +14,7 @@ export const createClass = async (
 		total_spots: total_spots,
 		user_type: user_type,
 		user_id: user_id,
+		duration: duration,
 	};
 	const options = {
 		method: 'POST',

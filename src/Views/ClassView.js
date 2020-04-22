@@ -34,6 +34,7 @@ const ClassView = (props) => {
 			.catch((e) => {
 				console.log('Error in Class View initialization: ', e);
 				console.log('Have state profile ', state.myProfile);
+				window.alert('Error joining class');
 
 				if (state.myProfile.type === 'instructor') {
 					window.location.pathname = `/instructor`;
@@ -96,7 +97,8 @@ const ClassView = (props) => {
 								room.name,
 								11,
 								1,
-								state.myProfile.id
+								state.myProfile.id,
+								process.env.REACT_APP_DEFAULT_CLASS_DURATION
 							).then((response) => {
 								if (response.success) {
 									storeInSession(
@@ -128,6 +130,9 @@ const ClassView = (props) => {
 				}
 				return getRoom(currentClass.chat_room_name)
 					.then((room) => {
+						if (!room.name || !room.url) {
+							throw Error('room returned empty data');
+						}
 						return createToken({
 							properties: {
 								room_name: room.name,

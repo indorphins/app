@@ -67,10 +67,6 @@ const ParticipantView = (props) => {
 
 	const joinClassHandler = (c) => {
 		console.log('Join Class -', c);
-		dispatch({
-			type: 'updateCurrentClass',
-			payload: c,
-		});
 		storeInSession('currentClass', c);
 		storeInSession('inClass', true);
 		history.push(`/class`);
