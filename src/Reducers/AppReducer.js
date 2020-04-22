@@ -25,7 +25,7 @@ const AppReducer = (state, action) => {
 			// update profile in state and local storage
 			return { ...state, myProfile: action.payload };
 		case 'removeProfile':
-			return { ...state, myProfile: null };
+			return { ...state, myProfile: {} };
 		case 'updateCallFrame':
 			return { ...state, myCallFrame: action.payload };
 		case 'removeCallFrame':

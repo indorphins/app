@@ -26,7 +26,7 @@ const ParticipantView = (props) => {
 					const classListItems = [];
 					console.log('Classes fetched response ', response);
 					response.classes.forEach((c) => {
-						// Only show active classes
+						// set up class tile elements with active room names
 						if (c.status === 'active') {
 							dispatch({
 								type: 'addClass',
@@ -60,28 +60,6 @@ const ParticipantView = (props) => {
 			history.push('/instructor');
 		}
 	}, [state.myProfile]);
-
-	// set up class tile elements with room names
-	useEffect(() => {
-		// const classListItems = [];
-		// const keys = Object.keys(classes);
-		// keys.forEach((id) => {
-		// 	const c = classes[id];
-		// 	classListItems.push(
-		// 		<ClassTile
-		// 			id={c.class_id}
-		// 			classCode={c.chat_room_name}
-		// 			instructor={c.instructor_name}
-		// 			totalSpots={c.total_spots}
-		// 			participants={c.participants}
-		// 			clicked={() => {
-		// 				joinClassHandler(c);
-		// 			}}
-		// 		/>
-		// 	);
-		// 	setClassTiles(classListItems);
-		// });
-	}, [classes]);
 
 	const inputChangedHandler = (event) => {
 		setRoomName(event.target.value);
