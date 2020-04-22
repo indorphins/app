@@ -13,6 +13,7 @@ import {
 	getFromSession,
 	removeItemFromSession,
 } from '../Helpers/sessionHelper';
+import isEmpty from 'lodash/isEmpty';
 
 const AUDIO_OFF_TEXT = 'Toggle Microphone Off';
 const AUDIO_ON_TEXT = 'Toggle Microphone On';
@@ -29,10 +30,10 @@ const Toolbar = (props) => {
 	const history = useHistory();
 
 	useEffect(() => {
-		if (getFromSession('callFrame')) {
-			setMyCallFrame(getFromSession('callFrame'));
+		if (!isEmpty(state.myCallFrame)) {
+			setMyCallFrame(state.myCallFrame);
 		}
-	}, []);
+	}, [state.myCallFrame]);
 
 	useEffect(() => {
 		setIsInstructor(state.myProfile.type === 'instructor');
