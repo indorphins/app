@@ -9,25 +9,37 @@ import {
 } from '../Controllers/DailycoController.js';
 import { createClass } from '../Controllers/ClassesController';
 import { AppStateContext } from '../App';
+import DailyClass from '../Classes/DailyClass';
+import { useHistory } from 'react-router-dom';
+import { storeInSession, getFromSession } from '../Helpers/sessionHelper';
 
 const ClassView = (props) => {
-	const [classUrl, setClassUrl] = useState();
-	const [token, setToken] = useState();
+	const [loaded, setLoaded] = useState(false);
 	const { state, dispatch } = useContext(AppStateContext);
 
-	useEffect(async () => {
+	useEffect(() => {
+		// load call frame object on mount
+		console.log('setup call obj use effect');
 		setupCallObject();
+	}, []);
+
+	useEffect(async () => {
 		return createRoomAndToken()
 			.then(({ url, token }) => {
 				if (!url || !token) {
 					throw Error('missing token or url');
 				}
-				setClassUrl(url);
-				setToken(token);
+				setLoaded(true);
 			})
 			.catch((e) => {
 				console.log('Error in Class View initialization: ', e);
-				window.location.reload();
+				console.log('Have state profile ', state.myProfile);
+
+				if (state.myProfile.type === 'instructor') {
+					window.location.pathname = `/instructor`;
+				} else {
+					window.location.pathname = `/classes`;
+				}
 			});
 	}, []);
 
@@ -46,100 +58,106 @@ const ClassView = (props) => {
 
 	// Create the room url and add owner token for instructor
 	async function createRoomAndToken() {
-		console.log(
-			'Class View - create room and token start w/ profile type: ',
-			state.myProfile
-		);
-		console.log('state myprofile type is ', state.myProfile.type);
-		if (state.myProfile.type === 'instructor') {
-			return createRoom({
-				privacy: 'private',
-				properties: {
-					exp:
-						Math.floor(Date.now() / 1000) +
-						parseInt(process.env.REACT_APP_DEFAULT_CLASS_DURATION),
-					max_participants: 11, // 10 participants + 1 instructor
-					eject_at_room_exp: true,
-				},
-			})
-				.then((room) => {
-					window.alert(`ROOM CODE: ${room.name}`);
-					return createToken({
-						properties: {
-							room_name: room.name,
-							start_audio_off: false,
-							is_owner: true,
-						},
-					}).then((tokens) => {
-						// Create Class in backend
+		const dailyClass = getFromSession('dailyClass');
+		const currentClass = getFromSession('currentClass');
 
-						return createClass(
-							'active',
-							state.myProfile.firstName,
-							room.name,
-							11,
-							1, // instructor
-							state.myProfile.id
-						).then((response) => {
-							if (response.success) {
-								dispatch({
-									type: 'updateCurrentClass',
-									payload: response.class,
-								});
-								return { url: room.url, token: tokens.token };
-							} else {
-								throw response.error;
-							}
+		// If no daily class set up yet or if mismatching daily and current class, fetch room and tokens
+		if (
+			!dailyClass ||
+			!currentClass ||
+			(currentClass &&
+				dailyClass &&
+				dailyClass.name !== currentClass.chat_room_name)
+		) {
+			if (state.myProfile.type === 'instructor') {
+				return createRoom({
+					privacy: 'private',
+					properties: {
+						exp:
+							Math.floor(Date.now() / 1000) +
+							parseInt(process.env.REACT_APP_DEFAULT_CLASS_DURATION),
+						max_participants: 11, // 10 participants + 1 instructor
+						eject_at_room_exp: true,
+					},
+				})
+					.then((room) => {
+						// window.alert(`ROOM CODE: ${room.name}`);
+						return createToken({
+							properties: {
+								room_name: room.name,
+								start_audio_off: false,
+								is_owner: true,
+							},
+						}).then((tokens) => {
+							// Create Class in backend as instructor type
+							return createClass(
+								'active',
+								state.myProfile.firstName,
+								room.name,
+								11,
+								1,
+								state.myProfile.id
+							).then((response) => {
+								if (response.success) {
+									storeInSession(
+										'dailyClass',
+										new DailyClass(room.url, tokens.token, room.name)
+									);
+									storeInSession('currentClass', response.class);
+
+									return { url: room.url, token: tokens.token };
+								} else {
+									throw response.error;
+								}
+							});
 						});
+					})
+					.catch((error) => {
+						console.log(
+							'ClassView - createRoomAndToken Instructor flow - error: ',
+							error
+						);
 					});
-				})
-				.catch((error) => {
-					console.log(
-						'ClassView - createRoomAndToken Instructor flow - error: ',
-						error
-					);
-				});
-		} else {
-			// participants have room passed from /classes page as a prop
-			const roomName = props.roomName ? props.roomName : false;
-			if (!roomName) {
-				// Room name required, bounce them back to classes
-				dispatch({
-					type: 'updateInClass',
-					payload: false,
-				});
-				return;
+			} else {
+				// participants have current class from /classes page
+
+				if (!currentClass.chat_room_name) {
+					// Room name required, bounce them back to classes
+					storeInSession('inClass', false);
+					return;
+				}
+				return getRoom(currentClass.chat_room_name)
+					.then((room) => {
+						return createToken({
+							properties: {
+								room_name: room.name,
+								is_owner: false,
+								start_audio_off: false,
+							},
+						}).then((tokens) => {
+							storeInSession(
+								'dailyClass',
+								new DailyClass(room.url, tokens.token, room.name)
+							);
+							return { url: room.url, token: tokens.token };
+						});
+					})
+					.catch((error) => {
+						console.log(
+							'ClassView - createRoomAndToken Participant flow - error: ',
+							error
+						);
+					});
 			}
-			console.log('Participant flow - get room ');
-			return getRoom(roomName)
-				.then((room) => {
-					return createToken({
-						properties: {
-							room_name: room.name,
-							is_owner: false,
-							start_audio_off: false,
-						},
-					}).then((tokens) => {
-						return { url: room.url, token: tokens.token };
-					});
-				})
-				.catch((error) => {
-					console.log(
-						'ClassView - createRoomAndToken Participant flow - error: ',
-						error
-					);
-				});
+		} else {
+			return { url: dailyClass.url, token: dailyClass.token };
 		}
 	}
 
 	return (
 		<div>
 			<ClassToolbar />
-			<VideoFrame
-				url={classUrl}
-				token={token}
-				viewerType={state.myProfile.type}
-			/>
+			<VideoFrame callFrame={state.myCallFrame} loaded={loaded} />
 		</div>
 	);
 };

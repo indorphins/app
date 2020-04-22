@@ -16,10 +16,8 @@ const App = () => {
 	// setup initial state
 	const [state, dispatch] = useReducer(AppReducer, {
 		classes: {},
-		myCallFrame: {},
 		myProfile: {},
-		inClass: false,
-		currentClass: {},
+		myCallFrame: {},
 	});
 
 	// testing
@@ -45,6 +43,7 @@ const App = () => {
 					{/* <Route component={AuthRouter} /> */}
 					<Route exact path='/instructor' component={AuthRouter} />
 					<Route exact path='/classes' component={AuthRouter} />
+					<Route path='/class' component={AuthRouter} />
 					<Route path='/profile' component={AuthRouter} />
 					<Route path='/login' component={LoginView} />
 					<Route path='/register' component={SignupView} />

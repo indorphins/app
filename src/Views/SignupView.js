@@ -99,7 +99,7 @@ const SignupView = (props) => {
 			await createUser(firstName, lastName, email, password, phone, 0)
 				.then((response) => {
 					if (response.success) {
-						const user = response.user[0];
+						const user = response.user;
 						const userProfile = new Profile(
 							user.first_name,
 							user.last_name,
