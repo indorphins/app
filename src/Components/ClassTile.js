@@ -13,7 +13,9 @@ const ClassTile = (props) => {
 			</div>
 			<div id='class-name'>{`${props.instructor}'s Class`}</div>
 			<div id='spots-left'>
-				{`${props.totalSpots - Object.keys(participants).length} Spots Left`}
+				{`${props.totalSpots -
+					Object.keys(participants).length -
+					1} Spots Total`}
 			</div>
 			<button
 				id='join-btn'

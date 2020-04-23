@@ -1,21 +1,21 @@
 import React, { useEffect, useState, useRef, useContext } from 'react';
 import { AppStateContext } from '../App';
 import _ from 'lodash';
-import { getRandomInt } from '../Helpers/utils';
 import {
 	storeInSession,
 	getFromSession,
 	removeItemFromSession,
 } from '../Helpers/sessionHelper';
+import ClassToolbar from '../Components/ClassToolbar';
+import { endClass } from '../Controllers/ClassesController';
+import { deleteRoom } from '../Controllers/DailycoController';
 
 const VideoFrame = (props) => {
 	const { state, dispatch } = useContext(AppStateContext);
-	const [instructor, setInstructor] = useState();
-	const [participantIndex, setParticipantIndex] = useState(1); // start index on non-local index
-	const [instructorLive, setInstructorLive] = useState(true);
-	const [isInstructor, setIsInstructor] = useState(true);
-	const [startParticipantLoop, setStartParticipantLoop] = useState(false);
 	const [trackCount, setTrackCount] = useState(0);
+	const PIP_ID_TOP = 'picture-in-picture-top';
+	const PIP_ID_MID = 'picture-in-picture-middle';
+	const PIP_ID_BOTTOM = 'picture-in-picture-bottom';
 
 	useEffect(() => {
 		setIsInstructor(state.myProfile.type === 'instructor');
@@ -23,25 +23,24 @@ const VideoFrame = (props) => {
 
 	// Don't start call until url and token are passed in TODO type check props these 2 are required
 	useEffect(() => {
-		console.log('*** V FRAME Effect *** w/ loaded: ', props.loaded);
-		console.log('daily class ', getFromSession('dailyClass'));
-		console.log('curr class : ', getFromSession('currentClass'));
-		console.log('call Frame ', state.myCallFrame);
+		// console.log('*** V FRAME Effect *** w/ loaded: ', props.loaded);
+		// console.log('daily class ', getFromSession('dailyClass'));
+		// console.log('curr class : ', getFromSession('currentClass'));
+		// console.log('call Frame ', state.myCallFrame);
 		if (
 			!getFromSession('dailyClass') ||
 			!getFromSession('currentClass') ||
 			_.isEmpty(state.myCallFrame)
 		) {
-			console.log(
-				'Video Frame use effect - no daily or curr class or callframe'
-			);
+			// console.log(
+			// 	'Video Frame use effect - no daily or curr class or callframe'
+			// );
 			return;
 		} else {
 			if (!state.myCallFrame.on) {
-				console.log('NO ON!');
 				return;
 			}
-			console.log('V Frame use effect has daily and curr class and callFrame');
+			// console.log('V Frame use effect has daily and curr class and callFrame');
 			run();
 		}
 	}, [state.myCallFrame, props.loaded]);
@@ -71,9 +70,9 @@ const VideoFrame = (props) => {
 
 	const run = async () => {
 		const cFrame = state.myCallFrame;
-		console.log('cFrame on run = ', cFrame);
-		console.log('cFrame on is ', cFrame.on);
-		console.log('CFrame loaded ', cFrame._loaded);
+		// console.log('cFrame on run = ', cFrame);
+		// console.log('cFrame on is ', cFrame.on);
+		// console.log('CFrame loaded ', cFrame._loaded);
 
 		if (_.isEmpty(cFrame) || cFrame === 'undefined') {
 			return errorHandler({
@@ -105,6 +104,8 @@ const VideoFrame = (props) => {
 			.on('error', errorHandler)
 			.on('network-connection', showEvent);
 
+		// console.log('Daily class is ', dailyClass);
+		// console.log('Url is ', dailyClass.url);
 		await cFrame.load({
 			url: dailyClass.url,
 			token: dailyClass.token,
@@ -115,14 +116,14 @@ const VideoFrame = (props) => {
 			token: dailyClass.token,
 		});
 
-		// TODO Update class name to url WHEN CLASSES FLOW IS FINISHED
 		window.location = '#' + dailyClass.name;
 		return cFrame;
 	};
 
 	const errorHandler = (e) => {
+		console.log('VideoFrame - error - ', e);
 		// Duplicate code in classToolbar
-		const myCallFrame = getFromSession('callFrame');
+		const myCallFrame = state.myCallFrame;
 
 		// change route back to classes/instructor page
 		const profType = _.get(state.myProfile, 'type', 'PARTICIPANT');
@@ -145,42 +146,96 @@ const VideoFrame = (props) => {
 		}
 	};
 
-	const updatePiP = () => {
-		const callFrame = getFromSession('callFrame');
-		if (!callFrame.participants) {
+	// Gets the 30s index since class start time
+	const getNextRotatingIndex = () => {
+		const currentClass = getFromSession('currentClass');
+		if (!currentClass) {
 			return;
+		}
+		const startTime = currentClass.start_time; //TODO refactor to use start_time once added to db
+		const startDate = new Date(startTime);
+		const now = new Date();
+
+		const diff = Math.abs(now - startDate);
+		const index = Math.floor(diff / 30000);
+		console.log('getNextRotatingIndex is ', index);
+		return index;
+	};
+
+	const updatePiP = () => {
+		const callFrame = state.myCallFrame;
+		if (!callFrame || !callFrame.participants) {
+			return;
+		}
+		const nextIndex = getNextRotatingIndex();
+		const oddParticipant = getNextParticipant(nextIndex, true);
+		const evenParticipant = getNextParticipant(nextIndex, false);
+
+		if (evenParticipant) {
+			console.log('load bottom p ', evenParticipant);
+			loadParticipantPiP(evenParticipant, PIP_ID_BOTTOM);
+		}
+		if (oddParticipant) {
+			console.log('load top p ', oddParticipant);
+			loadParticipantPiP(oddParticipant, PIP_ID_TOP);
+		}
+	};
+
+	/**
+	 * Gets the next participant at an even or odd index based on input bool "odd" that has video feed and isn't instructor
+	 * Returns false if no valid indices found
+	 */
+	const getNextParticipant = (index, odd) => {
+		const callFrame = state.myCallFrame;
+		if (!callFrame || !callFrame.participants) {
+			return false;
 		}
 		const participants = callFrame.participants();
 		const participantIds = Object.keys(participants);
 
-		let index = participantIndex;
-		let newId = participantIds[index];
-		let count = 0;
-
 		// If only instructor don't show PiP
 		if (participantIds.length <= 1) {
-			return;
+			return false;
 		}
-
-		while (participants[newId].owner || !participants[newId].videoTrack) {
-			index = index + 1 >= participantIds.length ? 0 : index + 1;
-			newId = participantIds[index];
-			count = count + 1;
-			if (count > participantIds.length) {
-				// break out of loop if cycled through everyone and found nobody valid
-				return;
+		// If only instructor and 2 others, load both of them
+		if (participantIds.length === 3) {
+			if (participants[participantIds[1]].owner) {
+				if (odd) return participants[participantIds[0]];
+				else return participants[participantIds[2]];
 			}
 		}
 
-		// Store next index in state
-		index = index + 1 >= participantIds.length ? 0 : index + 1;
-		setParticipantIndex(index);
-		loadParticipantPiP(participants[newId]);
+		let newIndex = odd ? 1 : 0;
+		if (index !== 0) {
+			newIndex = odd ? index * 2 + 1 : index * 2;
+		}
+		// Reset if cycled through all participants
+		if (newIndex >= participantIds.length) {
+			newIndex = odd ? 1 : 0;
+		}
+
+		let newId = participantIds[newIndex];
+		let count = 0;
+
+		while (participants[newId].owner || !participants[newId].video) {
+			newIndex =
+				newIndex + 2 >= participantIds.length ? (odd ? 1 : 0) : newIndex + 2;
+			newId = participantIds[newIndex];
+			count = count + 2; // add by two since we're doing even/odd indices
+			if (count > participantIds.length) {
+				// break out of loop if cycled through everyone and found nobody valid
+				return false;
+			}
+		}
+		return participants[newId];
 	};
 
-	// Hides or shows the participant's picture in picture based on toggleOn input boolean
-	const togglePiP = (toggleOn) => {
-		const container = document.getElementById('picture-in-picture');
+	// Hides or shows the picture in picture found at id based on toggleOn input boolean
+	const togglePiP = (toggleOn, id) => {
+		const container = document.getElementById(id);
+		if (!container) {
+			return;
+		}
 		const attrs = container.attributes;
 		const isHidden = attrs.hidden ? attrs.hidden.value : false;
 
@@ -191,19 +246,24 @@ const VideoFrame = (props) => {
 		}
 	};
 
-	const loadParticipantPiP = (participant) => {
+	// Load an input participant's video feed into pip located at pipId
+	const loadParticipantPiP = (participant, pipId) => {
 		if (participant.owner) {
 			return;
 		}
-		const container = document.getElementById('picture-in-picture');
-		togglePiP(true); // unhide PiP
+		const container = document.getElementById(pipId);
+		if (!container) {
+			return;
+		}
+		togglePiP(true, pipId); // unhide PiP
 
-		let vid = findPiPVideo();
+		let vid = findParticipantPiPVideo(pipId);
 		if (participant.videoTrack) {
 			if (!vid) {
 				vid = document.createElement('video');
-				vid.session_id = 'pip-video';
-				vid.style.width = '100%';
+				vid.session_id = `${pipId}-video`;
+				vid.style.width = 'inherit';
+				vid.style.border = 'solid 2px black';
 				vid.autoplay = true;
 				vid.playsInline = true;
 				container.appendChild(vid);
@@ -212,92 +272,7 @@ const VideoFrame = (props) => {
 		}
 	};
 
-	const updateParticipantVideos = () => {
-		// TODO add check for owner (don't add owner to participant vids)
-		// if 4 or less participants, don't update
-		const callFrame = getFromSession('callFrame');
-		const participants = callFrame.participants();
-
-		const mediaList = getParticipantMedia();
-
-		const participantIds = Object.keys(participants);
-
-		if (participantIds.length <= 5) {
-			return;
-		}
-		// get current participant id's
-
-		const currParticipants = [];
-		const vidList = [];
-		const audioList = [];
-
-		mediaList.forEach((media) => {
-			if (media.nodeName === 'AUDIO') {
-				audioList.push(media);
-			} else if (media.type === 'VIDEO') {
-				vidList.push(media);
-				currParticipants.push(media.session_id);
-			}
-		});
-
-		// create new vid sources for other participants
-		const newIds = getNewIds(participantIds, currParticipants);
-		let i = 0;
-		while (i < vidList.length && i < newIds.length && i < audioList.length) {
-			vidList[i].srcObject = new MediaStream([
-				participants[newIds[i]].videoTrack,
-			]);
-			audioList[i].srcObject = new MediaStream(
-				[participants[newIds[i]]].audioTrack
-			);
-			i++;
-		}
-	};
-
-	// Get 4 new ids that from the list of all ids
-	const getNewIds = (allIds, usedIds) => {
-		const newIds = [];
-
-		while (newIds.length < 4) {
-			let i = getRandomInt(allIds.length);
-			if (!newIds.includes(allIds[i])) {
-				// could check for usedIds.includes if more than 9 participants
-				newIds.push(allIds[i]);
-			}
-		}
-		return newIds;
-	};
-
-	// Find and return the room owner else return false
-	const getOwner = () => {
-		// todo maybe take in participant list
-		const callFrame = getFromSession('callFrame');
-		const participants = callFrame.participants();
-		participants.forEach((p) => {
-			if (p.owner) {
-				return p;
-			}
-			if (p.session_id === 'local' && state.myProfile.type === 'INSTRUCTOR') {
-				return p;
-			}
-		});
-		return false;
-	};
-
-	const getParticipantMedia = () => {
-		const container = document.getElementById('participant-feeds');
-		return container.childNodes;
-	};
-
-	const getInstructorMedia = () => {
-		const container = document.getElementById('instructor-video');
-		return container.childNodes;
-	};
-
 	const trackStarted = (e) => {
-		if (e.participant.owner) {
-			setInstructor(e.participant);
-		}
 		// set instructor when their tracks start
 		showEvent(e);
 
@@ -307,8 +282,8 @@ const VideoFrame = (props) => {
 
 		setTrackCount(trackCount + 1);
 
-		let audioContainer = document.getElementById('participant-feeds');
-		let videoContainer = document.getElementById('self-picture-in-picture');
+		let audioContainer = document.getElementById('participant-audio');
+		let videoContainer = document.getElementById(PIP_ID_MID);
 		if (e.participant.owner) {
 			audioContainer = document.getElementById('instructor-video');
 			videoContainer = document.getElementById('instructor-video');
@@ -326,7 +301,7 @@ const VideoFrame = (props) => {
 			audio.srcObject = new MediaStream([e.track]);
 		}
 
-		// Only add instructor video feed
+		// Only add instructor or self video feed
 		if (
 			(e.participant.owner || e.participant.local) &&
 			e.track &&
@@ -337,17 +312,14 @@ const VideoFrame = (props) => {
 				vid = document.createElement('video');
 				vid.session_id = e.participant.session_id;
 				vid.style.width = '100%';
+				if (e.participant.local && !e.participant.owner) {
+					vid.style.border = 'solid 2px black';
+				}
 				vid.autoplay = true;
 				vid.playsInline = true;
 				videoContainer.appendChild(vid);
 			}
 			vid.srcObject = new MediaStream([e.track]);
-		}
-
-		// Handle adding a participant to the PiP
-		const pipContainer = document.getElementById('picture-in-picture');
-		if (!e.participant.owner && pipContainer.childNodes.length === 0) {
-			updatePiP();
 		}
 	};
 
@@ -356,8 +328,8 @@ const VideoFrame = (props) => {
 		let vids = findVideosForTrack(e.track && e.track.id);
 		if (vids.length > 0) {
 			vids.forEach((vid) => {
-				if (vid.parentNode.id === 'picture-in-picture') {
-					togglePiP(false);
+				if (vid.parentNode.id.includes('picture-in-picture')) {
+					togglePiP(false, vid.parentNode.id);
 				}
 				vid.remove();
 			});
@@ -377,10 +349,18 @@ const VideoFrame = (props) => {
 		}
 	};
 
-	const findPiPVideo = () => {
-		for (const audio of document.getElementsByTagName('video')) {
-			if (audio.session_id === 'pip-video') {
-				return audio;
+	const findSelfPiPVideo = () => {
+		for (const video of document.getElementsByTagName('video')) {
+			if (video.parentNode.id === PIP_ID_MID) {
+				return video;
+			}
+		}
+	};
+
+	const findParticipantPiPVideo = (id) => {
+		for (const video of document.getElementsByTagName('video')) {
+			if (video.parentNode.id === id) {
+				return video;
 			}
 		}
 	};
@@ -422,26 +402,22 @@ const VideoFrame = (props) => {
 		document.getElementById('instructor-video').innerHTML = '';
 	};
 
+	const gridStyle = {
+		display: 'grid',
+		gridTemplateColumns: '2fr 1fr',
+	};
+
 	return (
-		<div>
-			<div id='videos' />
+		<div style={gridStyle}>
 			<div id='call-container' className='block text-center'>
-				<div id='instructor-video' className='' />
-				<div id='participants-container' className='inline-block'>
-					<div id='participant-feeds' className='grid grid-cols-4 col-gap-2' />
-				</div>
+				<ClassToolbar />
+				<div id='instructor-video' className='pt-8' />
+				<div id='participant-audio' className='grid grid-cols-4' />
 			</div>
-			<div id='side-container'>
-				{!isInstructor ? (
-					<div
-						id='self-picture-in-picture'
-						className='fixed w-1/4 bottom-0 border-2 border-black left-0'
-					/>
-				) : null}
-				<div
-					id='picture-in-picture'
-					className='fixed w-1/4 bottom-0 border-2 border-black right-0'
-				/>
+			<div id='side-container' className=''>
+				<div id={PIP_ID_TOP} />
+				<div id={PIP_ID_MID} />
+				<div id={PIP_ID_BOTTOM} />
 			</div>
 		</div>
 	);

@@ -17,21 +17,10 @@ const InstructorView = (props) => {
 		}
 	}, [state.myProfile]);
 
-	useEffect(() => {
-		if (!getFromSession('inClass')) {
-			endClassHandler();
-		}
-	}, []);
-
 	// Updates inClass to true and change url to load ClassView
 	const startClassHandler = async () => {
 		storeInSession('inClass', true);
 		history.push('/class');
-	};
-
-	// Redundant update to state (class toolbar does it first)
-	const endClassHandler = () => {
-		storeInSession('inClass', false);
 	};
 
 	return (
@@ -43,8 +32,9 @@ const InstructorView = (props) => {
 				/>
 
 				<div id='start-class-container' className='text-center'>
-					<p>Press start to begin your class and get your room code</p>
+					<p>Press start to begin your class</p>
 					<p>Classes will last 60 minutes.</p>
+
 					<br />
 					<Button
 						text='Start Class'
@@ -53,11 +43,9 @@ const InstructorView = (props) => {
 					/>
 					<br />
 					<br />
-					<p>The room code is needed for participants to join.</p>
-					<p>Please don't refresh or you won't be able to join back in.</p>
-					<p>
-						If a participant leaves they may use the room code to join back in.
-					</p>
+
+					<p>Please make sure your video and audio is turned on</p>
+					<p> once you connect to your virtual fitness studio.</p>
 				</div>
 			</div>
 		</div>

@@ -95,7 +95,7 @@ const ClassView = (props) => {
 								'active',
 								state.myProfile.firstName,
 								room.name,
-								11,
+								21,
 								1,
 								state.myProfile.id,
 								process.env.REACT_APP_DEFAULT_CLASS_DURATION
@@ -128,6 +128,7 @@ const ClassView = (props) => {
 					storeInSession('inClass', false);
 					return;
 				}
+				// TODO join class, update as participant in class
 				return getRoom(currentClass.chat_room_name)
 					.then((room) => {
 						if (!room.name || !room.url) {
@@ -161,7 +162,7 @@ const ClassView = (props) => {
 
 	return (
 		<div>
-			<ClassToolbar />
+			{/* <ClassToolbar /> */}
 			<VideoFrame callFrame={state.myCallFrame} loaded={loaded} />
 		</div>
 	);

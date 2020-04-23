@@ -1,11 +1,8 @@
 import React, { useContext, useState, useEffect } from 'react';
 import styles from '../Styles/Toolbar.module.css';
-import Menu from './Menu';
-import Button from './Button';
 import { AppStateContext } from '../App';
 import _isEmpty from 'lodash/isEmpty';
 import _get from 'lodash/get';
-import { useHistory } from 'react-router-dom';
 import { endClass } from '../Controllers/ClassesController';
 import { deleteRoom } from '../Controllers/DailycoController';
 import {
@@ -27,7 +24,6 @@ const Toolbar = (props) => {
 	const [audioOn, setAudioOn] = useState(true);
 	const [myCallFrame, setMyCallFrame] = useState();
 	const [isInstructor, setIsInstructor] = useState(true);
-	const history = useHistory();
 
 	useEffect(() => {
 		if (!isEmpty(state.myCallFrame)) {
@@ -99,13 +95,12 @@ const Toolbar = (props) => {
 	};
 
 	const toggleSelfPiP = () => {
-		const container = document.getElementById('self-picture-in-picture');
+		const container = document.getElementById('picture-in-picture-middle');
 		if (!container) {
 			return;
 		}
 		const attrs = container.attributes;
 		const isHidden = attrs.hidden ? attrs.hidden.value : false;
-		const toggleTo = isHidden === 'false' ? 'true' : 'false';
 
 		if (isHidden) {
 			container.removeAttribute('hidden');

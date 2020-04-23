@@ -92,11 +92,11 @@ const ParticipantView = (props) => {
 				<div className='text-center'>
 					<div
 						id='class-list-container'
-						className='bg-gray-300 w-11/12 m-auto rounded block justify-center items-center h-auto'
+						className='bg-gray-300 w-10/12 m-auto rounded block justify-center items-center h-auto'
 					>
-						{classTiles}
+						{classTiles.length > 0 ? classTiles : <p>No Classes In Session</p>}
 					</div>
-					<div id='beta-class-list-container'>
+					{/* <div id='beta-class-list-container'>
 						<p>Enter your room code below</p>
 						<br />
 
@@ -112,8 +112,8 @@ const ParticipantView = (props) => {
 							clicked={oldJoinClassHandler}
 							text='Join'
 						/>
-						{/* <ul id='class-list'>{classListItems}</ul> */}
-					</div>
+						<ul id='class-list'>{classListItems}</ul> 
+					</div> */}
 				</div>
 			</div>
 		</div>
