@@ -17,10 +17,6 @@ const VideoFrame = (props) => {
 	const PIP_ID_MID = 'picture-in-picture-middle';
 	const PIP_ID_BOTTOM = 'picture-in-picture-bottom';
 
-	useEffect(() => {
-		setIsInstructor(state.myProfile.type === 'instructor');
-	}, [state.myProfile]);
-
 	// Don't start call until url and token are passed in TODO type check props these 2 are required
 	useEffect(() => {
 		// console.log('*** V FRAME Effect *** w/ loaded: ', props.loaded);
