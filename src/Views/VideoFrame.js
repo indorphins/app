@@ -320,6 +320,12 @@ const VideoFrame = (props) => {
 		) {
 			loadParticipantPiP(e.participant, PIP_ID_MID);
 		}
+
+		const topPiP = document.getElementById(PIP_ID_TOP);
+		const botPiP = document.getElementById(PIP_ID_BOTTOM);
+		if (!botPiP.childNodes || !topPiP.childNodes) {
+			updatePiP();
+		}
 	};
 
 	const trackStopped = (e) => {
@@ -404,19 +410,20 @@ const VideoFrame = (props) => {
 	const gridStyle = {
 		display: 'grid',
 		gridTemplateColumns: '3fr 1fr',
+		height: '98vh',
 	};
 
 	return (
 		<div style={gridStyle}>
 			<div id='call-container' className='block text-center'>
 				<ClassToolbar />
-				<div id='instructor-video' className='pt-8' />
+				<div id='instructor-video' className='' />
 				<div id='participant-audio' className='grid grid-cols-4' />
 			</div>
 			<div id='side-container' className=''>
-				<div id={PIP_ID_TOP} />
-				<div id={PIP_ID_MID} />
-				<div id={PIP_ID_BOTTOM} />
+				<div id={PIP_ID_TOP} style={{ height: '33%' }} />
+				<div id={PIP_ID_MID} style={{ height: '33%' }} />
+				<div id={PIP_ID_BOTTOM} style={{ height: '33%' }} />
 			</div>
 		</div>
 	);

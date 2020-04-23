@@ -98,7 +98,7 @@ const ClassView = (props) => {
 								21,
 								1,
 								state.myProfile.id,
-								process.env.REACT_APP_DEFAULT_CLASS_DURATION
+								Math.round(process.env.REACT_APP_DEFAULT_CLASS_DURATION / 60)
 							).then((response) => {
 								if (response.success) {
 									storeInSession(
