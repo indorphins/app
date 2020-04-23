@@ -12,10 +12,10 @@ import {
 } from '../Helpers/sessionHelper';
 import isEmpty from 'lodash/isEmpty';
 
-const AUDIO_OFF_TEXT = 'Toggle Microphone Off';
-const AUDIO_ON_TEXT = 'Toggle Microphone On';
-const VIDEO_OFF_TEXT = 'Toggle Video Off';
-const VIDEO_ON_TEXT = 'Toggle Video On';
+const AUDIO_OFF_TEXT = 'Turn Mic Off';
+const AUDIO_ON_TEXT = 'Turn Mic On';
+const VIDEO_OFF_TEXT = 'Turn Video Off';
+const VIDEO_ON_TEXT = 'Turn Video On';
 
 // Differs from regular toolbar by replacing the logo w/ class name and adding leave class button
 const Toolbar = (props) => {
@@ -33,6 +33,8 @@ const Toolbar = (props) => {
 
 	useEffect(() => {
 		setIsInstructor(state.myProfile.type === 'instructor');
+		setAudioOn(state.myProfile.type === 'instructor' ? true : false);
+		setVideoOn(state.myProfile.type === 'instructor' ? true : true);
 	}, [state.myProfile]);
 
 	const leaveClassHandler = () => {
@@ -115,17 +117,17 @@ const Toolbar = (props) => {
 				<p>Indorphins</p>
 			</div>
 			<div id='btn-container' className='inline-flex float-right'>
-				{!isInstructor ? (
-					<div id='toggle-pip-container' className='flex-auto text-right pr-4'>
-						<button
-							onClick={toggleSelfPiP}
-							id='toggle-pip-btn'
-							className='bg-transparent p-2 border-black border-2 rounded-full inline-block'
-						>
-							Toggle Self View
-						</button>
-					</div>
-				) : null}
+				{/* {!isInstructor ? (
+            <div id='toggle-pip-container' className='flex-auto text-right pr-4'>
+              <button
+                onClick={toggleSelfPiP}
+                id='toggle-pip-btn'
+                className='bg-transparent p-2 border-black border-2 rounded-full inline-block'
+              >
+                Toggle Self View
+              </button>
+            </div>
+          ) : null} */}
 				<div id='toggle-mic-container' className='flex-auto text-right pr-4'>
 					<button
 						onClick={toggleMicrophoneHandler}

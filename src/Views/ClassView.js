@@ -98,7 +98,7 @@ const ClassView = (props) => {
 								21,
 								1,
 								state.myProfile.id,
-								process.env.REACT_APP_DEFAULT_CLASS_DURATION
+								Math.round(process.env.REACT_APP_DEFAULT_CLASS_DURATION / 60)
 							).then((response) => {
 								if (response.success) {
 									storeInSession(
@@ -138,7 +138,7 @@ const ClassView = (props) => {
 							properties: {
 								room_name: room.name,
 								is_owner: false,
-								start_audio_off: false,
+								start_audio_off: true,
 							},
 						}).then((tokens) => {
 							storeInSession(

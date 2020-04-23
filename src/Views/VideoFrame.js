@@ -9,6 +9,7 @@ import {
 import ClassToolbar from '../Components/ClassToolbar';
 import { endClass } from '../Controllers/ClassesController';
 import { deleteRoom } from '../Controllers/DailycoController';
+import { getClosestOddNum, getClosestEvenNum } from '../Helpers/utils';
 
 const VideoFrame = (props) => {
 	const { state, dispatch } = useContext(AppStateContext);
@@ -154,7 +155,6 @@ const VideoFrame = (props) => {
 
 		const diff = Math.abs(now - startDate);
 		const index = Math.floor(diff / 30000);
-		console.log('getNextRotatingIndex is ', index);
 		return index;
 	};
 
@@ -168,11 +168,9 @@ const VideoFrame = (props) => {
 		const evenParticipant = getNextParticipant(nextIndex, false);
 
 		if (evenParticipant) {
-			console.log('load bottom p ', evenParticipant);
 			loadParticipantPiP(evenParticipant, PIP_ID_BOTTOM);
 		}
 		if (oddParticipant) {
-			console.log('load top p ', oddParticipant);
 			loadParticipantPiP(oddParticipant, PIP_ID_TOP);
 		}
 	};
@@ -201,13 +199,15 @@ const VideoFrame = (props) => {
 			}
 		}
 
-		let newIndex = odd ? 1 : 0;
-		if (index !== 0) {
-			newIndex = odd ? index * 2 + 1 : index * 2;
+		if (index >= participantIds.length) {
+			index = index % participantIds.length;
 		}
-		// Reset if cycled through all participants
-		if (newIndex >= participantIds.length) {
-			newIndex = odd ? 1 : 0;
+		let newIndex = odd ? index * 2 + 1 : index * 2;
+		newIndex = newIndex % participantIds.length;
+		if (odd) {
+			newIndex = getClosestOddNum(newIndex);
+		} else {
+			newIndex = getClosestEvenNum(newIndex);
 		}
 
 		let newId = participantIds[newIndex];
@@ -279,10 +279,9 @@ const VideoFrame = (props) => {
 		setTrackCount(trackCount + 1);
 
 		let audioContainer = document.getElementById('participant-audio');
-		let videoContainer = document.getElementById(PIP_ID_MID);
+		let videoContainer = document.getElementById('instructor-video');
 		if (e.participant.owner) {
 			audioContainer = document.getElementById('instructor-video');
-			videoContainer = document.getElementById('instructor-video');
 		}
 
 		if (e.track && e.track.kind === 'audio') {
@@ -298,11 +297,7 @@ const VideoFrame = (props) => {
 		}
 
 		// Only add instructor or self video feed
-		if (
-			(e.participant.owner || e.participant.local) &&
-			e.track &&
-			e.track.kind === 'video'
-		) {
+		if (e.participant.owner && e.track && e.track.kind === 'video') {
 			let vid = findVideoForParticipant(e.participant.session_id);
 			if (!vid) {
 				vid = document.createElement('video');
@@ -316,6 +311,20 @@ const VideoFrame = (props) => {
 				videoContainer.appendChild(vid);
 			}
 			vid.srcObject = new MediaStream([e.track]);
+		}
+		if (
+			e.participant.local &&
+			!e.participant.owner &&
+			e.track &&
+			e.track.kind === 'video'
+		) {
+			loadParticipantPiP(e.participant, PIP_ID_MID);
+		}
+
+		const topPiP = document.getElementById(PIP_ID_TOP);
+		const botPiP = document.getElementById(PIP_ID_BOTTOM);
+		if (!botPiP.childNodes || !topPiP.childNodes) {
+			updatePiP();
 		}
 	};
 
@@ -400,20 +409,21 @@ const VideoFrame = (props) => {
 
 	const gridStyle = {
 		display: 'grid',
-		gridTemplateColumns: '2fr 1fr',
+		gridTemplateColumns: '3fr 1fr',
+		height: '98vh',
 	};
 
 	return (
 		<div style={gridStyle}>
 			<div id='call-container' className='block text-center'>
 				<ClassToolbar />
-				<div id='instructor-video' className='pt-8' />
+				<div id='instructor-video' className='' />
 				<div id='participant-audio' className='grid grid-cols-4' />
 			</div>
 			<div id='side-container' className=''>
-				<div id={PIP_ID_TOP} />
-				<div id={PIP_ID_MID} />
-				<div id={PIP_ID_BOTTOM} />
+				<div id={PIP_ID_TOP} style={{ height: '33%' }} />
+				<div id={PIP_ID_MID} style={{ height: '33%' }} />
+				<div id={PIP_ID_BOTTOM} style={{ height: '33%' }} />
 			</div>
 		</div>
 	);
