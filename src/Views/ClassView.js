@@ -95,7 +95,7 @@ const ClassView = (props) => {
 								'active',
 								state.myProfile.firstName,
 								room.name,
-								21,
+								process.env.REACT_APP_DEFAULT_CLASS_SIZE,
 								1,
 								state.myProfile.id,
 								Math.round(process.env.REACT_APP_DEFAULT_CLASS_DURATION / 60)
