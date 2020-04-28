@@ -88,6 +88,9 @@ const ClassView = (props) => {
 								room_name: room.name,
 								start_audio_off: false,
 								is_owner: true,
+								user_name: state.myProfile.firstName
+									? state.myProfile.firstName
+									: '',
 							},
 						}).then((tokens) => {
 							// Create Class in backend as instructor type
@@ -139,6 +142,9 @@ const ClassView = (props) => {
 								room_name: room.name,
 								is_owner: false,
 								start_audio_off: true,
+								user_name: state.myProfile.firstName
+									? state.myProfile.firstName
+									: '',
 							},
 						}).then((tokens) => {
 							storeInSession(

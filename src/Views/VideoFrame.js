@@ -11,6 +11,7 @@ import { endClass } from '../Controllers/ClassesController';
 import { deleteRoom } from '../Controllers/DailycoController';
 import { getClosestOddNum, getClosestEvenNum } from '../Helpers/utils';
 import userBgImg from '../assets/pipPlaceholder.png';
+import sgfIcon from '../assets/sgfWhite.png';
 
 const VideoFrame = (props) => {
 	const { state, dispatch } = useContext(AppStateContext);
@@ -277,9 +278,10 @@ const VideoFrame = (props) => {
 			vid.playsInline = true;
 			vid.srcObject = new MediaStream([participant.videoTrack]);
 			const labelId = getPiPLabelFromParentId(pipId);
-			console.log('GOT LABEL ID ', labelId);
 			if (labelId) {
-				document.getElementById(labelId).innerHTML = 'Name';
+				document.getElementById(labelId).innerHTML = participant.user_name
+					? participant.user_name
+					: '';
 			}
 		}
 	};
@@ -299,10 +301,13 @@ const VideoFrame = (props) => {
 
 	const getPiPLabelFromParentId = (id) => {
 		switch (id) {
+			case PIP_TOP_VID:
 			case PIP_ID_TOP:
 				return PIP_TOP_LABEL;
+			case PIP_MID_VID:
 			case PIP_ID_MID:
 				return PIP_MID_LABEL;
+			case PIP_BOT_VID:
 			case PIP_ID_BOTTOM:
 				return PIP_BOT_LABEL;
 			default:
@@ -343,9 +348,9 @@ const VideoFrame = (props) => {
 			let vid = findVideoForParticipant(e.participant.session_id);
 			if (!vid) {
 				vid = document.createElement('video');
-				vid.style.width = '100%';
 				videoContainer.appendChild(vid);
 			}
+			vid.style.width = '100%';
 			vid.autoplay = true;
 			vid.playsInline = true;
 			vid.session_id = e.participant.session_id;
@@ -396,7 +401,7 @@ const VideoFrame = (props) => {
 
 	const findSelfPiPVideo = () => {
 		for (const video of document.getElementsByTagName('video')) {
-			if (video.parentNode.id === PIP_ID_MID) {
+			if (video.id === PIP_MID_VID) {
 				return video;
 			}
 		}
@@ -497,6 +502,14 @@ const VideoFrame = (props) => {
 		backgrounSize: 'cover',
 	};
 
+	const logoStyle = {
+		position: 'absolute',
+		top: '0',
+		width: '45px',
+		marginLeft: '50px',
+		marginTop: '50px',
+	};
+
 	return (
 		<div>
 			<div
@@ -504,6 +517,7 @@ const VideoFrame = (props) => {
 				className='block text-center left-0 fixed'
 				style={callContainerStyle}
 			>
+				<img src={sgfIcon} alt='SGF' style={logoStyle} />
 				<div id='instructor-video' className='w-full' />
 				<div id='participant-audio' className='grid grid-cols-4' />
 				<ClassToolbar />
@@ -521,7 +535,7 @@ const VideoFrame = (props) => {
 					}}
 				>
 					<p id={PIP_TOP_LABEL} style={pipLabelStyle} />
-					<video id={PIP_BOT_VID} style={pipVidStyle} />
+					<video id={PIP_TOP_VID} style={pipVidStyle} />
 				</div>
 				<div
 					id={PIP_ID_MID}
