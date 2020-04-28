@@ -77,7 +77,7 @@ const ClassView = (props) => {
 						exp:
 							Math.floor(Date.now() / 1000) +
 							parseInt(process.env.REACT_APP_DEFAULT_CLASS_DURATION),
-						max_participants: 21, // 10 participants + 1 instructor
+						max_participants: process.env.REACT_APP_DEFAULT_CLASS_SIZE,
 						eject_at_room_exp: true,
 					},
 				})
