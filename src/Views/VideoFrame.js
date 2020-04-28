@@ -54,7 +54,7 @@ const VideoFrame = (props) => {
 	useEffect(() => {
 		const interval = setInterval(() => {
 			updatePiP();
-		}, 10000);
+		}, 30000);
 		return () => clearInterval(interval);
 	});
 
@@ -131,13 +131,35 @@ const VideoFrame = (props) => {
 		const myCallFrame = state.myCallFrame;
 
 		// change route back to classes/instructor page
-		const profType = _.get(state.myProfile, 'type', 'PARTICIPANT');
-		if (profType === 'instructor') {
-			window.location.pathname = `/instructor`;
+		if (state.myProfile) {
+			const profType = _.get(state.myProfile, 'type', 'PARTICIPANT');
+			if (profType === 'instructor') {
+				window.location.pathname = `/instructor`;
+			} else {
+				window.location.pathname = `/classes`;
+			}
 		} else {
-			window.location.pathname = `/classes`;
+			window.location.pathname = '/classes';
 		}
 		window.alert(e.errorMsg);
+
+		// If class ended + instructor, set flag to endClass
+		if (
+			state.myProfile &&
+			state.myProfile.type === 'instructor' &&
+			e.errorMsg === 'Meeting has ended'
+		) {
+			storeInSession('instructorEndClass', true);
+			dispatch({
+				type: 'removeCallFrame',
+			});
+			storeInSession('inClass', false);
+
+			if (!_.isEmpty(myCallFrame)) {
+				myCallFrame.destroy();
+			}
+			return;
+		}
 
 		removeItemFromSession('dailyClass');
 		removeItemFromSession('currentClass');
@@ -236,7 +258,6 @@ const VideoFrame = (props) => {
 
 	// Hides or shows the picture in picture found at id based on toggleOn input boolean
 	const togglePiP = (toggleOn, id) => {
-		console.log('TOGGLE id ', id);
 		const container = document.getElementById(id);
 		if (!container) {
 			return;

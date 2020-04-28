@@ -4,7 +4,13 @@ import Button from '../Components/Button';
 import { AppStateContext } from '../App';
 import { useHistory } from 'react-router-dom';
 import _isEmpty from 'lodash/isEmpty';
-import { storeInSession, getFromSession } from '../Helpers/sessionHelper';
+import {
+	storeInSession,
+	getFromSession,
+	removeItemFromSession,
+} from '../Helpers/sessionHelper';
+import { endClass } from '../Controllers/ClassesController';
+import { deleteRoom } from '../Controllers/DailycoController';
 
 const InstructorView = (props) => {
 	const { state, dispatch } = useContext(AppStateContext);
@@ -16,6 +22,29 @@ const InstructorView = (props) => {
 			history.push('/classes');
 		}
 	}, [state.myProfile]);
+
+	// If sent back to this page with instructorEndClass set to true, close out the class on the backend
+	useEffect(() => {
+		const endClassBool = getFromSession('instructorEndClass');
+		if (endClassBool) {
+			const currentClass = getFromSession('currentClass');
+			if (!_isEmpty(currentClass)) {
+				return endClass(currentClass.class_id)
+					.then(() => {
+						return deleteRoom(currentClass.chat_room_name);
+					})
+					.then(() => {
+						removeItemFromSession('dailyClass');
+						removeItemFromSession('currentClass');
+						removeItemFromSession('instructorEndClass');
+						window.location.reload();
+					})
+					.catch((error) => {
+						console.log('InstructorView - endClass - error: ', error);
+					});
+			}
+		}
+	});
 
 	// Updates inClass to true and change url to load ClassView
 	const startClassHandler = async () => {

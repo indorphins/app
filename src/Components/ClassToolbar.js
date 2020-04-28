@@ -101,21 +101,6 @@ const Toolbar = (props) => {
 		leaveClassHandler();
 	};
 
-	const toggleSelfPiP = () => {
-		const container = document.getElementById('picture-in-picture-middle');
-		if (!container) {
-			return;
-		}
-		const attrs = container.attributes;
-		const isHidden = attrs.hidden ? attrs.hidden.value : false;
-
-		if (isHidden) {
-			container.removeAttribute('hidden');
-		} else {
-			container.setAttribute('hidden', true);
-		}
-	};
-
 	return (
 		<header className={styles.ClassToolbar}>
 			<div id='btn-container' className='inline-flex'>
