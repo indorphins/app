@@ -28,18 +28,11 @@ const VideoFrame = (props) => {
 
 	// Don't start call until url and token are passed in TODO type check props these 2 are required
 	useEffect(() => {
-		// console.log('*** V FRAME Effect *** w/ loaded: ', props.loaded);
-		// console.log('daily class ', getFromSession('dailyClass'));
-		// console.log('curr class : ', getFromSession('currentClass'));
-		// console.log('call Frame ', state.myCallFrame);
 		if (
 			!getFromSession('dailyClass') ||
 			!getFromSession('currentClass') ||
 			_.isEmpty(state.myCallFrame)
 		) {
-			// console.log(
-			// 	'Video Frame use effect - no daily or curr class or callframe'
-			// );
 			return;
 		} else {
 			if (!state.myCallFrame.on) {
@@ -75,16 +68,12 @@ const VideoFrame = (props) => {
 
 	const run = async () => {
 		const cFrame = state.myCallFrame;
-		// console.log('cFrame on run = ', cFrame);
-		// console.log('cFrame on is ', cFrame.on);
-		// console.log('CFrame loaded ', cFrame._loaded);
 
 		if (_.isEmpty(cFrame) || cFrame === 'undefined') {
 			return errorHandler({
 				errorMsg: 'No Call Frame Initialized',
 			});
 		}
-		// storeInSession('callFrame', cFrame); don't store
 		const dailyClass = getFromSession('dailyClass');
 
 		if (!dailyClass) {
@@ -366,7 +355,7 @@ const VideoFrame = (props) => {
 
 		// Only add instructor or self video feed
 		if (e.participant.owner && e.track && e.track.kind === 'video') {
-			let vid = findVideoForParticipant(e.participant.session_id);
+			let vid = document.getElementById('instructor-video');
 			if (!vid) {
 				vid = document.createElement('video');
 				videoContainer.appendChild(vid);
@@ -539,7 +528,9 @@ const VideoFrame = (props) => {
 				style={callContainerStyle}
 			>
 				<img src={sgfIcon} alt='SGF' style={logoStyle} />
-				<div id='instructor-video' className='w-full' />
+				<div id='instructor-video-container' className='w-full'>
+					<video id='instructor-video' />
+				</div>
 				<div id='participant-audio' className='grid grid-cols-4' />
 				<ClassToolbar />
 			</div>
