@@ -11,6 +11,11 @@ import {
 	removeItemFromSession,
 } from '../Helpers/sessionHelper';
 import isEmpty from 'lodash/isEmpty';
+import exitAppIcon from '../assets/leaveClass.png';
+import micOff from '../assets/micOff.png';
+import micOn from '../assets/micOn.png';
+import videoOnIcon from '../assets/videocamOn.png';
+import videoOffIcon from '../assets/videocamOff.png';
 
 const AUDIO_OFF_TEXT = 'Turn Mic Off';
 const AUDIO_ON_TEXT = 'Turn Mic On';
@@ -113,28 +118,14 @@ const Toolbar = (props) => {
 
 	return (
 		<header className={styles.ClassToolbar}>
-			<div className='text-xl float-left pt-1'>
-				<p>Indorphins</p>
-			</div>
-			<div id='btn-container' className='inline-flex float-right'>
-				{/* {!isInstructor ? (
-            <div id='toggle-pip-container' className='flex-auto text-right pr-4'>
-              <button
-                onClick={toggleSelfPiP}
-                id='toggle-pip-btn'
-                className='bg-transparent p-2 border-black border-2 rounded-full inline-block'
-              >
-                Toggle Self View
-              </button>
-            </div>
-          ) : null} */}
+			<div id='btn-container' className='inline-flex'>
 				<div id='toggle-mic-container' className='flex-auto text-right pr-4'>
 					<button
 						onClick={toggleMicrophoneHandler}
 						id='toggle-mic-btn'
 						className='bg-transparent p-2 border-black border-2 rounded-full inline-block'
 					>
-						{audioOn ? AUDIO_OFF_TEXT : AUDIO_ON_TEXT}
+						<img src={audioOn ? micOff : micOn} alt='Mic' />
 					</button>
 				</div>
 				<div id='toggle-video-container' className='flex-auto text-right pr-4'>
@@ -143,31 +134,20 @@ const Toolbar = (props) => {
 						id='toggle-video-btn'
 						className='bg-transparent p-2 border-black border-2 rounded-full inline-block'
 					>
-						{videoOn ? VIDEO_OFF_TEXT : VIDEO_ON_TEXT}
+						<img src={videoOn ? videoOffIcon : videoOnIcon} alt='Video' />
 					</button>
 				</div>
 				<div id='leave-class-container' className='flex-auto text-right'>
-					{isInstructor ? (
-						<button
-							onClick={finishClass}
-							id='leave-class-btn'
-							className='bg-transparent p-2 border-black border-2 rounded-full inline-block'
-						>
-							End Class
-						</button>
-					) : (
-						<button
-							onClick={leaveClass}
-							id='leave-class-btn'
-							className='bg-transparent p-2 border-black border-2 rounded-full inline-block'
-						>
-							Leave Class
-						</button>
-					)}
+					{/* {isInstructor ? ( */}
+					<button
+						onClick={isInstructor ? finishClass : leaveClass}
+						id='leave-class-btn'
+						className='bg-transparent p-2 border-black border-2 rounded-full inline-block'
+					>
+						{<img src={exitAppIcon} alt='Exit App' />}
+					</button>
 				</div>
 			</div>
-
-			<nav className={styles.DesktopOnly}>{/* <NavigationItems /> */}</nav>
 		</header>
 	);
 };

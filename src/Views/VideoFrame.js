@@ -10,6 +10,7 @@ import ClassToolbar from '../Components/ClassToolbar';
 import { endClass } from '../Controllers/ClassesController';
 import { deleteRoom } from '../Controllers/DailycoController';
 import { getClosestOddNum, getClosestEvenNum } from '../Helpers/utils';
+import userBgImg from '../assets/pipPlaceholder.png';
 
 const VideoFrame = (props) => {
 	const { state, dispatch } = useContext(AppStateContext);
@@ -17,6 +18,12 @@ const VideoFrame = (props) => {
 	const PIP_ID_TOP = 'picture-in-picture-top';
 	const PIP_ID_MID = 'picture-in-picture-middle';
 	const PIP_ID_BOTTOM = 'picture-in-picture-bottom';
+	const PIP_TOP_LABEL = 'pip-top-label';
+	const PIP_MID_LABEL = 'pip-mid-label';
+	const PIP_BOT_LABEL = 'pip-bot-label';
+	const PIP_TOP_VID = 'pip-top-vid';
+	const PIP_MID_VID = 'pip-mid-vid';
+	const PIP_BOT_VID = 'pip-bot-vid';
 
 	// Don't start call until url and token are passed in TODO type check props these 2 are required
 	useEffect(() => {
@@ -46,7 +53,7 @@ const VideoFrame = (props) => {
 	useEffect(() => {
 		const interval = setInterval(() => {
 			updatePiP();
-		}, 30000);
+		}, 10000);
 		return () => clearInterval(interval);
 	});
 
@@ -168,10 +175,10 @@ const VideoFrame = (props) => {
 		const evenParticipant = getNextParticipant(nextIndex, false);
 
 		if (evenParticipant) {
-			loadParticipantPiP(evenParticipant, PIP_ID_BOTTOM);
+			loadParticipantPiP(evenParticipant, PIP_TOP_VID);
 		}
 		if (oddParticipant) {
-			loadParticipantPiP(oddParticipant, PIP_ID_TOP);
+			loadParticipantPiP(oddParticipant, PIP_BOT_VID);
 		}
 	};
 
@@ -228,6 +235,7 @@ const VideoFrame = (props) => {
 
 	// Hides or shows the picture in picture found at id based on toggleOn input boolean
 	const togglePiP = (toggleOn, id) => {
+		console.log('TOGGLE id ', id);
 		const container = document.getElementById(id);
 		if (!container) {
 			return;
@@ -247,24 +255,58 @@ const VideoFrame = (props) => {
 		if (participant.owner) {
 			return;
 		}
-		const container = document.getElementById(pipId);
-		if (!container) {
+		let vid = document.getElementById(pipId);
+		if (!vid) {
 			return;
 		}
 		togglePiP(true, pipId); // unhide PiP
 
-		let vid = findParticipantPiPVideo(pipId);
-		if (participant.videoTrack) {
+		if (participant.videoTrack && participant.video) {
 			if (!vid) {
 				vid = document.createElement('video');
-				vid.session_id = `${pipId}-video`;
-				vid.style.width = 'inherit';
-				vid.style.border = 'solid 2px black';
-				vid.autoplay = true;
-				vid.playsInline = true;
-				container.appendChild(vid);
+				const parent = getParentIDFromPipVideo(pipId);
+				if (!parent) {
+					return;
+				}
+				document
+					.getElementById(getParentIDFromPipVideo(pipId))
+					.appendChild(vid);
 			}
+			vid.session_id = `${pipId}-video`;
+			vid.autoplay = true;
+			vid.playsInline = true;
 			vid.srcObject = new MediaStream([participant.videoTrack]);
+			const labelId = getPiPLabelFromParentId(pipId);
+			console.log('GOT LABEL ID ', labelId);
+			if (labelId) {
+				document.getElementById(labelId).innerHTML = 'Name';
+			}
+		}
+	};
+
+	const getParentIDFromPipVideo = (pipId) => {
+		switch (pipId) {
+			case PIP_BOT_VID:
+				return PIP_ID_BOTTOM;
+			case PIP_MID_VID:
+				return PIP_ID_MID;
+			case PIP_TOP_VID:
+				return PIP_TOP_VID;
+			default:
+				return;
+		}
+	};
+
+	const getPiPLabelFromParentId = (id) => {
+		switch (id) {
+			case PIP_ID_TOP:
+				return PIP_TOP_LABEL;
+			case PIP_ID_MID:
+				return PIP_MID_LABEL;
+			case PIP_ID_BOTTOM:
+				return PIP_BOT_LABEL;
+			default:
+				return '';
 		}
 	};
 
@@ -301,15 +343,12 @@ const VideoFrame = (props) => {
 			let vid = findVideoForParticipant(e.participant.session_id);
 			if (!vid) {
 				vid = document.createElement('video');
-				vid.session_id = e.participant.session_id;
 				vid.style.width = '100%';
-				if (e.participant.local && !e.participant.owner) {
-					vid.style.border = 'solid 2px black';
-				}
-				vid.autoplay = true;
-				vid.playsInline = true;
 				videoContainer.appendChild(vid);
 			}
+			vid.autoplay = true;
+			vid.playsInline = true;
+			vid.session_id = e.participant.session_id;
 			vid.srcObject = new MediaStream([e.track]);
 		}
 		if (
@@ -318,7 +357,7 @@ const VideoFrame = (props) => {
 			e.track &&
 			e.track.kind === 'video'
 		) {
-			loadParticipantPiP(e.participant, PIP_ID_MID);
+			loadParticipantPiP(e.participant, PIP_MID_VID);
 		}
 
 		const topPiP = document.getElementById(PIP_ID_TOP);
@@ -334,14 +373,15 @@ const VideoFrame = (props) => {
 		if (vids.length > 0) {
 			vids.forEach((vid) => {
 				if (vid.parentNode.id.includes('picture-in-picture')) {
-					togglePiP(false, vid.parentNode.id);
+					togglePiP(false, vid.id);
+					clearLabelForPiPId(vid.parentNode.id);
 				}
-				vid.remove();
+				vid.srcObject = null;
 			});
 		}
 		let audio = findAudioForTrack(e.track && e.track.id);
 		if (audio) {
-			audio.remove();
+			audio.srcObject = null;
 		}
 		setTrackCount(trackCount - 1);
 	};
@@ -364,7 +404,7 @@ const VideoFrame = (props) => {
 
 	const findParticipantPiPVideo = (id) => {
 		for (const video of document.getElementsByTagName('video')) {
-			if (video.parentNode.id === id) {
+			if (video.id === id) {
 				return video;
 			}
 		}
@@ -402,6 +442,14 @@ const VideoFrame = (props) => {
 		return vids;
 	};
 
+	const clearLabelForPiPId = (pipId) => {
+		const labelId = getPiPLabelFromParentId(pipId);
+		console.log('GOT LABEL ID ', labelId);
+		if (labelId) {
+			document.getElementById(labelId).innerHTML = '';
+		}
+	};
+
 	const leftMeeting = (e) => {
 		showEvent(e);
 		document.getElementById('instructor-video').innerHTML = '';
@@ -413,17 +461,89 @@ const VideoFrame = (props) => {
 		height: '98vh',
 	};
 
+	const callContainerStyle = {
+		margin: '0',
+		position: 'absolute',
+		top: '50%',
+		msTransform: 'translateY(-50%)',
+		transform: 'translateY(-50%)',
+		backgroundColor: 'black',
+		width: 'calc(100vw - 60vh)',
+		height: '100vh',
+		display: 'flex',
+		alignItems: 'center',
+	};
+
+	const pipStyle = {
+		height: '33vh',
+		width: '59vh',
+	};
+
+	const pipLabelStyle = {
+		position: 'absolute',
+		left: '5px',
+		width: '100%',
+		fontSize: '30px',
+		color: 'white',
+	};
+
+	const pipVidStyle = {
+		width: '100%',
+		height: '100%',
+		background: `transparent url(${userBgImg}) no-repeat 0 0`,
+		webkitBackgroundSize: 'cover',
+		mozBackgroundSize: 'cover',
+		oBackgroundSize: 'cover',
+		backgrounSize: 'cover',
+	};
+
 	return (
-		<div style={gridStyle}>
-			<div id='call-container' className='block text-center'>
-				<ClassToolbar />
-				<div id='instructor-video' className='' />
+		<div>
+			<div
+				id='call-container'
+				className='block text-center left-0 fixed'
+				style={callContainerStyle}
+			>
+				<div id='instructor-video' className='w-full' />
 				<div id='participant-audio' className='grid grid-cols-4' />
+				<ClassToolbar />
 			</div>
-			<div id='side-container' className=''>
-				<div id={PIP_ID_TOP} style={{ height: '33%' }} />
-				<div id={PIP_ID_MID} style={{ height: '33%' }} />
-				<div id={PIP_ID_BOTTOM} style={{ height: '33%' }} />
+			<div
+				id='side-container'
+				className='h-full right-0 top-0 fixed bg-gray-400'
+				style={{ width: '60vh' }}
+			>
+				<div
+					id={PIP_ID_TOP}
+					style={{
+						height: '34vh',
+						top: '0',
+					}}
+				>
+					<p id={PIP_TOP_LABEL} style={pipLabelStyle} />
+					<video id={PIP_BOT_VID} style={pipVidStyle} />
+				</div>
+				<div
+					id={PIP_ID_MID}
+					style={{
+						height: '33vh',
+						top: '34vh',
+					}}
+				>
+					<p id={PIP_MID_LABEL} style={pipLabelStyle}></p>
+
+					<video id={PIP_MID_VID} />
+				</div>
+				<div
+					id={PIP_ID_BOTTOM}
+					style={{
+						height: '34vh',
+						top: '68vh',
+					}}
+				>
+					<p id={PIP_BOT_LABEL} style={pipLabelStyle}></p>
+					<video id={PIP_BOT_VID} style={pipVidStyle} />
+				</div>
 			</div>
 		</div>
 	);
