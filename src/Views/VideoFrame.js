@@ -7,15 +7,12 @@ import {
 	removeItemFromSession,
 } from '../Helpers/sessionHelper';
 import ClassToolbar from '../Components/ClassToolbar';
-import { endClass } from '../Controllers/ClassesController';
-import { deleteRoom } from '../Controllers/DailycoController';
 import { getClosestOddNum, getClosestEvenNum } from '../Helpers/utils';
 import userBgImg from '../assets/pipPlaceholder.png';
 import sgfIcon from '../assets/sgfWhite.png';
 
 const VideoFrame = (props) => {
 	const { state, dispatch } = useContext(AppStateContext);
-	const [trackCount, setTrackCount] = useState(0);
 	const PIP_ID_TOP = 'picture-in-picture-top';
 	const PIP_ID_MID = 'picture-in-picture-middle';
 	const PIP_ID_BOTTOM = 'picture-in-picture-bottom';
@@ -333,8 +330,6 @@ const VideoFrame = (props) => {
 			return;
 		}
 
-		setTrackCount(trackCount + 1);
-
 		let audioContainer = document.getElementById('participant-audio');
 		let videoContainer = document.getElementById('instructor-video');
 		if (e.participant.owner) {
@@ -398,7 +393,6 @@ const VideoFrame = (props) => {
 		if (audio) {
 			audio.srcObject = null;
 		}
-		setTrackCount(trackCount - 1);
 	};
 
 	const findAudioForParticipant = (session_id) => {
@@ -496,10 +490,20 @@ const VideoFrame = (props) => {
 
 	const pipLabelStyle = {
 		position: 'absolute',
-		left: '5px',
+		bottom: '30px',
+		textAlign: 'center',
+		height: '40px',
 		width: '100%',
-		fontSize: '30px',
+		width: '100%',
+		fontSize: '40px',
 		color: 'white',
+	};
+
+	const labelContainerStyle = {
+		height: 'inherit',
+		width: '100%',
+		position: 'absolute',
+		opacity: '1',
 	};
 
 	const pipVidStyle = {
@@ -546,7 +550,9 @@ const VideoFrame = (props) => {
 						top: '0',
 					}}
 				>
-					<p id={PIP_TOP_LABEL} style={pipLabelStyle} />
+					<div id='label-container-top' style={labelContainerStyle}>
+						<p id={PIP_TOP_LABEL} style={pipLabelStyle} />
+					</div>
 					<video id={PIP_TOP_VID} style={pipVidStyle} />
 				</div>
 				<div
@@ -556,8 +562,9 @@ const VideoFrame = (props) => {
 						top: '34vh',
 					}}
 				>
-					<p id={PIP_MID_LABEL} style={pipLabelStyle}></p>
-
+					<div id='label-container-mid' style={labelContainerStyle}>
+						<p id={PIP_MID_LABEL} style={pipLabelStyle}></p>
+					</div>
 					<video id={PIP_MID_VID} />
 				</div>
 				<div
@@ -567,7 +574,9 @@ const VideoFrame = (props) => {
 						top: '68vh',
 					}}
 				>
-					<p id={PIP_BOT_LABEL} style={pipLabelStyle}></p>
+					<div id='label-container-bot' style={labelContainerStyle}>
+						<p id={PIP_BOT_LABEL} style={pipLabelStyle}></p>
+					</div>
 					<video id={PIP_BOT_VID} style={pipVidStyle} />
 				</div>
 			</div>
