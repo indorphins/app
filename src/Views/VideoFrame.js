@@ -239,7 +239,6 @@ const VideoFrame = (props) => {
 				return false;
 			}
 		}
-		console.log('Selected this guy: ', participants[newId]);
 		return participants[newId];
 	};
 
@@ -264,8 +263,6 @@ const VideoFrame = (props) => {
 		if (participant.owner) {
 			return;
 		}
-		console.log('Loading P : ', participant);
-		console.log('INTO pip ', pipId);
 		let vid = document.getElementById(pipId);
 		if (!vid) {
 			return;
