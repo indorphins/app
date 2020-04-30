@@ -14,8 +14,8 @@ import isEmpty from 'lodash/isEmpty';
 import exitAppIcon from '../assets/leaveClass.png';
 import micOff from '../assets/micOff.png';
 import micOn from '../assets/micOn.png';
-import videoOnIcon from '../assets/videocamOn.png';
-import videoOffIcon from '../assets/videocamOff.png';
+import videoOnIcon from '../assets/camOn.png';
+import videoOffIcon from '../assets/camOff.png';
 
 // Differs from regular toolbar by replacing the logo w/ class name and adding leave class button
 const Toolbar = (props) => {

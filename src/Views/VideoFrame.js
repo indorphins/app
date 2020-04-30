@@ -205,16 +205,9 @@ const VideoFrame = (props) => {
 		const participants = callFrame.participants();
 		const participantIds = Object.keys(participants);
 
-		// If only instructor don't show PiP
+		// If only one person don't find anyone
 		if (participantIds.length <= 1) {
 			return false;
-		}
-		// If only instructor and 2 others, load both of them
-		if (participantIds.length === 3) {
-			if (participants[participantIds[1]].owner) {
-				if (odd) return participants[participantIds[0]];
-				else return participants[participantIds[2]];
-			}
 		}
 
 		if (index >= participantIds.length) {
@@ -246,6 +239,7 @@ const VideoFrame = (props) => {
 				return false;
 			}
 		}
+		console.log('Selected this guy: ', participants[newId]);
 		return participants[newId];
 	};
 
@@ -270,6 +264,8 @@ const VideoFrame = (props) => {
 		if (participant.owner) {
 			return;
 		}
+		console.log('Loading P : ', participant);
+		console.log('INTO pip ', pipId);
 		let vid = document.getElementById(pipId);
 		if (!vid) {
 			return;
