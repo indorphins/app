@@ -8,11 +8,12 @@ import {
 } from '../Helpers/sessionHelper';
 import ClassToolbar from '../Components/ClassToolbar';
 import { getClosestOddNum, getClosestEvenNum } from '../Helpers/utils';
-import userBgImg from '../assets/pipPlaceholder.png';
 import sgfIcon from '../assets/sgfWhite.png';
+import useStyles from '../Styles/VideoFrameStyles';
 
 const VideoFrame = (props) => {
 	const { state, dispatch } = useContext(AppStateContext);
+	const styles = useStyles();
 	const PIP_ID_TOP = 'picture-in-picture-top';
 	const PIP_ID_MID = 'picture-in-picture-middle';
 	const PIP_ID_BOTTOM = 'picture-in-picture-bottom';
@@ -22,6 +23,7 @@ const VideoFrame = (props) => {
 	const PIP_TOP_VID = 'pip-top-vid';
 	const PIP_MID_VID = 'pip-mid-vid';
 	const PIP_BOT_VID = 'pip-bot-vid';
+	const ROTATION_CYCLE_MS = 20000;
 
 	// Don't start call until url and token are passed in TODO type check props these 2 are required
 	useEffect(() => {
@@ -44,7 +46,7 @@ const VideoFrame = (props) => {
 	useEffect(() => {
 		const interval = setInterval(() => {
 			updatePiP();
-		}, 30000);
+		}, ROTATION_CYCLE_MS);
 		return () => clearInterval(interval);
 	});
 
@@ -165,12 +167,12 @@ const VideoFrame = (props) => {
 		if (!currentClass) {
 			return;
 		}
-		const startTime = currentClass.start_time; //TODO refactor to use start_time once added to db
+		const startTime = currentClass.start_time;
 		const startDate = new Date(startTime);
 		const now = new Date();
 
 		const diff = Math.abs(now - startDate);
-		const index = Math.floor(diff / 30000);
+		const index = Math.floor(diff / ROTATION_CYCLE_MS);
 		return index;
 	};
 
@@ -229,7 +231,12 @@ const VideoFrame = (props) => {
 		let newId = participantIds[newIndex];
 		let count = 0;
 
-		while (participants[newId].owner || !participants[newId].video) {
+		// get new participant if current is owner, self, or no video
+		while (
+			participants[newId].owner ||
+			!participants[newId].video ||
+			participants[newId].local
+		) {
 			newIndex =
 				newIndex + 2 >= participantIds.length ? (odd ? 1 : 0) : newIndex + 2;
 			newId = participantIds[newIndex];
@@ -287,7 +294,7 @@ const VideoFrame = (props) => {
 			const labelId = getPiPLabelFromParentId(pipId);
 			if (labelId) {
 				document.getElementById(labelId).innerHTML = participant.user_name
-					? participant.user_name
+					? participant.user_name.toUpperCase()
 					: '';
 			}
 		}
@@ -464,74 +471,10 @@ const VideoFrame = (props) => {
 		document.getElementById('instructor-video').innerHTML = '';
 	};
 
-	const gridStyle = {
-		display: 'grid',
-		gridTemplateColumns: '3fr 1fr',
-		height: '98vh',
-	};
-
-	const callContainerStyle = {
-		margin: '0',
-		position: 'absolute',
-		top: '50%',
-		msTransform: 'translateY(-50%)',
-		transform: 'translateY(-50%)',
-		backgroundColor: 'black',
-		width: 'calc(100vw - 60vh)',
-		height: '100vh',
-		display: 'flex',
-		alignItems: 'center',
-	};
-
-	const pipStyle = {
-		height: '33vh',
-		width: '59vh',
-	};
-
-	const pipLabelStyle = {
-		position: 'absolute',
-		bottom: '30px',
-		textAlign: 'center',
-		height: '40px',
-		width: '100%',
-		width: '100%',
-		fontSize: '40px',
-		color: 'white',
-	};
-
-	const labelContainerStyle = {
-		height: 'inherit',
-		width: '100%',
-		position: 'absolute',
-		opacity: '1',
-	};
-
-	const pipVidStyle = {
-		width: '100%',
-		height: '100%',
-		background: `transparent url(${userBgImg}) no-repeat 0 0`,
-		webkitBackgroundSize: 'cover',
-		mozBackgroundSize: 'cover',
-		oBackgroundSize: 'cover',
-		backgrounSize: 'cover',
-	};
-
-	const logoStyle = {
-		position: 'absolute',
-		top: '0',
-		width: '45px',
-		marginLeft: '50px',
-		marginTop: '50px',
-	};
-
 	return (
 		<div>
-			<div
-				id='call-container'
-				className='block text-center left-0 fixed'
-				style={callContainerStyle}
-			>
-				<img src={sgfIcon} alt='SGF' style={logoStyle} />
+			<div id='call-container' className={styles.callContainerStyle}>
+				<img src={sgfIcon} alt='SGF' className={styles.logoStyle} />
 				<div id='instructor-video-container' className='w-full'>
 					<video id='instructor-video' />
 				</div>
@@ -550,10 +493,10 @@ const VideoFrame = (props) => {
 						top: '0',
 					}}
 				>
-					<div id='label-container-top' style={labelContainerStyle}>
-						<p id={PIP_TOP_LABEL} style={pipLabelStyle} />
+					<div id='label-container-top' className={styles.labelContainerStyle}>
+						<p id={PIP_TOP_LABEL} className={styles.pipLabelStyle} />
 					</div>
-					<video id={PIP_TOP_VID} style={pipVidStyle} />
+					<video id={PIP_TOP_VID} className={styles.pipVidStyle} />
 				</div>
 				<div
 					id={PIP_ID_MID}
@@ -562,8 +505,8 @@ const VideoFrame = (props) => {
 						top: '34vh',
 					}}
 				>
-					<div id='label-container-mid' style={labelContainerStyle}>
-						<p id={PIP_MID_LABEL} style={pipLabelStyle}></p>
+					<div id='label-container-mid' className={styles.labelContainerStyle}>
+						<p id={PIP_MID_LABEL} className={styles.pipLabelStyle}></p>
 					</div>
 					<video id={PIP_MID_VID} />
 				</div>
@@ -574,10 +517,10 @@ const VideoFrame = (props) => {
 						top: '68vh',
 					}}
 				>
-					<div id='label-container-bot' style={labelContainerStyle}>
-						<p id={PIP_BOT_LABEL} style={pipLabelStyle}></p>
+					<div id='label-container-bot' className={styles.labelContainerStyle}>
+						<p id={PIP_BOT_LABEL} className={styles.pipLabelStyle}></p>
 					</div>
-					<video id={PIP_BOT_VID} style={pipVidStyle} />
+					<video id={PIP_BOT_VID} className={styles.pipVidStyle} />
 				</div>
 			</div>
 		</div>

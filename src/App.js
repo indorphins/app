@@ -1,11 +1,9 @@
 import React, { createContext, useEffect, useReducer } from 'react';
 import { BrowserRouter as Router, Switch, Route, Link } from 'react-router-dom';
-import { useCookies } from 'react-cookie';
 import AppReducer from './Reducers/AppReducer';
 import LoginView from './Views/LoginView';
 import SignupView from './Views/SignupView';
 import AuthRouter from './AuthRouter';
-import Profile from './Classes/Profile';
 
 export const AppStateContext = createContext({
 	state: {},

@@ -17,11 +17,6 @@ import micOn from '../assets/micOn.png';
 import videoOnIcon from '../assets/videocamOn.png';
 import videoOffIcon from '../assets/videocamOff.png';
 
-const AUDIO_OFF_TEXT = 'Turn Mic Off';
-const AUDIO_ON_TEXT = 'Turn Mic On';
-const VIDEO_OFF_TEXT = 'Turn Video Off';
-const VIDEO_ON_TEXT = 'Turn Video On';
-
 // Differs from regular toolbar by replacing the logo w/ class name and adding leave class button
 const Toolbar = (props) => {
 	const { state, dispatch } = useContext(AppStateContext);
@@ -108,26 +103,25 @@ const Toolbar = (props) => {
 					<button
 						onClick={toggleMicrophoneHandler}
 						id='toggle-mic-btn'
-						className='bg-transparent p-2 border-black border-2 rounded-full inline-block'
+						className='bg-transparent p-2 inline-block'
 					>
-						<img src={audioOn ? micOff : micOn} alt='Mic' />
+						<img src={audioOn ? micOn : micOff} alt='Mic' />
 					</button>
 				</div>
 				<div id='toggle-video-container' className='flex-auto text-right pr-4'>
 					<button
 						onClick={toggleVideoHandler}
 						id='toggle-video-btn'
-						className='bg-transparent p-2 border-black border-2 rounded-full inline-block'
+						className='bg-transparent p-2 inline-block'
 					>
-						<img src={videoOn ? videoOffIcon : videoOnIcon} alt='Video' />
+						<img src={videoOn ? videoOnIcon : videoOffIcon} alt='Video' />
 					</button>
 				</div>
 				<div id='leave-class-container' className='flex-auto text-right'>
-					{/* {isInstructor ? ( */}
 					<button
 						onClick={isInstructor ? finishClass : leaveClass}
 						id='leave-class-btn'
-						className='bg-transparent p-2 border-black border-2 rounded-full inline-block'
+						className='bg-transparent p-2 inline-block'
 					>
 						{<img src={exitAppIcon} alt='Exit App' />}
 					</button>
