@@ -1,5 +1,3 @@
-const USERS_DOMAIN = process.env.REACT_APP_AWS_SERVER_DOMAIN;
-
 export async function createUser(firstName, lastName, email, pw, phone, type) {
 	const properties = {
 		first_name: firstName,
@@ -17,7 +15,7 @@ export async function createUser(firstName, lastName, email, pw, phone, type) {
 		body: JSON.stringify(properties),
 	};
 
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + '/signup';
+	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + '/users';
 
 	return fetch(url, options)
 		.then((response) => {
@@ -37,7 +35,7 @@ export async function deleteUser(id) {
 		},
 	};
 
-	const url = USERS_DOMAIN + `?id=${id}`;
+	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + `/users/${id}`;
 
 	return fetch(url, options)
 		.then((response) => {
@@ -60,7 +58,9 @@ export async function getAllUsers() {
 		},
 	};
 
-	return fetch(USERS_DOMAIN, options)
+	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + `/users`;
+
+	return fetch(url, options)
 		.then((response) => {
 			return response.json();
 		})
@@ -86,7 +86,7 @@ export async function loginUser(email, password) {
 		body: JSON.stringify(properties),
 	};
 
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + '/login';
+	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + '/users/login';
 
 	return fetch(url, options)
 		.then((response) => {
@@ -105,7 +105,7 @@ export async function getUser(id) {
 			'Content-Type': 'application/json',
 		},
 	};
-	const url = USERS_DOMAIN + `?id=${id}`;
+	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + `/users/user/${id}`;
 
 	return fetch(url, options)
 		.then((response) => {
@@ -128,7 +128,7 @@ export async function updateUser(id) {
 		},
 	};
 
-	const url = USERS_DOMAIN + `?id=${id}`;
+	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + `/users/update/${id}`;
 
 	return fetch(url, options)
 		.then((response) => {
@@ -139,6 +139,50 @@ export async function updateUser(id) {
 		})
 		.catch((error) => {
 			console.log('UsersController - updateUser - Error is ', error);
+			throw error;
+		});
+}
+
+export async function scheduleClassForId(c, id) {
+	const options = {
+		method: 'PUT',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+		body: JSON.stringify(c),
+	};
+	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + `/users/addClass/${id}`;
+	return fetch(url, options)
+		.then((result) => {
+			console.log('UsersController - scheduleClassForId success: ', result);
+			return result;
+		})
+		.catch((error) => {
+			console.log('UsersController - scheduleClassForId error: ', error);
+			throw error;
+		});
+}
+
+export async function getScheduledClassesForId(id) {
+	const options = {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+	};
+	const url =
+		process.env.REACT_APP_AWS_SERVER_DOMAIN +
+		`/users/getScheduledClasses/${id}`;
+	return fetch(url, options)
+		.then((result) => {
+			console.log(
+				'UsersController - getScheduledClassesForId success: ',
+				result
+			);
+			return result;
+		})
+		.catch((error) => {
+			console.log('UsersController - getScheduledClassesForId error: ', error);
 			throw error;
 		});
 }
