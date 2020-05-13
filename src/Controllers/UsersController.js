@@ -1,11 +1,18 @@
-export async function createUser(firstName, lastName, email, pw, phone, type) {
+export async function createUser(
+	firstName,
+	lastName,
+	email,
+	phone,
+	type,
+	firebaseUid
+) {
 	const properties = {
 		first_name: firstName,
 		last_name: lastName,
 		email: email,
-		password: pw,
 		phone_number: phone,
 		user_type: type,
+		firebase_uid: firebaseUid,
 	};
 	const options = {
 		method: 'POST',
@@ -73,20 +80,15 @@ export async function getAllUsers() {
 		});
 }
 
-export async function loginUser(email, password) {
-	const properties = {
-		email: email,
-		password: password,
-	};
+export async function loginUser(token) {
 	const options = {
-		method: 'POST',
+		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
 		},
-		body: JSON.stringify(properties),
 	};
 
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + '/users/login';
+	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + '/users/login/' + token;
 
 	return fetch(url, options)
 		.then((response) => {
@@ -98,14 +100,14 @@ export async function loginUser(email, password) {
 		});
 }
 
-export async function getUser(id) {
+export async function getUser(token) {
 	const options = {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
 		},
 	};
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + `/users/user/${id}`;
+	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + `/users/user/${token}`;
 
 	return fetch(url, options)
 		.then((response) => {
@@ -143,7 +145,7 @@ export async function updateUser(id) {
 		});
 }
 
-export async function scheduleClassForId(c, id) {
+export async function scheduleClassForId(c, token) {
 	const options = {
 		method: 'PUT',
 		headers: {
@@ -151,7 +153,8 @@ export async function scheduleClassForId(c, id) {
 		},
 		body: JSON.stringify(c),
 	};
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + `/users/addClass/${id}`;
+	const url =
+		process.env.REACT_APP_AWS_SERVER_DOMAIN + `/users/addClass/${token}`;
 	return fetch(url, options)
 		.then((result) => {
 			console.log('UsersController - scheduleClassForId success: ', result);
@@ -163,7 +166,7 @@ export async function scheduleClassForId(c, id) {
 		});
 }
 
-export async function getScheduledClassesForId(id) {
+export async function getScheduledClassesForId(token) {
 	const options = {
 		method: 'GET',
 		headers: {
@@ -172,7 +175,7 @@ export async function getScheduledClassesForId(id) {
 	};
 	const url =
 		process.env.REACT_APP_AWS_SERVER_DOMAIN +
-		`/users/getScheduledClasses/${id}`;
+		`/users/getScheduledClasses/${token}`;
 	return fetch(url, options)
 		.then((result) => {
 			console.log(

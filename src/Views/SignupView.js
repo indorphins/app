@@ -7,6 +7,7 @@ import { useCookies } from 'react-cookie';
 import { useHistory } from 'react-router-dom';
 import { AppStateContext } from '../App';
 import { emailRegex, phoneRegex } from '../Helpers/regex';
+import Firebase from '../Controllers/Firebase';
 
 const SignupView = (props) => {
 	const [firstName, setFirstName] = useState('');
@@ -34,17 +35,11 @@ const SignupView = (props) => {
 		setPassword(event.target.value);
 	};
 
-	const accountTypeHandler = (event) => {
-		console.log('acct type event: ', event.target.value);
-	};
-
 	const phoneHandler = (event) => {
 		setPhone(event.target.value);
 	};
 
 	const validateEmail = () => {
-		console.log('validate email: ', email);
-		console.log('email valid: ', emailRegex.test(email));
 		if (!emailRegex.test(email)) {
 			window.alert('Email must be in example@email.com format');
 			return false;
@@ -55,14 +50,11 @@ const SignupView = (props) => {
 	const formatPhone = () => {
 		if (phone.includes('-')) {
 			const newPhone = phone.replace(/-/g, '');
-			console.log('removed - in phone ', newPhone);
 			setPhone(newPhone);
 		}
 	};
 
 	const validatePhone = () => {
-		console.log('Validate phone - ', phone, ' len: ', typeof phone);
-		console.log('valid? ', /^d{10}$/.test(phone));
 		if (!phoneRegex.test(phone)) {
 			window.alert('Phone Number must be 10 digits');
 			return false;
@@ -96,41 +88,60 @@ const SignupView = (props) => {
 		// Validate form fields
 
 		if (validateForm()) {
-			await createUser(firstName, lastName, email, password, phone, 0)
-				.then((response) => {
-					if (response.success) {
-						const user = response.user;
-						const userProfile = new Profile(
-							user.first_name,
-							user.last_name,
-							user.user_type === 1 ? 'instructor' : 'participant',
-							user.user_id,
-							user.email,
-							user.phone_number
-						);
-						setCookie('profile', userProfile, {
-							expires: getExpiryHoursFromNow(3),
-						}); // three hours before cookie expiry and login needed
-						dispatch({
-							type: 'updateProfile',
-							payload: userProfile,
-						});
+			return Firebase.createAccount(email, password)
+				.then(async (x) => {
+					const firebaseUser = Firebase.getUser();
+					await createUser(
+						firstName,
+						lastName,
+						email,
+						phone,
+						0,
+						firebaseUser.uid
+					)
+						.then((response) => {
+							console.log('create user returned response ', response);
+							if (response.success) {
+								const user = response.data.user;
+								const userProfile = new Profile(
+									user.first_name,
+									user.last_name,
+									user.user_type === 1 ? 'instructor' : 'participant',
+									user.user_id,
+									user.email,
+									user.phone_number
+								);
+								setCookie('profile', userProfile, {
+									expires: getExpiryHoursFromNow(3),
+								}); // three hours before cookie expiry and login needed
+								dispatch({
+									type: 'updateProfile',
+									payload: userProfile,
+								});
 
-						history.push(`/classes`);
-					} else {
-						if (response.error === 'duplicate_email') {
-							window.alert('That email already exists with a user');
-						} else if (response.error === 'duplicate_phone') {
-							window.alert('That phone number already exists with a user');
-						} else {
-							window.alert(
-								'Sign up failed. Please check that all fields are filled.'
-							);
-						}
-					}
+								history.push(`/classes`);
+							} else {
+								// TODO these correspond to postgres api's error responses - we can discuss what we want error-wise with the new mongo apis
+								if (response.error === 'duplicate_email') {
+									window.alert('That email already exists with a user');
+								} else if (response.error === 'duplicate_phone') {
+									window.alert('That phone number already exists with a user');
+								} else {
+									window.alert(
+										'Sign up failed. Please check that all fields are filled.'
+									);
+								}
+							}
+						})
+						.catch((error) => {
+							console.log('error submitting sign up ', error);
+						});
 				})
 				.catch((error) => {
-					console.log('error submitting sign up ', error);
+					if (error.code === 'auth/email-already-in-use') {
+						window.alert('That email already exists with a user');
+						return;
+					}
 				});
 		}
 	};

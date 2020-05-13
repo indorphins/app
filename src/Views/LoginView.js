@@ -6,6 +6,7 @@ import { getExpiryHoursFromNow } from '../Helpers/utils';
 import { useCookies } from 'react-cookie';
 import { AppStateContext } from '../App';
 import { loginUser } from '../Controllers/UsersController';
+import Firebase from '../Controllers/Firebase';
 
 const LoginView = (props) => {
 	const [userName, setUserName] = useState('');
@@ -13,19 +14,6 @@ const LoginView = (props) => {
 	const [cookies, setCookie] = useCookies('profile');
 	const { state, dispatch } = useContext(AppStateContext);
 	const history = useHistory();
-
-	useEffect(() => {
-		// grab profile from cookie if present and redirect to page
-		if (cookies.profile && cookies.profile !== 'undefined') {
-			dispatch({
-				type: 'updateProfile',
-				payload: cookies.profile,
-			});
-			history.push(
-				cookies.profile.type === 'instructor' ? '/instructor' : '/classes'
-			);
-		}
-	});
 
 	const userNameInputHandler = (event) => {
 		setUserName(event.target.value);
@@ -35,13 +23,38 @@ const LoginView = (props) => {
 		setPassword(event.target.value);
 	};
 
+	const googleSignInFlow = async () => {
+		return Firebase.loginWithGoogle()
+			.then((user) => {
+				return Firebase.getToken();
+			})
+			.then((token) => {
+				signInFlowHelper(token);
+			});
+	};
+
 	const formSubmittedHandler = async (event) => {
 		event.preventDefault();
+		Firebase.signInWithEmailPassword(userName, password).catch((error) => {
+			console.log('Error firebase signin email pw ', error);
+			window.alert(error.message);
+			return;
+		});
+		Firebase.getToken().then((token) => {
+			signInFlowHelper(token);
+		});
+	};
+
+	/**
+	 * Takes in a firebase token and fetches the user from back end. Store user's profile in cookie
+	 * @param {string} token
+	 */
+	const signInFlowHelper = async (token) => {
 		// make api call to get user and store in cookies
-		await loginUser(userName, password)
+		await loginUser(token)
 			.then((response) => {
 				if (response.success) {
-					const user = response.user;
+					const user = response.data.user;
 					// create user's profile and store in cookies
 					const userProfile = new Profile(
 						user.first_name,
@@ -64,6 +77,10 @@ const LoginView = (props) => {
 						history.push(`/classes`);
 					}
 				} else {
+					if (!response.user) {
+						window.alert('No user with that login - please create an account');
+						return;
+					}
 					window.alert('Invalid Login. Please try again.');
 				}
 			})
@@ -120,6 +137,14 @@ const LoginView = (props) => {
 					</div>
 				</form>
 				<br />
+				<div id='signin-google-container' className='text-center'>
+					<button
+						onClick={googleSignInFlow}
+						className='text-center text-blue-400 underline'
+					>
+						Sign in with Google
+					</button>
+				</div>
 				<div id='signup-link-container' className='text-center'>
 					<button
 						onClick={loadSignUpForm}

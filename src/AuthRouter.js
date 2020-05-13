@@ -10,6 +10,8 @@ import Profile from './Classes/Profile';
 import ProfileView from './Views/ProfileView';
 import isEmpty from 'lodash/isEmpty';
 import ClassView from './Views/ClassView';
+import Firebase from './Controllers/Firebase';
+import { loginUser } from './Controllers/UsersController';
 
 // Router for pages accessed once user's Profile is loaded
 const AuthRouter = (props) => {
@@ -17,19 +19,27 @@ const AuthRouter = (props) => {
 	const [cookies, setCookie] = useCookies('profile');
 	const { state, dispatch } = useContext(AppStateContext);
 
+	// grab and store user info into state
 	useEffect(() => {
 		if (_isEmpty(state.myProfile)) {
-			if (!_isEmpty(cookies.profile) && cookies.profile !== 'undefined') {
-				dispatch({
-					type: 'updateProfile',
-					payload: cookies.profile,
+			// Grab firebase user
+			Firebase.getToken().then((token) => {
+				// fetch user from back end and store in state
+				console.log('Got firebase token - ', token);
+				loginUser(token).then((response) => {
+					console.log('Got user from backend ', response);
+					dispatch({
+						type: 'updateProfile',
+						payload: response.data,
+					});
+					// TODO construct user?
 				});
-			} else {
-				// Send them to login page
-				history.push('/login');
-			}
+			});
+		} else {
+			// Send them to login page
+			history.push('/login');
 		}
-	}, [state.myProfile, cookies.profile]);
+	}, [state.myProfile]);
 
 	return (
 		<Switch>
