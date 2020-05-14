@@ -85,10 +85,13 @@ export async function loginUser(token) {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`,
 		},
 	};
 
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + '/users/login/' + token;
+	console.log('TOKEN IS ', token);
+
+	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + '/users/login';
 
 	return fetch(url, options)
 		.then((response) => {
@@ -105,9 +108,10 @@ export async function getUser(token) {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`,
 		},
 	};
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + `/users/user/${token}`;
+	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + `/users/user`;
 
 	return fetch(url, options)
 		.then((response) => {
@@ -150,11 +154,11 @@ export async function scheduleClassForId(c, token) {
 		method: 'PUT',
 		headers: {
 			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`,
 		},
 		body: JSON.stringify(c),
 	};
-	const url =
-		process.env.REACT_APP_AWS_SERVER_DOMAIN + `/users/addClass/${token}`;
+	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + `/users/addClass`;
 	return fetch(url, options)
 		.then((result) => {
 			console.log('UsersController - scheduleClassForId success: ', result);
@@ -171,11 +175,11 @@ export async function getScheduledClassesForId(token) {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
+			Authorization: `Bearer ${token}`,
 		},
 	};
 	const url =
-		process.env.REACT_APP_AWS_SERVER_DOMAIN +
-		`/users/getScheduledClasses/${token}`;
+		process.env.REACT_APP_AWS_SERVER_DOMAIN + `/users/getScheduledClasses`;
 	return fetch(url, options)
 		.then((result) => {
 			console.log(
