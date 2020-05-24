@@ -4,6 +4,7 @@ import AppReducer from './Reducers/AppReducer';
 import LoginView from './Views/LoginView';
 import SignupView from './Views/SignupView';
 import AuthRouter from './AuthRouter';
+import OpentokView from './Views/OpentokView';
 
 export const AppStateContext = createContext({
 	state: {},
@@ -23,6 +24,7 @@ const App = () => {
 			<Router>
 				<Switch>
 					{/* <Route component={AuthRouter} /> */}
+					<Route exact path='/videotest' component={OpentokView} />
 					<Route exact path='/instructor' component={AuthRouter} />
 					<Route exact path='/classes' component={AuthRouter} />
 					<Route path='/class' component={AuthRouter} />
@@ -30,6 +32,7 @@ const App = () => {
 					<Route path='/login' component={LoginView} />
 					<Route path='/register' component={SignupView} />
 					<Route path='/' component={LoginView} />
+					
 				</Switch>
 			</Router>
 		</AppStateContext.Provider>
