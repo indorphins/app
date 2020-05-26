@@ -21,7 +21,7 @@
 		"react-scripts": "2.0.4"
 	},
 	"scripts": {
-		"start": "source .env.development && npm run watch:css && react-scripts start",
+		"start": "npm run watch:css && react-scripts start",
 		"build": "npm run build:css && react-scripts build",
 		"test": "react-scripts test",
 		"eject": "react-scripts eject",
