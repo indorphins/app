@@ -1,3 +1,5 @@
+const host = "https://dev.api.indorphins.com";
+
 export const createClass = async (
 	status,
 	instructor_name,
@@ -27,7 +29,7 @@ export const createClass = async (
 		},
 		body: JSON.stringify(body),
 	};
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + '/classes';
+	const url = host + '/classes';
 
 	try {
 		const response = await fetch(url, options);
@@ -46,7 +48,7 @@ export const getClasses = async () => {
 			'Content-Type': 'application/json',
 		},
 	};
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + '/classes';
+	const url = host + '/classes';
 
 	try {
 		const response = await fetch(url, options);
@@ -65,7 +67,7 @@ export const getAllScheduledClasses = async () => {
 			'Content-Type': 'application/json',
 		},
 	};
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + '/classes/scheduled';
+	const url = host + '/classes/scheduled';
 
 	try {
 		const response = await fetch(url, options);
@@ -85,7 +87,7 @@ export const endClass = async (class_id) => {
 		},
 	};
 	const url =
-		process.env.REACT_APP_AWS_SERVER_DOMAIN + '/classes/end/' + class_id;
+		host + '/classes/end/' + class_id;
 	try {
 		const response = await fetch(url, options);
 		console.log('ClassesController - endClass - success');
@@ -104,7 +106,7 @@ export const cancelClass = async (class_id) => {
 		},
 	};
 	const url =
-		process.env.REACT_APP_AWS_SERVER_DOMAIN + '/classes/cancel/' + class_id;
+		host + '/classes/cancel/' + class_id;
 	try {
 		const response = await fetch(url, options);
 		console.log('ClassesController - endClass - success');

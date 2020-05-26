@@ -10,7 +10,7 @@ function OpentokView() {
       method: 'GET',
     };
 
-    fetch("http://localhost:3001/class/184b3b00-9d41-11ea-b6b7-0957e6c12fcc/session", options)
+    fetch("https://dev.api.indorphins.com/class/0cec3dd0-9ef0-11ea-b7a6-7556464c4d55/session", options)
       .then(function(result) {
         return result.json();
       }).then((data) => {

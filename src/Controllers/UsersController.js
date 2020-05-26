@@ -1,3 +1,5 @@
+const host = "https://dev.api.indorphins.com";
+
 export async function createUser(
 	firstName,
 	lastName,
@@ -22,7 +24,7 @@ export async function createUser(
 		body: JSON.stringify(properties),
 	};
 
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + '/users';
+	const url = host + '/users';
 
 	return fetch(url, options)
 		.then((response) => {
@@ -42,7 +44,7 @@ export async function deleteUser(id) {
 		},
 	};
 
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + `/users/${id}`;
+	const url = host + `/users/${id}`;
 
 	return fetch(url, options)
 		.then((response) => {
@@ -65,7 +67,7 @@ export async function getAllUsers() {
 		},
 	};
 
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + `/users`;
+	const url = host + `/users`;
 
 	return fetch(url, options)
 		.then((response) => {
@@ -91,7 +93,7 @@ export async function loginUser(token) {
 
 	console.log('TOKEN IS ', token);
 
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + '/users/login';
+	const url = host + '/users/login';
 
 	return fetch(url, options)
 		.then((response) => {
@@ -111,7 +113,7 @@ export async function getUser(token) {
 			Authorization: `Bearer ${token}`,
 		},
 	};
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + `/users/user`;
+	const url = host + `/users/user`;
 
 	return fetch(url, options)
 		.then((response) => {
@@ -134,7 +136,7 @@ export async function updateUser(id) {
 		},
 	};
 
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + `/users/update/${id}`;
+	const url = host + `/users/update/${id}`;
 
 	return fetch(url, options)
 		.then((response) => {
@@ -158,7 +160,7 @@ export async function scheduleClassForId(c, token) {
 		},
 		body: JSON.stringify(c),
 	};
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + `/users/addClass`;
+	const url = host + `/users/addClass`;
 	return fetch(url, options)
 		.then((result) => {
 			console.log('UsersController - scheduleClassForId success: ', result);
@@ -179,7 +181,7 @@ export async function getScheduledClassesForId(token) {
 		},
 	};
 	const url =
-		process.env.REACT_APP_AWS_SERVER_DOMAIN + `/users/getScheduledClasses`;
+		host + `/users/getScheduledClasses`;
 	return fetch(url, options)
 		.then((result) => {
 			console.log(
