@@ -1,6 +1,6 @@
 import React from 'react';
 import { OTSession, OTPublisher, OTStreams, OTSubscriber } from 'opentok-react';
-const OT = require('@opentok/client');
+require('@opentok/client');
 
 export default class Opentok extends React.Component {
   constructor(props) {
