@@ -1,8 +1,9 @@
 import React,{ useState, useEffect }  from 'react';
-import Opentok from '../components/Opentok';
-import config from '../config';
 
-function OpentokView() {
+import Opentok from '../../components/Opentok';
+import config from '../../config';
+
+export default function() {
 
   const [content, setContent] = useState('loading');
 
@@ -11,13 +12,16 @@ function OpentokView() {
       method: 'GET',
     };
 
-    fetch(config.host + "/class/", options)
+    let data = await fetch(config.host + "/class/", options)
       .then(function(result) {
         let data = result.json();
+        console.log('got class result', data);
         return data;
       }).catch(function(err) {
-        return err;
+        throw err;
       });
+
+    return data;
   }
 
   async function fetchToken(classId) {
@@ -37,19 +41,23 @@ function OpentokView() {
   };
 
   useEffect(() => {
-    let classes;
+    const init = async function() {
+      let all;
 
-    try {
-      classes = fetchClasses();
-    } catch(e) {
-      console.error(e);
-    }
+      try {
+        all = await fetchClasses();
+      } catch(e) {
+        console.error(e);
+      }
 
-    if (!classes.data) {
-      return;
-    }
+      if (!all || !all.data) {
+        return setContent("no classes");
+      }
 
-    fetchToken(classes.data[0].id);
+      fetchToken(all.data[0].id);
+    };
+
+    init();
   }, [])
 
   return (
@@ -57,6 +65,4 @@ function OpentokView() {
       {content}
     </div>
   );
-}
-
-export default OpentokView;
+};

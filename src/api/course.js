@@ -79,7 +79,7 @@ export const getAllScheduledClasses = async () => {
 	}
 };
 
-export const cancelClass = async (class_id) => {
+export const removeClass = async (class_id) => {
 	const options = {
 		method: 'PUT',
 		headers: {

@@ -1,5 +1,5 @@
 import config from '../config';
-import firebase from './Firebase';
+import firebase from '../Firebase';
 
 const url = config.host + '/user/';
 
@@ -8,10 +8,9 @@ const url = config.host + '/user/';
  * @param {string} firstName
  * @param {string} lastName 
  * @param {string} email 
- * @param {string} phone 
- * @param {string} type
+ * @param {string} phone
  */
-export async function createUser(firstName, lastName, email, phone, type) {
+export async function createUser(firstName, lastName, email, phone) {
 
 	let token;
 
@@ -27,7 +26,6 @@ export async function createUser(firstName, lastName, email, phone, type) {
 		last_name: lastName,
 		email: email,
 		phone_number: phone,
-		type: type,
 	};
 
 	const options = {
@@ -144,6 +142,8 @@ export async function updateUser(id) {
 		},
 	};
 
+	const url = config.host + `/users/getClass`;
+
 	return fetch(url, options)
 		.then((response) => {
 			return response.json();
@@ -190,7 +190,7 @@ export async function scheduleClassForId(c, token) {
 		});
 }
 
-export async function getScheduledClassesForId(token) {
+export async function getScheduledClassesForUser(token) {
 	const options = {
 		method: 'GET',
 		headers: {
@@ -198,8 +198,9 @@ export async function getScheduledClassesForId(token) {
 			Authorization: `Bearer ${token}`,
 		},
 	};
-	const url =
-		config.host + `/users/getScheduledClasses`;
+
+	const url = config.host + `/users/getScheduledClasses`;
+
 	return fetch(url, options)
 		.then((result) => {
 			console.log(

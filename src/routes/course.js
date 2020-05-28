@@ -1,15 +1,17 @@
 import React from 'react';
 import { Switch, Route } from 'react-router-dom';
 
-import course from '../pages/course';
-import courses from '../pages/courses';
+import courseSession from '../pages/course/session';
+import course from '../pages/course/info';
+import courses from '../pages/course';
 
-export default () => {
+export default function() {
   return (
     <Switch>
-      <Route exact path='/class/:id' component={course} />
-      <Route exact path='/class' component={courses} />
-      <Route exact path='/' component={courses} />
+      <Route path='/class/:id/join' component={courseSession} />
+      <Route path='/class/:id' component={course} />
+      <Route path='/class' component={courses} />
+      <Route path='/' component={courses} />
     </Switch>
   );
 };

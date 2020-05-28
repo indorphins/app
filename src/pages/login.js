@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import Firebase from '../actions/Firebase';
+import Firebase from '../Firebase';
 
 const LoginView = (props) => {
 	const [userName, setUserName] = useState('');
@@ -18,10 +18,12 @@ const LoginView = (props) => {
 	const googleSignInFlow = async () => {
 		return Firebase.loginWithGoogle()
 			.then((user) => {
+				console.log(user);
 				return Firebase.getToken();
 			})
 			.then((token) => {
-				signInFlowHelper(token);
+				//signInFlowHelper(token);
+				console.log(token);
 			});
 	};
 
