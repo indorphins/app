@@ -1,47 +1,78 @@
 import React from 'react';
 import { BrowserRouter} from 'react-router-dom';
 
+import log from './log';
 import Firebase from './Firebase';
 import Routes from './routes/index';
-
+import * as User from './api/user';
 import { store, actions } from './store';
 
 export default function App() {
 
-	async function listener(user) {
-		console.log("got firebase user in listener", user);
+  async function listener(firebaseUserData) {
 
-		let token;
+    // user logged out or session expired
+    if (!firebaseUserData) {
+      log.debug("AUTH:: firebase user null");
+      await store.dispatch(actions.user.clear());
+      return;
+    }
 
-		try {
-			token = await Firebase.getToken();
-		} catch(err) {
-			console.error(err);
-		}
+		log.debug("AUTH:: got firebase user data", firebaseUserData);
+		let user;
 
-		let result;
-		try {
-			result = await store.dispatch(actions.session.setToken(token));
-		} catch (err) {
-			console.error(err);
-		}
+    // try to fetch indorphins user data
+    try {
+      user = await User.get();
+    } catch(err) {
+      return log.error("AUTH:: Call User.get", err);
+    }
 
-		console.log(result);
-	}
+    if (user && user.data) {
+      log.debug("AUTH:: got indorphins user data", user.data);
 
-	Firebase.addListener(listener)
+      try {
+        return await store.dispatch(actions.user.set(user.data));
+      } catch (err) {
+        return log.error("AUTH:: save user to store", err);
+      }
+    }
 
-	let user = Firebase.getUser();
+    // TODO: if we don't have a user then we should redirect to the signup flow to get a username
+    // before creating the user but for now we will just auto populate the username
+    let firstname = firebaseUserData.displayName.split(" ")[0];
+    let lastname = firebaseUserData.displayName.split(" ")[1];
 
-	if (user) {
-		console.log("got firebase user", user);
-	}
+    try {
+      user = await User.create(
+        firebaseUserData.displayName, 
+        firstname, 
+        lastname,
+        firebaseUserData.email,
+        firebaseUserData.phoneNumber
+      )
+    } catch(err) {
+      return log.warn("AUTH:: error creating user account from firebase token", err);
+    }
 
+    if (!user.data) {
+      return log.warn("AUTH:: user creation failed");
+    }
 
+    log.debug("AUTH:: user automatically created from firebase login", user.data);
 
-	return (
-		<BrowserRouter>
-			<Routes />
-		</BrowserRouter>
-	);
+    try {
+      await store.dispatch(actions.user.set(user.data));
+    } catch (err) {
+      return log.error("AUTH:: save user to store", err);
+    }
+  }
+
+  Firebase.addListener(listener);
+
+  return (
+    <BrowserRouter>
+      <Routes />
+    </BrowserRouter>
+  );
 };

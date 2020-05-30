@@ -1,34 +1,31 @@
 import { configureStore, combineReducers, createSlice, getDefaultMiddleware } from '@reduxjs/toolkit';
+import log from '../log';
 
-const sessionSlice = createSlice({
-  name: 'session',
+const userSlice = createSlice({
+  name: 'user',
   initialState: {
-    token: "",
-    user: {},
+    data: {},
   },
   reducers: {
-    setUser(state, action) {
-      return state.user = Object.assign({}, state.user, action.payload);
+    set(state, action) {
+      log.debug("STORE:: set user", action.payload);
+      state.data = Object.assign({}, state.data, action.payload);
     },
-    setToken(state, action) {
-      state.token = action.payload;
-      return;
-    },
-    clearUser(state, action) {
-      return state = {
-        token: "",
-        user: {},
+    clear(state, action) {
+      log.debug("STORE:: clear user data");
+      state = {
+        data: {},
       };
     }
   }
 });
 
 const rootReducer = combineReducers({
-  session: sessionSlice.reducer,
+  user: userSlice.reducer,
 });
 
 export const actions = {
-  session: sessionSlice.actions,
+  user: userSlice.actions,
 };
 
 export const store = configureStore({

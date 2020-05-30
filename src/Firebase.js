@@ -34,9 +34,16 @@ class Firebase {
 		this.listeners.push(func);
 	};
 
-	clearListener = function() {
+	clearListeners = function() {
 		this.listeners = [];
 	};
+
+	createAccount = async function(email, password) {
+    return this.auth.createUserWithEmailAndPassword(email, password)
+      .catch(function(error) {
+        throw error
+      });
+  }
 
 	getUser = function() {
 		return this.auth.currentUser;
@@ -44,10 +51,6 @@ class Firebase {
 
 	logout = function() {
 		this.auth.signOut();
-
-		this.listeners.forEach(function(func) {
-			func(null);
-		});
 	};
 
 	sendVerifyEmail = function() {
@@ -94,13 +97,16 @@ class Firebase {
 	 * Returns user's firebase id token
 	 */
 	getToken = async function() {
+		if (!this.auth.currentUser) {
+			return null;
+		}
+
 		return this.auth.currentUser
 			.getIdToken(/* forceRefresh */ true)
 			.then(function(idToken) {
 				return idToken;
 			})
 			.catch(function(error) {
-				console.log('Firebase - getToken - error: ', error);
 				throw error;
 			});
 	};

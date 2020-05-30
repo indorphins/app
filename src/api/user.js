@@ -1,7 +1,42 @@
 import config from '../config';
-import firebase from '../Firebase';
+import log from '../log';
+
+import Firebase from '../Firebase'
 
 const url = config.host + '/user/';
+
+async function callAPI(url, options) {
+
+	let token;
+
+	try {
+		log.debug("API:: fetch firbase token")
+		token = await Firebase.getToken();
+	} catch(err) {
+		return log.error("AUTH:: error fetching firebase token", err);
+	}
+
+	if (!token) {
+		return null;
+	}
+
+	options.headers.Authorization = `Bearer ${token}`;
+
+	log.info("API:: request", url, options);
+
+	return fetch(url, options)
+		.then((response) => {
+			log.info("API:: response status code", response.status);
+			return response.json();
+		})
+		.then((data) => {
+			return data;
+		})
+		.catch((error) => {
+			log.error("API:: response", url, error);
+			throw error;
+		});
+};
 
 /**
  * Create a new user. Requires a valid firebase token.
@@ -10,207 +45,75 @@ const url = config.host + '/user/';
  * @param {string} email 
  * @param {string} phone
  */
-export async function createUser(firstName, lastName, email, phone) {
+export async function create(username, firstName, lastName, email, phone) {
 
-	let token;
-
-	try {
-		token = firebase.getToken();
-	} catch (e) {
-		console.error(e);
-		throw e;
-	}
-
-	const properties = {
+	let properties = {
+		username: username,
 		first_name: firstName,
 		last_name: lastName,
 		email: email,
-		phone_number: phone,
 	};
 
-	const options = {
+	if (phone) {
+		properties.phone_number = phone;
+	}
+
+	let options = {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`,
 		},
 		body: JSON.stringify(properties),
 	}
 
-	return fetch(url, options)
-		.then((response) => {
-			return response.json();
-		})
-		.catch((error) => {
-			console.error('UsersController - createUser - Error is ', error);
-			throw error;
-		});
+	return callAPI(url, options);
 }
 
 /**
  * Delete a user record from the database. Requires valid firebase token.
- * @param {string} id - Deprecated 
+ * @param {string} token
  */
-export async function deleteUser(id) {
+export async function remove() {
 
-	let token;
-
-	try {
-		token = firebase.getToken();
-	} catch (e) {
-		console.error(e);
-		throw e;
-	}
-
-	const options = {
+	let options = {
 		method: 'DELETE',
 		headers: {
 			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`,
 		},
 	};
 
-	return fetch(url, options)
-		.then((response) => {
-			return response.json();
-		})
-		.then((result) => {
-			return result;
-		})
-		.catch((error) => {
-			console.log('UsersController - deleteUser - Error is ', error);
-			throw error;
-		});
+	return callAPI(url, options);
 }
 
 /**
  * Get current user data. Requires valid firebase token.
  * @param {string} token - deprecated
  */
-export async function getUser(token) {
+export async function get() {
 
-	let token;
-
-	try {
-		token = firebase.getToken();
-	} catch (e) {
-		console.error(e);
-		throw e;
-	}
-
-	const options = {
+	let options = {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`,
 		},
 	};
 
-	return fetch(url, options)
-		.then((response) => {
-			return response.json();
-		})
-		.then((result) => {
-			return result;
-		})
-		.catch((error) => {
-			console.log('UsersController - getUser - Error is ', error);
-			throw error;
-		});
+	return callAPI(url, options);
 }
 
 /**
  * Patch the current user's metadata. Requires a valid firebase token.
  * @param {*} id - deprecated
  */
-export async function updateUser(id) {
+export async function update(userData) {
 
-	let token;
-
-	try {
-		token = firebase.getToken();
-	} catch (e) {
-		console.error(e);
-		throw e;
-	}
-
-	const options = {
+	let options = {
 		method: 'PUT',
 		headers: {
 			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`,
 		},
+		body: JSON.stringify(userData),
 	};
 
-	const url = config.host + `/users/getClass`;
-
-	return fetch(url, options)
-		.then((response) => {
-			return response.json();
-		})
-		.then((result) => {
-			return result;
-		})
-		.catch((error) => {
-			console.log('UsersController - updateUser - Error is ', error);
-			throw error;
-		});
-}
-
-export async function scheduleClassForId(c, token) {
-
-	let token;
-
-	try {
-		token = firebase.getToken();
-	} catch (e) {
-		console.error(e);
-		throw e;
-	}
-
-	const options = {
-		method: 'PUT',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`,
-		},
-		body: JSON.stringify(c),
-	};
-
-	const url = config.host + `/users/addClass`;
-
-	return fetch(url, options)
-		.then((result) => {
-			console.log('UsersController - scheduleClassForId success: ', result);
-			return result;
-		})
-		.catch((error) => {
-			console.log('UsersController - scheduleClassForId error: ', error);
-			throw error;
-		});
-}
-
-export async function getScheduledClassesForUser(token) {
-	const options = {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bearer ${token}`,
-		},
-	};
-
-	const url = config.host + `/users/getScheduledClasses`;
-
-	return fetch(url, options)
-		.then((result) => {
-			console.log(
-				'UsersController - getScheduledClassesForId success: ',
-				result
-			);
-			return result;
-		})
-		.catch((error) => {
-			console.log('UsersController - getScheduledClassesForId error: ', error);
-			throw error;
-		});
+	return callAPI(url, options);
 }

@@ -1,4 +1,4 @@
-import React,{ useState, useEffect }  from 'react';
+import React, { useState, useEffect }  from 'react';
 
 import Opentok from '../../components/Opentok';
 import config from '../../config';
