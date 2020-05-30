@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-
 import Box from '@material-ui/core/Box';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
@@ -15,12 +14,12 @@ import log from '../../log';
 
 import { store, actions } from '../../store';
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   googBtn: {
     '&:hover': {
       backgroundColor: theme.palette.secondary.main,
     }
-  },
+	},
   btnContainer: {
     display: "block",
     width: "100%",
@@ -28,7 +27,10 @@ const useStyles = makeStyles(theme => ({
   },
   lgnBtn: {
     float: "right",
-  },
+	},
+	txtField: {
+		width: 350,
+	},
 }));
 
 export default function() {
@@ -91,20 +93,20 @@ export default function() {
 		fields = (
 			<Box>
 				<Box>
-					<TextField color="secondary" required id="email" type="email" label="Email" variant="outlined" onChange={usernameHandler}/>
+					<TextField color="secondary" className={classes.txtField} required id="email" type="email" label="Email" variant="outlined" onChange={usernameHandler}/>
 				</Box>
 				<Box>
-					<TextField color="secondary" required id="password" type="password" label="Password" variant="outlined" onChange={passwordHandler}/>
+					<TextField color="secondary" className={classes.txtField} required id="password" type="password" label="Password" variant="outlined" onChange={passwordHandler}/>
 				</Box>
 			</Box>
 		);
 	} else {
-		submitText = "Send Password Reset"
+		submitText = "Send Reset"
 		linkText =  "Cancel";
 		fields = (
 			<Box>
 				<Box>
-					<TextField color="secondary" required id="email" type="email" label="Email" variant="outlined" onChange={usernameHandler}/>
+					<TextField color="secondary" className={classes.txtField} required id="email" type="email" label="Email" variant="outlined" onChange={usernameHandler}/>
 				</Box>
 			</Box>
 		);

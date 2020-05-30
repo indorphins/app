@@ -24,16 +24,16 @@ export default function App() {
 		palette: {
 			type: 'light',
 			primary: {
-				main: "#000124",
+				main: "#03011c",
 				contrastText: "#ffbfbf"
 			},
 			secondary: {
 				main: "#ffbfbf",
 				dark: "#ffcec9",
-				contrastText: "#000124"
+				contrastText: "#03011c"
 			},
 			background: {
-				default: "#000124"
+				default: "#03011c"
 			}
 		},
 		spacing: 8,
@@ -60,7 +60,7 @@ export default function App() {
 		'@global': {
 			html: {
 				overflow: 'hidden',
-				background: mainTheme.palette.primary.main,
+				background: mainTheme.background,
 				height: '100%',
 			},
 			body: {
@@ -72,11 +72,6 @@ export default function App() {
 			height: "100%",
 			"& .MuiTextField-root": {
 				marginTop: mainTheme.spacing(2),
-				width: 350,
-			},
-			"& .MuiButton-root": {
-				marginTop: mainTheme.spacing(2),
-				marginBottom: mainTheme.spacing(2)
 			},
 			"& .MuiLink-root": {
 				marginTop: mainTheme.spacing(2),

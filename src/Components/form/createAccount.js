@@ -1,18 +1,24 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-
 import Box from '@material-ui/core/Box';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { makeStyles } from '@material-ui/core/styles';
 
 import * as User from '../../api/user';
 import Firebase from '../../Firebase';
 import log from '../../log';
-
 import { store, actions } from '../../store';
 
+const useStyles = makeStyles((theme) => ({
+	txtField: {
+		width: 400,
+	},
+}));
+
 export default function(props) {
+  const classes = useStyles();
 	const [username, setUsername] = useState('');
 	const [firstName, setFirstName] = useState('');
 	const [lastName, setLastName] = useState('');
@@ -89,31 +95,36 @@ export default function(props) {
 
 		setLoader(false);
 		history.push('/');
-	};
+  };
+  
+  let tooltips = {
+    username: "The nickname you want to appear to other class participants. It can be changed at any time in your profile. (Required)",
+    phone: "Not required but can be used for class notifications."
+  }
 
 	let formcontent = (
 		<Box>
 			<form onSubmit={formHandler}>
 				<Box>
-					<TextField color="secondary" required id="username" type="text" label="Nickname" variant="outlined" onChange={usernameHandler}/>
+					<TextField color="secondary" className={classes.txtField} title={tooltips.username} required id="username" type="text" label="Nickname" variant="outlined" onChange={usernameHandler}/>
 				</Box>
 				<Box>
-					<TextField color="secondary" required id="email" type="email" label="Email" variant="outlined" onChange={emailHandler}/>
+					<TextField color="secondary" className={classes.txtField} required id="email" type="email" label="Email" variant="outlined" onChange={emailHandler}/>
 				</Box>
 				<Box>
-					<TextField color="secondary" required id="password" type="password" label="Password" variant="outlined" onChange={passwordHandler}/>
+					<TextField color="secondary" className={classes.txtField} required id="password" type="password" label="Password" variant="outlined" onChange={passwordHandler}/>
 				</Box>
 				<Box>
-					<TextField color="secondary" required id="passwordConfirm" type="password" label="Confirm Password" variant="outlined" onChange={confirmHandler}/>
+					<TextField color="secondary" className={classes.txtField} required id="passwordConfirm" type="password" label="Confirm Password" variant="outlined" onChange={confirmHandler}/>
 				</Box>
 				<Box>
-					<TextField color="secondary" required id="firstName" type="text" label="First Name" variant="outlined" onChange={firstNameHandler}/>
+					<TextField color="secondary" className={classes.txtField} required id="firstName" type="text" label="First Name" variant="outlined" onChange={firstNameHandler}/>
 				</Box>
 				<Box>
-					<TextField color="secondary" required id="lastName" type="text" label="Last Name" variant="outlined" onChange={lastNameHandler}/>
+					<TextField color="secondary" className={classes.txtField} required id="lastName" type="text" label="Last Name" variant="outlined" onChange={lastNameHandler}/>
 				</Box>
 				<Box>
-					<TextField color="secondary" id="phone" type="tel" label="Phone Number" helperText={phoneErr} variant="outlined" onChange={phoneHandler}/>
+					<TextField color="secondary" className={classes.txtField} title={tooltips.phone} id="phone" type="tel" label="Phone Number" helperText={phoneErr} variant="outlined" onChange={phoneHandler}/>
 				</Box>
 				<Box>
 					<Button variant="contained" type="submit" color="primary">Create</Button>

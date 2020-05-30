@@ -13,9 +13,8 @@ const userSlice = createSlice({
     },
     clear(state, action) {
       log.debug("STORE:: clear user data");
-      state = {
-        data: {},
-      };
+      state.data = {};
+      return state;
     }
   }
 });

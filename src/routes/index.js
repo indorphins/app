@@ -20,7 +20,7 @@ export default function() {
       <Route path='/login'>
         <LoginView />
       </Route>
-      <Route>
+      <Route path='/'>
         <Nav>
           <ClassRouter />
         </Nav>
