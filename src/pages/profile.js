@@ -1,9 +1,11 @@
 import React from 'react';
 
+import Container from '@material-ui/core/Container';
+
 export default function() {
   return (
-    <div>
+    <Container>
       your profile page
-    </div>
+    </Container>
   );
 };
