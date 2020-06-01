@@ -1,42 +1,7 @@
 import config from '../config';
-import log from '../log';
-
-import Firebase from '../Firebase'
+import callAPI from './helper';
 
 const url = config.host + '/user/';
-
-async function callAPI(url, options) {
-
-	let token;
-
-	try {
-		log.debug("API:: fetch firbase token")
-		token = await Firebase.getToken();
-	} catch(err) {
-		return log.error("AUTH:: error fetching firebase token", err);
-	}
-
-	if (!token) {
-		return null;
-	}
-
-	options.headers.Authorization = `Bearer ${token}`;
-
-	log.info("API:: request", url, options);
-
-	return fetch(url, options)
-		.then((response) => {
-			log.info("API:: response status code", response.status);
-			return response.json();
-		})
-		.then((data) => {
-			return data;
-		})
-		.catch((error) => {
-			log.error("API:: response", url, error);
-			throw error;
-		});
-};
 
 /**
  * Create a new user. Requires a valid firebase token.
@@ -66,7 +31,7 @@ export async function create(username, firstName, lastName, email, phone) {
 		body: JSON.stringify(properties),
 	}
 
-	return callAPI(url, options);
+	return callAPI(url, options, true);
 }
 
 /**
@@ -82,7 +47,7 @@ export async function remove() {
 		},
 	};
 
-	return callAPI(url, options);
+	return callAPI(url, options, true);
 }
 
 /**
@@ -98,7 +63,7 @@ export async function get() {
 		},
 	};
 
-	return callAPI(url, options);
+	return callAPI(url, options, true);
 }
 
 /**
@@ -115,5 +80,5 @@ export async function update(userData) {
 		body: JSON.stringify(userData),
 	};
 
-	return callAPI(url, options);
+	return callAPI(url, options, true);
 }

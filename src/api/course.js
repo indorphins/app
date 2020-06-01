@@ -1,99 +1,68 @@
-const host = "https://dev.api.indorphins.com";
+import config from '../config';
+import callAPI from './helper';
 
-export const createClass = async (
-	status,
-	instructor_name,
-	chat_room_name,
-	total_spots,
-	user_type,
-	user_id,
-	duration,
-	start_time,
-	instructor_img
-) => {
-	const body = {
-		status: status,
-		instructor_name: instructor_name,
-		chat_room_name: chat_room_name,
-		total_spots: total_spots,
-		user_type: user_type,
-		user_id: user_id,
-		duration: duration,
-		start_time: start_time,
-		instructor_img: instructor_img,
-	};
+const url = config.host + '/class/';
+
+export async function create(data) {
+
 	const options = {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json',
 		},
-		body: JSON.stringify(body),
+		body: JSON.stringify(data),
 	};
-	const url = host + '/classes';
 
-	try {
-		const response = await fetch(url, options);
-		console.log('ClassesController - createClass - success');
-		return response.json();
-	} catch (error) {
-		console.log('ClassesController - createClass - error: ', error);
-		throw error;
-	}
+	return callAPI(url, options, true);
 };
 
-export const getClasses = async () => {
+export async function query(filter, order) {
 	const options = {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
 		},
 	};
-	const url = host + '/classes';
 
-	try {
-		const response = await fetch(url, options);
-		console.log('ClassesController - getClasses - success');
-		return response.json();
-	} catch (error) {
-		console.log('ClassesController - createClass - error: ', error);
-		throw error;
-	}
+	return callAPI(url, options, false);
 };
 
-export const getAllScheduledClasses = async () => {
+export async function get(id) {
 	const options = {
 		method: 'GET',
 		headers: {
 			'Content-Type': 'application/json',
 		},
 	};
-	const url = host + '/classes/scheduled';
 
-	try {
-		const response = await fetch(url, options);
-		console.log('ClassesController - getClasses - success');
-		return response.json();
-	} catch (error) {
-		console.log('ClassesController - createClass - error: ', error);
-		throw error;
-	}
+	let u = url + "/" + id;
+
+	return callAPI(u, options, true);
+}
+
+export async function remove(id) {
+	const options = {
+		method: 'DELETE',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+	};
+
+	let u = url + "/" + id;
+
+	return callAPI(u, options, true);
 };
 
-export const removeClass = async (class_id) => {
+export async function update(id, data) {
 	const options = {
 		method: 'PUT',
 		headers: {
 			'Content-Type': 'application/json',
 		},
+		body: JSON.stringify(data),
 	};
-	const url =
-		host + '/classes/cancel/' + class_id;
-	try {
-		const response = await fetch(url, options);
-		console.log('ClassesController - endClass - success');
-		return response.json();
-	} catch (error) {
-		console.log('ClassesController - endClass - error: ', error);
-		throw error;
-	}
-};
+
+	let u = url + "/" + id;
+
+	return callAPI(u, options, true);
+}

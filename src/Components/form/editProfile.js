@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import Grid from '@material-ui/core/Grid';
-import TextField from '@material-ui/core/TextField';
-import Button from '@material-ui/core/Button';
-import LinearProgress from '@material-ui/core/LinearProgress';
+import { Grid, TextField, Button, LinearProgress } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 
 import * as User from '../../api/user';
 import log from '../../log';
@@ -12,12 +10,19 @@ import { store, actions } from '../../store';
 import Editor from '../editor';
 
 
+const useStyles = makeStyles((theme) => ({
+  btn: {
+    marginTop: theme.spacing(2)
+  }
+}));
+
 const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
 });
 
 export default function() {
 
+  const classes = useStyles();
   const currentUser = useSelector((state) => getUserSelector(state));
   const [username, setUsername] = useState('');
   const [firstname, setFirst] = useState('');
@@ -73,6 +78,30 @@ export default function() {
 
   const editorHandler = function(e) {
     setBio(e);
+  }
+
+  const editorSaveHandler = async function(e) {
+    setLoader(true);
+
+    let userData = {
+      bio: bio,
+    };
+
+    try {
+      await User.update(userData);
+    } catch(err) {
+      // TODO: display error
+      return log.error("PROFILE:: update user data", err);
+    }
+
+    try {
+      await store.dispatch(actions.user.set(userData));
+    } catch(err) {
+      // TODO: display error
+      return log.error("PROFILE:: update redux store", err);
+    }
+
+    setLoader(false);
   }
 
   const formHandler = async function(e) {
@@ -134,11 +163,11 @@ export default function() {
           <TextField disabled={loader} color="secondary" variant="outlined" type="text" id="photo" label="Profile Photo URL" value={photoUrl} onChange={photoHandler} />
         </Grid>
         <Grid>
-          <Editor label="Bio:" value={bioContent} onChange={editorHandler} />
+          <Editor label="Bio" value={bioContent} onChange={editorHandler} onSave={editorSaveHandler} />
         </Grid>
         {progress}
         <Grid>
-          <Button disabled={loader} variant="contained" color="primary" type="submit">Update</Button>
+          <Button className={classes.btn} disabled={loader} variant="contained" color="primary" type="submit">Update</Button>
         </Grid>
       </form>
     </Grid>

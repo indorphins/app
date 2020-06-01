@@ -6,15 +6,12 @@ import { MuiThemeProvider, useTheme, makeStyles } from '@material-ui/core/styles
 import Box from '@material-ui/core/Box';
 import Typography from '@material-ui/core/Typography';
 
+const useStyles = makeStyles((theme) => ({
+  root: {}
+}));
 
 export default function(props) {
 
-  const useStyles = makeStyles((theme) => ({
-    root: {
-      marginTop: theme.spacing(2)
-    }
-  }));
-  
   const defaultTheme = useTheme();
   const classes = useStyles();
   const [html, setHtml] = React.useState(null);
@@ -27,10 +24,8 @@ export default function(props) {
     "italic",
     "underline", 
     "strikethrough", 
-    "highlight", 
     "undo", 
     "redo", 
-    "link",
     "numberList", 
     "bulletList", 
     "quote",
@@ -57,8 +52,7 @@ export default function(props) {
     overrides: {
       MUIRichTextEditor: {
         root: {
-          marginBottom: defaultTheme.spacing(2),
-          width: "70%",
+          width: "100%",
           border: "1px solid gray",
           borderRadius: "0.3rem",
         },

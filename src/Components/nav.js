@@ -1,8 +1,5 @@
 import React from "react";
-import AppBar from '@material-ui/core/AppBar';
-import Box from '@material-ui/core/Box';
-import Grid from '@material-ui/core/Grid';
-import Typography from '@material-ui/core/Typography';
+import { AppBar, Box, Grid, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 import UserAvatar from "./userAvatar";
