@@ -66,7 +66,12 @@ export default function(props) {
           borderTop: "1px solid gray",
           padding: defaultTheme.spacing(1),
         }
-      }
+      },
+      MuiTextField: {
+				root: {
+					marginTop: defaultTheme.spacing(2),
+				}
+			},
     }
   });
 
