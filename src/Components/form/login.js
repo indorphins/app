@@ -1,18 +1,25 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import Box from '@material-ui/core/Box';
+import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Button from '@material-ui/core/Button';
 import Link from '@material-ui/core/Link';
 import Typography from '@material-ui/core/Typography';
-import CircularProgress from '@material-ui/core/CircularProgress';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import Alert from '@material-ui/lab/Alert';
 import { makeStyles } from '@material-ui/core/styles';
+import { useSelector } from 'react-redux';
+import { createSelector } from 'reselect';
 
 import * as User from '../../api/user';
 import Firebase from '../../Firebase';
 import log from '../../log';
-
+import path from '../../routes/path';
 import { store, actions } from '../../store';
+
+const getUserSelector = createSelector([state => state.user.data], (user) => {
+  return user;
+});
 
 const useStyles = makeStyles((theme) => ({
   googBtn: {
@@ -26,7 +33,9 @@ const useStyles = makeStyles((theme) => ({
     overflow: "hidden",
   },
   lgnBtn: {
-    float: "right",
+		float: "right",
+		marginTop: theme.spacing(2),
+		marginBottom: theme.spacing(2),
 	},
 	txtField: {
 		width: 350,
@@ -34,20 +43,29 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function() {
+	const currentUser = useSelector((state) => getUserSelector(state))
 	const classes = useStyles();
 	const [userName, setUserName] = useState('');
 	const [password, setPassword] = useState('');
 	const [loader, setLoader] = useState(false);
 	const [loginMode, setLoginMode] = useState(true);
+	const [serverErr, setServerErr] = useState(null);
 	const history = useHistory();
 
+  useEffect(() => {
+    if (currentUser.id) {
+      history.push(path.home);
+    } 
+  }, [currentUser]);
 
 
 	const usernameHandler = (event) => {
+		setServerErr(null);
 		setUserName(event.target.value);
 	};
 
 	const passwordHandler = (event) => {
+		setServerErr(null);
 		setPassword(event.target.value);
 	};
 
@@ -62,12 +80,13 @@ export default function() {
 			});
 	};
 
+	// TODO: depending on mode do password reset email
 	const formHandler = async (event) => {
 		event.preventDefault();
 		setLoader(true);
 		Firebase.clearListeners();
 		Firebase.signInWithEmailPassword(userName, password)
-			.then(() => {
+			.then((user) => {
 				return User.get();
 			})
 			.then((user) => {
@@ -75,10 +94,17 @@ export default function() {
 			})
 			.then(() => {
 				setLoader(false);
-				history.push('/');
+				history.push(path.home);
 			})
 			.catch((error) => {
 				setLoader(false);
+
+				if (error.code === "auth/user-not-found" || error.code === "auth/wrong-password") {
+					setServerErr("Incorrect email or password")
+				} else {
+					setServerErr(error.message);
+				}
+
 				return log.error('Error firebase signin email pw ', error);
 			});
 	};
@@ -91,28 +117,18 @@ export default function() {
 		submitText = "Log in";
 		linkText =  "Forgot your password?";
 		fields = (
-			<Box>
-				<Box>
-					<TextField color="secondary" className={classes.txtField} required id="email" type="email" label="Email" variant="outlined" onChange={usernameHandler}/>
-				</Box>
-				<Box>
-					<TextField color="secondary" className={classes.txtField} required id="password" type="password" label="Password" variant="outlined" onChange={passwordHandler}/>
-				</Box>
-			</Box>
+			<Grid>
+				<TextField disabled={loader} color="secondary" value={password} autoComplete="current-password" className={classes.txtField} required id="password" type="password" label="Password" variant="outlined" onChange={passwordHandler}/>
+			</Grid>
 		);
 	} else {
 		submitText = "Send Reset"
 		linkText =  "Cancel";
-		fields = (
-			<Box>
-				<Box>
-					<TextField color="secondary" className={classes.txtField} required id="email" type="email" label="Email" variant="outlined" onChange={usernameHandler}/>
-				</Box>
-			</Box>
-		);
+		fields = null;
 	}
 
 	const switchMode = function() {
+		setServerErr(null);
 		if (loginMode) {
 			setLoginMode(false);
 		} else {
@@ -121,50 +137,60 @@ export default function() {
 	};
 
 	const loadSignUpForm = () => {
-		history.push('/register');
+		history.push(path.signup);
 	};
 
-	
+	let errContent;
+
+	if (serverErr) {
+		errContent = (
+			<Alert severity="error" className={classes.txtField}>{serverErr}</Alert>
+		)
+	}
+
+
+	let progress = null;
+
+	if (loader) {
+		progress = (
+			<Grid>
+				<LinearProgress color="secondary" />
+			</Grid>
+		)
+	}
 
 	let formcontent = (
-		<Box>
+		<Grid>
+			<Grid>
+				{errContent}
+			</Grid>
 			<form id='login-form' onSubmit={formHandler}>
+				<input autoComplete="username" id="_email" type="hidden" value={userName} />
+				<input autoComplete="current-password" id="_password" type="hidden" value={password} />
+				<Grid>
+					<TextField disabled={loader} autoFocus={true} color="secondary" value={userName} autoComplete="username" className={classes.txtField} required id="email" type="email" label="Email" variant="outlined" onChange={usernameHandler}/>
+				</Grid>
 				{fields}
-				<Box className={classes.btnContainer}>
-					<Button className={classes.lgnBtn} color="primary" type="submit" variant="contained">{submitText}</Button>
-				</Box>
+				{progress}
+				<Grid className={classes.btnContainer}>
+					<Button disabled={loader} className={classes.lgnBtn} color="primary" type="submit" variant="contained">{submitText}</Button>
+				</Grid>
 			</form>
-			<Box>
+			<Grid>
 				<Typography>
 					<Link color="secondary" onClick={loadSignUpForm}>Need an account?</Link>
 				</Typography>
 				<Typography>
 					<Link color="secondary" onClick={switchMode}>{linkText}</Link>
 				</Typography>
-			</Box>
-			<Box>
+			</Grid>
+			<Grid>
 				<Button color="primary" disableElevation className={classes.googBtn} onClick={googleSignInFlow}>
 					Sign in with Google
 				</Button>
-			</Box>
-		</Box>
+			</Grid>
+		</Grid>
 	);
 
-	let progress = (
-		<Box>
-			<CircularProgress />
-		</Box>
-	)
-
-	let content = progress;
-
-	if (!loader) {
-		content = formcontent;
-	}
-
-	return (
-    <Box>
-			{content}
-    </Box>
-	);
+	return formcontent;
 };

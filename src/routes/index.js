@@ -1,6 +1,6 @@
 import React from 'react';
 import { Switch, Route } from 'react-router-dom';
-
+import path from './path';
 import ClassRouter from './course';
 import Profile from '../pages/profile'
 import LoginView from '../pages/login';
@@ -11,16 +11,16 @@ export default function() {
 
   return (
     <Switch>
-      <Route path='/profile'>
+      <Route path={path.profile}>
         <Nav>
           <Profile />
         </Nav>
       </Route>
-      <Route path='/register' component={Register} />
-      <Route path='/login'>
+      <Route path={path.signup} component={Register} />
+      <Route path={path.login}>
         <LoginView />
       </Route>
-      <Route path='/'>
+      <Route path={path.home}>
         <Nav>
           <ClassRouter />
         </Nav>

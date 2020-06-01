@@ -1,16 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter} from 'react-router-dom';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import { ThemeProvider, createMuiTheme, responsiveFontSizes, makeStyles } from '@material-ui/core/styles';
 import Grid from '@material-ui/core/Grid';
+import { useSelector } from 'react-redux';
+import { createSelector } from 'reselect';
 
 import log from './log';
 import Firebase from './Firebase';
 import Routes from './routes/index';
 import * as User from './api/user';
 import { store, actions } from './store';
-import { useSelector } from 'react-redux';
-import { createSelector } from 'reselect';
 
 const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
@@ -20,20 +20,24 @@ export default function App() {
 
 	const currentUser = useSelector(state => getUserSelector(state));
 
+	const colors = {
+		pink: "#fc0373",
+		black: "#000000",
+	}
+
 	let mainTheme = createMuiTheme({
 		palette: {
 			type: 'light',
 			primary: {
-				main: "#03011c",
-				contrastText: "#ffbfbf"
+				main: colors.black,
+				contrastText: colors.pink,
 			},
 			secondary: {
-				main: "#ffbfbf",
-				dark: "#ffcec9",
-				contrastText: "#03011c"
+				main: colors.pink,
+				contrastText: colors.black,
 			},
 			background: {
-				default: "#03011c"
+				default: colors.black,
 			}
 		},
 		spacing: 8,
@@ -56,6 +60,27 @@ export default function App() {
 
 	mainTheme = responsiveFontSizes(mainTheme);
 
+	Object.assign(mainTheme, {
+		overrides: {
+			MuiTextField: {
+				root: {
+					marginTop: mainTheme.spacing(2),
+				}
+			},
+			MuiLink: {
+				root: {
+					marginTop: mainTheme.spacing(2),
+					cursor: 'pointer',
+				}
+			},
+			MuiButton: {
+				root: {
+					fontWeight: "bold",
+				}
+			}
+		}
+	});
+
 	const useStyles = makeStyles(mainTheme => ({
 		'@global': {
 			html: {
@@ -67,17 +92,7 @@ export default function App() {
 				overflow: 'auto',
 				height: '100%',
 			}
-		},
-		root: {
-			height: "100%",
-			"& .MuiTextField-root": {
-				marginTop: mainTheme.spacing(2),
-			},
-			"& .MuiLink-root": {
-				marginTop: mainTheme.spacing(2),
-				cursor: 'pointer',
-			}
-		},
+		}
 	}));
 
   async function listener(firebaseUserData) {
@@ -85,7 +100,7 @@ export default function App() {
     // user logged out or session expired
     if (!firebaseUserData) {
 			log.debug("AUTH:: firebase user null");
-			if (currentUser.username) {
+			if (currentUser.id) {
 				await store.dispatch(actions.user.clear());
 			}
       return;
@@ -139,9 +154,12 @@ export default function App() {
     } catch (err) {
       return log.error("AUTH:: save user to store", err);
     }
-  }
+	}
 
-	Firebase.addListener(listener);
+	useEffect(() => {
+		Firebase.clearListeners();
+		Firebase.addListener(listener);
+	});
 	
 	const classes = useStyles();
 

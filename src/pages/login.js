@@ -7,7 +7,7 @@ export default function () {
 
 	return (
 		<Container>
-				<LoginForm />
+			<LoginForm />
 		</Container>
 	);
 };

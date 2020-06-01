@@ -16,6 +16,14 @@ const useStyles = makeStyles((theme) => ({
   root: {
     cursor: "pointer",
   },
+  avatar: {
+    width: "2rem",
+    height: "2rem",
+    '@media (max-width: 600px)': {
+      width: "1.5rem",
+      height: "1.5rem",
+    }
+  }
 }));
 
 const getUserSelector = createSelector([state => state.user.data], (user) => {
@@ -79,14 +87,14 @@ export default function() {
 
     let fl = username.charAt(0).toUpperCase();
     let avatar = (
-      <Avatar>
+      <Avatar className={classes.avatar}>
         <Typography>{fl}</Typography>
       </Avatar>
     );
 
     if (profileImg) {
       avatar = (
-        <Avatar alt={username} src={profileImg} />
+        <Avatar className={classes.avatar} alt={username} src={profileImg} />
       );
     } 
 
@@ -102,7 +110,7 @@ export default function() {
           open={Boolean(anchorEl)}
           onClose={handleClose}
         >
-          <MenuItem onClick={goToProfile}>Account</MenuItem>
+          <MenuItem onClick={goToProfile}>Profile</MenuItem>
           <MenuItem onClick={doLogout}>Logout</MenuItem>
         </Menu>
       </Box>

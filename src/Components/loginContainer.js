@@ -1,6 +1,7 @@
 import React from "react";
 import Grid from "@material-ui/core/Grid";
 import Paper from "@material-ui/core/Paper";
+import Zoom from '@material-ui/core/Zoom';
 import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
@@ -29,9 +30,11 @@ export default function(props) {
 				justify="center"
 				style={{ minHeight: '100vh' }}
 			>
-				<Paper elevation={2} className={classes.paperContainer}>
-					{props.children}
-				</Paper>
+				<Zoom in={true}>
+					<Paper elevation={2} className={classes.paperContainer}>
+						{props.children}
+					</Paper>
+				</Zoom>
 			</Grid>
 		</Grid>
 	);

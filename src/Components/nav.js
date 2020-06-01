@@ -5,7 +5,7 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 
-import UserPill from "./userPill";
+import UserAvatar from "./userAvatar";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -14,8 +14,16 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: theme.spacing(5),
     paddingLeft: theme.spacing(5),
     marginBottom: theme.spacing(4),
+    //boxShadow: "none",
+    '@media (max-width: 600px)': {
+      paddingTop: theme.spacing(1),
+      paddingBottom: theme.spacing(2),
+      paddingRight: theme.spacing(2),
+      paddingLeft: theme.spacing(2),
+      marginBottom: theme.spacing(3),
+    }
   },
-  userPill: {
+  userMenu: {
     float: "right",
   }
 }));
@@ -35,7 +43,7 @@ export default function(props) {
           <Box>
             <Typography variant="h1" color="secondary">SGF</Typography>
           </Box>
-          <UserPill className={classes.userPill} />
+          <UserAvatar className={classes.userMenu} />
         </Grid>
       </AppBar>
       {props.children}
