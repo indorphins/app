@@ -2,13 +2,21 @@ import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 import { Container, Grid, Button, Grow, Divider }  from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 
 import CreateCourse from '../../components/form/editCourse';
 import CourseWidget from '../../components/courseListWidget';
+import InstructorWidget from '../../components/instuctorWidget';
 
 const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
 });
+
+const useStyles = makeStyles((theme) => ({
+  content: {
+    marginBottom: theme.spacing(4),
+  }
+}));
 
 export default function() {
 
@@ -22,6 +30,7 @@ export default function() {
     start_date: "asc",
   };
 
+  const classes = useStyles();
   const currentUser = useSelector(state => getUserSelector(state));
   const [allowCreate, setAllowCreate] = useState(false);
   const [showForm, setShowForm] = useState(false);
@@ -75,7 +84,12 @@ export default function() {
     <Container justify="center">
       {createButton}
       {createContent}
-      <CourseWidget filter={filter} order={order} header="Upcoming &amp; available classes" />
+      <Grid container className={classes.content}>
+        <CourseWidget filter={filter} order={order} limit={500} header="Upcoming &amp; available classes" />
+      </Grid>
+      <Grid container className={classes.content}>
+        <InstructorWidget limit={500} header="Find instructors &amp; community"/>
+      </Grid>
     </Container>
   )
 }

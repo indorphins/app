@@ -3,10 +3,11 @@ import { Link } from "react-router-dom";
 import { Grid, GridList, GridListTile, GridListTileBar, Typography, CircularProgress, IconButton } from '@material-ui/core';
 import {Info} from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
-import { format } from 'date-fns'
+import { format, endOfWeek } from 'date-fns'
 
 import * as Course from '../api/course';
 import log from '../log';
+import path from '../routes/path';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -101,7 +102,7 @@ export default function(props) {
     data.data.forEach(function(course) {
       let data = {
         title: course.title,
-        url: "/class/" + course.id,
+        url: path.courses + "/" + course.id,
         id: course.id,
       };
 
@@ -110,10 +111,15 @@ export default function(props) {
       }
 
       if (course.start_date) {
+        let now = new Date();
         let d = new Date(course.start_date);
 
-        let dt = format(d, "iiii")
-        let time = format(d, "h:mm a")
+        let dt = format(d, "iiii");
+        let time = format(d, "h:mm a");
+
+        if (endOfWeek(now) < d) {
+          dt = format(d, "M/d");
+        }
 
         data.label = "BOOK: " + dt + " @ " + time;
       }
@@ -126,8 +132,8 @@ export default function(props) {
       <div className={classes.root}>
         <GridList cellHeight={250} className={classes.gridList} cols={4.5} >
         {items.map(course => (
-            <GridListTile key={course.id} cols={1}>
-              <Link className={classes.anchor} to={course.url}>
+          <GridListTile key={course.id} cols={1}>
+            <Link className={classes.anchor} to={course.url}>
               <Grid container>
                 <img alt={course.title} className={classes.photo} src={course.photo_url} />
                 <GridListTileBar
@@ -141,8 +147,8 @@ export default function(props) {
                   }
                 />
               </Grid>
-              </Link>
-            </GridListTile>
+            </Link>
+          </GridListTile>
         ))}
         </GridList>
       </div>
