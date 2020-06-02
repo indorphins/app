@@ -1,15 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { Container, Grid, Button, Grow }  from '@material-ui/core';
+import { Container, Grid, Button, Grow, Divider }  from '@material-ui/core';
 
 import CreateCourse from '../../components/form/editCourse';
+import CourseWidget from '../../components/courseListWidget';
 
 const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
 });
 
 export default function() {
+
+  let now = new Date();
+  let filter = { 
+    start_date: {"$gte" : now.toISOString() }, 
+    available_spots: { "$gt": 0 },
+  };
+
+  let order = {
+    start_date: "asc",
+  };
 
   const currentUser = useSelector(state => getUserSelector(state));
   const [allowCreate, setAllowCreate] = useState(false);
@@ -54,15 +65,17 @@ export default function() {
       <Grow in={showForm}>
         <Grid>
           <CreateCourse instructorId={currentUser.id} photoUrl={currentUser.photo_url} />
+          <Divider />
         </Grid>
       </Grow>
     );
   }
 
   return (
-    <Container>
+    <Container justify="center">
       {createButton}
       {createContent}
+      <CourseWidget filter={filter} order={order} header="Upcoming &amp; available classes" />
     </Container>
   )
 }

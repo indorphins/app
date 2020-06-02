@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
-import { Avatar, Button, Box, Menu, MenuItem, Typography } from "@material-ui/core";
+import { Avatar, Button, Box, Menu, MenuItem, Typography, Zoom } from "@material-ui/core";
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
@@ -96,7 +96,9 @@ export default function() {
     userContent = (
       <Box className={classes.root}>
         <Box onClick={handleClick}>
-          {avatar}
+          <Zoom in={true}>
+            {avatar}
+          </Zoom>
         </Box>
         <Menu
           id="simple-menu"

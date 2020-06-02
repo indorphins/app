@@ -77,7 +77,17 @@ export default function App() {
 				root: {
 					fontWeight: "bold",
 				}
-			}
+			},
+			MuiGridListTileBar: {
+				root: {
+					background: "rgba(0, 0, 0, 0.7)",
+					borderBottomLeftRadius: "4px",
+					borderBottomRightRadius: "4px",
+				},
+				subtitle:{
+					color: mainTheme.palette.secondary.main
+				}
+			},
 		}
 	});
 

@@ -16,7 +16,7 @@ export async function create(data) {
 	return callAPI(url, options, true);
 };
 
-export async function query(filter, order) {
+export async function query(filter, order, limit, page) {
 	const options = {
 		method: 'GET',
 		headers: {
@@ -24,7 +24,26 @@ export async function query(filter, order) {
 		},
 	};
 
-	return callAPI(url, options, false);
+	let f = JSON.stringify(filter);
+	f = btoa(f);
+
+	let u = `${url}?filter=${f}`;
+	
+	if (order && typeof order === "object") {
+		let o = JSON.stringify(order);
+		o = btoa(o);
+		u = `${u}&order=${o}`;
+	}
+
+	if (Number(limit)) {
+		u = `${u}&limit=${limit}`
+	}
+
+	if (Number(page)) {
+		u = `${u}&page=${page}`
+	}
+
+	return callAPI(u, options, false);
 };
 
 export async function get(id) {

@@ -34,9 +34,7 @@ export default function(props) {
 
   useEffect(() => {
     if (props.value) {
-      console.log("got initial value", props.value)
       const blocksFromHTML = convertFromHTML(props.value);
-      console.log(blocksFromHTML);
       const st = ContentState.createFromBlockArray(
         blocksFromHTML.contentBlocks,
         blocksFromHTML.entityMap,
@@ -78,7 +76,6 @@ export default function(props) {
   }
 
   const saveHandler = function(e) {
-    console.log(html);
     if (typeof props.onSave === "function") {
       props.onSave(html);
     }
