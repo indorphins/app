@@ -3,12 +3,12 @@
   "log_level": "DEBUG",
   "log_type": "",
   "firebase": {
-    "apiKey": "AIzaSyCHEgPu0UuO0vuMzpD0642-8H5b0_5hU_0",
-    "authDomain": "indo-e071f.firebaseapp.com",
-    "databaseURL": "https://indo-e071f.firebaseio.com",
-    "projectId": "indo-e071f",
-    "storageBucket": "indo-e071f.appspot.com",
-    "messagingSenderId": "365054292042",
-    "appId": "1:365054292042:web:bf99743bb8aafaad2176b3"
+    "apiKey": "AIzaSyByZtUAMH71kfHIvzpekjVpH2ND41XK4Bw",
+    "authDomain": "indo-dev.firebaseapp.com",
+    "databaseURL": "https://indo-dev.firebaseio.com",
+    "projectId": "indo-dev",
+    "storageBucket": "indo-dev.appspot.com",
+    "messagingSenderId": "344583151685",
+    "appId": "1:344583151685:web:44223fdd82cae7cee8432c"
   }
 }

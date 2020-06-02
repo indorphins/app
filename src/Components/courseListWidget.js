@@ -50,6 +50,16 @@ export default function(props) {
   const [cols, setCols] = useState(4.25);
   const [spacing, setSpacing] = useState(40);
   const [height, setHeight] = useState(250);
+  const [loader, setLoader] = useState(true);
+
+  let content = null;
+  let headerContent = null;
+  let formContent = null;
+  let loaderContent = (
+    <Grid  className={classes.loader} container direction="row" justify="center" alignItems="center">
+      <CircularProgress color="secondary" />
+    </Grid>
+  );
 
   useEffect(() => {
     if (props.header) {
@@ -89,26 +99,21 @@ export default function(props) {
       try {
         result = await Course.query(filter, order, limit);
       } catch(err) {
-        log.error("COURSE WIDGET:: query for courses", filter, order, err);
+        setLoader(false);
+        return log.error("COURSE WIDGET:: query for courses", filter, order, err);
       }
 
       if (result && result.total > 0) {
         setData(result);
       }
 
+      setLoader(false);
       log.debug("COURSE WIDGET:: got result", result);
     }
 
     init();
   }, []);
 
-
-  let headerContent = null;
-  let content = (
-    <Grid  className={classes.loader} container direction="row" justify="center" alignItems="center">
-      <CircularProgress color="secondary" />
-    </Grid>
-  );
 
   if(header) {
     headerContent = (
@@ -152,7 +157,7 @@ export default function(props) {
     });
 
    
-    content = (
+    formContent = (
       <div className={classes.root}>
         <GridList cellHeight={height} className={classes.gridList} cols={cols} spacing={spacing}>
         {items.map(course => (
@@ -177,6 +182,20 @@ export default function(props) {
         </GridList>
       </div>
     );
+  } else {
+    formContent = (
+      <Grid className={classes.loader} container direction="row" justify="center" alignItems="center">
+        <Typography variant="h5">
+          No results
+        </Typography>
+      </Grid>
+    );
+  }
+
+  content = formContent;
+
+  if (loader) {
+    content = loaderContent;
   }
 
   return (

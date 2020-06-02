@@ -80,12 +80,17 @@ export default function App() {
 			},
 			MuiGridListTileBar: {
 				root: {
-					background: "rgba(0, 0, 0, 0.7)",
+					background: "rgba(0, 0, 0, 0.5)",
 					borderBottomLeftRadius: "4px",
 					borderBottomRightRadius: "4px",
 				},
 				subtitle:{
 					color: mainTheme.palette.secondary.main
+				},
+				rootSubtitle: {
+					height: "auto",
+					paddingTop: mainTheme.spacing(0.5),
+					paddingBottom: mainTheme.spacing(0.5),
 				}
 			},
 		}

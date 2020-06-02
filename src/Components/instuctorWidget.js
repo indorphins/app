@@ -9,10 +9,10 @@ import path from '../routes/path';
 
 const useStyles = makeStyles((theme) => ({
   loader: {
-    minHeight: 350,
+    minHeight: 300,
   },
   photo: {
-    height: 350,
+    height: 300,
     width: "100%",
     objectFit: "cover",
     borderRadius: "4px",
@@ -34,6 +34,16 @@ export default function(props) {
   const [header, setHeader] = useState(null);
   const [cols, setCols] = useState(4);
   const [spacing, setSpacing] = useState(40);
+  const [loader, setLoader] = useState(true);
+
+  let content = null;
+  let headerContent = null;
+  let formContent = null;
+  let loaderContent = (
+    <Grid  className={classes.loader} container direction="row" justify="center" alignItems="center">
+      <CircularProgress color="secondary" />
+    </Grid>
+  );
 
   useEffect(() => {
     if (props.header) {
@@ -68,26 +78,21 @@ export default function(props) {
       try {
         result = await Instructor.getAll(limit);
       } catch(err) {
-        log.error("INSTRUCTOR WIDGET:: query", err);
+        setLoader(false);
+        return log.error("INSTRUCTOR WIDGET:: query", err);
       }
 
       if (result && result.total > 0) {
         setData(result);
       }
 
+      setLoader(false);
       log.debug("INSTRUCTOR WIDGET:: got result", result);
     }
 
     init();
   }, []);
 
-
-  let headerContent = null;
-  let content = (
-    <Grid  className={classes.loader} container direction="row" justify="center" alignItems="center">
-      <CircularProgress color="secondary" />
-    </Grid>
-  );
 
   if(header) {
     headerContent = (
@@ -113,7 +118,7 @@ export default function(props) {
       items.push(info);
     });
    
-    content = (
+    formContent = (
       <GridList cellHeight={250} cols={cols} spacing={spacing}>
       {items.map(instructor => (
         <GridListTile key={instructor.id} cols={1}>
@@ -131,6 +136,21 @@ export default function(props) {
       ))}
       </GridList>
     );
+  } else {
+    formContent = (
+      <Grid className={classes.loader} container direction="row" justify="center" alignItems="center">
+        <Typography variant="h5">
+          No results
+        </Typography>
+      </Grid>
+    );
+  }
+
+
+  content = formContent;
+
+  if (loader) {
+    content = loaderContent;
   }
 
   return (
