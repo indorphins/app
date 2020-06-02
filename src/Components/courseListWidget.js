@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from "react-router-dom";
-import { Grid, GridList, GridListTile, GridListTileBar, Typography, CircularProgress, IconButton } from '@material-ui/core';
+import { Grid, GridList, GridListTile, GridListTileBar, Typography, CircularProgress, IconButton, useMediaQuery } from '@material-ui/core';
 import {Info} from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { format, endOfWeek } from 'date-fns'
@@ -28,6 +28,9 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     objectFit: "cover",
     borderRadius: "4px",
+    '@media (max-width: 600px)': {
+      height: 180,
+    }
   },
   desc: {
     fontWeight: "bold"
@@ -39,15 +42,36 @@ const useStyles = makeStyles((theme) => ({
 
 export default function(props) {
 
+  const small = useMediaQuery('(max-width:600px)');
+  const med = useMediaQuery('(max-width:950px)');
   const classes = useStyles();
   const [data, setData] = useState(null);
   const [header, setHeader] = useState(null);
+  const [cols, setCols] = useState(4.25);
+  const [spacing, setSpacing] = useState(40);
+  const [height, setHeight] = useState(250);
 
   useEffect(() => {
     if (props.header) {
       setHeader(props.header);
     }
-  }, [props])
+  }, [props]);
+
+  useEffect(() => {
+    if (small) {
+      setCols(2.25);
+      setSpacing(10);
+      setHeight(180)
+    } else if (med) {
+      setCols(3.25);
+      setSpacing(20);
+      setHeight(250);
+    }else {
+      setCols(4.5);
+      setSpacing(40);
+      setHeight(250);
+    }
+  }, [small, med]);
 
   useEffect(() => {
 
@@ -130,7 +154,7 @@ export default function(props) {
    
     content = (
       <div className={classes.root}>
-        <GridList cellHeight={250} className={classes.gridList} cols={4.5} spacing={20}>
+        <GridList cellHeight={height} className={classes.gridList} cols={cols} spacing={spacing}>
         {items.map(course => (
           <GridListTile key={course.id} cols={1}>
             <Link className={classes.anchor} to={course.url}>

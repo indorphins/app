@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from "react-router-dom";
-import { Grid, GridList, GridListTile, GridListTileBar, Typography, CircularProgress } from '@material-ui/core';
+import { Grid, GridList, GridListTile, GridListTileBar, Typography, CircularProgress, useMediaQuery } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 import * as Instructor from '../api/instructor';
@@ -27,15 +27,32 @@ const useStyles = makeStyles((theme) => ({
 
 export default function(props) {
 
+  const small = useMediaQuery('(max-width:600px)');
+  const med = useMediaQuery('(max-width:950px)');
   const classes = useStyles();
   const [data, setData] = useState(null);
   const [header, setHeader] = useState(null);
+  const [cols, setCols] = useState(4);
+  const [spacing, setSpacing] = useState(40);
 
   useEffect(() => {
     if (props.header) {
       setHeader(props.header);
     }
-  }, [props])
+  }, [props]);
+
+  useEffect(() => {
+    if (small) {
+      setCols(2);
+      setSpacing(10);
+    } else if (med) {
+      setCols(3);
+      setSpacing(20);
+    }else {
+      setCols(4);
+      setSpacing(40);
+    }
+  }, [small, med]);
 
   useEffect(() => {
 
@@ -97,7 +114,7 @@ export default function(props) {
     });
    
     content = (
-      <GridList cellHeight={250} cols={4} spacing={20}>
+      <GridList cellHeight={250} cols={cols} spacing={spacing}>
       {items.map(instructor => (
         <GridListTile key={instructor.id} cols={1}>
           <Link className={classes.anchor} to={instructor.url}>
