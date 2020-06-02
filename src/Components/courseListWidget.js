@@ -130,7 +130,7 @@ export default function(props) {
    
     content = (
       <div className={classes.root}>
-        <GridList cellHeight={250} className={classes.gridList} cols={4.5} >
+        <GridList cellHeight={250} className={classes.gridList} cols={4.5} spacing={20}>
         {items.map(course => (
           <GridListTile key={course.id} cols={1}>
             <Link className={classes.anchor} to={course.url}>

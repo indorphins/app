@@ -9,10 +9,10 @@ import path from '../routes/path';
 
 const useStyles = makeStyles((theme) => ({
   loader: {
-    minHeight: 250,
+    minHeight: 350,
   },
   photo: {
-    height: 250,
+    height: 350,
     width: "100%",
     objectFit: "cover",
     borderRadius: "4px",
@@ -95,10 +95,9 @@ export default function(props) {
 
       items.push(info);
     });
-
    
     content = (
-      <GridList cellHeight={250} cols={5} >
+      <GridList cellHeight={250} cols={4} spacing={20}>
       {items.map(instructor => (
         <GridListTile key={instructor.id} cols={1}>
           <Link className={classes.anchor} to={instructor.url}>
