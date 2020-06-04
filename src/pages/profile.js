@@ -6,7 +6,7 @@ import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 
 import ProfileEdit from '../components/form/editProfile';
-import DisplayWidget from '../components/displayWidget';
+import UserData from '../components/userData';
 import * as Instructor from '../api/instructor';
 import log from '../log';
 import path from '../routes/path';
@@ -144,14 +144,10 @@ export default function() {
   let userContent = (
     <Grid>
       {editButtonContent}
-      <DisplayWidget username={username} email={email} photo={photo} phone={phone} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} />
+      <UserData header={username} email={email} photo={photo} phone={phone} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} />
       <Divider className={classes.divider} />
     </Grid>
-  )
-  
-  if(params.id) {
-    console.log("got user id in params");
-  }
+  );
 
   let content = loaderContent;
 

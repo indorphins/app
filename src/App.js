@@ -21,8 +21,8 @@ export default function App() {
 	const currentUser = useSelector(state => getUserSelector(state));
 
 	const colors = {
-		pink: "#fc0373",
-		black: "#000000",
+		pink: "#fab4cd",
+		black: "#262425",
 	}
 
 	let mainTheme = createMuiTheme({

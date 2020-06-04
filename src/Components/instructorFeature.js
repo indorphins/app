@@ -46,9 +46,7 @@ export default function(props) {
   );
 
   useEffect(() => {
-    if (props.header) {
-      setHeader(props.header);
-    }
+    setHeader(props.header);
   }, [props]);
 
   useEffect(() => {

@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { Box, Grid, Typography, useMediaQuery } from '@material-ui/core';
 import { makeStyles, useTheme } from '@material-ui/core';
-import { EmailOutlined, PhoneOutlined, AddAPhoto } from '@material-ui/icons';
-import InstagramIcon from '../components/instagramIcon';
+import { EmailOutlined, PhoneOutlined, Photo } from '@material-ui/icons';
+import InstagramIcon from './icon/instagram';
 
 const useStyles = makeStyles((theme) => ({
   photo: {
@@ -52,13 +52,18 @@ const useStyles = makeStyles((theme) => ({
   fullname: {
     display: "inline",
     marginRight: theme.spacing(1),
+    color: theme.palette.text.disabled,
+  },
+  header: {
+    display: "inline",
+    fontStyle: "italic",
+    color: theme.palette.text.disabled,
   },
   username: {
     display: "inline",
     fontStyle: "italic",
   },
   contact: {
-    color: "white",
     background: theme.palette.primary.main,
     padding: theme.spacing(1.5),
     minWidth: 225,
@@ -67,6 +72,9 @@ const useStyles = makeStyles((theme) => ({
       maxWidth: "100%",
       width: "100%",
     }
+  },
+  contactLabel: {
+    color: theme.palette.text.disabled,
   },
   icon: {
     color: theme.palette.secondary.main,
@@ -107,11 +115,12 @@ export default function(props) {
   let bioContent = null;
   let phoneContent = null;
   let instaContent = null;
+  let emailContent = null;
   let mailTo = "mailto:" + props.email;
 
   let nameHeader = (
     <Typography className={classes.fullname} variant="h1">
-      {props.username}
+      {props.header}
     </Typography>
   )
 
@@ -121,29 +130,31 @@ export default function(props) {
         <Typography className={classes.fullname} variant="h1">
           {fullname}
         </Typography>
-        <Typography className={classes.username} variant="h2">
+        <Typography className={classes.header} variant="h2">
           <span>(</span>
-          {props.username}
+          {props.header}
           <span>)</span>
         </Typography>
       </Box>
     );
   }
 
-  let emailContent = (
-    <a title="Send me an email" className={classes.link} target="_blank" rel="noopener noreferrer" href={mailTo}>
-      <Grid container>
-        <Grid item>
-          <EmailOutlined className={classes.icon} />
+  if (props.email) {
+    emailContent = (
+      <a title="Send me an email" className={classes.link} target="_blank" rel="noopener noreferrer" href={mailTo}>
+        <Grid container>
+          <Grid item>
+            <EmailOutlined className={classes.icon} />
+          </Grid>
+          <Grid item>
+            <Typography className={classes.contactLabel}>
+              {props.email}
+            </Typography>
+          </Grid>
         </Grid>
-        <Grid item>
-          <Typography>
-            {props.email}
-          </Typography>
-        </Grid>
-      </Grid>
-    </a>
-  );
+      </a>
+    );
+  }
 
   if (props.bio) {
     bioContent = (
@@ -158,7 +169,7 @@ export default function(props) {
           <PhoneOutlined className={classes.icon} />
         </Grid>
         <Grid item>
-          <Typography>
+          <Typography className={classes.contactLabel}>
             {props.phone}
           </Typography>
         </Grid>
@@ -175,7 +186,7 @@ export default function(props) {
             <InstagramIcon color={iconColor} width="24px" height="24px" className={classes.icon} />
           </Grid>
           <Grid item>
-            <Typography>
+            <Typography className={classes.contactLabel}>
               {props.instagram}
             </Typography>
           </Grid>
@@ -188,7 +199,7 @@ export default function(props) {
     <Grid item xs>
       <Grid container direction="row" justify="center" alignContent="center" className={classes.nophoto}>
         <Grid item>
-          <AddAPhoto className={classes.nophotoIcon} />
+          <Photo className={classes.nophotoIcon} />
         </Grid>
       </Grid>
     </Grid>

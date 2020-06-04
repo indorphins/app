@@ -5,8 +5,8 @@ import { Container, Grid, Button, Grow, Divider }  from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 import CreateCourse from '../../components/form/editCourse';
-import CourseWidget from '../../components/courseListWidget';
-import InstructorWidget from '../../components/instuctorWidget';
+import CourseFeature from '../../components/courseFeature';
+import InstructorFeature from '../../components/instructorFeature';
 
 const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
@@ -85,10 +85,10 @@ export default function() {
       {createButton}
       {createContent}
       <Grid container className={classes.content}>
-        <CourseWidget filter={filter} order={order} limit={500} header="Upcoming &amp; available classes" />
+        <CourseFeature filter={filter} order={order} limit={500} header="Upcoming &amp; available classes" />
       </Grid>
       <Grid container className={classes.content}>
-        <InstructorWidget limit={500} header="Find instructors &amp; community"/>
+        <InstructorFeature limit={500} header="Find instructors &amp; community"/>
       </Grid>
     </Container>
   )
