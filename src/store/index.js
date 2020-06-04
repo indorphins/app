@@ -11,7 +11,7 @@ const userSlice = createSlice({
       log.debug("STORE:: set user", action.payload);
       state.data = Object.assign({}, state.data, action.payload);
     },
-    clear(state, action) {
+    clear(state) {
       log.debug("STORE:: clear user data");
       state.data = {};
       return state;
@@ -19,12 +19,31 @@ const userSlice = createSlice({
   }
 });
 
+const themeSlice = createSlice({
+  name: 'theme',
+  initialState: 'light',
+  reducers: {
+    setDarkMode(state) {
+      log.debug("STORE:: set dark theme");
+      state = 'dark';
+      return state;
+    },
+    setLightMode(state) {
+      log.debug("STORE:: set light theme");
+      state = 'light';
+      return state;
+    }
+  }
+});
+
 const rootReducer = combineReducers({
   user: userSlice.reducer,
+  theme: themeSlice.reducer,
 });
 
 export const actions = {
   user: userSlice.actions,
+  theme: themeSlice.actions
 };
 
 export const store = configureStore({

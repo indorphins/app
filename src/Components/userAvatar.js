@@ -35,17 +35,8 @@ export default function() {
   const [profileImg, setProfileImg] = useState(null);
 
   useEffect(() => {
-    if (currentUser.username) {
-      setUsername(currentUser.username);
-    } else {
-      setUsername(null);
-    }
-
-    if (currentUser.photo_url) {
-      setProfileImg(currentUser.photo_url);
-    } else {
-      setProfileImg(null);
-    }
+    setUsername(currentUser.username);
+    setProfileImg(currentUser.photo_url);
   }, [currentUser]);
 
   const handleClick = (event) => {

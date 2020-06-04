@@ -118,7 +118,7 @@ export default function(props) {
   if(header) {
     headerContent = (
       <Grid>
-        <Typography className={classes.header} variant="h6">
+        <Typography className={classes.header} variant="h5">
           {header}
         </Typography>
       </Grid>

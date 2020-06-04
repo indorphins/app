@@ -52,12 +52,12 @@ const useStyles = makeStyles((theme) => ({
   fullname: {
     display: "inline",
     marginRight: theme.spacing(1),
-    color: theme.palette.text.disabled,
+    color: theme.palette.text.secondary,
   },
   header: {
     display: "inline",
     fontStyle: "italic",
-    color: theme.palette.text.disabled,
+    color: theme.palette.text.secondary,
   },
   username: {
     display: "inline",
@@ -74,7 +74,7 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   contactLabel: {
-    color: theme.palette.text.disabled,
+    color: theme.palette.text.secondary,
   },
   icon: {
     color: theme.palette.secondary.main,

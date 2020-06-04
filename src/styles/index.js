@@ -1,6 +1,10 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Box, CssBaseline } from '@material-ui/core';
 import { ThemeProvider, createMuiTheme, responsiveFontSizes, makeStyles } from '@material-ui/core/styles';
+import { useSelector } from 'react-redux';
+import { createSelector } from 'reselect';
+
+import { store, actions } from '../store';
 
 const colors = {
   pink: "#fab4cd",
@@ -25,6 +29,18 @@ const typography = {
   },
   h3: {
     fontSize: '1.3rem',
+  },
+  h4: {
+    fontSize: '1.1rem',
+    fontWeight: 500,
+  },
+  h5: {
+    fontSize: '1.1rem',
+    fontWeight: 300,
+  },
+  h6: {
+    fontSize: '1.1rem',
+    fontStyle: 'italic',
   }
 }
 
@@ -43,7 +59,7 @@ let lightTheme = createMuiTheme({
   spacing: 8,
   typography: typography,
 });
-lightTheme = responsiveFontSizes(lightTheme);
+
 
 let darkTheme = createMuiTheme({
   palette: {
@@ -59,13 +75,19 @@ let darkTheme = createMuiTheme({
     background: {
       paper: colors.black1,
       default: colors.black2
+    },
+    text: {
+      primary: lightTheme.palette.grey[300],
+      secondary: lightTheme.palette.grey[400],
+      disabled: lightTheme.palette.grey[600],
+      hint: lightTheme.palette.grey[800],
     }
   },
   spacing: 8,
   typography: typography,
 });
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {},
   '@global': {
     html: {
@@ -77,34 +99,39 @@ const useStyles = makeStyles(theme => ({
       height: '100%',
     },
     '#wysiwygContent > h2': {
-      color: "#8e8e8e",
+      color: theme.palette.text.secondary, 
       fontSize: "1.5rem"
     },
     '#wysiwygContent > p': {
       fontSize: "1.1rem",
-      color: "#8e8e8e",
+      color: theme.palette.text.secondary,
     },
     '#wysiwygContent > ol': {
       fontSize: "1.1rem",
-      color: "#8e8e8e",
+      color: theme.palette.text.secondary,
     },
     '#wysiwygContent > ul': {
       fontSize: "1.1rem",
-      color: "#8e8e8e",
+      color: theme.palette.text.secondary,
     },
     '#wysiwygContent > blockquote': {
       borderLeft: "3px solid grey",
       paddingLeft: "2em",
       fontStyle: "italic",
       fontWeight: "bold",
-      color: "#8e8e8e",
+      color: theme.palette.text.secondary,
     }
   }
 }));
 
+const getThemeSelector = createSelector([state => state.theme], (theme) => {
+  return theme;
+});
+
 export default function(props) {
 
-  let theme = darkTheme
+  const currentTheme = useSelector(state => getThemeSelector(state));
+  const [theme, setTheme] = useState(responsiveFontSizes(lightTheme));
   const classes = useStyles();
   const overrides = {
     MuiTextField: {
@@ -138,11 +165,42 @@ export default function(props) {
         paddingBottom: theme.spacing(0.5),
       }
     },
+    MUIRichTextEditor: {
+      root: {
+        width: "100%",
+        border: "1px solid gray",
+        borderRadius: "0.3rem",
+      },
+      editor: {
+        borderTop: "1px solid gray",
+        padding: theme.spacing(1),
+      }
+    },
   }
 
   Object.assign(theme, {
     overrides: overrides
   });
+
+  useEffect(() => {
+    async function init() {
+      store.dispatch(actions.theme.setLightMode());
+    }
+
+    init();
+  }, [])
+
+  useEffect(() => {
+
+    if (currentTheme === 'light' && theme !== 'light') {
+      setTheme(responsiveFontSizes(lightTheme));
+    }
+    
+    if (currentTheme === 'dark' && theme !== 'dark') {
+      setTheme(responsiveFontSizes(darkTheme));
+    }
+
+  }, [currentTheme]);
 
   return (
     <Box>

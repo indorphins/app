@@ -54,7 +54,7 @@ export async function get(id) {
 		},
 	};
 
-	let u = url + "/" + id;
+	let u = url + id;
 
 	return callAPI(u, options, false);
 }
@@ -67,7 +67,7 @@ export async function remove(id) {
 		},
 	};
 
-	let u = url + "/" + id;
+	let u = url + id;
 
 	return callAPI(u, options, true);
 };
@@ -81,7 +81,7 @@ export async function update(id, data) {
 		body: JSON.stringify(data),
 	};
 
-	let u = url + "/" + id;
+	let u = url + id;
 
 	return callAPI(u, options, true);
 }

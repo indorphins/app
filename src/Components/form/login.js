@@ -17,11 +17,6 @@ const getUserSelector = createSelector([state => state.user.data], (user) => {
 });
 
 const useStyles = makeStyles((theme) => ({
-  googBtn: {
-    '&:hover': {
-      backgroundColor: theme.palette.secondary.main,
-    }
-	},
   btnContainer: {
     display: "block",
     width: "100%",
@@ -180,7 +175,7 @@ export default function() {
 				</Typography>
 			</Grid>
 			<Grid>
-				<Button color="primary" disableElevation className={classes.googBtn} onClick={googleSignInFlow}>
+				<Button color="inherit" disableElevation className={classes.googBtn} onClick={googleSignInFlow}>
 					Sign in with Google
 				</Button>
 			</Grid>
