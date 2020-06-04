@@ -302,10 +302,10 @@ export default function(props) {
 					{passwordConfirmField}
 				</Box>
 				<Box>
-					<TextField disabled={loader} color="secondary" autoComplete="given-name" className={classes.txtField} required id="firstName" type="text" label="First Name" variant="outlined" onChange={firstNameHandler}/>
+					<TextField disabled={loader} color="secondary" autoComplete="given-name" className={classes.txtField} id="firstName" type="text" label="First Name" variant="outlined" onChange={firstNameHandler}/>
 				</Box>
 				<Box>
-					<TextField disabled={loader} color="secondary" autoComplete="family-name" className={classes.txtField} required id="lastName" type="text" label="Last Name" variant="outlined" onChange={lastNameHandler}/>
+					<TextField disabled={loader} color="secondary" autoComplete="family-name" className={classes.txtField} id="lastName" type="text" label="Last Name" variant="outlined" onChange={lastNameHandler}/>
 				</Box>
 				<Box>
 					{phoneField}

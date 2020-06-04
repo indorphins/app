@@ -11,7 +11,12 @@ export default function() {
 
   return (
     <Switch>
-      <Route path={path.profile}>
+      <Route exact path={path.profile}>
+        <Nav>
+          <Profile />
+        </Nav>
+      </Route>
+      <Route exact path={path.instructorProfile}>
         <Nav>
           <Profile />
         </Nav>

@@ -12,7 +12,11 @@ import Editor from '../editor';
 
 const useStyles = makeStyles((theme) => ({
   btn: {
-    marginTop: theme.spacing(2)
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
+  input: {
+    width: 400,
   }
 }));
 
@@ -29,9 +33,10 @@ export default function() {
   const [lastname, setLast] = useState('');
   const [phone, setPhone] = useState('');
   const [photoUrl, setPhoto] = useState('');
+  const [instagram, setInstagram] = useState('');
   const [bio, setBio] = useState('');
-  const [loader, setLoader] = useState(false);
   const [bioContent, setBioContent] = useState('<p></p>');
+  const [loader, setLoader] = useState(false);
 
   useEffect(() => {
 
@@ -50,6 +55,10 @@ export default function() {
 
       if (currentUser.bio) {
         setBioContent(currentUser.bio);
+      }
+
+      if (currentUser.social && currentUser.social.instagram) {
+        setInstagram(currentUser.social.instagram);
       }
     }
 
@@ -74,6 +83,10 @@ export default function() {
 
   const photoHandler = function(e) {
     setPhoto(e.target.value);
+  }
+
+  const instaHandler = function(e) {
+    setInstagram(e.target.value);
   }
 
   const editorHandler = function(e) {
@@ -108,6 +121,7 @@ export default function() {
     e.preventDefault();
     setLoader(true);
 
+
     let userData = {
       username: username,
       first_name: firstname,
@@ -116,6 +130,19 @@ export default function() {
       photo_url: photoUrl,
       bio: bio,
     };
+
+    if (bio) {
+      userData.bio = bio;
+    }
+
+    if (!bio && currentUser.bio) {
+      userData.bio = currentUser.bio;
+    }
+
+    if (instaHandler) {
+      if (!userData.social) userData.social = {};
+      userData.social.instagram = instagram;
+    }
 
     try {
       await User.update(userData);
@@ -148,19 +175,22 @@ export default function() {
     <Grid>
       <form onSubmit={formHandler}>
         <Grid>
-          <TextField disabled={loader} required autoComplete="username" color="secondary" variant="outlined" type="text" id="username" label="Nickname" value={username} onChange={usernameHandler} />
+          <TextField className={classes.input} disabled={loader} required autoComplete="username" color="secondary" variant="outlined" type="text" id="username" label="Nickname" value={username} onChange={usernameHandler} />
         </Grid>
         <Grid>
-          <TextField disabled={loader} required autoComplete="given_name" color="secondary" variant="outlined" type="text" id="first" label="First Name" value={firstname} onChange={firstHandler} />
+          <TextField className={classes.input} disabled={loader} required autoComplete="given_name" color="secondary" variant="outlined" type="text" id="first" label="First Name" value={firstname} onChange={firstHandler} />
         </Grid>
         <Grid>
-          <TextField disabled={loader} required autoComplete="family_name" color="secondary" variant="outlined" type="text" id="last" label="Last Name" value={lastname} onChange={lastHandler} />
+          <TextField className={classes.input} disabled={loader} required autoComplete="family_name" color="secondary" variant="outlined" type="text" id="last" label="Last Name" value={lastname} onChange={lastHandler} />
         </Grid>
         <Grid>
-          <TextField disabled={loader} autoComplete="tel" color="secondary" variant="outlined" type="tel" id="phone" label="Phone Number" value={phone} onChange={phoneHandler} />
+          <TextField className={classes.input} disabled={loader} autoComplete="tel" color="secondary" variant="outlined" type="tel" id="phone" label="Phone Number" value={phone} onChange={phoneHandler} />
         </Grid>
         <Grid>
-          <TextField disabled={loader} color="secondary" variant="outlined" type="text" id="photo" label="Profile Photo URL" value={photoUrl} onChange={photoHandler} />
+          <TextField className={classes.input} disabled={loader} autoComplete="tel" color="secondary" variant="outlined" type="text" id="instagram" label="Instagram Handle" value={instagram} onChange={instaHandler} />
+        </Grid>
+        <Grid>
+          <TextField className={classes.input} disabled={loader} color="secondary" variant="outlined" type="text" id="photo" label="Profile Photo URL" value={photoUrl} onChange={photoHandler} />
         </Grid>
         <Grid>
           <Editor label="Bio" value={bioContent} onChange={editorHandler} onSave={editorSaveHandler} />

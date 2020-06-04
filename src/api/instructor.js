@@ -28,3 +28,16 @@ export async function getAll(limit, page) {
 
 	return callAPI(u, options, false);
 }
+
+export async function get(id) {
+  let options = {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+		},
+  };
+
+  let u = url + id;
+
+	return callAPI(u, options, false);
+}

@@ -47,10 +47,12 @@ export default function App() {
 			h1: {
 				fontSize: '2.2rem',
 				fontWeight: 900,
+				marginBottom: '0.5em',
 			},
 			h2: {
 				fontSize: '1.6rem',
 				fontWeight: 500,
+				marginBottom: '0.3em',
 			},
 			h3: {
 			  fontSize: '1.3rem',
@@ -106,6 +108,29 @@ export default function App() {
 			body: {
 				overflow: 'auto',
 				height: '100%',
+			},
+			'#wysiwygContent > h2': {
+				color: "#8e8e8e",
+				fontSize: "1.5rem"
+			},
+			'#wysiwygContent > p': {
+				fontSize: "1.1rem",
+				color: "#8e8e8e",
+			},
+			'#wysiwygContent > ol': {
+				fontSize: "1.1rem",
+				color: "#8e8e8e",
+			},
+			'#wysiwygContent > ul': {
+				fontSize: "1.1rem",
+				color: "#8e8e8e",
+			},
+			'#wysiwygContent > blockquote': {
+				borderLeft: "3px solid grey",
+				paddingLeft: "2em",
+				fontStyle: "italic",
+				fontWeight: "bold",
+				color: "#8e8e8e",
 			}
 		}
 	}));

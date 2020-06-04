@@ -1,6 +1,7 @@
 export default {
   home: "/",
   profile: "/profile",
+  instructorProfile: "/profile/:id",
   signup: "/signup",
   login: "/login",
   courses: "/class",
