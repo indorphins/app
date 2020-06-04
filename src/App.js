@@ -1,11 +1,9 @@
 import React, { useEffect } from 'react';
 import { BrowserRouter} from 'react-router-dom';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import { ThemeProvider, createMuiTheme, responsiveFontSizes, makeStyles } from '@material-ui/core/styles';
-import Grid from '@material-ui/core/Grid';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 
+import AppTheme from './styles';
 import log from './log';
 import Firebase from './Firebase';
 import Routes from './routes/index';
@@ -19,121 +17,6 @@ const getUserSelector = createSelector([state => state.user.data], (user) => {
 export default function App() {
 
 	const currentUser = useSelector(state => getUserSelector(state));
-
-	const colors = {
-		pink: "#fab4cd",
-		black: "#262425",
-	}
-
-	let mainTheme = createMuiTheme({
-		palette: {
-			type: 'light',
-			primary: {
-				main: colors.black,
-				contrastText: colors.pink,
-			},
-			secondary: {
-				main: colors.pink,
-				contrastText: colors.black,
-			},
-			background: {
-				default: colors.black,
-			}
-		},
-		spacing: 8,
-		typography: {
-			direction: 'ltr',
-			fontSize: 14,
-			h1: {
-				fontSize: '2.2rem',
-				fontWeight: 900,
-				marginBottom: '0.5em',
-			},
-			h2: {
-				fontSize: '1.6rem',
-				fontWeight: 500,
-				marginBottom: '0.3em',
-			},
-			h3: {
-			  fontSize: '1.3rem',
-			}
-		},
-	});
-
-	mainTheme = responsiveFontSizes(mainTheme);
-
-	Object.assign(mainTheme, {
-		overrides: {
-			MuiTextField: {
-				root: {
-					marginTop: mainTheme.spacing(2),
-				}
-			},
-			MuiLink: {
-				root: {
-					marginTop: mainTheme.spacing(2),
-					cursor: 'pointer',
-				}
-			},
-			MuiButton: {
-				root: {
-					fontWeight: "bold",
-				}
-			},
-			MuiGridListTileBar: {
-				root: {
-					background: "rgba(0, 0, 0, 0.5)",
-					borderBottomLeftRadius: "4px",
-					borderBottomRightRadius: "4px",
-				},
-				subtitle:{
-					color: mainTheme.palette.secondary.main
-				},
-				rootSubtitle: {
-					height: "auto",
-					paddingTop: mainTheme.spacing(0.5),
-					paddingBottom: mainTheme.spacing(0.5),
-				}
-			},
-		}
-	});
-
-	const useStyles = makeStyles(mainTheme => ({
-		'@global': {
-			html: {
-				overflow: 'hidden',
-				background: mainTheme.background,
-				height: '100%',
-			},
-			body: {
-				overflow: 'auto',
-				height: '100%',
-			},
-			'#wysiwygContent > h2': {
-				color: "#8e8e8e",
-				fontSize: "1.5rem"
-			},
-			'#wysiwygContent > p': {
-				fontSize: "1.1rem",
-				color: "#8e8e8e",
-			},
-			'#wysiwygContent > ol': {
-				fontSize: "1.1rem",
-				color: "#8e8e8e",
-			},
-			'#wysiwygContent > ul': {
-				fontSize: "1.1rem",
-				color: "#8e8e8e",
-			},
-			'#wysiwygContent > blockquote': {
-				borderLeft: "3px solid grey",
-				paddingLeft: "2em",
-				fontStyle: "italic",
-				fontWeight: "bold",
-				color: "#8e8e8e",
-			}
-		}
-	}));
 
   async function listener(firebaseUserData) {
 
@@ -200,19 +83,12 @@ export default function App() {
 		Firebase.clearListeners();
 		Firebase.addListener(listener);
 	});
-	
-	const classes = useStyles();
 
   return (
-		<Grid>
-			<CssBaseline/>
-			<ThemeProvider theme={mainTheme}>
-				<Grid className={classes.root}>
-					<BrowserRouter>
-						<Routes />
-					</BrowserRouter>
-				</Grid>
-			</ThemeProvider>
-		</Grid>
+		<AppTheme>
+			<BrowserRouter>
+				<Routes />
+			</BrowserRouter>
+		</AppTheme>
   );
 };

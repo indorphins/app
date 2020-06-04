@@ -25,6 +25,8 @@ export default function() {
     async function get() {
       let cls;
 
+      log.debug("course info param", params.id);
+
       try {
         cls = await Course.get(params.id);
       } catch(err) {
@@ -33,6 +35,7 @@ export default function() {
       }
 
       if (!cls) {
+        log.debug("COURSE INFO:: course not found")
         history.push(path.courses);
         return;
       }

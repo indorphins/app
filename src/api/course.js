@@ -56,7 +56,7 @@ export async function get(id) {
 
 	let u = url + "/" + id;
 
-	return callAPI(u, options, true);
+	return callAPI(u, options, false);
 }
 
 export async function remove(id) {
