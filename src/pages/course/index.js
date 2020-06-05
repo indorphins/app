@@ -21,8 +21,8 @@ const useStyles = makeStyles((theme) => ({
 export default function() {
 
   let now = new Date();
-  let filter = { 
-    start_date: {"$gte" : now.toISOString() }, 
+  let courseFilter = { 
+    '$or': [ {start_date: {"$gte" : now.toISOString() }},  {end_date: {"$gte" : now.toISOString() }}, {recurring: { '$exists': true}} ],
     available_spots: { "$gt": 0 },
   };
 
@@ -85,7 +85,7 @@ export default function() {
       {createButton}
       {createContent}
       <Grid container className={classes.content}>
-        <CourseFeature filter={filter} order={order} limit={500} header="Upcoming &amp; available classes" />
+        <CourseFeature filter={courseFilter} order={order} limit={500} header="Upcoming &amp; available classes" />
       </Grid>
       <Grid container className={classes.content}>
         <InstructorFeature limit={500} header="Find instructors &amp; community"/>

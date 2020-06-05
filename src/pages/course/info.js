@@ -1,14 +1,23 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { Container } from '@material-ui/core';
+import { Container, Divider } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core/styles';
 
 import UserData from '../../components/userData';
+import CourseSchedule from '../../components/courseSchedule';
 import * as Course from '../../api/course';
 import log from '../../log';
 import path from '../../routes/path';
 
+const useStyles = makeStyles((theme) => ({
+  divider: {
+    margin: theme.spacing(2),
+  }
+}));
+
 export default function() {
 
+  const classes = useStyles();
   const history = useHistory();
   const params = useParams();
   const [photo, setPhoto] = useState('');
@@ -17,8 +26,7 @@ export default function() {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [insta, setInsta] = useState('');
-  //const [cost, setCost] = useState(0);
-  //const [available, setAvailable] = useState(0);
+  const [course, setCourse] = useState('');
 
   useEffect(() => {
 
@@ -48,7 +56,8 @@ export default function() {
       //setAvailable(cls.available_spots);
       setEmail(cls.instructor.email);
       setPhone(cls.instructor.phone_number);
-      if(cls.instructor.social )setInsta(cls.instructor.social.instagram);
+      setCourse(cls);
+      if(cls.instructor.social) setInsta(cls.instructor.social.instagram);
     }
 
     get();
@@ -57,6 +66,8 @@ export default function() {
   return (
     <Container>
       <UserData header={title} bio={description} email={email} phone={phone} instagram={insta} photo={photo} />
+      <Divider className={classes.divider} />
+      <CourseSchedule header="Class Schedule" course={course} />
     </Container>
   )
 }

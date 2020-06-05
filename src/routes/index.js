@@ -5,30 +5,30 @@ import ClassRouter from './course';
 import Profile from '../pages/profile'
 import LoginView from '../pages/login';
 import Register from '../pages/signup';
-import Nav from '../components/nav';
+import Header from '../components/header';
 
 export default function() {
 
   return (
     <Switch>
       <Route exact path={path.profile}>
-        <Nav>
+        <Header>
           <Profile />
-        </Nav>
+        </Header>
       </Route>
       <Route exact path={path.instructorProfile}>
-        <Nav>
+        <Header>
           <Profile />
-        </Nav>
+        </Header>
       </Route>
       <Route path={path.signup} component={Register} />
       <Route path={path.login}>
         <LoginView />
       </Route>
       <Route path={path.home}>
-        <Nav>
+        <Header>
           <ClassRouter />
-        </Nav>
+        </Header>
       </Route>
     </Switch>
   );
