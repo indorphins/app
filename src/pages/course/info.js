@@ -33,8 +33,6 @@ export default function() {
     async function get() {
       let cls;
 
-      log.debug("course info param", params.id);
-
       try {
         cls = await Course.get(params.id);
       } catch(err) {
@@ -52,8 +50,6 @@ export default function() {
       setPhoto(cls.photo_url);
       setTitle(cls.title);
       setDescription(cls.description);
-      //setCost(cls.cost);
-      //setAvailable(cls.available_spots);
       setEmail(cls.instructor.email);
       setPhone(cls.instructor.phone_number);
       setCourse(cls);
@@ -61,13 +57,13 @@ export default function() {
     }
 
     get();
-  }, [params])
+  }, [])
 
   return (
     <Container>
       <UserData header={title} bio={description} email={email} phone={phone} instagram={insta} photo={photo} />
       <Divider className={classes.divider} />
-      <CourseSchedule header="Class Schedule" course={course} />
+      <CourseSchedule header="Class Schedule" course={[course]} />
     </Container>
   )
 }

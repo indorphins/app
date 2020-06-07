@@ -46,8 +46,6 @@ export default function(props) {
   const [themeButton, setThemeButton] = useState(null);
 
   const toggleTheme = async function() {
-    console.log("toggle theme");
-    console.log(theme);
     if (theme === "light") {
       await store.dispatch(actions.theme.setDarkMode());
     } else {

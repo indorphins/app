@@ -8,6 +8,7 @@ import { format, endOfWeek } from 'date-fns'
 import * as Course from '../api/course';
 import log from '../log';
 import path from '../routes/path';
+import { getNextDate } from '../utils';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -139,19 +140,21 @@ export default function(props) {
         data.photo_url = course.photo_url;
       }
 
-      if (course.start_date) {
-        let now = new Date();
-        let d = new Date(course.start_date);
+      let now = new Date();
+      let d = new Date(course.start_date);;
 
-        let dt = format(d, "iiii");
-        let time = format(d, "h:mm a");
-
-        if (endOfWeek(now) < d) {
-          dt = format(d, "M/d");
-        }
-
-        data.label = "BOOK: " + dt + " @ " + time;
+      if (now > d && course.recurring) {
+        d = getNextDate(course.recurring, 1);
       }
+
+      let dt = format(d, "iiii");
+      let time = format(d, "h:mm a");
+
+      if (endOfWeek(now) < d) {
+        dt = format(d, "M/d");
+      }
+
+      data.label = "BOOK: " + dt + " @ " + time;
 
       items.push(data);
     });

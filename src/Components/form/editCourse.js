@@ -1,7 +1,7 @@
 import 'date-fns';
 import React, { useState, useEffect } from "react";
 import { useHistory } from 'react-router-dom';
-import { Grid, TextField, Button, Slider, Box, Typography, InputAdornment, LinearProgress } from '@material-ui/core';
+import { Grid, TextField, Button, Slider, Box, Typography, InputAdornment, Switch, LinearProgress } from '@material-ui/core';
 import MonetizationOnRounded from '@material-ui/icons/MonetizationOnRounded';
 import { makeStyles } from '@material-ui/core/styles';
 import DateFnsUtils from '@date-io/date-fns';
@@ -14,6 +14,7 @@ import {
 import Editor from '../editor';
 import log from '../../log';
 import * as Course from '../../api/course';
+import * as utils from '../../utils';
 import path from '../../routes/path';
 
 const useStyles = makeStyles((theme) => ({
@@ -50,6 +51,7 @@ export default function(props) {
   const [duration, setDuration] = useState(60);
   const [selectedDate, setSelectedDate] = useState(null);
   const [description, setDescription] = useState('');
+  const [recurring, setRecurring] = useState(false);
   const [loader, setLoader] = useState(false);
 
   useEffect(() => {
@@ -58,6 +60,7 @@ export default function(props) {
     if (props.cost) setCost(props.cost);
     if (props.spots) setSpots(props.spots);
     if (props.selectedDate) setSelectedDate(props.date);
+    if (props.recurring) setRecurring(true);
   }, [props]);
 
   const titleHandler = function(e) {
@@ -98,6 +101,14 @@ export default function(props) {
 
   const editorHandler = function(e) {
     setDescription(e);
+  }
+
+  const recurringHandler = function(e) {
+    if (recurring) {
+      setRecurring(false);
+    } else {
+      setRecurring(true);
+    }
   }
 
   const editorSaveHandler = async function(e) {
@@ -142,6 +153,11 @@ export default function(props) {
       data.start_date = selectedDate.toISOString();
     }
 
+    if (recurring) {
+      let rule = utils.getWeeklyCronRule(data.start_date);
+      data.recurring = rule;
+    }
+
     if (props.courseId) {
 
       try {
@@ -172,6 +188,47 @@ export default function(props) {
     }
   }
 
+  let costContent = (
+    <Grid item xs>
+      <TextField 
+        disabled={loader}
+        color="secondary" 
+        required 
+        id="cost" 
+        type="text" 
+        label="Cost" 
+        variant="outlined" 
+        className={classes.cost} 
+        value={cost} 
+        onChange={costHandler} 
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <MonetizationOnRounded />
+            </InputAdornment>
+          ),
+        }}
+      />
+    </Grid>
+  );
+
+  if (props.costDisabled) {
+    costContent = null;
+  }
+
+  let spotsContent = (
+    <Grid item xs>
+      <Box>
+        <Typography variant="subtitle2">{spots} spots</Typography>
+      </Box>
+      <Slider disabled={loader} className={classes.slider} defaultValue={20} min={5} max={20} step={1} valueLabelDisplay="auto" onChangeCommitted={handleSpotsSlider} />
+    </Grid>
+  );
+
+  if (props.spotsDisabled) {
+    spotsContent = null;
+  }
+
   let loaderContent = null;
 
   if (loader) {
@@ -189,38 +246,13 @@ export default function(props) {
           <Grid item xs>
             <TextField disabled={loader} className={classes.type} color="secondary" required id="type" type="text" label="Class Type" variant="outlined" value={courseType} onChange={typeHandler} />
           </Grid>
-          <Grid item xs>
-            <TextField 
-              disabled={loader}
-              color="secondary" 
-              required 
-              id="cost" 
-              type="text" 
-              label="Cost" 
-              variant="outlined" 
-              className={classes.cost} 
-              value={cost} 
-              onChange={costHandler} 
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <MonetizationOnRounded />
-                  </InputAdornment>
-                ),
-              }}
-            />
-          </Grid>
-          <Grid item xs>
-            <Box>
-              <Typography variant="subtitle2">{spots} spots</Typography>
-            </Box>
-            <Slider disabled={loader} className={classes.slider} defaultValue={20} min={5} max={20} step={1} valueLabelDisplay="auto" onChangeCommitted={handleSpotsSlider} />
-          </Grid>
+          {costContent}
+          {spotsContent}
           <Grid item xs>
             <Box>
               <Typography variant="subtitle2">{duration} minutes</Typography>
             </Box>
-            <Slider disabled={loader} className={classes.durSlider} defaultValue={60} min={15} max={120} step={15} valueLabelDisplay="auto" onChangeCommitted={handleDurationSlider} />
+            <Slider disabled={loader} className={classes.durSlider} defaultValue={60} min={30} max={60} step={15} valueLabelDisplay="auto" onChangeCommitted={handleDurationSlider} />
           </Grid>     
           <MuiPickersUtilsProvider utils={DateFnsUtils}>
             <Grid item xs>
@@ -230,6 +262,13 @@ export default function(props) {
               <KeyboardTimePicker disabled={loader} variant="inline" margin="normal" id="time" label="Time" value={selectedDate} onChange={handleDateChange} />
             </Grid>
           </MuiPickersUtilsProvider>
+          <Grid item xs>
+            <Switch
+              checked={recurring}
+              onChange={recurringHandler}
+            />
+            <Typography variant="subtitle2">Weekly Class</Typography>
+          </Grid>
         </Grid>
         <Grid container spacing={1}>
           <Grid item xs={12}>

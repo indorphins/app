@@ -22,7 +22,14 @@ export default function() {
 
   let now = new Date();
   let courseFilter = { 
-    '$or': [ {start_date: {"$gte" : now.toISOString() }},  {end_date: {"$gte" : now.toISOString() }}, {recurring: { '$exists': true}} ],
+    '$or': [ {start_date: {"$gte" : now.toISOString() }},  {end_date: {"$gte" : now.toISOString() }} ],
+    recurring: { '$exists': false},
+    start_date: { '$exists': true },
+    available_spots: { "$gt": 0 },
+  };
+
+  let recurringFilter = {
+    recurring: { '$exists': true },
     available_spots: { "$gt": 0 },
   };
 
@@ -73,7 +80,7 @@ export default function() {
     createContent = (
       <Grow in={showForm}>
         <Grid>
-          <CreateCourse instructorId={currentUser.id} photoUrl={currentUser.photo_url} />
+          <CreateCourse instructorId={currentUser.id} photoUrl={currentUser.photo_url} spotsDisabled={true} costDisabled={true} />
           <Divider />
         </Grid>
       </Grow>
@@ -86,6 +93,9 @@ export default function() {
       {createContent}
       <Grid container className={classes.content}>
         <CourseFeature filter={courseFilter} order={order} limit={500} header="Upcoming &amp; available classes" />
+      </Grid>
+      <Grid container className={classes.content}>
+        <CourseFeature filter={recurringFilter} order={order} limit={500} header="Weekly classes" />
       </Grid>
       <Grid container className={classes.content}>
         <InstructorFeature limit={500} header="Find instructors &amp; community"/>
