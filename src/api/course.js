@@ -85,3 +85,42 @@ export async function update(id, data) {
 
 	return callAPI(u, options, true);
 }
+
+export async function addParticipant(id) {
+	const options = {
+		method: 'POST',
+		headers: {
+			'Content-Type': 'application/json',
+		}
+	};
+
+	let u = url + id + "/participants";
+
+	return callAPI(u, options, true);
+}
+
+export async function removeParticipant(id) {
+	const options = {
+		method: 'DELETE',
+		headers: {
+			'Content-Type': 'application/json',
+		}
+	};
+
+	let u = url + id + "/participants";
+
+	return callAPI(u, options, true);
+}
+
+export async function getSessionInfo(id) {
+	const options = {
+		method: 'GET',
+		headers: {
+			'Content-Type': 'application/json',
+		}
+	};
+
+	let u = url + id + "/session";
+
+	return callAPI(u, options, true);
+}

@@ -1,5 +1,6 @@
 import * as later from 'later';
 
+// js day of week index is different from unix cron format so adjusting with this map
 const cronDayMap = {
   0: 7,
   1: 1,
@@ -20,8 +21,14 @@ export function getWeeklyCronRule(date) {
   return rule;
 }
 
-export function getNextDate(rule, count) {
+export function getNextDate(rule, count, refDate) {
   later.date.UTC();
   let sched = later.parse.cron(rule);
-  return later.schedule(sched).next(count);
+  return later.schedule(sched).next(count, refDate);
+}
+
+export function getPrevDate(rule, count, refDate) {
+  later.date.UTC();
+  let sched = later.parse.cron(rule);
+  return later.schedule(sched).prev(count, refDate);
 }

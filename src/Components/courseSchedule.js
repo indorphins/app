@@ -69,7 +69,10 @@ export default function(props) {
 
   useEffect(() => {
 
-    if (props.course.length <= 0) return;
+    if (props.course.length <= 0) {
+      setEvents([]);
+      return;
+    }
 
     let data = [];
 
@@ -185,7 +188,7 @@ export default function(props) {
           onNavigate={onNavigate}
           startAccessor="start"
           endAccessor="end"
-          defaultView="week"
+          defaultView={props.view}
           views={views}
           className={classes.calendar}
           step={120}

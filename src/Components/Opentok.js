@@ -1,33 +1,36 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { OTSession, OTPublisher, OTStreams, OTSubscriber } from 'opentok-react';
+import { Grid, Button } from '@material-ui/core';
 require('@opentok/client');
 
-export default class Opentok extends React.Component {
-  constructor(props) {
-    super(props);
+export default function(props) {
 
-    this.state = {
-      error: null,
-      connection: 'Connecting',
-      publishVideo: true,
-    };
+  const [credentials, setCredentials] = useState({});
+  const [error, setError] = useState(null);
+  const [publishVideo, setPublishVideo] = useState(true);
 
-    this.sessionEventHandlers = {
-      sessionConnected: () => {
-        this.setState({ connection: 'Connected' });
-      },
-      sessionDisconnected: () => {
-        this.setState({ connection: 'Disconnected' });
-      },
-      sessionReconnected: () => {
-        this.setState({ connection: 'Reconnected' });
-      },
-      sessionReconnecting: () => {
-        this.setState({ connection: 'Reconnecting' });
-      },
-    };
+  useEffect(() => {
+    if (props.credentials && props.credentials.token) {
+      setCredentials(props.credentials);
+    }
+  }, [props.credentials])
 
-    this.publisherEventHandlers = {
+  const sessionEventHandlers = {
+    sessionConnected: () => {
+
+    },
+    sessionDisconnected: () => {
+
+    },
+    sessionReconnected: () => {
+
+    },
+    sessionReconnecting: () => {
+      
+    },
+  };
+
+  const publisherEventHandlers = {
       accessDenied: () => {
         console.log('User denied access to media source');
       },
@@ -39,79 +42,85 @@ export default class Opentok extends React.Component {
       },
     };
 
-    this.subscriberEventHandlers = {
-      videoEnabled: () => {
-        console.log('Subscriber video enabled');
-      },
-      videoDisabled: () => {
-        console.log('Subscriber video disabled');
-      },
-    };
-  }
-
-  onSessionError = error => {
-    this.setState({ error });
+  const subscriberEventHandlers = {
+    videoEnabled: () => {
+      console.log('Subscriber video enabled');
+    },
+    videoDisabled: () => {
+      console.log('Subscriber video disabled');
+    },
   };
 
-  onPublish = () => {
+  const onSessionError = (error) => {
+    setError(error);
+  };
+
+  const onPublish = () => {
     console.log('Publish Success');
   };
 
-  onPublishError = error => {
-    this.setState({ error });
+  const onPublishError = (error) => {
+    setError(error);
   };
 
-  onSubscribe = () => {
+  const onSubscribe = () => {
     console.log('Subscribe Success');
   };
 
-  onSubscribeError = error => {
-    this.setState({ error });
+  const onSubscribeError = (error) => {
+    setError(error);
   };
 
-  toggleVideo = () => {
-    this.setState(state => ({
-      publishVideo: !state.publishVideo,
-    }));
+  const toggleVideo = () => {
+    if (publishVideo) {
+      setPublishVideo(false);
+    } else {
+      setPublishVideo(true);
+    }
   };
 
-  render() {
-    const { apiKey, sessionId, token } = this.props.credentials;
-    const { error, connection, publishVideo } = this.state;
-    return (
-      <div>
-        <div id="sessionStatus">Session Status: {connection}</div>
+  let content = null;
+
+  if (credentials.token && credentials.apiKey && credentials.sessionId) {
+    content = (
+      <Grid container>
         {error ? (
           <div className="error">
             <strong>Error:</strong> {error}
           </div>
         ) : null}
         <OTSession
-          apiKey={apiKey}
-          sessionId={sessionId}
-          token={token}
-          onError={this.onSessionError}
-          eventHandlers={this.sessionEventHandlers}
+          apiKey={credentials.apiKey}
+          sessionId={credentials.sessionId}
+          token={credentials.token}
+          onError={onSessionError}
+          eventHandlers={sessionEventHandlers}
         >
-          <button id="videoButton" onClick={this.toggleVideo}>
-            {publishVideo ? 'Disable' : 'Enable'} Video
-          </button>
+          <Button variant="contained" color="secondary" id="videoButton" onClick={toggleVideo}>
+            {publishVideo ? 'Disable' : 'Enable'} Camera
+          </Button>
           <OTPublisher
             properties={{ publishVideo, width: 300, height: 200, }}
-            onPublish={this.onPublish}
-            onError={this.onPublishError}
-            eventHandlers={this.publisherEventHandlers}
+            onPublish={onPublish}
+            onError={onPublishError}
+            eventHandlers={publisherEventHandlers}
           />
           <OTStreams>
             <OTSubscriber
               properties={{ width: 750, height: 500 }}
-              onSubscribe={this.onSubscribe}
-              onError={this.onSubscribeError}
-              eventHandlers={this.subscriberEventHandlers}
+              onSubscribe={onSubscribe}
+              onError={onSubscribeError}
+              eventHandlers={subscriberEventHandlers}
             />
           </OTStreams>
         </OTSession>
-      </div>
+      </Grid>
     );
   }
+
+  return (
+    <Grid>
+      {content}
+    </Grid>
+  )
 }

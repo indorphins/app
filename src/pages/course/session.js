@@ -1,68 +1,65 @@
 import React, { useState, useEffect }  from 'react';
+import { useParams, useHistory } from 'react-router-dom';
+import { Container, Grid, CircularProgress } from '@material-ui/core';
+import { useSelector } from 'react-redux';
+import { createSelector } from 'reselect';
 
 import Opentok from '../../components/Opentok';
-import config from '../../config';
+import * as Course from '../../api/course';
+import path from '../../routes/path';
+import log from '../../log';
+
+const getUserSelector = createSelector([state => state.user.data], (user) => {
+  return user;
+});
 
 export default function() {
 
-  const [content, setContent] = useState('loading');
+  const currentUser = useSelector(state => getUserSelector(state));
+  const history = useHistory();
+  const params = useParams();
+  const [authData, setAuthData] = useState({});
+  const [loader, setLoader] = useState(true);
 
-  async function fetchClasses() {
-    let options = {
-      method: 'GET',
-    };
+  const init = async function(classId) {
 
-    let data = await fetch(config.host + "/class/", options)
-      .then(function(result) {
-        let data = result.json();
-        console.log('got class result', data);
-        return data;
-      }).catch(function(err) {
-        throw err;
-      });
+    if (!currentUser.id) return;
 
-    return data;
+    let data;
+    try {
+      data = await Course.getSessionInfo(classId);
+    } catch(err) {
+      //TODO: redirect to class page with error message or display error here
+      console.error(err);
+      log.error("OPENTOK:: session join", err);
+      history.push(path.courses + classId);
+      return;
+    }
+    setAuthData(data);
+    setLoader(false);
   }
 
-  async function fetchToken(classId) {
-    let options = {
-      method: 'GET',
-    };
-
-    fetch(`${config.host}/class/${classId}/session`, options)
-      .then(function(result) {
-        return result.json();
-      }).then((data) => {
-        console.log('got session result', data);
-        setContent(<Opentok credentials={data}></Opentok>);
-      }).catch(function(err) {
-        console.error(err);
-      });
-  };
-
   useEffect(() => {
-    const init = async function() {
-      let all;
+    init(params.id);
+  }, [params.id, currentUser]);
 
-      try {
-        all = await fetchClasses();
-      } catch(e) {
-        console.error(e);
-      }
+  let chatContent = (
+    <Opentok credentials={authData}></Opentok>
+  );
 
-      if (!all || !all.data) {
-        return setContent("no classes");
-      }
+  let content = (
+    <CircularProgress color="secondary" />
+  );
 
-      fetchToken(all.data[0].id);
-    };
-
-    init();
-  }, [])
+  if (!loader) {
+    content = chatContent;
+  }
 
   return (
-    <div>
-      {content}
-    </div>
+    <Container>
+      <Grid container direction="row">
+        {content}
+      </Grid>
+    </Container>
   );
 };

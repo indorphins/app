@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Grid, GridList, GridListTile, GridListTileBar, Typography, CircularProgress, IconButton, useMediaQuery } from '@material-ui/core';
 import {Info} from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
-import { format, endOfWeek } from 'date-fns'
+import { format } from 'date-fns'
 
 import * as Course from '../api/course';
 import log from '../log';
@@ -150,7 +150,7 @@ export default function(props) {
       let dt = format(d, "iiii");
       let time = format(d, "h:mm a");
 
-      if (endOfWeek(now) < d) {
+      if (d.getDate() - now.getDate() >= 7) {
         dt = format(d, "M/d");
       }
 

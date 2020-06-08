@@ -5,9 +5,11 @@ import { makeStyles } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 
+import CourseSchedule from '../components/courseSchedule';
 import ProfileEdit from '../components/form/editProfile';
 import UserData from '../components/userData';
 import * as Instructor from '../api/instructor';
+import * as Course from '../api/course';
 import log from '../log';
 import path from '../routes/path';
 
@@ -42,59 +44,118 @@ export default function() {
   const [insta, setInsta] = useState('');
   const [bio, setBio] = useState('');
   const [loader, setLoader] = useState(true);
+  const [courses, setCourses] = useState([]);
+  const [coursesLabel, setCoursesLabel] = useState("Class Schedule");
   const [editButton, setEditButton] = useState(false);
   const [editForm, setEditForm] = useState(false);
 
-  useEffect(() => {
 
-    async function getInstructor(id) {
-      let instructor;
+  async function getInstructor(id) {
+    let instructor;
 
-      try {
-        instructor = await Instructor.get(id);
-      } catch(err) {
-        // redirect to user's profile
-        log.error("PROFILE::", err);
-        history.push(path.profile);
+    try {
+      instructor = await Instructor.get(id);
+    } catch(err) {
+      // redirect to user's profile
+      log.error("PROFILE::", err);
+      history.push(path.profile);
+      return;
 
-      }
-
-      if (!instructor || !instructor.data) {
-        // redirect to user's profile
-        history.push(path.profile);
-      }
-      
-      if (instructor && instructor.data) {
-        setUsername(instructor.data.username);
-        setEmail(instructor.data.email);
-        setFirstName(instructor.data.first_name);
-        setLastName(instructor.data.last_name);
-        setPhoto(instructor.data.photo_url);
-        setPhone(instructor.data.phone_number)
-        setBio(instructor.data.bio);
-        if (instructor.data.social && instructor.data.social.instagram) setInsta(instructor.data.social.instagram);
-        setLoader(false);
-      }
     }
 
-    if (params.id) {
-      getInstructor(params.id);
+    if (!instructor || !instructor.data) {
+      // redirect to user's profile
+      history.push(path.profile);
       return;
     }
     
-    if (currentUser.id) {
-      setUsername(currentUser.username);
-      setEmail(currentUser.email);
-      setFirstName(currentUser.first_name);
-      setLastName(currentUser.last_name);
-      setPhoto(currentUser.photo_url);
-      setPhone(currentUser.phone_number)
-      setBio(currentUser.bio);
-      if (currentUser.social && currentUser.social.instagram) setInsta(currentUser.social.instagram);
+    if (instructor && instructor.data) {
+      setUsername(instructor.data.username);
+      setEmail(instructor.data.email);
+      setFirstName(instructor.data.first_name);
+      setLastName(instructor.data.last_name);
+      setPhoto(instructor.data.photo_url);
+      setPhone(instructor.data.phone_number)
+      setBio(instructor.data.bio);
+      if (instructor.data.social && instructor.data.social.instagram) setInsta(instructor.data.social.instagram);
       setLoader(false);
+      setCoursesLabel("Instructor Schedule");
+      getInstructorSchedule(instructor.data._id);
+    }
+  }
+
+  async function getSchedule(filter) {
+    let result;
+
+    try {
+      result = await Course.query(filter);
+    } catch(err) {
+      throw err;
+    }
+
+    log.debug("PROFILE:: course schedule result", result);
+
+    if (result && result.data) {
+      setCourses(result.data);
+    }
+  }
+
+  async function getUserSchedule(userId) {
+    let now = new Date();
+    let schedFilter = {
+      participants: { $elemMatch: { id: userId }},
+      '$or': [ {start_date: {"$gte" : now.toISOString() }},  {end_date: {"$gte" : now.toISOString() }}, {recurring: { '$exists': true}} ],
+      start_date: { '$exists': true },
+    };
+
+    log.debug("PROFILE:: user schedule filter", schedFilter);
+
+    return getSchedule(schedFilter);
+  }
+
+  async function getInstructorSchedule(mongoId) {
+    let now = new Date();
+    let schedFilter = { 
+      instructor: mongoId,
+      '$or': [ {start_date: {"$gte" : now.toISOString() }},  {end_date: {"$gte" : now.toISOString() }}, {recurring: { '$exists': true}} ],
+      start_date: { '$exists': true },
+    };
+
+    return getSchedule(schedFilter);
+  } 
+
+  useEffect(() => {
+    
+    setCourses([]);
+
+    if (params.id) {
+      getInstructor(params.id);
+
     } else {
+      
+      if (currentUser.id) {
+        setUsername(currentUser.username);
+        setEmail(currentUser.email);
+        setFirstName(currentUser.first_name);
+        setLastName(currentUser.last_name);
+        setPhoto(currentUser.photo_url);
+        setPhone(currentUser.phone_number)
+        setBio(currentUser.bio);
+        if (currentUser.social && currentUser.social.instagram) setInsta(currentUser.social.instagram);
+        setLoader(false);
+
+        setCoursesLabel("Your Schedule");
+        if (currentUser.type === 'instructor') {
+          getInstructorSchedule(currentUser._id);
+        } else {
+          getUserSchedule(currentUser.id);
+        }
+        return;
+      }
+
       history.push(path.login);
     }
+
   }, [currentUser, params]);
 
   useEffect(() => {
@@ -146,6 +207,7 @@ export default function() {
       {editButtonContent}
       <UserData header={username} email={email} photo={photo} phone={phone} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} />
       <Divider className={classes.divider} />
+      <CourseSchedule header={coursesLabel} course={courses} view="month" />
     </Grid>
   );
 

@@ -1,10 +1,15 @@
-export default {
+const base = {
   home: "/",
   profile: "/profile",
-  instructorProfile: "/profile/:id",
   signup: "/signup",
   login: "/login",
   courses: "/class",
-  courseDetail: "/class/:id",
-  courseJoinSession: "/class/:id/join"
 };
+
+let params = Object.assign({}, base);
+params.instructorProfile = base.profile + "/:id";
+params.courseDetail = base.courses + "/:id";
+params.joinPath = "/join";
+params.courseJoinSession = params.courseDetail + params.joinPath;
+
+export default params;
