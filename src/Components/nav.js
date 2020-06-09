@@ -2,8 +2,14 @@ import React, {useState, useEffect} from 'react';
 import { useRouteMatch, useHistory } from 'react-router-dom';
 import { Tab, Tabs } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { useSelector } from 'react-redux';
+import { createSelector } from 'reselect';
 
 import path from '../routes/path';
+
+const getUserSelector = createSelector([state => state.user.data], (user) => {
+  return user;
+});
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -16,6 +22,8 @@ export default function() {
 
   const [tab, setTab] = useState(0);
   const [profileLabel, setProfileLabel] = useState("My Schedule");
+  const [showProfile, setShowProfile] = useState(false);
+  const currentUser = useSelector(state => getUserSelector(state));
   const classes = useStyles();
   const history = useHistory();
   let home = useRouteMatch({ path: path.home, strict: true});
@@ -36,19 +44,27 @@ export default function() {
       setTab(2);
       setProfileLabel('My Schedule');
     }
-  }, [profile]);
+  }, [profile, currentUser]);
 
   useEffect(() => {
     if (instructor) {
+      setShowProfile(true);
+      setTab(2);
       setProfileLabel('Instructor');
     }
   }, [instructor]);
 
   useEffect(() => {
-    if (!home && !profile && !instructor) {
-      setTab(null);
+    
+  }, [showProfile]);
+
+  useEffect(() => {
+    if (currentUser.id) {
+      setShowProfile(true);
+    } else {
+      setShowProfile(false);
     }
-  }, [home, profile, instructor]);
+  }, [currentUser])
 
 
   async function navHome() {
@@ -57,6 +73,14 @@ export default function() {
 
   async function navProfile() {
     history.push(path.profile);
+  }
+
+  let profileTab = null;
+
+  if (showProfile) {
+    profileTab = (
+      <Tab value={2} label={profileLabel} onClick={navProfile} />
+    );
   }
 
   return (
@@ -68,7 +92,7 @@ export default function() {
   >
     <Tab value={0} className={classes.hidden} />
     <Tab value={1} label="Classes" onClick={navHome} />
-    <Tab value={2} label={profileLabel} onClick={navProfile} />
+    {profileTab}
   </Tabs>
   )
 }
