@@ -8,8 +8,12 @@ import { createSelector } from 'reselect';
 import UserAvatar from "./userAvatar";
 import { store, actions } from '../store';
 
-const useStyles = makeStyles((theme) => ({
+let useStyles = makeStyles((theme) => ({
   root: {
+    height: "100%",
+  },
+  logo: {},
+  appbar: {
     paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(2),
     paddingRight: theme.spacing(5),
@@ -24,9 +28,6 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   toolbar: {},
-  userMenu: {
-    float: "right",
-  },
   themeBtn: {
     padding: theme.spacing(1),
     marginRight: theme.spacing(2),
@@ -41,6 +42,10 @@ const getThemeSelector = createSelector([state => state.theme], (theme) => {
 });
 
 export default function(props) {
+
+  if (props.className) {
+    useStyles = props.className;
+  }
   const classes = useStyles();
   const theme = useSelector(state => getThemeSelector(state));
   const [themeButton, setThemeButton] = useState(null);
@@ -66,12 +71,12 @@ export default function(props) {
   }, [theme])
 
   return (
-    <Box>
-      <AppBar position="static" className={classes.root}>
+    <Box className={classes.root}>
+      <AppBar position="static" className={classes.appbar}>
         <Toolbar className={classes.toolbar} variant="regular">
           <Grid container direction="row" alignContent="center" alignItems="center" justify="space-between">
             <Grid item>
-              <Typography edge="start" variant="h1" color="secondary">SGF</Typography>
+              <Typography edge="start" variant="h1" color="secondary" className={classes.logo}>SGF</Typography>
             </Grid>
             <Grid item>
               <Grid container direction='row' alignItems="center">

@@ -203,13 +203,12 @@ export default function(props) {
   }, [currentTheme]);
 
   return (
-    <Box>
+    <React.Fragment>
       <ThemeProvider theme={theme}>
         <CssBaseline/>
-        <Box className={classes.root}>
-          {props.children}
-        </Box>
+        <Box className={classes.root}></Box>
+        {props.children}
       </ThemeProvider>
-    </Box>
+    </React.Fragment>
   );
 }

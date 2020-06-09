@@ -26,9 +26,7 @@ export default function() {
         <LoginView />
       </Route>
       <Route path={path.home}>
-        <Header>
-          <ClassRouter />
-        </Header>
+        <ClassRouter />
       </Route>
     </Switch>
   );

@@ -30,8 +30,10 @@ const getUserSelector = createSelector([state => state.user.data], (user) => {
 
 function getNextSession(now, c) {
   let start = new Date(c.start_date);
-  let startWindow = start.setMinutes(start.getMinutes() - sessionWindow);
-  let endWindow = start.setMinutes(start.getMinutes() + c.duration + sessionWindow);
+  let end = new Date(c.start_date);
+  end.setMinutes(end.getMinutes() + c.duration);
+  let startWindow = new Date(start.setMinutes(start.getMinutes() - sessionWindow));
+  let endWindow = new Date(end.setMinutes(end.getMinutes() + sessionWindow));
 
   // if it's a recurring class and the first class is in the past
   if (c.recurring && now > endWindow) {
@@ -39,14 +41,18 @@ function getNextSession(now, c) {
     // get the previous event date for the recurring class in case there is an
     // active session right now
     start = getPrevDate(c.recurring, 1, now);
-    startWindow = start.setMinutes(start.getMinutes() - sessionWindow);
-    endWindow = start.setMinutes(start.getMinutes() + c.duration + sessionWindow);
+    end = new Date(start);
+    end.setMinutes(end.getMinutes() + c.duration);
+    startWindow = new Date(start.setMinutes(start.getMinutes() - sessionWindow));
+    endWindow = new Date(end.setMinutes(end.getMinutes() + sessionWindow));
 
     // if the prev session is over then get the next session
     if (now > endWindow) {
       start = getNextDate(c.recurring, 1, now);
-      startWindow = start.setMinutes(start.getMinutes() - sessionWindow);
-      endWindow = start.setMinutes(start.getMinutes() + c.duration + sessionWindow);
+      end = new Date(start);
+      end.setMinutes(end.getMinutes() + c.duration);
+      startWindow = new Date(start.setMinutes(start.getMinutes() - sessionWindow));
+      endWindow = new Date(end.setMinutes(end.getMinutes() + sessionWindow));
     }
   }
 
