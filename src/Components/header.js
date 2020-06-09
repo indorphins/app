@@ -14,17 +14,22 @@ let useStyles = makeStyles((theme) => ({
     height: "100%",
   },
   logo: {
+    display: 'inline',
+  },
+  logo2: {
+    display: 'inline',
     marginRight: theme.spacing(5),
+    color: theme.palette.grey[200],
   },
   appbar: {
     paddingTop: theme.spacing(2),
     paddingRight: theme.spacing(5),
-    paddingLeft: theme.spacing(3),
+    paddingLeft: theme.spacing(2),
     marginBottom: theme.spacing(4),
     '@media (max-width: 600px)': {
       paddingTop: theme.spacing(1),
       paddingRight: theme.spacing(2),
-      paddingLeft: theme.spacing(2),
+      paddingLeft: theme.spacing(1),
       marginBottom: theme.spacing(3),
     }
   },
@@ -81,7 +86,8 @@ export default function(props) {
             <Grid item>
               <Grid container direction="row" justify="flex-start">
                 <Grid>
-                  <Typography edge="start" variant="h1" color="secondary" className={classes.logo}>SGF</Typography>
+                  <Typography variant="h2" color="secondary" className={classes.logo}>indor</Typography>
+                  <Typography variant="h2" className={classes.logo2}>phins</Typography>
                 </Grid>
                 <Grid style={{display: "flex", alignItems: "flex-end"}}>
                   <Navigation />
