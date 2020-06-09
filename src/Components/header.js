@@ -6,28 +6,31 @@ import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 
 import UserAvatar from "./userAvatar";
+import Navigation from './nav';
 import { store, actions } from '../store';
 
 let useStyles = makeStyles((theme) => ({
   root: {
     height: "100%",
   },
-  logo: {},
+  logo: {
+    marginRight: theme.spacing(5),
+  },
   appbar: {
     paddingTop: theme.spacing(2),
-    paddingBottom: theme.spacing(2),
     paddingRight: theme.spacing(5),
-    paddingLeft: theme.spacing(5),
+    paddingLeft: theme.spacing(3),
     marginBottom: theme.spacing(4),
     '@media (max-width: 600px)': {
       paddingTop: theme.spacing(1),
-      paddingBottom: theme.spacing(1),
       paddingRight: theme.spacing(2),
       paddingLeft: theme.spacing(2),
       marginBottom: theme.spacing(3),
     }
   },
-  toolbar: {},
+  toolbar: {
+    minHeight: 0,
+  },
   themeBtn: {
     padding: theme.spacing(1),
     marginRight: theme.spacing(2),
@@ -76,7 +79,14 @@ export default function(props) {
         <Toolbar className={classes.toolbar} variant="regular">
           <Grid container direction="row" alignContent="center" alignItems="center" justify="space-between">
             <Grid item>
-              <Typography edge="start" variant="h1" color="secondary" className={classes.logo}>SGF</Typography>
+              <Grid container direction="row" justify="flex-start">
+                <Grid>
+                  <Typography edge="start" variant="h1" color="secondary" className={classes.logo}>SGF</Typography>
+                </Grid>
+                <Grid style={{display: "flex", alignItems: "flex-end"}}>
+                  <Navigation />
+                </Grid>
+              </Grid>
             </Grid>
             <Grid item>
               <Grid container direction='row' alignItems="center">

@@ -176,6 +176,18 @@ export default function(props) {
         padding: theme.spacing(1),
       }
     },
+    MuiTab: {
+      disabled:{
+        color: theme.palette.text.disabled,
+      },
+      selected: {
+        fontWeight: "bold",
+        color: theme.palette.secondary.main,
+      },
+      textColorSecondary: {
+        color: theme.palette.secondary.main,
+      },
+    }
   }
 
   Object.assign(theme, {
