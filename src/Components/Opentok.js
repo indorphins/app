@@ -2,13 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { OTSession, OTPublisher, OTStreams, OTSubscriber } from 'opentok-react';
 import { Grid, Button } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-require('@opentok/client');
 
-const testdiv = {
-  width: "300px", 
-  height:"168px", 
-  background:"grey",
-}
+import log from '../log';
+
+require('@opentok/client');
 
 const useStyles = makeStyles((theme) => ({
   grid: {
@@ -87,8 +84,9 @@ export default function(props) {
     console.log('Subscribe Success');
   };
 
-  const onSubscribeError = (error) => {
-    setError(error);
+  const onSubscribeError = (err) => {
+    setError(err);
+    log.error("opentok session", error);
   };
 
   const toggleVideo = () => {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect }  from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { Grid, CircularProgress, Typography } from '@material-ui/core';
+import { Grid, CircularProgress } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';

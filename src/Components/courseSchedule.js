@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Button, ButtonGroup, Grid, Tabs, Tab, Typography } from '@material-ui/core';
+import { Box, Grid, Typography/*, Button, ButtonGroup, Tabs, Tab*/ } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { format, startOfWeek, parse, getDay } from 'date-fns';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
@@ -64,7 +64,7 @@ export default function(props) {
   const classes = useStyles();
   const views = ['month', 'week'];
   const [events, setEvents] = useState([]);
-  const [tabValue, setTabValue] = useState(1);
+  //const [tabValue, setTabValue] = useState(1);
   const [startDate, setStartDate] = useState(new Date());
 
   useEffect(() => {
@@ -110,7 +110,7 @@ export default function(props) {
 
 
 
-  const CalendarToolbar = function(toolbar) {
+  /*const CalendarToolbar = function(toolbar) {
 
     const goToBack = () => {
       console.log(toolbar);
@@ -165,15 +165,15 @@ export default function(props) {
         </Grid>
       </Grid>
     );
-  }
+  }*/
 
   const onNavigate = function(e) {
     setStartDate(e);
   }
 
-  let components = {
+  /*let components = {
     toolbar: CalendarToolbar
-  }
+  }*/
 
   return (
     <Grid container m={12}>
