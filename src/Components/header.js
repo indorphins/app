@@ -25,12 +25,12 @@ let useStyles = makeStyles((theme) => ({
     paddingTop: theme.spacing(2),
     paddingRight: theme.spacing(5),
     paddingLeft: theme.spacing(2),
-    marginBottom: theme.spacing(4),
+    marginBottom: theme.spacing(2),
     '@media (max-width: 600px)': {
       paddingTop: theme.spacing(1),
       paddingRight: theme.spacing(2),
       paddingLeft: theme.spacing(1),
-      marginBottom: theme.spacing(3),
+      marginBottom: theme.spacing(1),
     }
   },
   toolbar: {

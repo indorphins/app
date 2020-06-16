@@ -6,10 +6,11 @@ import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 
 import Header from '../../components/header';
-import Opentok from '../../components/Opentok';
+//import Opentok from '../../components/Opentok';
 import * as Course from '../../api/course';
 import path from '../../routes/path';
 import log from '../../log';
+import Opentok from '../../components/videoConference';
 
 
 const useStyles = makeStyles((theme) => ({
@@ -28,14 +29,19 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const headerStyles = makeStyles((theme) => ({
+/*const headerStyles = makeStyles((theme) => ({
   root: {
     height: '100%',
-    /*display: 'flex',
-    flexFlow: 'column',*/
   },
   logo: {
+    display: 'inline',
     fontSize: '1.5rem',
+  },
+  logo2: {
+    fontSize: '1.5rem',
+    display: 'inline',
+    marginRight: theme.spacing(5),
+    color: theme.palette.grey[200],
   },
   appbar: {
     padding: theme.spacing(0.5),
@@ -50,7 +56,7 @@ const headerStyles = makeStyles((theme) => ({
       marginRight: theme.spacing(1),
     }
   },
-}));
+}));*/
 
 const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
@@ -62,6 +68,7 @@ export default function() {
   const classes = useStyles();
   const history = useHistory();
   const params = useParams();
+  const [course, setCourse] = useState({});
   const [authData, setAuthData] = useState({});
   const [loader, setLoader] = useState(true);
 
@@ -79,7 +86,23 @@ export default function() {
       history.push(path.courses + classId);
       return;
     }
-    setAuthData(data);
+
+    let courseData;
+    try {
+      courseData = await Course.get(classId);
+    } catch(err) {
+      console.error(err);
+      log.error("OPENTOK:: get class info", err);
+      history.push(path.courses + classId);
+      return;
+    }
+    
+    setAuthData({
+      sessionId: data.sessionId,
+      token: data.token,
+      apiKey: data.apiKey,      
+    });
+    setCourse(courseData);
     setLoader(false);
   }
 
@@ -88,7 +111,7 @@ export default function() {
   }, [params.id, currentUser]);
 
   let chatContent = (
-    <Opentok credentials={authData}></Opentok>
+    <Opentok credentials={authData} course={course} user={currentUser}></Opentok>
   );
 
   /*let chatContent = (
@@ -105,7 +128,7 @@ export default function() {
 
   return (
     <Grid className={classes.root}>
-      <Header className={headerStyles}>
+      <Header>
         <Grid className={classes.contentCol}>
           <Grid container direction="row" justify="center" alignItems="center" alignContent="center" className={classes.root}>
             {content}

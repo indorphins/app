@@ -31,7 +31,6 @@ export default function() {
   let instructor = useRouteMatch(path.instructorProfile);
 
   useEffect(() => {
-    console.log(home);
     if (home && home.isExact) {
       setTab(1);
     } else {
