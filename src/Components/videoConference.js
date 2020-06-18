@@ -56,6 +56,7 @@ export default function(props) {
   const [user, setUser] = useState(null);
   const [participants, setParticipants] = useState([]);
   const [streams, setStreams] = useState([]);
+  const [subs, setSubs] = useState([]);
   const [courseLabel, setCourseLabel] = useState(null);
   const [course, setCourse] = useState(null);
   const [credentials, setCredentials] = useState(null);
@@ -104,9 +105,10 @@ export default function(props) {
 
 
   function streamCreated(event) {
-    log.debug('OPENTOK:: stream created event', event, data);
+
     let data = JSON.parse(event.stream.connection.data);
-    //let subscriber = null;
+    log.debug('OPENTOK:: stream created event', event, data);
+    let subscriber = null;
 
     let props = {
       insertMode: 'append',
@@ -128,12 +130,14 @@ export default function(props) {
 
     if (data.instructor) {
       props.preferredResolution = {width: 1920, height: 1080};
-      session.subscribe(event.stream, 'feature', props, handleError);
+      subscriber = session.subscribe(event.stream, 'feature', props, handleError);
       return;
     }
 
     setStreams(streams => [...streams, {user: data, stream: event.stream}]);
-    session.subscribe(event.stream, data.username, props, handleError);
+    subscriber = session.subscribe(event.stream, data.username, props, handleError);
+
+    setSubs(subs => [...subs, {user: data, subscription: subscriber}]);
   }
 
   function connectionCreated(event) {
