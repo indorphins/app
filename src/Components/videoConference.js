@@ -44,6 +44,8 @@ export default function(props) {
 
   const classes = useStyles();
   const [user, setUser] = useState(null);
+  const [participants, setParticipants] = useState([]);
+  const [streams, setStreams] = useState([]);
   const [courseLabel, setCourseLabel] = useState(null);
   const [course, setCourse] = useState(null);
   const [credentials, setCredentials] = useState(null);
@@ -51,6 +53,7 @@ export default function(props) {
   const [publisher, setPublisher] = useState(null);
   const [publishVideo, setPublishVideo] = useState(true);
   const [publishAudio, setPublishAudio] = useState(true);
+  const [chatHistory, setChatHistory] = useState([]);
 
   function handleError(err) {
     if (err) {
@@ -72,45 +75,80 @@ export default function(props) {
       width: '100%',
       height: '100%',
       name: session.data,
+      mirror: false,
+      showControls: false,
+      publishAudio: true,
+      publishVideo: true,
+      maxResolution: {width: 1920, height: 1080},
     }, handleError);
     setPublisher(publisher);
   }
 
   function streamDestroyed(event) {
     log.debug('OPENTOK:: stream destroyed', event);
+    let data = JSON.parse(event.stream.connection.data);
+    setStreams(streams => streams.filter(item => item.user.username !== data.username));
   }
+
 
   function streamCreated(event) {
-
-    let data = JSON.parse(event.stream.connection.data);
     log.debug('OPENTOK:: stream created event', event, data);
+    let data = JSON.parse(event.stream.connection.data);
+    //let subscriber = null;
+
+    let props = {
+      insertMode: 'append',
+      width: '100%',
+      height: '100%',
+      preferredResolution: {width: 320, height: 240},
+      showControls: false,
+      subscribeToAudio: false,
+      subscribeToVideo: false,
+    };
+
+    if (event.stream.hasAudio) {
+      props.subscribeToAudio = true;
+    }
+
+    if (event.stream.hasVideo) {
+      props.subscribeToVideo = true;
+    }
 
     if (data.instructor) {
-      session.subscribe(event.stream, 'instructor', {
-        insertMode: 'append',
-        width: '100%',
-        height: '100%'
-      }, handleError);
-    } else {
-      session.subscribe(event.stream, 'subscriber', {
-        insertMode: 'append',
-        width: '100%',
-        height: '100%'
-      }, handleError);
+      props.preferredResolution = {width: 1920, height: 1080};
+      session.subscribe(event.stream, 'feature', props, handleError);
+      return;
     }
+
+    setStreams(streams => [...streams, {user: data, stream: event.stream}]);
+    session.subscribe(event.stream, data.username, props, handleError);
   }
 
+  /*useEffect(() => {
+    if (streams.length > 0) {
+      for (var i = 0; i < streams.length; i++) {
+        log.debug("stream data", streams[i].stream);
+        let data = JSON.parse(streams[i].stream.connection.data);
+        session.subscribe(streams[i].stream, data.username, props, handleError);
+      }
+    }
+  }, [streams]);*/
+
   function connectionCreated(event) {
-    //log.debug('OPENTOK:: connection created', event);
+    if (event.connection.id === session.connection.connectionId) return;
+
+    log.debug('OPENTOK:: connection created', event);
+    let data = JSON.parse(event.connection.data);
+    setParticipants(participants => [...participants, data.username]);
   }
 
   function connectionDestroyed(event) {
-    //log.debug('OPENTOK:: connection destroyed', event);
-  }
+    if (event.connection.id === session.connection.connectionId) return;
 
-  function handleSignal(event) {
-    log.debug('OPENTOK:: got signal from client', event);
-  };
+    log.debug('OPENTOK:: connection destroyed', event);
+    let data = JSON.parse(event.connection.data);
+    setParticipants(participants => participants.filter(item => item !== data.username));
+  }
 
   function toggleAudio() {
     if (publishAudio) {
@@ -131,6 +169,29 @@ export default function(props) {
       setPublishVideo(true);
     }
   }
+
+  function handleSignal(event) {
+    log.debug('OPENTOK:: got signal from client', event);
+    let data = JSON.parse(event.data);
+    setChatHistory([...chatHistory, data]);
+  };
+
+  /*function sendChat(msg, username) {
+    session.signal(
+      {
+        type: "chat",
+        data: JSON.stringify({
+          username: username,
+          message: msg,
+        }),
+      },
+      function(error) {
+        if (error) {
+          log.error("OPENTOK:: user signal error" + error.message);
+        }
+      }
+    );
+  }*/
 
   useEffect(() => {
     setCredentials(props.credentials);
@@ -165,6 +226,10 @@ export default function(props) {
       session.on('connectionCreated', connectionCreated);
       session.on('connectionDestroyed', connectionDestroyed);
       session.on('signal', handleSignal);
+
+      session.on("streamPropertyChanged", function (event) {
+        log.debug("stream property changed", event);
+      });
     }
     
     // connect to session if a connection does not already exist
@@ -180,30 +245,6 @@ export default function(props) {
           log.debug("OPENTOK:: publish local media", publisher);
           session.publish(publisher, handleError);
         }
-
-        /*session.connections.forEach(element => {
-
-          if (element.id !== session.connectionId) {
-            let userInfo = JSON.parse(element.data);
-
-            log.debug('OPENTOK:: user connection data', element, userInfo);
-          }
-        });*/
-
-        /*session.signal(
-          {
-            type: "user",
-            data: JSON.stringify({
-              username: user.username,
-              type: user.type,
-            }),
-          },
-          function(error) {
-            if (error) {
-              log.error("OPENTOK:: user signal error" + error.message);
-            }
-          }
-        );*/
 
       });
     }
@@ -256,49 +297,72 @@ export default function(props) {
     );
   }
 
+  let participantsContent = (
+    <Grid>
+      {participants.map(user => (
+        <Box key={user}>
+          <Radio name={user} checked={true} /><Chip avatar={<Avatar>U</Avatar>} label={user} />
+        </Box>
+      ))}
+    </Grid>
+  );
+
+  /*useEffect(() => {
+    if (participants) {
+      participantsContent = (
+        <Grid>
+          {participants.map(user => (
+            <Box key={user}>
+              <Radio /><Chip avatar={<Avatar>U</Avatar>} label={user} />
+            </Box>
+          ))}
+        </Grid>
+      );
+    }
+  }, [participantsContent, participants])*/
+
   let videoControls = (
     <Grid item>
       <Grid id="publisher" className={classes.publisher}></Grid>
       {videoBtn}
       {micBtn}
       <Typography variant="h5">Participants</Typography>
-      <Grid>
-        <Box>
-          <Radio /><Chip avatar={<Avatar>U</Avatar>}  label="username" />
-        </Box>
-        <Box>
-          <Radio /><Chip avatar={<Avatar>U</Avatar>}  label="username" />
-        </Box>
-      </Grid>
+      {participantsContent}
     </Grid>
   );
 
-  let instructorPanel = (
+  let featurePanel = (
     <Grid item>
       <Paper>
-        <Box id="instructor" className={classes.instructor} />
+        <Box id="feature" className={classes.instructor} />
       </Paper>
     </Grid>
   );
 
   if (user && course && user.id === course.instructor.id) {
-    instructorPanel = null;
+    featurePanel = null;
   }
+
+  let subscriberContent = (
+    <Grid container direction="row" justify="flex-start" className={classes.subscriberGrid}>
+      {streams.map(item => (
+        <Grid key={item.user.username} item className={classes.subscriberItem}>
+          <Box id={item.user.username} className={classes.subscriber} />
+          <Box className={classes.subscriberLabelBox}>
+            <Typography align="center" variant="h5" className={classes.subscriberLabel}>{item.user.username}</Typography>
+          </Box>
+        </Grid>
+      ))}
+    </Grid>
+  );
 
   return (
     <Box>
       <Typography variant="h2">{courseLabel}</Typography>
       <Grid container direction="row" spacing={2} justify="flex-start">
-        {instructorPanel}
+        {featurePanel}
         <Grid item>
-          <Grid container direction="row" justify="flex-start" className={classes.subscriberGrid}>
-            <Grid item className={classes.subscriberItem}>
-              <Box id="subscriber" className={classes.subscriber} />
-              <Box className={classes.subscriberLabelBox}>
-                <Typography align="center" variant="h5" className={classes.subscriberLabel}>username</Typography>
-              </Box>
-            </Grid>
-          </Grid>
+          {subscriberContent}
         </Grid>
         {videoControls}
       </Grid>
