@@ -38,6 +38,16 @@ const useStyles = makeStyles((theme) => ({
     width: 700,
     background: theme.palette.grey[200],
   },
+  chatField: {
+    width: '100%',
+  },
+  chatMsg: {
+    display: "inline",
+  },
+  chatContainer: {
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+  }
 }));
 
 export default function(props) {
@@ -63,6 +73,7 @@ export default function(props) {
   }
 
   async function initializeSession(apiKey, sessionId) {
+
     let session = OT.initSession(apiKey, sessionId);
     setSession(session);
 
@@ -166,7 +177,7 @@ export default function(props) {
     
     if (event.type === "signal:chat") {
       let data = JSON.parse(event.data);
-      setChatHistory(chatHistory => [...chatHistory, data]);
+      setChatHistory(chatHistory => [data, ...chatHistory]);
     }
   };
 
@@ -186,8 +197,12 @@ export default function(props) {
       }
     );
 
-    log.debug('clear chat input');
     setChatMsg('');
+  }
+
+  function chatFormHandler(e) {
+    e.preventDefault();
+    sendChat();
   }
 
   function chatMsgHandler(evt) {
@@ -319,17 +334,23 @@ export default function(props) {
   );
 
   let chatWindow = (
-    <Grid container direction="row" justify="flex-start" alignContent="flex-end">
-      <Grid item>
-        <TextField type="text" label="Chat Message" variant="standard" onChange={chatMsgHandler} value={chatMsg} />
-        <Button onClick={sendChat}>Send</Button>
-      </Grid>
-      <Grid item>
+    <Grid>
+      <form onSubmit={chatFormHandler}>
+        <Grid container direction="row" justify="flex-start" alignContent="center" alignItems="flex-end">
+          <Grid item xs>
+            <TextField color="secondary" type="text" label="Chat Message" variant="standard" onChange={chatMsgHandler} value={chatMsg} className={classes.chatField} />
+          </Grid>
+          <Grid item>
+            <Button type="submit" color="secondary">Send</Button>
+          </Grid>
+        </Grid>
+      </form>
+      <Grid container direction="column">
         {chatHistory.map(message => (
-          <Box key={(Math.random() * 1000000)}>
-            <Typography variant="subtitle2">{message.username}</Typography>
-            <Typography variant="subtitle2">{message.message}</Typography>
-          </Box>
+          <Grid item key={(Math.random() * 1000000)} className={classes.chatContainer}>
+            <Typography variant="body2" className={classes.chatMsg}>{message.username}: </Typography>
+            <Typography variant="body1" className={classes.chatMsg}>{message.message}</Typography>
+          </Grid>
         ))}
       </Grid>
     </Grid>
@@ -365,8 +386,14 @@ export default function(props) {
       <Typography variant="h2">{courseLabel}</Typography>
       <Grid container direction="row" spacing={2} justify="flex-start">
         <Grid item>
-          {featurePanel}
-          {chatWindow}
+          <Grid container direction="column">
+            <Grid item>
+              {featurePanel}
+            </Grid>
+            <Grid item>
+              {chatWindow}
+            </Grid>
+          </Grid>
         </Grid>
         <Grid item>
           {subscriberContent}
