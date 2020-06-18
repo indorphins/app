@@ -124,16 +124,6 @@ export default function(props) {
     session.subscribe(event.stream, data.username, props, handleError);
   }
 
-  /*useEffect(() => {
-    if (streams.length > 0) {
-      for (var i = 0; i < streams.length; i++) {
-        log.debug("stream data", streams[i].stream);
-        let data = JSON.parse(streams[i].stream.connection.data);
-        session.subscribe(streams[i].stream, data.username, props, handleError);
-      }
-    }
-  }, [streams]);*/
-
   function connectionCreated(event) {
     if (event.connection.id === session.connection.connectionId) return;
 
@@ -306,20 +296,6 @@ export default function(props) {
       ))}
     </Grid>
   );
-
-  /*useEffect(() => {
-    if (participants) {
-      participantsContent = (
-        <Grid>
-          {participants.map(user => (
-            <Box key={user}>
-              <Radio /><Chip avatar={<Avatar>U</Avatar>} label={user} />
-            </Box>
-          ))}
-        </Grid>
-      );
-    }
-  }, [participantsContent, participants])*/
 
   let videoControls = (
     <Grid item>
