@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from 'react';
-import { Avatar, Box, Grid, IconButton, Radio, Paper, Chip, Typography } from '@material-ui/core';
+import { Avatar, Box, Button, Grid, IconButton, Radio, Paper, Chip, Typography, TextField } from '@material-ui/core';
 import { VideocamOffOutlined, VideocamOutlined, MicNone, MicOffOutlined } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -53,6 +53,7 @@ export default function(props) {
   const [publisher, setPublisher] = useState(null);
   const [publishVideo, setPublishVideo] = useState(true);
   const [publishAudio, setPublishAudio] = useState(true);
+  const [chatMsg, setChatMsg] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
 
   function handleError(err) {
@@ -162,17 +163,20 @@ export default function(props) {
 
   function handleSignal(event) {
     log.debug('OPENTOK:: got signal from client', event);
-    let data = JSON.parse(event.data);
-    setChatHistory([...chatHistory, data]);
+    
+    if (event.type === "signal:chat") {
+      let data = JSON.parse(event.data);
+      setChatHistory(chatHistory => [...chatHistory, data]);
+    }
   };
 
-  /*function sendChat(msg, username) {
+  function sendChat() {
     session.signal(
       {
         type: "chat",
         data: JSON.stringify({
-          username: username,
-          message: msg,
+          username: user.username,
+          message: chatMsg,
         }),
       },
       function(error) {
@@ -181,7 +185,14 @@ export default function(props) {
         }
       }
     );
-  }*/
+
+    log.debug('clear chat input');
+    setChatMsg('');
+  }
+
+  function chatMsgHandler(evt) {
+    setChatMsg(evt.target.value);
+  }
 
   useEffect(() => {
     setCredentials(props.credentials);
@@ -307,8 +318,25 @@ export default function(props) {
     </Grid>
   );
 
+  let chatWindow = (
+    <Grid container direction="row" justify="flex-start" alignContent="flex-end">
+      <Grid item>
+        <TextField type="text" label="Chat Message" variant="standard" onChange={chatMsgHandler} value={chatMsg} />
+        <Button onClick={sendChat}>Send</Button>
+      </Grid>
+      <Grid item>
+        {chatHistory.map(message => (
+          <Box key={(Math.random() * 1000000)}>
+            <Typography variant="subtitle2">{message.username}</Typography>
+            <Typography variant="subtitle2">{message.message}</Typography>
+          </Box>
+        ))}
+      </Grid>
+    </Grid>
+  )
+
   let featurePanel = (
-    <Grid item>
+    <Grid>
       <Paper>
         <Box id="feature" className={classes.instructor} />
       </Paper>
@@ -336,7 +364,10 @@ export default function(props) {
     <Box>
       <Typography variant="h2">{courseLabel}</Typography>
       <Grid container direction="row" spacing={2} justify="flex-start">
-        {featurePanel}
+        <Grid item>
+          {featurePanel}
+          {chatWindow}
+        </Grid>
         <Grid item>
           {subscriberContent}
         </Grid>
