@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
-import { Avatar, Box, Button, Grid, IconButton, Radio, Paper, Chip, Typography, TextField } from '@material-ui/core';
-import { VideocamOffOutlined, VideocamOutlined, MicNone, MicOffOutlined } from '@material-ui/icons';
+import { Box, Button, Grid, IconButton, Checkbox, Paper, Chip, Typography, TextField } from '@material-ui/core';
+import { VideocamOffOutlined, VideocamOutlined, MicNone, MicOffOutlined, VolumeOff, VolumeUp } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 
 import * as OT from '@opentok/client';
@@ -47,14 +47,41 @@ const useStyles = makeStyles((theme) => ({
   chatContainer: {
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
+  },
+  shown: {
+    display: "block",
+  },
+  hidden: {
+    display: "none",
   }
 }));
+
+function MuteButton(props) {
+
+  const [isChecked, setChecked] = useState(props.checked);
+
+  useEffect(() => {
+    log.info('set checked');
+    setChecked(props.checked);
+  }, [props.checked]);
+
+  let soundBtn = (<VolumeOff />);
+
+  if (isChecked) {
+    soundBtn = (<VolumeUp />);
+  }
+
+  return (
+    <IconButton name={props.name} onClick={(evt) => props.onClick(evt)}>
+      {soundBtn}
+    </IconButton>
+  );
+}
 
 export default function(props) {
 
   const classes = useStyles();
   const [user, setUser] = useState(null);
-  const [participants, setParticipants] = useState([]);
   const [streams, setStreams] = useState([]);
   const [subs, setSubs] = useState([]);
   const [courseLabel, setCourseLabel] = useState(null);
@@ -77,10 +104,6 @@ export default function(props) {
 
     let session = OT.initSession(apiKey, sessionId);
     setSession(session);
-
-    OT.getDevices(function(error, devices) {
-      log.debug("OPENTOK:: system devices", devices);
-    });
   
     // Create a publisher
     let publisher = OT.initPublisher('publisher', {
@@ -101,6 +124,7 @@ export default function(props) {
     log.debug('OPENTOK:: stream destroyed', event);
     let data = JSON.parse(event.stream.connection.data);
     setStreams(streams => streams.filter(item => item.user.username !== data.username));
+    setSubs(subs => subs.filter(item => item.user.username !== data.username));
   }
 
 
@@ -133,27 +157,47 @@ export default function(props) {
       subscriber = session.subscribe(event.stream, 'feature', props, handleError);
       return;
     }
-
+    
     setStreams(streams => [...streams, {user: data, stream: event.stream}]);
     subscriber = session.subscribe(event.stream, data.username, props, handleError);
 
-    setSubs(subs => [...subs, {user: data, subscription: subscriber}]);
+    setSubs(subs => [...subs, {user: data, subscriber: subscriber, audio: props.subscribeToAudio, video: props.subscribeToVideo, className: classes.shown}]);
   }
 
-  function connectionCreated(event) {
-    if (event.connection.id === session.connection.connectionId) return;
+  function toggleSubscriberVideo(evt) {
+    let data = evt.target.name;
 
-    log.debug('OPENTOK:: connection created', event);
-    let data = JSON.parse(event.connection.data);
-    setParticipants(participants => [...participants, data.username]);
+    setSubs(subs.map(item => {
+      if (item.user.username === data) {
+        if (item.video) {
+          item.video = false;
+          item.className = classes.hidden;
+          item.subscriber.subscribeToVideo(false);
+        } else {
+          item.video = true;
+          item.className = classes.shown;
+          item.subscriber.subscribeToVideo(true);
+        }
+      }
+      return item;
+    }));
   }
 
-  function connectionDestroyed(event) {
-    if (event.connection.id === session.connection.connectionId) return;
+  function toggleSubscriberAudio(evt) {
+    let data = evt.target.name;
 
-    log.debug('OPENTOK:: connection destroyed', event);
-    let data = JSON.parse(event.connection.data);
-    setParticipants(participants => participants.filter(item => item !== data.username));
+    setSubs(subs.map(item => {
+      if (item.user.username === data) {
+        if (item.audio) {
+          item.audio = false;
+          item.subscriber.subscribeToAudio(false);
+        } else {
+          item.audio = true;
+          item.subscriber.subscribeToAudio(true);
+        }
+      }
+      return item;
+    }));
   }
 
   function toggleAudio() {
@@ -186,6 +230,9 @@ export default function(props) {
   };
 
   function sendChat() {
+
+    if (!chatMsg || chatMsg.trim() === "") return;
+
     session.signal(
       {
         type: "chat",
@@ -243,13 +290,7 @@ export default function(props) {
     if (session.on) {
       session.on('streamCreated', streamCreated);
       session.on('streamDestroyed', streamDestroyed);
-      session.on('connectionCreated', connectionCreated);
-      session.on('connectionDestroyed', connectionDestroyed);
       session.on('signal', handleSignal);
-
-      session.on("streamPropertyChanged", function (event) {
-        log.debug("stream property changed", event);
-      });
     }
     
     // connect to session if a connection does not already exist
@@ -273,12 +314,10 @@ export default function(props) {
       // disconnect the event listeners
       session.off('streamCreated');
       session.off('streamDestroyed');
-      session.off('connectionCreated');
-      session.off('connectionDestroyed');
       session.off('signal');
 
       // destroy publisher object
-      publisher.destroy();
+      //publisher.destroy();
 
       // disconnect local session
       session.disconnect();
@@ -317,32 +356,20 @@ export default function(props) {
     );
   }
 
-  let participantsContent = (
-    <Grid>
-      {participants.map(user => (
-        <Box key={user}>
-          <Radio name={user} checked={true} /><Chip avatar={<Avatar>U</Avatar>} label={user} />
-        </Box>
-      ))}
-    </Grid>
-  );
-
-  let videoControls = (
-    <Grid item>
-      <Grid id="publisher" className={classes.publisher}></Grid>
-      {videoBtn}
-      {micBtn}
-      <Typography variant="h5">Participants</Typography>
-      {participantsContent}
-    </Grid>
-  );
-
   let chatWindow = (
     <Grid>
       <form onSubmit={chatFormHandler}>
         <Grid container direction="row" justify="flex-start" alignContent="center" alignItems="flex-end">
           <Grid item xs>
-            <TextField color="secondary" type="text" label="Chat Message" variant="standard" onChange={chatMsgHandler} value={chatMsg} className={classes.chatField} />
+            <TextField 
+              color="secondary" 
+              type="text" 
+              label="Message" 
+              variant="standard" 
+              onChange={chatMsgHandler} 
+              value={chatMsg} 
+              className={classes.chatField} 
+            />
           </Grid>
           <Grid item>
             <Button type="submit" color="secondary">Send</Button>
@@ -358,7 +385,7 @@ export default function(props) {
         ))}
       </Grid>
     </Grid>
-  )
+  );
 
   let featurePanel = (
     <Grid>
@@ -372,10 +399,41 @@ export default function(props) {
     featurePanel = null;
   }
 
-  let subscriberContent = (
+  let combined = streams.map(strm => {
+    let existing = subs.filter(s => {
+      return s.user.username === strm.user.username;
+    });
+
+    if (existing && existing[0]) strm.className = existing[0].className;
+    return strm;
+  });
+
+  let participantsControls = (
+    <Grid>
+      {subs.map(item => (
+        <Box key={item.user.username}>
+          <Checkbox name={item.user.username} checked={item.video} onClick={toggleSubscriberVideo} />
+          <Chip label={item.user.username} />
+          <MuteButton name={item.user.username} checked={item.audio} onClick={toggleSubscriberAudio} />
+        </Box>
+      ))}
+    </Grid>
+  );
+
+  let videoControls = (
+    <Grid item>
+      <Grid id="publisher" className={classes.publisher}></Grid>
+      {videoBtn}
+      {micBtn}
+      <Typography variant="h5">Participants</Typography>
+      {participantsControls}
+    </Grid>
+  );
+
+  let participantsVideo = (
     <Grid container direction="row" justify="flex-start" className={classes.subscriberGrid}>
-      {streams.map(item => (
-        <Grid key={item.user.username} item className={classes.subscriberItem}>
+      {combined.map(item => (
+        <Grid key={item.user.username} item className={`${classes.subscriberItem} ${item.className}`}>
           <Box id={item.user.username} className={classes.subscriber} />
           <Box className={classes.subscriberLabelBox}>
             <Typography align="center" variant="h5" className={classes.subscriberLabel}>{item.user.username}</Typography>
@@ -400,7 +458,7 @@ export default function(props) {
           </Grid>
         </Grid>
         <Grid item>
-          {subscriberContent}
+          {participantsVideo}
         </Grid>
         {videoControls}
       </Grid>
