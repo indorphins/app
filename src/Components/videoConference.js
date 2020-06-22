@@ -1,6 +1,27 @@
 import React, {useState, useEffect} from 'react';
-import { Box, Button, Grid, IconButton, Checkbox, Paper, Chip, Typography, TextField } from '@material-ui/core';
-import { VideocamOffOutlined, VideocamOutlined, MicNone, MicOffOutlined, VolumeOff, VolumeUp } from '@material-ui/icons';
+import { 
+  Box, 
+  Button, 
+  Grid, 
+  IconButton, 
+  Checkbox, 
+  Paper, 
+  Chip, 
+  Typography, 
+  TextField, 
+  ExpansionPanel, 
+  ExpansionPanelSummary, 
+  ExpansionPanelDetails,
+} from '@material-ui/core';
+import { 
+  VideocamOffOutlined, 
+  VideocamOutlined, 
+  MicNone, 
+  MicOffOutlined, 
+  VolumeOff, 
+  VolumeUp, 
+  ExpandMoreOutlined,
+} from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 
 import * as OT from '@opentok/client';
@@ -422,11 +443,29 @@ export default function(props) {
 
   let videoControls = (
     <Grid item>
-      <Grid id="publisher" className={classes.publisher}></Grid>
-      {videoBtn}
-      {micBtn}
-      <Typography variant="h5">Participants</Typography>
-      {participantsControls}
+      <Box>
+        <Grid id="publisher" className={classes.publisher}></Grid>
+        {videoBtn}
+        {micBtn}
+      </Box>
+      <Box>
+        <ExpansionPanel expandIcon={<ExpandMoreOutlined />}>
+          <ExpansionPanelSummary>
+            <Typography variant="h5">Participants</Typography>
+          </ExpansionPanelSummary>
+          <ExpansionPanelDetails>
+            {participantsControls}
+          </ExpansionPanelDetails>
+        </ExpansionPanel>
+        <ExpansionPanel expandIcon={<ExpandMoreOutlined />}>
+          <ExpansionPanelSummary>
+          <Typography variant="h5">Chat</Typography>
+          </ExpansionPanelSummary>
+          <ExpansionPanelDetails>
+            {chatWindow}
+          </ExpansionPanelDetails>
+        </ExpansionPanel>
+      </Box>
     </Grid>
   );
 
@@ -448,14 +487,7 @@ export default function(props) {
       <Typography variant="h2">{courseLabel}</Typography>
       <Grid container direction="row" spacing={2} justify="flex-start">
         <Grid item>
-          <Grid container direction="column">
-            <Grid item>
-              {featurePanel}
-            </Grid>
-            <Grid item>
-              {chatWindow}
-            </Grid>
-          </Grid>
+          {featurePanel}
         </Grid>
         <Grid item>
           {participantsVideo}
