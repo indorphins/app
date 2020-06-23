@@ -89,7 +89,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function(props) {
+export default function (props) {
 
   const med = useMediaQuery('(max-width:700px)');
   const classes = useStyles();
@@ -108,7 +108,7 @@ export default function(props) {
 
   useEffect(() => {
     if (props.firstName && props.lastName) {
-      setFullname(props.firstName +  " " + props.lastName);
+      setFullname(props.firstName + " " + props.lastName);
     }
   }, [props]);
 
@@ -117,6 +117,7 @@ export default function(props) {
   let instaContent = null;
   let emailContent = null;
   let mailTo = "mailto:" + props.email;
+  let pMethodContent = null;
 
   let nameHeader = (
     <Typography className={classes.fullname} variant="h1">
@@ -158,7 +159,7 @@ export default function(props) {
 
   if (props.bio) {
     bioContent = (
-      <div id="wysiwygContent" className={classes.bio} dangerouslySetInnerHTML={{__html: props.bio}}></div>
+      <div id="wysiwygContent" className={classes.bio} dangerouslySetInnerHTML={{ __html: props.bio }}></div>
     );
   }
 
@@ -192,7 +193,7 @@ export default function(props) {
           </Grid>
         </Grid>
       </a>
-    );    
+    );
   }
 
   let photoContent = (
@@ -206,14 +207,23 @@ export default function(props) {
   )
 
   if (props.photo) {
-    photoContent = (  
+    photoContent = (
       <Grid item xs>
         <img className={classes.photo} alt={props.username} src={props.photo} />
       </Grid>
     );
   }
 
-  
+  if (props.paymentMethod) {
+    pMethodContent = (
+      <Grid>
+        <Typography className={classes.contactLabel}>
+          {`${props.paymentMethod.type.toUpperCase()} Card ending in ${props.paymentMethod.last4}`}
+        </Typography>
+      </Grid>
+    )
+  }
+
   let userContent = (
     <Grid>
       <Grid container direction={direction} justify="space-evenly" alignItems="flex-start">
@@ -231,6 +241,7 @@ export default function(props) {
             {emailContent}
             {phoneContent}
             {instaContent}
+            {pMethodContent}
           </Grid>
         </Grid>
       </Grid>

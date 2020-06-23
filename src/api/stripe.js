@@ -1,15 +1,15 @@
-import { loadStripe } from '@stripe/stripe-js';
+import config from '../config';
 import callAPI from './helper';
-const TEST_CLIENT_ID = 'ca_H6FI1hBlXQUv8wAMFBvSxGTNZUy7RiT1'; // Replace with final client id once
+
+const urlBase = config.host + '/stripe/';
 
 // Makes call to backend to get redirect url to instructor stripe account sign up page
 export async function redirectToSignUp() {
-	const url =
-		process.env.REACT_APP_AWS_SERVER_DOMAIN + '/stripe/accountRedirect';
-	const options = {
-		method: 'post',
-	};
-	return callAPI(url, options, true);
+  const url = urlBase + '/accountRedirect';
+  const options = {
+    method: 'post',
+  };
+  return callAPI(url, options, true);
 }
 
 /**
@@ -22,23 +22,23 @@ export async function redirectToSignUp() {
  * @param {String} classId
  */
 export async function createPaymentIntent(
-	instructorId,
-	paymentMethodId,
-	classId
+  instructorId,
+  paymentMethodId,
+  classId
 ) {
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + `/stripe/payment`;
-	const options = {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			instructor_id: instructorId,
-			payment_method: paymentMethodId,
-			class_id: classId,
-		}),
-	};
-	return callAPI(url, options, true);
+  const url = urlBase + `/payment`;
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      instructor_id: instructorId,
+      payment_method: paymentMethodId,
+      class_id: classId,
+    }),
+  };
+  return callAPI(url, options, true);
 }
 
 /**
@@ -49,19 +49,18 @@ export async function createPaymentIntent(
  * @param {String} classId
  */
 export async function confirmPayment(classId) {
-	const url =
-		process.env.REACT_APP_AWS_SERVER_DOMAIN + `/stripe/confirmPayment`;
-	const options = {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			class_id: classId,
-		}),
-	};
+  const url = urlBase + `/confirmPayment`;
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      class_id: classId,
+    }),
+  };
 
-	return callAPI(url, options, true);
+  return callAPI(url, options, true);
 }
 
 /**
@@ -71,18 +70,18 @@ export async function confirmPayment(classId) {
  * @param {String} classId
  */
 export async function refundPayment(classId) {
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + `/stripe/refund`;
-	const options = {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			class_id: classId,
-		}),
-	};
+  const url = urlBase + `/refund`;
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      class_id: classId,
+    }),
+  };
 
-	return callAPI(url, option, true);
+  return callAPI(url, options, true);
 }
 
 /**
@@ -91,18 +90,18 @@ export async function refundPayment(classId) {
  * @param {String} email
  */
 export async function createCustomer(email) {
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + '/stripe/customer';
-	const options = {
-		method: 'post',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			email: email,
-		}),
-	};
+  const url = urlBase + '/customer';
+  const options = {
+    method: 'post',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      email: email,
+    }),
+  };
 
-	return callAPI(url, options, true);
+  return callAPI(url, options, true);
 }
 
 /**
@@ -110,17 +109,17 @@ export async function createCustomer(email) {
  * @param {String} classId
  */
 export async function createSubscription(classId) {
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + '/stripe/subscription';
-	const options = {
-		method: 'post',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			class_id: classId,
-		}),
-	};
-	return callAPI(url, options, true);
+  const url = urlBase + '/subscription';
+  const options = {
+    method: 'post',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      class_id: classId,
+    }),
+  };
+  return callAPI(url, options, true);
 }
 
 /**
@@ -128,17 +127,17 @@ export async function createSubscription(classId) {
  * @param {String} subscriptionId
  */
 export async function cancelSubscription(classId) {
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + '/stripe/subscription';
-	const options = {
-		method: 'delete',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			class_id: classId,
-		}),
-	};
-	return callAPI(url, options, true);
+  const url = urlBase + '/subscription';
+  const options = {
+    method: 'delete',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      class_id: classId,
+    }),
+  };
+  return callAPI(url, options, true);
 }
 
 /**
@@ -148,18 +147,18 @@ export async function cancelSubscription(classId) {
  * @param {String} paymentMethodId
  */
 export async function createPaymentMethod(paymentMethodId) {
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + '/stripe/paymentMethod';
-	const options = {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			payment_method_id: paymentMethodId,
-		}),
-	};
+  const url = urlBase + '/paymentMethod';
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      payment_method_id: paymentMethodId,
+    }),
+  };
 
-	return callAPI(url, options, true);
+  return callAPI(url, options, true);
 }
 
 /**
@@ -167,16 +166,15 @@ export async function createPaymentMethod(paymentMethodId) {
  * Returns an array of all payment method IDs
  */
 export async function getPaymentMethods() {
-	const url =
-		process.env.REACT_APP_AWS_SERVER_DOMAIN + '/stripe/paymentMethods';
-	const options = {
-		method: 'get',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-	};
+  const url = urlBase + '/paymentMethods';
+  const options = {
+    method: 'get',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
 
-	return callAPI(url, options, true);
+  return callAPI(url, options, true);
 }
 
 /**
@@ -185,34 +183,33 @@ export async function getPaymentMethods() {
  * @param {String} paymentMethodId
  */
 export async function deletePaymentMethod(paymentMethodId) {
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + '/stripe/paymentMethod';
-	const options = {
-		method: 'delete',
-		headers: {
-			'Content-Type': 'application/json',
-			authorization: `Bearer ${bearerToken}`,
-		},
-		body: JSON.stringify({
-			payment_method_id: paymentMethodId,
-		}),
-	};
+  const url = urlBase + '/paymentMethod';
+  const options = {
+    method: 'delete',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      payment_method_id: paymentMethodId,
+    }),
+  };
 
-	return callAPI(url, options, true);
+  return callAPI(url, options, true);
 }
 
 /**
  * Fetches the stripe user associated with auth token
  */
 export async function getStripeUser() {
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + '/stripe/customer';
-	const options = {
-		method: 'get',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-	};
+  const url = urlBase + '/customer';
+  const options = {
+    method: 'get',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
 
-	return callAPI(url, options, true);
+  return callAPI(url, options, true);
 }
 
 /**
@@ -220,16 +217,16 @@ export async function getStripeUser() {
  * @param {String} classId
  */
 export async function createClassSku(classId) {
-	const url = process.env.REACT_APP_AWS_SERVER_DOMAIN + '/stripe/classSku';
-	const options = {
-		method: 'post',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify({
-			class_id: classId,
-		}),
-	};
+  const url = urlBase + '/classSku';
+  const options = {
+    method: 'post',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      class_id: classId,
+    }),
+  };
 
-	return callAPI(url, options, true);
+  return callAPI(url, options, true);
 }

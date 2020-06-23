@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { Grid, TextField, Button, LinearProgress } from '@material-ui/core';
+import { Grid, TextField, Button, LinearProgress, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
+import AddPaymentMethod from './addPaymentMethod';
 import * as User from '../../api/user';
+import * as Stripe from '../../api/stripe';
 import log from '../../log';
 import { store, actions } from '../../store';
 import Editor from '../editor';
@@ -24,7 +26,7 @@ const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
 });
 
-export default function() {
+export default function () {
 
   const classes = useStyles();
   const currentUser = useSelector((state) => getUserSelector(state));
@@ -37,6 +39,8 @@ export default function() {
   const [bio, setBio] = useState('');
   const [bioContent, setBioContent] = useState('<p></p>');
   const [loader, setLoader] = useState(false);
+  const [addPaymentMethod, setAddPaymentMethod] = useState(false);
+  const [pMethod, setPMethod] = useState();
 
   useEffect(() => {
 
@@ -63,37 +67,63 @@ export default function() {
     }
 
   }, [currentUser])
-  
 
-  const usernameHandler = function(e) {
+  useEffect(async () => {
+    if (currentUser.id) {
+      getPaymentMethods()
+    }
+  }, [currentUser.id])
+
+
+  const usernameHandler = function (e) {
     setUsername(e.target.value);
   }
 
-  const firstHandler = function(e) {
+  const firstHandler = function (e) {
     setFirst(e.target.value);
   }
 
-  const lastHandler = function(e) {
+  const lastHandler = function (e) {
     setLast(e.target.value);
   }
 
-  const phoneHandler = function(e) {
+  const phoneHandler = function (e) {
     setPhone(e.target.value);
   }
 
-  const photoHandler = function(e) {
+  const photoHandler = function (e) {
     setPhoto(e.target.value);
   }
 
-  const instaHandler = function(e) {
+  const instaHandler = function (e) {
     setInstagram(e.target.value);
   }
 
-  const editorHandler = function(e) {
+  const editorHandler = function (e) {
     setBio(e);
   }
 
-  const editorSaveHandler = async function(e) {
+  async function getPaymentMethods() {
+    let pMethods;
+
+    try {
+      pMethods = await Stripe.getPaymentMethods();
+    } catch (err) {
+      log.error("EDIT_PROFILE:: ", err);
+      return;
+    }
+
+    // Show the default payment method
+    if (pMethods && Array.isArray(pMethods.data)) {
+      pMethods.data.forEach(p => {
+        if (p.default) {
+          setPMethod(p);
+        }
+      })
+    }
+  }
+
+  const editorSaveHandler = async function (e) {
     setLoader(true);
 
     let userData = {
@@ -102,14 +132,14 @@ export default function() {
 
     try {
       await User.update(userData);
-    } catch(err) {
+    } catch (err) {
       // TODO: display error
       return log.error("PROFILE:: update user data", err);
     }
 
     try {
       await store.dispatch(actions.user.set(userData));
-    } catch(err) {
+    } catch (err) {
       // TODO: display error
       return log.error("PROFILE:: update redux store", err);
     }
@@ -117,7 +147,11 @@ export default function() {
     setLoader(false);
   }
 
-  const formHandler = async function(e) {
+  const addPaymentMethodHandler = function () {
+    setAddPaymentMethod(true);
+  }
+
+  const formHandler = async function (e) {
     e.preventDefault();
     setLoader(true);
 
@@ -146,14 +180,14 @@ export default function() {
 
     try {
       await User.update(userData);
-    } catch(err) {
+    } catch (err) {
       // TODO: display error
       return log.error("PROFILE:: update user data", err);
     }
 
     try {
       await store.dispatch(actions.user.set(userData));
-    } catch(err) {
+    } catch (err) {
       // TODO: display error
       return log.error("PROFILE:: update redux store", err);
     }
@@ -171,35 +205,60 @@ export default function() {
     );
   }
 
+  let content = (
+    <form onSubmit={formHandler}>
+      <Grid>
+        <TextField className={classes.input} disabled={loader} required autoComplete="username" color="secondary" variant="outlined" type="text" id="username" label="Nickname" value={username} onChange={usernameHandler} />
+      </Grid>
+      <Grid>
+        <TextField className={classes.input} disabled={loader} required autoComplete="given_name" color="secondary" variant="outlined" type="text" id="first" label="First Name" value={firstname} onChange={firstHandler} />
+      </Grid>
+      <Grid>
+        <TextField className={classes.input} disabled={loader} required autoComplete="family_name" color="secondary" variant="outlined" type="text" id="last" label="Last Name" value={lastname} onChange={lastHandler} />
+      </Grid>
+      <Grid>
+        <TextField className={classes.input} disabled={loader} autoComplete="tel" color="secondary" variant="outlined" type="tel" id="phone" label="Phone Number" value={phone} onChange={phoneHandler} />
+      </Grid>
+      <Grid>
+        <TextField className={classes.input} disabled={loader} autoComplete="tel" color="secondary" variant="outlined" type="text" id="instagram" label="Instagram Handle" value={instagram} onChange={instaHandler} />
+      </Grid>
+      <Grid>
+        <TextField className={classes.input} disabled={loader} color="secondary" variant="outlined" type="text" id="photo" label="Profile Photo URL" value={photoUrl} onChange={photoHandler} />
+      </Grid>
+      <Grid>
+        <Editor label="Bio" value={bioContent} onChange={editorHandler} onSave={editorSaveHandler} />
+      </Grid>
+      <Grid>
+        {pMethod ?
+          <Grid>
+            <Typography>
+              {`${pMethod.type.toUpperCase()} Card ending in ${pMethod.last4}`}
+            </Typography>
+          </Grid>
+          :
+          <Button className={classes.btn} disabled={loader} variant="contained" color="primary" type="button" onClick={addPaymentMethodHandler}>
+            Add Payment Method
+          </Button>
+        }
+      </Grid>
+      {progress}
+      <Grid>
+        <Button className={classes.btn} disabled={loader} variant="contained" color="primary" type="submit">Update</Button>
+      </Grid>
+    </form>
+  )
+
+  const addPMethodContent = (
+    <AddPaymentMethod />
+  )
+
+  if (addPaymentMethod) {
+    content = addPMethodContent;
+  }
+
   return (
     <Grid>
-      <form onSubmit={formHandler}>
-        <Grid>
-          <TextField className={classes.input} disabled={loader} required autoComplete="username" color="secondary" variant="outlined" type="text" id="username" label="Nickname" value={username} onChange={usernameHandler} />
-        </Grid>
-        <Grid>
-          <TextField className={classes.input} disabled={loader} required autoComplete="given_name" color="secondary" variant="outlined" type="text" id="first" label="First Name" value={firstname} onChange={firstHandler} />
-        </Grid>
-        <Grid>
-          <TextField className={classes.input} disabled={loader} required autoComplete="family_name" color="secondary" variant="outlined" type="text" id="last" label="Last Name" value={lastname} onChange={lastHandler} />
-        </Grid>
-        <Grid>
-          <TextField className={classes.input} disabled={loader} autoComplete="tel" color="secondary" variant="outlined" type="tel" id="phone" label="Phone Number" value={phone} onChange={phoneHandler} />
-        </Grid>
-        <Grid>
-          <TextField className={classes.input} disabled={loader} autoComplete="tel" color="secondary" variant="outlined" type="text" id="instagram" label="Instagram Handle" value={instagram} onChange={instaHandler} />
-        </Grid>
-        <Grid>
-          <TextField className={classes.input} disabled={loader} color="secondary" variant="outlined" type="text" id="photo" label="Profile Photo URL" value={photoUrl} onChange={photoHandler} />
-        </Grid>
-        <Grid>
-          <Editor label="Bio" value={bioContent} onChange={editorHandler} onSave={editorSaveHandler} />
-        </Grid>
-        {progress}
-        <Grid>
-          <Button className={classes.btn} disabled={loader} variant="contained" color="primary" type="submit">Update</Button>
-        </Grid>
-      </form>
+      {content}
     </Grid>
   );
 }
