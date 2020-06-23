@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useRef} from 'react';
 import { 
   Box, 
   Button, 
@@ -12,6 +12,7 @@ import {
   ExpansionPanel, 
   ExpansionPanelSummary, 
   ExpansionPanelDetails,
+  Switch,
 } from '@material-ui/core';
 import { 
   VideocamOffOutlined, 
@@ -36,14 +37,14 @@ const useStyles = makeStyles((theme) => ({
   },
   subscriberGrid: {
     width: "100%",
-    maxWidth: 300
+    maxWidth: 320
   },
   subscriberItem: {
     //padding: theme.spacing(1),
   },
   subscriber: {
-    height: 200,
-    width: 300,
+    height: 240,
+    width: 320,
     background: theme.palette.grey[200],
   },
   subscriberLabelBox: {
@@ -56,16 +57,35 @@ const useStyles = makeStyles((theme) => ({
   },
   instructor: {
     height: 500,
-    width: 700,
+    width: 575,
     background: theme.palette.grey[200],
+    '@media (min-width: 1400px)': {
+      height: 600,
+      width: 825,
+    },
+    '@media (min-width: 1600px)': {
+      height: 700,
+      width: 900,
+    },
+    '@media (min-width: 1900px)': {
+      height: 900,
+      width: 1150,
+    },
+  },
+  videoControls: {
+    width: 400,
+  },
+  chat: {
+    width: "100%",
   },
   chatField: {
-    width: '100%',
+    width: "100%",
   },
   chatMsg: {
     display: "inline",
   },
   chatContainer: {
+    width: '100%',
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
   },
@@ -82,7 +102,6 @@ function MuteButton(props) {
   const [isChecked, setChecked] = useState(props.checked);
 
   useEffect(() => {
-    log.info('set checked');
     setChecked(props.checked);
   }, [props.checked]);
 
@@ -102,8 +121,12 @@ function MuteButton(props) {
 export default function(props) {
 
   const classes = useStyles();
+  const maxStreams = 2;
+  const loopTime = 5000;
+  let looper = null;
   const [user, setUser] = useState(null);
   const [streams, setStreams] = useState([]);
+  const [videoSubsCount, setVideoSubsCount] = useState(0);
   const [subs, setSubs] = useState([]);
   const [courseLabel, setCourseLabel] = useState(null);
   const [course, setCourse] = useState(null);
@@ -114,6 +137,12 @@ export default function(props) {
   const [publishAudio, setPublishAudio] = useState(true);
   const [chatMsg, setChatMsg] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
+  const [loopMode, setLoopMode] = useState(true);
+  const subsRef = useRef();
+  const videoSubsCountRef = useRef();
+
+  subsRef.current = subs;
+  videoSubsCountRef.current = videoSubsCount;
 
   function handleError(err) {
     if (err) {
@@ -144,10 +173,20 @@ export default function(props) {
   function streamDestroyed(event) {
     log.debug('OPENTOK:: stream destroyed', event);
     let data = JSON.parse(event.stream.connection.data);
+    let doSetup = false;
+
+    subsRef.current.forEach(item => {
+      if (item.video && item.user.username === data.username) {
+        doSetup = true;
+      }
+    });
+
     setStreams(streams => streams.filter(item => item.user.username !== data.username));
     setSubs(subs => subs.filter(item => item.user.username !== data.username));
+    if (doSetup) {
+      setupLoopMode();
+    }
   }
-
 
   function streamCreated(event) {
 
@@ -165,27 +204,163 @@ export default function(props) {
       subscribeToVideo: false,
     };
 
-    if (event.stream.hasAudio) {
-      props.subscribeToAudio = true;
-    }
-
-    if (event.stream.hasVideo) {
-      props.subscribeToVideo = true;
-    }
-
     if (data.instructor) {
+      props.subscribeToAudio = true;
+      props.subscribeToVideo = true;
       props.preferredResolution = {width: 1920, height: 1080};
       subscriber = session.subscribe(event.stream, 'feature', props, handleError);
       return;
     }
     
     setStreams(streams => [...streams, {user: data, stream: event.stream}]);
+
+    let classname = classes.hidden;
+
+    if (event.stream.hasVideo && videoSubsCountRef.current < maxStreams) {
+      props.subscribeToVideo = true;
+      classname = classes.shown;
+      setVideoSubsCount(videoSubsCountRef.current + 1);
+    }
+
+    if (event.stream.hasAudio) {
+      props.subscribeToAudio = true;
+    }
+
     subscriber = session.subscribe(event.stream, data.username, props, handleError);
 
-    setSubs(subs => [...subs, {user: data, subscriber: subscriber, audio: props.subscribeToAudio, video: props.subscribeToVideo, className: classes.shown}]);
+    setSubs(subs => [...subs, {
+      user: data, 
+      subscriber: subscriber, 
+      audio: props.subscribeToAudio, 
+      video: props.subscribeToVideo, 
+      className: classname
+    }]);
   }
 
-  function toggleSubscriberVideo(evt) {
+  useEffect(() => {
+    if (loopMode) {
+      loop();
+      looper = setInterval(loop, loopTime);
+    } else {
+      clearInterval(looper);
+    }
+
+    return function() {
+      clearInterval(looper);
+    };
+  }, [loopMode]);
+
+  function loop() {
+    
+    if (!loopMode || subsRef.current.length <= maxStreams) {
+      return;
+    }
+
+    if (subsRef.current.length < videoSubsCountRef.current) {
+      setupLoopMode();
+      return;
+    }
+
+    let updated = subsRef.current;
+    let firstIndex = 0;
+    let lastIndex = 0;
+
+    for (var l = 0; l < updated.length; l++) {
+      if (updated[l].video) {
+        firstIndex = l;
+        break;
+      }
+    }
+
+    for (var i = 0; i < updated.length; i++) {
+      if (updated[i].video) {
+        lastIndex = i;
+      }
+    }
+
+    let next = lastIndex + 1;
+    let test = lastIndex - firstIndex + 1;
+
+    if (test === maxStreams) {
+
+      updated[firstIndex].video = false;
+      updated[firstIndex].className = classes.hidden;
+      updated[firstIndex].subscriber.subscribeToVideo(false);
+
+      if (updated[next]) {
+        updated[next].video = true;
+        updated[next].className = classes.shown;
+        updated[next].subscriber.subscribeToVideo(true);
+      } else {
+        updated[0].video = true;
+        updated[0].className = classes.shown;
+        updated[0].subscriber.subscribeToVideo(true);
+      }
+
+    } else {
+
+      let innerIndex = firstIndex;
+      let outerIndex = lastIndex;
+
+      while(updated[outerIndex-1] && updated[outerIndex-1].video) {
+        outerIndex = outerIndex - 1;
+      }
+      outerIndex = outerIndex - 1;
+
+      while(updated[innerIndex+1] && updated[innerIndex+1].video) {
+        innerIndex = innerIndex + 1;
+      }
+      innerIndex = innerIndex + 1;
+
+      updated[innerIndex].video = true;
+      updated[innerIndex].className = classes.shown;
+      updated[innerIndex].subscriber.subscribeToVideo(true);
+
+      if (innerIndex === outerIndex) {
+        updated[outerIndex+1].video = false;
+        updated[outerIndex+1].className = classes.hidden;
+        updated[outerIndex+1].subscriber.subscribeToVideo(false);
+      } else {
+        updated[outerIndex].video = false;
+        updated[outerIndex].className = classes.hidden;
+        updated[outerIndex].subscriber.subscribeToVideo(false);
+      }
+    }
+
+    setSubs(updated.concat([]));
+  }
+
+  async function setupLoopMode() {
+    let updated = subsRef.current;
+    let count = 0;
+
+    for (var i = 0; i < updated.length; i++) {
+      if (i < maxStreams) {
+        updated[i].video = true;
+        updated[i].className = classes.shown;
+        updated[i].subscriber.subscribeToVideo(true);
+        count = count + 1;
+      } else {
+        updated[i].video = false;
+        updated[i].className = classes.hidden;
+        updated[i].subscriber.subscribeToVideo(false);
+      }
+    }
+
+    setVideoSubsCount(count);
+    setSubs(updated.concat([]));
+  }
+
+  async function toggleLoopMode() {
+    if (loopMode) {
+      setLoopMode(false);
+    } else {
+      setLoopMode(true);
+      setupLoopMode();
+    }
+  }
+
+  async function toggleSubscriberVideo(evt) {
     let data = evt.target.name;
 
     setSubs(subs.map(item => {
@@ -194,10 +369,14 @@ export default function(props) {
           item.video = false;
           item.className = classes.hidden;
           item.subscriber.subscribeToVideo(false);
+          setVideoSubsCount(videoSubsCountRef.current - 1);
         } else {
-          item.video = true;
-          item.className = classes.shown;
-          item.subscriber.subscribeToVideo(true);
+          if (videoSubsCountRef.current < maxStreams) {
+            item.video = true;
+            item.className = classes.shown;
+            item.subscriber.subscribeToVideo(true);
+            setVideoSubsCount(videoSubsCountRef.current + 1);
+          }
         }
       }
       return item;
@@ -250,7 +429,7 @@ export default function(props) {
     }
   };
 
-  function sendChat() {
+  async function sendChat() {
 
     if (!chatMsg || chatMsg.trim() === "") return;
 
@@ -331,54 +510,32 @@ export default function(props) {
       });
     }
 
-    return function disconnect() {
+    return function() {
       // disconnect the event listeners
       session.off('streamCreated');
       session.off('streamDestroyed');
       session.off('signal');
 
+      setSubs(subs.map(sub => {
+        sub.subscriber.subscribeToVideo(false);
+        sub.subscriber.subscribeToAudio(false);
+        session.unsubscribe(sub.subscriber);
+        return sub;
+      }));
+
       // destroy publisher object
-      //publisher.destroy();
+      publisher.publishVideo(false);
+      publisher.publishAudio(false);
+      publisher.destroy();
 
       // disconnect local session
-      session.disconnect();
+      if (session.connection) session.disconnect();
       log.debug('OPENTOK:: disconnected from video session');
     }
   }, [session, publisher]);
 
-  let videoBtn = null;
-  let micBtn = null;
-
-  if (publishVideo) {
-    videoBtn = (
-      <IconButton onClick={toggleVideo}>
-        <VideocamOutlined />
-      </IconButton>
-    );
-  } else {
-    videoBtn = (
-      <IconButton onClick={toggleVideo}>
-        <VideocamOffOutlined />
-      </IconButton>
-    );
-  }
-
-  if (publishAudio) {
-    micBtn = (
-      <IconButton onClick={toggleAudio}>
-        <MicNone />
-      </IconButton>
-    );
-  } else {
-    micBtn = (
-      <IconButton onClick={toggleAudio}>
-        <MicOffOutlined />
-      </IconButton>
-    );
-  }
-
   let chatWindow = (
-    <Grid>
+    <Grid className={classes.chat}>
       <form onSubmit={chatFormHandler}>
         <Grid container direction="row" justify="flex-start" alignContent="center" alignItems="flex-end">
           <Grid item xs>
@@ -433,7 +590,7 @@ export default function(props) {
     <Grid>
       {subs.map(item => (
         <Box key={item.user.username}>
-          <Checkbox name={item.user.username} checked={item.video} onClick={toggleSubscriberVideo} />
+          <Checkbox disabled={loopMode} name={item.user.username} checked={item.video} onClick={toggleSubscriberVideo} />
           <Chip label={item.user.username} />
           <MuteButton name={item.user.username} checked={item.audio} onClick={toggleSubscriberAudio} />
         </Box>
@@ -441,24 +598,50 @@ export default function(props) {
     </Grid>
   );
 
+  let videoBtn = (<VideocamOffOutlined />);
+  if (publishVideo) {
+    videoBtn = (<VideocamOutlined />);
+  }
+
+  let micBtn = (<MicOffOutlined />);
+  if (publishAudio) {
+    micBtn = (<MicNone />);
+  }
+
   let videoControls = (
-    <Grid item>
+    <Grid item className={classes.videoControls}>
       <Box>
         <Grid id="publisher" className={classes.publisher}></Grid>
-        {videoBtn}
-        {micBtn}
+        <IconButton onClick={toggleVideo}>
+          {videoBtn}
+        </IconButton>
+        <IconButton onClick={toggleAudio}>
+          {micBtn}
+        </IconButton>
       </Box>
       <Box>
-        <ExpansionPanel expandIcon={<ExpandMoreOutlined />}>
-          <ExpansionPanelSummary>
+        <ExpansionPanel defaultExpanded>
+          <ExpansionPanelSummary expandIcon={<ExpandMoreOutlined />}>
             <Typography variant="h5">Participants</Typography>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails>
-            {participantsControls}
+            <Grid container direction="column">
+              <Grid item container direction="row" justify="flex-end" alignItems="center" style={{width: "100%"}}>
+                <Grid item>
+                  <Switch checked={loopMode} onChange={toggleLoopMode} name="Loop" />
+                </Grid>
+                <Grid item>
+                  <Typography variant="subtitle1">Loop</Typography>
+                </Grid>
+              </Grid>
+              <Grid item container style={{width: "100%"}}>
+                {participantsControls}
+              </Grid>
+            </Grid>
           </ExpansionPanelDetails>
         </ExpansionPanel>
-        <ExpansionPanel expandIcon={<ExpandMoreOutlined />}>
-          <ExpansionPanelSummary>
+        <ExpansionPanel>
+          <ExpansionPanelSummary expandIcon={<ExpandMoreOutlined />}>
           <Typography variant="h5">Chat</Typography>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails>
