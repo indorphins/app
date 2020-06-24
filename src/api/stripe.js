@@ -5,7 +5,8 @@ const urlBase = config.host + '/stripe/';
 
 // Makes call to backend to get redirect url to instructor stripe account sign up page
 export async function redirectToSignUp() {
-  const url = urlBase + '/accountRedirect';
+  console.log("Redirect to sign up start")
+  const url = urlBase + 'accountRedirect';
   const options = {
     method: 'post',
   };
@@ -26,7 +27,7 @@ export async function createPaymentIntent(
   paymentMethodId,
   classId
 ) {
-  const url = urlBase + `/payment`;
+  const url = urlBase + `payment`;
   const options = {
     method: 'POST',
     headers: {
@@ -49,7 +50,7 @@ export async function createPaymentIntent(
  * @param {String} classId
  */
 export async function confirmPayment(classId) {
-  const url = urlBase + `/confirmPayment`;
+  const url = urlBase + `confirmPayment`;
   const options = {
     method: 'POST',
     headers: {
@@ -70,7 +71,7 @@ export async function confirmPayment(classId) {
  * @param {String} classId
  */
 export async function refundPayment(classId) {
-  const url = urlBase + `/refund`;
+  const url = urlBase + `refund`;
   const options = {
     method: 'POST',
     headers: {
@@ -90,7 +91,7 @@ export async function refundPayment(classId) {
  * @param {String} email
  */
 export async function createCustomer(email) {
-  const url = urlBase + '/customer';
+  const url = urlBase + 'customer';
   const options = {
     method: 'post',
     headers: {
@@ -109,7 +110,7 @@ export async function createCustomer(email) {
  * @param {String} classId
  */
 export async function createSubscription(classId) {
-  const url = urlBase + '/subscription';
+  const url = urlBase + 'subscription';
   const options = {
     method: 'post',
     headers: {
@@ -127,7 +128,7 @@ export async function createSubscription(classId) {
  * @param {String} subscriptionId
  */
 export async function cancelSubscription(classId) {
-  const url = urlBase + '/subscription';
+  const url = urlBase + 'subscription';
   const options = {
     method: 'delete',
     headers: {
@@ -147,7 +148,7 @@ export async function cancelSubscription(classId) {
  * @param {String} paymentMethodId
  */
 export async function createPaymentMethod(paymentMethodId) {
-  const url = urlBase + '/paymentMethod';
+  const url = urlBase + 'paymentMethod';
   const options = {
     method: 'POST',
     headers: {
@@ -166,7 +167,7 @@ export async function createPaymentMethod(paymentMethodId) {
  * Returns an array of all payment method IDs
  */
 export async function getPaymentMethods() {
-  const url = urlBase + '/paymentMethods';
+  const url = urlBase + 'paymentMethods';
   const options = {
     method: 'get',
     headers: {
@@ -183,7 +184,7 @@ export async function getPaymentMethods() {
  * @param {String} paymentMethodId
  */
 export async function deletePaymentMethod(paymentMethodId) {
-  const url = urlBase + '/paymentMethod';
+  const url = urlBase + 'paymentMethod';
   const options = {
     method: 'delete',
     headers: {
@@ -201,7 +202,7 @@ export async function deletePaymentMethod(paymentMethodId) {
  * Fetches the stripe user associated with auth token
  */
 export async function getStripeUser() {
-  const url = urlBase + '/customer';
+  const url = urlBase + 'customer';
   const options = {
     method: 'get',
     headers: {
@@ -217,7 +218,7 @@ export async function getStripeUser() {
  * @param {String} classId
  */
 export async function createClassSku(classId) {
-  const url = urlBase + '/classSku';
+  const url = urlBase + 'classSku';
   const options = {
     method: 'post',
     headers: {

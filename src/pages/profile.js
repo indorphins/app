@@ -50,6 +50,7 @@ export default function () {
   const [editButton, setEditButton] = useState(false);
   const [editForm, setEditForm] = useState(false);
   const [pMethod, setPMethod] = useState();
+  const [createStripe, setCreateStripe] = useState(false);
 
   useEffect(() => {
 
@@ -99,6 +100,12 @@ export default function () {
     }
   }, [currentUser.id, params.id])
 
+  useEffect(async () => {
+    if (currentUser.type === 'instructor' && (currentUser.id === params.id || !params.id)) {
+      getStripeAccount()
+    }
+  }, [currentUser.id, params.id])
+
   async function getInstructor(id) {
     let instructor;
 
@@ -109,7 +116,6 @@ export default function () {
       log.error("PROFILE::", err);
       history.push(path.profile);
       return;
-
     }
 
     if (!instructor || !instructor.data) {
@@ -153,6 +159,25 @@ export default function () {
     }
   }
 
+  async function getStripeAccount() {
+    let stripeUser;
+
+    try {
+      stripeUser = await Stripe.getStripeUser()
+    } catch (err) {
+      log.error("PROFILE:: ", err);
+      history.push(path.profile);
+      return;
+    }
+
+    if (!stripeUser || !stripeUser.connectId) {
+      // Show create account button
+      setCreateStripe(true);
+    } else {
+      setCreateStripe(false);
+    }
+  }
+
   async function getSchedule(filter) {
     let result;
 
@@ -193,6 +218,19 @@ export default function () {
     return getSchedule(schedFilter);
   }
 
+  async function createStripeAccount() {
+    let redirect;
+
+    try {
+      redirect = await Stripe.redirectToSignUp()
+      history.push(redirect);
+    } catch (err) {
+      log.error("PROFILE:: error fetching stripe instructor redirect ", err);
+      history.push(path.profile);
+      return;
+    }
+  }
+
   const toggleEditForm = function () {
     if (editForm) {
       setEditForm(false);
@@ -203,6 +241,7 @@ export default function () {
 
   let editContent = null;
   let editButtonContent = null;
+  let createStripeButtonContent = null;
   let loaderContent = (
     <Grid container direction="row" justify="center" alignItems="center" className={classes.loader}>
       <CircularProgress color="secondary" />
@@ -214,6 +253,16 @@ export default function () {
       <Grid container direction="row" justify="flex-end">
         <Grid item>
           <Button id='edit-profile-btn' className={classes.btn} variant="contained" color="secondary" onClick={toggleEditForm}>Edit</Button>
+        </Grid>
+      </Grid>
+    );
+  }
+
+  if (createStripe) {
+    createStripeButtonContent = (
+      <Grid container direction="row" justify="flex-end">
+        <Grid item>
+          <Button id='create-stripe-acct-btn' className={classes.btn} variant="contained" color="secondary" onClick={createStripeAccount}>Create Payment Account</Button>
         </Grid>
       </Grid>
     );
@@ -231,6 +280,7 @@ export default function () {
 
   let userContent = (
     <Grid>
+      {createStripeButtonContent}
       {editButtonContent}
       <UserData header={username} email={email} photo={photo} phone={phone} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} paymentMethod={pMethod} />
       <Divider className={classes.divider} />
