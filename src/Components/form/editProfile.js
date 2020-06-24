@@ -42,6 +42,8 @@ export default function () {
   const [addPaymentMethod, setAddPaymentMethod] = useState(false);
   const [pMethod, setPMethod] = useState();
 
+  let content;
+
   useEffect(() => {
 
     if (currentUser.id) {
@@ -151,6 +153,26 @@ export default function () {
     setAddPaymentMethod(true);
   }
 
+  const backButtonHandler = (paymentMethod) => {
+    setAddPaymentMethod(false);
+    setPMethod(paymentMethod)
+  }
+
+  const removePaymentMethodHandler = function () {
+    Stripe.deletePaymentMethod(pMethod.id)
+      .then(result => {
+        if (result.statusCode >= 400) {
+          throw Error("Payment method removal failed");
+        } else {
+          log.info("EDIT_PROFILE:: remove payment method success: ", result);
+          setPMethod(null);
+        }
+      }).catch(err => {
+        log.error("EDIT_PROFILE:: remove payment method failure: ", err);
+        // TODO Display error
+      })
+  }
+
   const formHandler = async function (e) {
     e.preventDefault();
     setLoader(true);
@@ -205,7 +227,7 @@ export default function () {
     );
   }
 
-  let content = (
+  const formContent = (
     <form onSubmit={formHandler}>
       <Grid>
         <TextField className={classes.input} disabled={loader} required autoComplete="username" color="secondary" variant="outlined" type="text" id="username" label="Nickname" value={username} onChange={usernameHandler} />
@@ -231,14 +253,29 @@ export default function () {
       <Grid>
         {pMethod ?
           <Grid>
-            <Typography>
-              {`${pMethod.type.toUpperCase()} Card ending in ${pMethod.last4}`}
-            </Typography>
+            <label for='payment-method-type'>Payment Method</label>
+            <Grid container display='row' justify='space-between' alignItems='center'>
+              <Typography id='payment-method-type' label='Payment Method'>
+                {`${pMethod.type.toUpperCase()} Card ending in ${pMethod.last4}`}
+              </Typography>
+              <Button className={classes.btn} disabled={loader} variant="contained" color="primary" type="button" onClick={removePaymentMethodHandler}>
+                Remove Payment Method
+              </Button>
+
+            </Grid>
           </Grid>
           :
-          <Button className={classes.btn} disabled={loader} variant="contained" color="primary" type="button" onClick={addPaymentMethodHandler}>
-            Add Payment Method
-          </Button>
+          <Grid>
+            <label for='payment-method-type'>Payment Method</label>
+            <Grid container display='row' justify='space-between' alignItems='center'>
+              <Typography label='Payment Method'>
+                {`Add a Payment Method`}
+              </Typography>
+              <Button className={classes.btn} disabled={loader} variant="contained" color="primary" type="button" onClick={addPaymentMethodHandler}>
+                Add Payment Method
+              </Button>
+            </Grid>
+          </Grid>
         }
       </Grid>
       {progress}
@@ -249,11 +286,13 @@ export default function () {
   )
 
   const addPMethodContent = (
-    <AddPaymentMethod />
+    <AddPaymentMethod backHandler={backButtonHandler} />
   )
 
   if (addPaymentMethod) {
     content = addPMethodContent;
+  } else {
+    content = formContent;
   }
 
   return (

@@ -215,13 +215,14 @@ export default function (props) {
   }
 
   if (props.paymentMethod) {
-    pMethodContent = (
-      <Grid>
-        <Typography className={classes.contactLabel}>
-          {`${props.paymentMethod.type.toUpperCase()} Card ending in ${props.paymentMethod.last4}`}
-        </Typography>
-      </Grid>
-    )
+    // I think it looks better to not show payment info here and only on edit profile form
+    // pMethodContent = (
+    //   <Grid>
+    //     <Typography className={classes.contactLabel}>
+    //       {`Payment Method: ${props.paymentMethod.type.toUpperCase()} Card ending in ${props.paymentMethod.last4}`}
+    //     </Typography>
+    //   </Grid>
+    // )
   }
 
   let userContent = (
