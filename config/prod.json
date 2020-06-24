@@ -8,5 +8,6 @@
     "storageBucket": "groupfit-auth.appspot.com",
     "messagingSenderId": "657572658567",
     "appId": "1:657572658567:web:9a1d85d6b627dce06da722"
-  }
+  },
+  "stripe_public_key": ""
 }

@@ -10,6 +10,7 @@ import ProfileEdit from '../components/form/editProfile';
 import UserData from '../components/userData';
 import * as Instructor from '../api/instructor';
 import * as Course from '../api/course';
+import * as Stripe from '../api/stripe';
 import log from '../log';
 import path from '../routes/path';
 
@@ -29,7 +30,7 @@ const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
 });
 
-export default function() {
+export default function () {
 
   const history = useHistory();
   const classes = useStyles();
@@ -48,91 +49,17 @@ export default function() {
   const [coursesLabel, setCoursesLabel] = useState("Class Schedule");
   const [editButton, setEditButton] = useState(false);
   const [editForm, setEditForm] = useState(false);
-
-
-  async function getInstructor(id) {
-    let instructor;
-
-    try {
-      instructor = await Instructor.get(id);
-    } catch(err) {
-      // redirect to user's profile
-      log.error("PROFILE::", err);
-      history.push(path.profile);
-      return;
-
-    }
-
-    if (!instructor || !instructor.data) {
-      // redirect to user's profile
-      history.push(path.profile);
-      return;
-    }
-    
-    if (instructor && instructor.data) {
-      setUsername(instructor.data.username);
-      setEmail(instructor.data.email);
-      setFirstName(instructor.data.first_name);
-      setLastName(instructor.data.last_name);
-      setPhoto(instructor.data.photo_url);
-      setPhone(instructor.data.phone_number)
-      setBio(instructor.data.bio);
-      if (instructor.data.social && instructor.data.social.instagram) setInsta(instructor.data.social.instagram);
-      setLoader(false);
-      setCoursesLabel("Instructor Schedule");
-      getInstructorSchedule(instructor.data._id);
-    }
-  }
-
-  async function getSchedule(filter) {
-    let result;
-
-    try {
-      result = await Course.query(filter);
-    } catch(err) {
-      throw err;
-    }
-
-    log.debug("PROFILE:: course schedule result", result);
-
-    if (result && result.data) {
-      setCourses(result.data);
-    }
-  }
-
-  async function getUserSchedule(userId) {
-    let now = new Date();
-    let schedFilter = {
-      participants: { $elemMatch: { id: userId }},
-      '$or': [ {start_date: {"$gte" : now.toISOString() }},  {end_date: {"$gte" : now.toISOString() }}, {recurring: { '$exists': true}} ],
-      start_date: { '$exists': true },
-    };
-
-    log.debug("PROFILE:: user schedule filter", schedFilter);
-
-    return getSchedule(schedFilter);
-  }
-
-  async function getInstructorSchedule(mongoId) {
-    let now = new Date();
-    let schedFilter = { 
-      instructor: mongoId,
-      '$or': [ {start_date: {"$gte" : now.toISOString() }},  {end_date: {"$gte" : now.toISOString() }}, {recurring: { '$exists': true}} ],
-      start_date: { '$exists': true },
-    };
-
-    return getSchedule(schedFilter);
-  } 
+  const [pMethod, setPMethod] = useState();
 
   useEffect(() => {
-    
+
     setCourses([]);
 
     if (params.id) {
       getInstructor(params.id);
 
     } else {
-      
+
       if (currentUser.id) {
         setUsername(currentUser.username);
         setEmail(currentUser.email);
@@ -159,14 +86,114 @@ export default function() {
   }, [currentUser, params]);
 
   useEffect(() => {
-    if (currentUser.id === params.id || !params.id)  {
+    if (currentUser.id === params.id || !params.id) {
       setEditButton(true);
     } else {
       setEditButton(false);
     }
   }, [currentUser.id, params.id])
 
-  const toggleEditForm = function() {
+  useEffect(async () => {
+    if (currentUser.id === params.id || !params.id) {
+      getPaymentMethods()
+    }
+  }, [currentUser.id, params.id])
+
+  async function getInstructor(id) {
+    let instructor;
+
+    try {
+      instructor = await Instructor.get(id);
+    } catch (err) {
+      // redirect to user's profile
+      log.error("PROFILE::", err);
+      history.push(path.profile);
+      return;
+
+    }
+
+    if (!instructor || !instructor.data) {
+      // redirect to user's profile
+      history.push(path.profile);
+      return;
+    }
+
+    if (instructor && instructor.data) {
+      setUsername(instructor.data.username);
+      setEmail(instructor.data.email);
+      setFirstName(instructor.data.first_name);
+      setLastName(instructor.data.last_name);
+      setPhoto(instructor.data.photo_url);
+      setPhone(instructor.data.phone_number)
+      setBio(instructor.data.bio);
+      if (instructor.data.social && instructor.data.social.instagram) setInsta(instructor.data.social.instagram);
+      setLoader(false);
+      setCoursesLabel("Instructor Schedule");
+      getInstructorSchedule(instructor.data._id);
+    }
+  }
+
+  async function getPaymentMethods() {
+    let pMethods;
+
+    try {
+      pMethods = await Stripe.getPaymentMethods();
+    } catch (err) {
+      log.error("PROFILE:: ", err);
+      history.push(path.profile);
+      return;
+    }
+
+    if (pMethods && Array.isArray(pMethods.data)) {
+      pMethods.data.forEach(pMethod => {
+        if (pMethod.default) {
+          setPMethod(pMethod);
+        }
+      })
+    }
+  }
+
+  async function getSchedule(filter) {
+    let result;
+
+    try {
+      result = await Course.query(filter);
+    } catch (err) {
+      throw err;
+    }
+
+    log.debug("PROFILE:: course schedule result", result);
+
+    if (result && result.data) {
+      setCourses(result.data);
+    }
+  }
+
+  async function getUserSchedule(userId) {
+    let now = new Date();
+    let schedFilter = {
+      participants: { $elemMatch: { id: userId } },
+      '$or': [{ start_date: { "$gte": now.toISOString() } }, { end_date: { "$gte": now.toISOString() } }, { recurring: { '$exists': true } }],
+      start_date: { '$exists': true },
+    };
+
+    log.debug("PROFILE:: user schedule filter", schedFilter);
+
+    return getSchedule(schedFilter);
+  }
+
+  async function getInstructorSchedule(mongoId) {
+    let now = new Date();
+    let schedFilter = {
+      instructor: mongoId,
+      '$or': [{ start_date: { "$gte": now.toISOString() } }, { end_date: { "$gte": now.toISOString() } }, { recurring: { '$exists': true } }],
+      start_date: { '$exists': true },
+    };
+
+    return getSchedule(schedFilter);
+  }
+
+  const toggleEditForm = function () {
     if (editForm) {
       setEditForm(false);
     } else {
@@ -186,7 +213,7 @@ export default function() {
     editButtonContent = (
       <Grid container direction="row" justify="flex-end">
         <Grid item>
-          <Button className={classes.btn} variant="contained" color="secondary" onClick={toggleEditForm}>Edit</Button>
+          <Button id='edit-profile-btn' className={classes.btn} variant="contained" color="secondary" onClick={toggleEditForm}>Edit</Button>
         </Grid>
       </Grid>
     );
@@ -205,7 +232,7 @@ export default function() {
   let userContent = (
     <Grid>
       {editButtonContent}
-      <UserData header={username} email={email} photo={photo} phone={phone} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} />
+      <UserData header={username} email={email} photo={photo} phone={phone} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} paymentMethod={pMethod} />
       <Divider className={classes.divider} />
       <CourseSchedule header={coursesLabel} course={courses} view="month" />
     </Grid>
