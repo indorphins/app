@@ -170,7 +170,7 @@ export default function () {
       return;
     }
 
-    if (!stripeUser || !stripeUser.connectId) {
+    if (!stripeUser.data || !stripeUser.data.connectId) {
       // Show create account button
       setCreateStripe(true);
     } else {
@@ -222,8 +222,8 @@ export default function () {
     let redirect;
 
     try {
-      redirect = await Stripe.redirectToSignUp()
-      history.push(redirect);
+      redirect = await Stripe.redirectToSignUp(window.location.href)
+      window.location.href = redirect.redirectUrl;
     } catch (err) {
       log.error("PROFILE:: error fetching stripe instructor redirect ", err);
       history.push(path.profile);

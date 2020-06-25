@@ -3,12 +3,22 @@ import callAPI from './helper';
 
 const urlBase = config.host + '/stripe/';
 
-// Makes call to backend to get redirect url to instructor stripe account sign up page
-export async function redirectToSignUp() {
+/**
+ * Makes call to backend to get redirect url to instructor stripe account sign up page 
+ * Takes in a url to return to after account setup
+ * @param {String} returnUrl 
+ */
+export async function redirectToSignUp(returnUrl) {
   console.log("Redirect to sign up start")
   const url = urlBase + 'accountRedirect';
   const options = {
     method: 'post',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      return_url: returnUrl
+    })
   };
   return callAPI(url, options, true);
 }
