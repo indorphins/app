@@ -176,13 +176,13 @@ export default function(props) {
     let doSetup = false;
 
     subsRef.current.forEach(item => {
-      if (item.video && item.user.username === data.username) {
+      if (item.video && item.user.id === data.id) {
         doSetup = true;
       }
     });
 
-    setStreams(streams => streams.filter(item => item.user.username !== data.username));
-    setSubs(subs => subs.filter(item => item.user.username !== data.username));
+    setStreams(streams => streams.filter(item => item.user.id !== data.id));
+    setSubs(subs => subs.filter(item => item.user.id !== data.id));
     if (doSetup) {
       setupLoopMode();
     }
@@ -226,7 +226,7 @@ export default function(props) {
       props.subscribeToAudio = true;
     }
 
-    subscriber = session.subscribe(event.stream, data.username, props, handleError);
+    subscriber = session.subscribe(event.stream, data.id, props, handleError);
 
     setSubs(subs => [...subs, {
       user: data, 
@@ -250,7 +250,7 @@ export default function(props) {
     };
   }, [loopMode]);
 
-  function loop() {
+  async function loop() {
     
     if (!loopMode || subsRef.current.length <= maxStreams) {
       return;
@@ -305,7 +305,6 @@ export default function(props) {
       while(updated[outerIndex-1] && updated[outerIndex-1].video) {
         outerIndex = outerIndex - 1;
       }
-      outerIndex = outerIndex - 1;
 
       while(updated[innerIndex+1] && updated[innerIndex+1].video) {
         innerIndex = innerIndex + 1;
@@ -316,15 +315,9 @@ export default function(props) {
       updated[innerIndex].className = classes.shown;
       updated[innerIndex].subscriber.subscribeToVideo(true);
 
-      if (innerIndex === outerIndex) {
-        updated[outerIndex+1].video = false;
-        updated[outerIndex+1].className = classes.hidden;
-        updated[outerIndex+1].subscriber.subscribeToVideo(false);
-      } else {
-        updated[outerIndex].video = false;
-        updated[outerIndex].className = classes.hidden;
-        updated[outerIndex].subscriber.subscribeToVideo(false);
-      }
+      updated[outerIndex].video = false;
+      updated[outerIndex].className = classes.hidden;
+      updated[outerIndex].subscriber.subscribeToVideo(false);
     }
 
     setSubs(updated.concat([]));
@@ -364,7 +357,7 @@ export default function(props) {
     let data = evt.target.name;
 
     setSubs(subs.map(item => {
-      if (item.user.username === data) {
+      if (item.user.id === data) {
         if (item.video) {
           item.video = false;
           item.className = classes.hidden;
@@ -387,7 +380,7 @@ export default function(props) {
     let data = evt.target.name;
 
     setSubs(subs.map(item => {
-      if (item.user.username === data) {
+      if (item.user.id === data) {
         if (item.audio) {
           item.audio = false;
           item.subscriber.subscribeToAudio(false);
@@ -437,7 +430,7 @@ export default function(props) {
       {
         type: "chat",
         data: JSON.stringify({
-          username: user.username,
+          username: user.id,
           message: chatMsg,
         }),
       },
@@ -579,7 +572,7 @@ export default function(props) {
 
   let combined = streams.map(strm => {
     let existing = subs.filter(s => {
-      return s.user.username === strm.user.username;
+      return s.user.id === strm.user.id;
     });
 
     if (existing && existing[0]) strm.className = existing[0].className;
@@ -589,10 +582,10 @@ export default function(props) {
   let participantsControls = (
     <Grid>
       {subs.map(item => (
-        <Box key={item.user.username}>
-          <Checkbox disabled={loopMode} name={item.user.username} checked={item.video} onClick={toggleSubscriberVideo} />
+        <Box key={item.user.id}>
+          <Checkbox disabled={loopMode} name={item.user.id} checked={item.video} onClick={toggleSubscriberVideo} />
           <Chip label={item.user.username} />
-          <MuteButton name={item.user.username} checked={item.audio} onClick={toggleSubscriberAudio} />
+          <MuteButton name={item.user.id} checked={item.audio} onClick={toggleSubscriberAudio} />
         </Box>
       ))}
     </Grid>
@@ -655,8 +648,8 @@ export default function(props) {
   let participantsVideo = (
     <Grid container direction="row" justify="flex-start" className={classes.subscriberGrid}>
       {combined.map(item => (
-        <Grid key={item.user.username} item className={`${classes.subscriberItem} ${item.className}`}>
-          <Box id={item.user.username} className={classes.subscriber} />
+        <Grid key={item.user.id} item className={`${classes.subscriberItem} ${item.className}`}>
+          <Box id={item.user.id} className={classes.subscriber} />
           <Box className={classes.subscriberLabelBox}>
             <Typography align="center" variant="h5" className={classes.subscriberLabel}>{item.user.username}</Typography>
           </Box>
