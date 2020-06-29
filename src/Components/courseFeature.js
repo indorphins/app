@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from "react-router-dom";
 import { Grid, GridList, GridListTile, GridListTileBar, Typography, CircularProgress, IconButton, useMediaQuery } from '@material-ui/core';
-import {Info} from '@material-ui/icons';
+import { InfoOutlined } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { format } from 'date-fns'
 
@@ -176,7 +176,7 @@ export default function(props) {
                   className={classes.desc}
                   actionIcon={
                     <IconButton color="secondary" aria-label={`info about ${course.title}`}>
-                      <Info />
+                      <InfoOutlined />
                     </IconButton>
                   }
                 />

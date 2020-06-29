@@ -110,7 +110,11 @@ export default function() {
   }, [params])
 
   useEffect(() => {
-    if (!currentUser.id || !course.id) {
+    if (!course.id) {
+      return;
+    }
+
+    if (!currentUser.id) {
       setSignup((
         <Button variant="contained" color="secondary" onClick={goToLogin}>Login to Sign Up</Button>
       ));

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Grid, Typography/*, Button, ButtonGroup, Tabs, Tab*/ } from '@material-ui/core';
+import { Box, Grid, Typography, Button, ButtonGroup, Tabs, Tab } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { format, startOfWeek, parse, getDay } from 'date-fns';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
@@ -64,8 +64,17 @@ export default function(props) {
   const classes = useStyles();
   const views = ['month', 'week'];
   const [events, setEvents] = useState([]);
-  //const [tabValue, setTabValue] = useState(1);
+  const [tabValue, setTabValue] = useState(1);
   const [startDate, setStartDate] = useState(new Date());
+
+  useEffect(() => {
+    if (props.view === "week") {
+      setTabValue(1);
+    }
+    if (props.view === "month") {
+      setTabValue(0);
+    }
+  }, [props.view]);
 
   useEffect(() => {
 
@@ -110,7 +119,7 @@ export default function(props) {
 
 
 
-  /*const CalendarToolbar = function(toolbar) {
+  const CalendarToolbar = function(toolbar) {
 
     const goToBack = () => {
       console.log(toolbar);
@@ -153,9 +162,9 @@ export default function(props) {
       <Grid container direction="row" justify="space-between" alignItems="center">
         <Grid item>
         <ButtonGroup color="secondary">
-            <Button onClick={goToBack}>Prev</Button>
-            <Button onClick={goToNext}>Next</Button>
-          </ButtonGroup>
+          <Button onClick={goToBack}>Prev</Button>
+          <Button onClick={goToNext}>Next</Button>
+        </ButtonGroup>
         </Grid>
         <Grid item>
           <Tabs value={tabValue} indicatorColor="secondary" textColor="primary">
@@ -165,15 +174,15 @@ export default function(props) {
         </Grid>
       </Grid>
     );
-  }*/
+  }
 
   const onNavigate = function(e) {
     setStartDate(e);
   }
 
-  /*let components = {
+  let components = {
     toolbar: CalendarToolbar
-  }*/
+  }
 
   return (
     <Grid container m={12}>
@@ -193,7 +202,7 @@ export default function(props) {
           className={classes.calendar}
           step={120}
           timelots={60}
-          //components={components}
+          components={components}
         />
       </Box>
     </Grid>
