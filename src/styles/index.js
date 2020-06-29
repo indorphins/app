@@ -11,7 +11,10 @@ const colors = {
   pinkishblack: "#262425",
   black: "#121212",
   black1: "#1a1a1a",
-  black2: "#1f1f1f"
+  black2: "#1f1f1f",
+  skyblue: "#b3d7ff",
+  royalblue: "#011f6b",
+  offwhite: "#f5f5f0",
 }
 
 const typography = {
@@ -48,12 +51,14 @@ let lightTheme = createMuiTheme({
   palette: {
     type: 'light',
     primary: {
-      main: colors.pinkishblack,
-      contrastText: colors.pink,
+      //main: colors.pinkishblack,
+      //contrastText: colors.pink,
+      main: colors.royalblue,
+      contrastText: colors.offwhite,
     },
     secondary: {
-      main: colors.pink,
-      contrastText: colors.pinkishblack,
+      main: colors.skyblue,
+      contrastText: colors.offwhite,
     }
   },
   spacing: 8,
@@ -66,10 +71,10 @@ let darkTheme = createMuiTheme({
     type: 'dark',
     primary: {
       main: colors.black,
-      contrastText: colors.pink,
+      contrastText: lightTheme.palette.grey[400],
     },
     secondary: {
-      main: colors.pink,
+      main: lightTheme.palette.grey[400],
       contrastText: colors.black,
     },
     background: {
