@@ -88,7 +88,7 @@ export default function() {
     let result;
 
     try {
-      result = await Course.query(filter);
+      result = await Course.query(filter, {}, 500);
     } catch(err) {
       throw err;
     }
@@ -100,11 +100,20 @@ export default function() {
     }
   }
 
-  async function getUserSchedule(userId) {
+  async function getUserSchedule(userId, mongoId) {
     let now = new Date();
+    now.setHours(now.getHours() - 24);
     let schedFilter = {
-      participants: { $elemMatch: { id: userId }},
-      '$or': [ {start_date: {"$gte" : now.toISOString() }},  {end_date: {"$gte" : now.toISOString() }}, {recurring: { '$exists': true}} ],
+      '$and': [
+        {'$or': [
+          {instructor: mongoId},
+          {participants: { $elemMatch: { id: userId }}},
+        ]},
+        {'$or': [ 
+          { start_date: {"$gte" : now.toISOString() }},
+          { recurring: { '$exists': true }}
+        ]},
+      ],
       start_date: { '$exists': true },
     };
 
@@ -115,9 +124,13 @@ export default function() {
 
   async function getInstructorSchedule(mongoId) {
     let now = new Date();
+    now.setHours(now.getHours() - 24);
     let schedFilter = { 
       instructor: mongoId,
-      '$or': [ {start_date: {"$gte" : now.toISOString() }},  {end_date: {"$gte" : now.toISOString() }}, {recurring: { '$exists': true}} ],
+      '$or': [ 
+          { start_date: {"$gte" : now.toISOString() }},
+          { recurring: { '$exists': true }}
+      ],
       start_date: { '$exists': true },
     };
 
@@ -145,11 +158,7 @@ export default function() {
         setLoader(false);
 
         setCoursesLabel("Your Schedule");
-        if (currentUser.type === 'instructor') {
-          getInstructorSchedule(currentUser._id);
-        } else {
-          getUserSchedule(currentUser.id);
-        }
+        getUserSchedule(currentUser.id, currentUser._id);
         return;
       }
 
