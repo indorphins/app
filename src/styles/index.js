@@ -58,7 +58,7 @@ let lightTheme = createMuiTheme({
     },
     secondary: {
       main: colors.skyblue,
-      contrastText: colors.offwhite,
+      contrastText: colors.royalblue,
     }
   },
   spacing: 8,
@@ -74,8 +74,8 @@ let darkTheme = createMuiTheme({
       contrastText: lightTheme.palette.grey[400],
     },
     secondary: {
-      main: lightTheme.palette.grey[400],
-      contrastText: colors.black,
+      main: colors.skyblue,
+      contrastText: colors.royalblue,
     },
     background: {
       paper: colors.black1,
@@ -158,8 +158,6 @@ export default function(props) {
     MuiGridListTileBar: {
       root: {
         background: "rgba(0, 0, 0, 0.5)",
-        borderBottomLeftRadius: "4px",
-        borderBottomRightRadius: "4px",
       },
       subtitle:{
         color: theme.palette.secondary.main

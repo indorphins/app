@@ -22,16 +22,18 @@ const useStyles = makeStyles((theme) => ({
     transform: 'translateZ(0)',
   },
   loader: {
-    minHeight: 250,
+    minHeight: 300,
   },
   photo: {
-    height: 250,
+    height: 400,
     width: "100%",
     objectFit: "cover",
-    borderRadius: "4px",
     '@media (max-width: 600px)': {
-      height: 180,
-    }
+      height: 200,
+    },
+    '@media (max-width:950px)': {
+      height: 300,
+    },
   },
   desc: {
     fontWeight: "bold"
@@ -48,9 +50,9 @@ export default function(props) {
   const classes = useStyles();
   const [data, setData] = useState(null);
   const [header, setHeader] = useState(null);
-  const [cols, setCols] = useState(4.25);
-  const [spacing, setSpacing] = useState(40);
-  const [height, setHeight] = useState(250);
+  const [cols, setCols] = useState(4);
+  const [spacing, setSpacing] = useState(0);
+  const [height, setHeight] = useState(400);
   const [loader, setLoader] = useState(true);
 
   let content = null;
@@ -70,17 +72,17 @@ export default function(props) {
 
   useEffect(() => {
     if (small) {
-      setCols(2.25);
-      setSpacing(10);
-      setHeight(180)
+      setCols(2);
+      //setSpacing(10);
+      setHeight(200)
     } else if (med) {
-      setCols(3.25);
-      setSpacing(20);
-      setHeight(250);
+      setCols(3);
+      //setSpacing(20);
+      setHeight(300);
     }else {
-      setCols(4.5);
-      setSpacing(40);
-      setHeight(250);
+      setCols(4);
+      setSpacing(0);
+      setHeight(400);
     }
   }, [small, med]);
 

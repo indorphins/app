@@ -36,16 +36,43 @@ const useStyles = makeStyles((theme) => ({
     background: theme.palette.grey[200],
   },
   subscriberGrid: {
-    width: "100%",
     maxWidth: 320
   },
-  subscriberItem: {
-    //padding: theme.spacing(1),
+  subscriberGridAlt: {
+    //height: "100%",
   },
-  subscriber: {
+  subscriberItem: {
     height: 240,
     width: 320,
     background: theme.palette.grey[200],
+  },
+  subscriberItemAlt: {
+    height: 240,
+    width: "calc(100% / 3)",
+    background: theme.palette.grey[200],
+  },
+  subscriberFeatureVid: {
+    height: "calc(100% - 35px)",
+  },  
+  subscriberFeature: {
+    height: 500,
+    width: "100%",
+    background: theme.palette.grey[200],
+    '@media (min-width: 1500px)': {
+      height: 600,
+    },
+    '@media (min-width: 1600px)': {
+      height: 650,
+    },
+    '@media (min-width: 1700px)': {
+      height: 700,
+    },
+    '@media (min-width: 1800px)': {
+      height: 800,
+    },
+    '@media (min-width: 1900px)': {
+      height: 900,
+    },
   },
   subscriberLabelBox: {
     background: theme.palette.primary.main,
@@ -57,23 +84,29 @@ const useStyles = makeStyles((theme) => ({
   },
   instructor: {
     height: 500,
-    width: 575,
+    width: "100%",
     background: theme.palette.grey[200],
-    '@media (min-width: 1400px)': {
+    '@media (min-width: 1500px)': {
       height: 600,
-      width: 825,
     },
     '@media (min-width: 1600px)': {
-      height: 700,
-      width: 900,
+      height: 650,
+    },
+    '@media (min-width: 1700px)': {
+      height: 750,
+    },
+    '@media (min-width: 1800px)': {
+      height: 800,
     },
     '@media (min-width: 1900px)': {
       height: 900,
-      width: 1150,
     },
   },
   videoControls: {
     width: 400,
+    '@media (max-width: 800px)': {
+      width: 350,
+    },
   },
   chat: {
     width: "100%",
@@ -120,10 +153,10 @@ function MuteButton(props) {
 
 export default function(props) {
 
-  const classes = useStyles();
-  const maxStreams = 2;
-  const loopTime = 5000;
   let looper = null;
+  const loopTime = 5000;
+  const classes = useStyles();
+  const [maxStreams, setMaxStreams] = useState(2)
   const [user, setUser] = useState(null);
   const [streams, setStreams] = useState([]);
   const [videoSubsCount, setVideoSubsCount] = useState(0);
@@ -138,11 +171,17 @@ export default function(props) {
   const [chatMsg, setChatMsg] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
   const [loopMode, setLoopMode] = useState(true);
+  const userRef = useRef();
+  const courseRef = useRef();
   const subsRef = useRef();
   const videoSubsCountRef = useRef();
+  const maxStreamsRef = useRef();
 
+  userRef.current = user;
+  courseRef.current = course;
   subsRef.current = subs;
   videoSubsCountRef.current = videoSubsCount;
+  maxStreamsRef.current = maxStreams;
 
   function handleError(err) {
     if (err) {
@@ -151,6 +190,8 @@ export default function(props) {
   }
 
   async function initializeSession(apiKey, sessionId) {
+
+    //return;
 
     let session = OT.initSession(apiKey, sessionId);
     setSession(session);
@@ -198,7 +239,7 @@ export default function(props) {
       insertMode: 'append',
       width: '100%',
       height: '100%',
-      preferredResolution: {width: 320, height: 240},
+      preferredResolution: {width: 1920, height: 1080},
       showControls: false,
       subscribeToAudio: false,
       subscribeToVideo: false,
@@ -207,18 +248,24 @@ export default function(props) {
     if (data.instructor) {
       props.subscribeToAudio = true;
       props.subscribeToVideo = true;
-      props.preferredResolution = {width: 1920, height: 1080};
+      //props.preferredResolution = {width: 1920, height: 1080};
       subscriber = session.subscribe(event.stream, 'feature', props, handleError);
       return;
     }
     
     setStreams(streams => [...streams, {user: data, stream: event.stream}]);
 
-    let classname = classes.hidden;
+    let classname = `${classes.subscriberItem} ${classes.hidden}`;
 
-    if (event.stream.hasVideo && videoSubsCountRef.current < maxStreams) {
+    if (event.stream.hasVideo && videoSubsCountRef.current < maxStreamsRef.current) {
+      if (videoSubsCountRef.current === 0 && userRef.current.id === courseRef.current.instructor.id) {
+        classname = `${classes.subscriberFeature} ${classes.shown}`;
+      } else if (videoSubsCountRef.current !== 0 && userRef.current.id === courseRef.current.instructor.id) {
+        classname = `${classes.subscriberItemAlt} ${classes.shown}`;
+      } else {
+        classname = `${classes.subscriberItem} ${classes.shown}`;
+      }
       props.subscribeToVideo = true;
-      classname = classes.shown;
       setVideoSubsCount(videoSubsCountRef.current + 1);
     }
 
@@ -233,26 +280,14 @@ export default function(props) {
       subscriber: subscriber, 
       audio: props.subscribeToAudio, 
       video: props.subscribeToVideo, 
-      className: classname
+      className: classname,
+      order: subs.length + 1,
     }]);
   }
 
-  useEffect(() => {
-    if (loopMode) {
-      loop();
-      looper = setInterval(loop, loopTime);
-    } else {
-      clearInterval(looper);
-    }
-
-    return function() {
-      clearInterval(looper);
-    };
-  }, [loopMode]);
-
   async function loop() {
     
-    if (!loopMode || subsRef.current.length <= maxStreams) {
+    if (!loopMode || subsRef.current.length <= maxStreamsRef.current) {
       return;
     }
 
@@ -262,62 +297,32 @@ export default function(props) {
     }
 
     let updated = subsRef.current;
-    let firstIndex = 0;
-    let lastIndex = 0;
 
-    for (var l = 0; l < updated.length; l++) {
-      if (updated[l].video) {
-        firstIndex = l;
-        break;
-      }
-    }
+    let first = updated.shift();
+
+    first.video = false;
+    first.className = `${classes.subscriberItem} ${classes.hidden}`;
+    first.subscriber.subscribeToVideo(false);
+
+    updated.push(first);
 
     for (var i = 0; i < updated.length; i++) {
-      if (updated[i].video) {
-        lastIndex = i;
-      }
-    }
-
-    let next = lastIndex + 1;
-    let test = lastIndex - firstIndex + 1;
-
-    if (test === maxStreams) {
-
-      updated[firstIndex].video = false;
-      updated[firstIndex].className = classes.hidden;
-      updated[firstIndex].subscriber.subscribeToVideo(false);
-
-      if (updated[next]) {
-        updated[next].video = true;
-        updated[next].className = classes.shown;
-        updated[next].subscriber.subscribeToVideo(true);
+      if (i < maxStreamsRef.current) {
+        if (i === 0 && props.user.id === props.course.instructor.id) {
+          updated[i].className = `${classes.subscriberFeature} ${classes.shown}`;
+        } else if (i !== 0 && props.user.id === props.course.instructor.id) {
+          updated[i].className = `${classes.subscriberItemAlt} ${classes.shown}`;
+        } else {
+          updated[i].className = `${classes.subscriberItem} ${classes.shown}`;
+        }
+        updated[i].video = true;
+        updated[i].subscriber.subscribeToVideo(true);
       } else {
-        updated[0].video = true;
-        updated[0].className = classes.shown;
-        updated[0].subscriber.subscribeToVideo(true);
+        updated[i].className = `${classes.subscriberItem} ${classes.hidden}`;
+        updated[i].video = false;
+        updated[i].subscriber.subscribeToVideo(false);
       }
-
-    } else {
-
-      let innerIndex = firstIndex;
-      let outerIndex = lastIndex;
-
-      while(updated[outerIndex-1] && updated[outerIndex-1].video) {
-        outerIndex = outerIndex - 1;
-      }
-
-      while(updated[innerIndex+1] && updated[innerIndex+1].video) {
-        innerIndex = innerIndex + 1;
-      }
-      innerIndex = innerIndex + 1;
-
-      updated[innerIndex].video = true;
-      updated[innerIndex].className = classes.shown;
-      updated[innerIndex].subscriber.subscribeToVideo(true);
-
-      updated[outerIndex].video = false;
-      updated[outerIndex].className = classes.hidden;
-      updated[outerIndex].subscriber.subscribeToVideo(false);
+      updated[i].order = Number(i) + 1;
     }
 
     setSubs(updated.concat([]));
@@ -328,14 +333,20 @@ export default function(props) {
     let count = 0;
 
     for (var i = 0; i < updated.length; i++) {
-      if (i < maxStreams) {
+      if (i < maxStreamsRef.current) {
+        if (i === 0 && props.user.id === props.course.instructor.id) {
+          updated[i].className = `${classes.subscriberFeature} ${classes.shown}`;
+        } else if (i !== 0 && props.user.id === props.course.instructor.id) {
+          updated[i].className = `${classes.subscriberItemAlt} ${classes.shown}`;
+        } else {
+          updated[i].className = `${classes.subscriberItem} ${classes.shown}`;
+        }
         updated[i].video = true;
-        updated[i].className = classes.shown;
         updated[i].subscriber.subscribeToVideo(true);
         count = count + 1;
       } else {
         updated[i].video = false;
-        updated[i].className = classes.hidden;
+        updated[i].className = `${classes.subscriberItem} ${classes.hidden}`;
         updated[i].subscriber.subscribeToVideo(false);
       }
     }
@@ -360,13 +371,19 @@ export default function(props) {
       if (item.user.id === data) {
         if (item.video) {
           item.video = false;
-          item.className = classes.hidden;
+          item.className = `${classes.subscriberItem} ${classes.hidden}`
           item.subscriber.subscribeToVideo(false);
           setVideoSubsCount(videoSubsCountRef.current - 1);
         } else {
           if (videoSubsCountRef.current < maxStreams) {
+            if (videoSubsCountRef.current === 0 && props.user.id === props.course.instructor.id) {
+              item.className = `${classes.subscriberFeature} ${classes.shown}`;
+            } else if (videoSubsCountRef.current !== 0 && props.user.id === props.course.instructor.id) {
+              item.className = `${classes.subscriberItemAlt} ${classes.shown}`;
+            } else {
+              item.className = `${classes.subscriberItem} ${classes.shown}`;
+            }
             item.video = true;
-            item.className = classes.shown;
             item.subscriber.subscribeToVideo(true);
             setVideoSubsCount(videoSubsCountRef.current + 1);
           }
@@ -454,6 +471,20 @@ export default function(props) {
   }
 
   useEffect(() => {
+    if (loopMode) {
+      loop();
+      looper = setInterval(loop, loopTime);
+    } else {
+      clearInterval(looper);
+    }
+
+    return function() {
+      clearInterval(looper);
+    };
+  }, [loopMode]);
+
+  useEffect(() => {
+    if (props.user.id === props.course.instructor.id) setMaxStreams(3);
     setCredentials(props.credentials);
     setCourse(props.course);
     setUser(props.user);
@@ -559,12 +590,14 @@ export default function(props) {
   );
 
   let featurePanel = (
-    <Grid>
+    <Grid xs item>
       <Paper>
         <Box id="feature" className={classes.instructor} />
       </Paper>
     </Grid>
   );
+
+  //featurePanel = null;
 
   if (user && course && user.id === course.instructor.id) {
     featurePanel = null;
@@ -575,7 +608,10 @@ export default function(props) {
       return s.user.id === strm.user.id;
     });
 
-    if (existing && existing[0]) strm.className = existing[0].className;
+    if (existing && existing[0]) {
+      strm.className = existing[0].className;
+      strm.order = existing[0].order;
+    }
     return strm;
   });
 
@@ -645,31 +681,88 @@ export default function(props) {
     </Grid>
   );
 
+  let containerClass = classes.subscriberGrid;
+
+  if (course && user && user.id === course.instructor.id) {
+    containerClass = classes.subscriberGridAlt;
+  }
+
   let participantsVideo = (
-    <Grid container direction="row" justify="flex-start" className={classes.subscriberGrid}>
-      {combined.map(item => (
-        <Grid key={item.user.id} item className={`${classes.subscriberItem} ${item.className}`}>
-          <Box id={item.user.id} className={classes.subscriber} />
-          <Box className={classes.subscriberLabelBox}>
-            <Typography align="center" variant="h5" className={classes.subscriberLabel}>{item.user.username}</Typography>
-          </Box>
-        </Grid>
-      ))}
+    <Grid xs item>
+      <Grid container direction="row" justify="flex-start" className={containerClass}>
+        {combined.map(item => (
+          <Grid key={item.user.id} item className={item.className} style={{order: item.order}}>
+            <Box id={item.user.id} className={classes.subscriberFeatureVid} />
+            <Box className={classes.subscriberLabelBox}>
+              <Typography align="center" variant="h5" className={classes.subscriberLabel}>{item.user.username}</Typography>
+            </Box>
+          </Grid>
+        ))}
+      </Grid>
     </Grid>
   );
 
+  let participantsVideoContent = (
+    <Grid item>
+      {participantsVideo}
+    </Grid>
+  );
+
+  if (course && user && user.id === course.instructor.id) {
+    participantsVideoContent = (
+      <Grid item xs>
+        {participantsVideo}
+      </Grid>
+    );
+  }
+
+  if (subsRef.current.length === 0) {
+    participantsVideo = null;
+  }
+
+  /*participantsVideo = (
+    <Grid container direction="row" justify="flex-start" className={classes.subscriberGridAlt}>
+      <Grid key="user1" item className={`${classes.subscriberItemAlt} ${classes.shown}`} style={{order: "2"}}>
+        <Box id="user1" className={classes.subscriberFeatureVid} />
+        <Box className={classes.subscriberLabelBox}>
+          <Typography align="center" variant="h5" className={classes.subscriberLabel}>username</Typography>
+        </Box>
+      </Grid>
+      <Grid key="user2" item className={`${classes.subscriberFeature} ${classes.shown}`} style={{order: "1"}}>
+        <Box id="user2" className={classes.subscriberFeatureVid}/>
+        <Box className={classes.subscriberLabelBox}>
+          <Typography align="center" variant="h5" className={classes.subscriberLabel}>username</Typography>
+        </Box>
+      </Grid>
+      <Grid key="user3" item className={`${classes.subscriberItemAlt} ${classes.shown}`} style={{order: "3"}}>
+        <Box id="user3" className={classes.subscriberFeatureVid} />
+        <Box className={classes.subscriberLabelBox}>
+          <Typography align="center" variant="h5" className={classes.subscriberLabel}>username</Typography>
+        </Box>
+      </Grid>
+      <Grid key="user4" item className={`${classes.subscriberItemAlt} ${classes.shown}`} style={{order: "4"}}>
+        <Box id="user4" className={classes.subscriberFeatureVid} />
+        <Box className={classes.subscriberLabelBox}>
+          <Typography align="center" variant="h5" className={classes.subscriberLabel}>username</Typography>
+        </Box>
+      </Grid>
+    </Grid>
+  );
+
+  participantsVideoContent = (
+    <Grid xs item>
+      {participantsVideo}
+    </Grid>
+  );*/
+
   return (
-    <Box>
+    <Grid container direction="row" justify="flex-start">
       <Typography variant="h2">{courseLabel}</Typography>
       <Grid container direction="row" spacing={2} justify="flex-start">
-        <Grid item>
-          {featurePanel}
-        </Grid>
-        <Grid item>
-          {participantsVideo}
-        </Grid>
+        {featurePanel}
+        {participantsVideoContent}
         {videoControls}
       </Grid>
-    </Box>
+    </Grid>
   );
 }

@@ -6,28 +6,31 @@ import Profile from '../pages/profile'
 import LoginView from '../pages/login';
 import Register from '../pages/signup';
 import Header from '../components/header';
+import CourseSession from '../pages/course/session';
 
 export default function() {
 
   return (
     <Switch>
-      <Route exact path={path.profile}>
-        <Header>
-          <Profile />
-        </Header>
-      </Route>
-      <Route exact path={path.instructorProfile}>
-        <Header>
-          <Profile />
-        </Header>
-      </Route>
-      <Route path={path.signup} component={Register} />
-      <Route path={path.login}>
+      <Route exact path={path.signup} component={Register} />
+      <Route exact path={path.login}>
         <LoginView />
       </Route>
-      <Route path={path.home}>
-        <ClassRouter />
+      <Route exact path={path.courseJoinSession}>
+        <CourseSession />
       </Route>
+      <Header>
+        <Route exact path={path.profile}>
+          <Profile />
+        </Route>
+        <Route exact path={path.instructorProfile}>
+          <Profile />
+        </Route>
+        <Route path={path.home}>
+          <ClassRouter />
+        </Route>
+      </Header>
+
     </Switch>
   );
 };

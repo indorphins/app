@@ -5,8 +5,6 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 
-import Header from '../../components/header';
-//import Opentok from '../../components/Opentok';
 import * as Course from '../../api/course';
 import path from '../../routes/path';
 import log from '../../log';
@@ -28,35 +26,6 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
   }
 }));
-
-/*const headerStyles = makeStyles((theme) => ({
-  root: {
-    height: '100%',
-  },
-  logo: {
-    display: 'inline',
-    fontSize: '1.5rem',
-  },
-  logo2: {
-    fontSize: '1.5rem',
-    display: 'inline',
-    marginRight: theme.spacing(5),
-    color: theme.palette.grey[200],
-  },
-  appbar: {
-    padding: theme.spacing(0.5),
-    '@media (max-width: 600px)': {
-      padding: theme.spacing(0.5),
-    }
-  },
-  themeBtn: {
-    padding: theme.spacing(1),
-    marginRight: theme.spacing(1),
-    '@media (max-width: 600px)': {
-      marginRight: theme.spacing(1),
-    }
-  },
-}));*/
 
 const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
@@ -114,10 +83,6 @@ export default function() {
     <Opentok credentials={authData} course={course} user={currentUser}></Opentok>
   );
 
-  /*let chatContent = (
-    <Typography variant="h4">test</Typography>
-  )*/
-
   let content = (
     <CircularProgress color="secondary" />
   );
@@ -128,13 +93,11 @@ export default function() {
 
   return (
     <Grid className={classes.root}>
-      <Header>
-        <Grid className={classes.contentCol}>
-          <Grid container direction="row" justify="center" alignItems="center" alignContent="center" className={classes.root}>
-            {content}
-          </Grid>
+      <Grid className={classes.contentCol}>
+        <Grid container direction="row" justify="center" alignItems="center" alignContent="center" className={classes.root}>
+          {content}
         </Grid>
-      </Header>
+      </Grid>
     </Grid>
   );
 };

@@ -2,14 +2,8 @@ import React, {useState, useEffect} from 'react';
 import { useRouteMatch, useHistory } from 'react-router-dom';
 import { Tab, Tabs } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { useSelector } from 'react-redux';
-import { createSelector } from 'reselect';
 
 import path from '../routes/path';
-
-const getUserSelector = createSelector([state => state.user.data], (user) => {
-  return user;
-});
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -18,12 +12,12 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function() {
+export default function(props) {
 
   const [tab, setTab] = useState(0);
   const [profileLabel, setProfileLabel] = useState("My Schedule");
   const [showProfile, setShowProfile] = useState(false);
-  const currentUser = useSelector(state => getUserSelector(state));
+  const currentUser = props.user;
   const classes = useStyles();
   const history = useHistory();
   let home = useRouteMatch({ path: path.home, strict: true});

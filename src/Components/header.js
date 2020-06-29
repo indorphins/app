@@ -49,6 +49,10 @@ const getThemeSelector = createSelector([state => state.theme], (theme) => {
   return theme;
 });
 
+const getUserSelector = createSelector([state => state.user.data], (user) => {
+  return user;
+});
+
 export default function(props) {
 
   if (props.className) {
@@ -56,6 +60,7 @@ export default function(props) {
   }
   const classes = useStyles();
   const theme = useSelector(state => getThemeSelector(state));
+  const currentUser = useSelector(state => getUserSelector(state));
   const [themeButton, setThemeButton] = useState(null);
 
   const toggleTheme = async function() {
@@ -90,7 +95,7 @@ export default function(props) {
                   <Typography variant="h2" className={classes.logo2}>phins</Typography>
                 </Grid>
                 <Grid style={{display: "flex", alignItems: "flex-end"}}>
-                  <Navigation />
+                  <Navigation user={currentUser} />
                 </Grid>
               </Grid>
             </Grid>
@@ -99,7 +104,7 @@ export default function(props) {
                 <IconButton edge="end" onClick={toggleTheme} className={classes.themeBtn} color="secondary">
                   {themeButton}
                 </IconButton>
-                <UserAvatar edge="end" className={classes.userMenu} />
+                <UserAvatar edge="end" className={classes.userMenu} user={currentUser} />
               </Grid>
             </Grid>
           </Grid>

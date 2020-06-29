@@ -2,8 +2,6 @@ import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
 import { Avatar, Button, Box, Menu, MenuItem, Typography, Zoom } from "@material-ui/core";
 import { makeStyles } from '@material-ui/core/styles';
-import { useSelector } from 'react-redux';
-import { createSelector } from 'reselect';
 
 import Firebase from "../Firebase";
 
@@ -21,13 +19,9 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const getUserSelector = createSelector([state => state.user.data], (user) => {
-  return user;
-});
+export default function(props) {
 
-export default function() {
-
-  const currentUser = useSelector(state => getUserSelector(state));
+  const currentUser = props.user;
   const classes = useStyles();
   const history = useHistory();
   const [anchorEl, setAnchorEl] = useState(null);
