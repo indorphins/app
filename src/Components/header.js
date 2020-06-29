@@ -15,19 +15,21 @@ let useStyles = makeStyles((theme) => ({
   },
   logo: {
     display: 'inline',
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(3),
   },
   logo2: {
     display: 'inline',
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(3),
     marginRight: theme.spacing(5),
     color: theme.palette.grey[200],
   },
   appbar: {
-    paddingTop: theme.spacing(2),
     paddingRight: theme.spacing(5),
     paddingLeft: theme.spacing(2),
     marginBottom: theme.spacing(2),
     '@media (max-width: 600px)': {
-      paddingTop: theme.spacing(1),
       paddingRight: theme.spacing(2),
       paddingLeft: theme.spacing(1),
       marginBottom: theme.spacing(1),
@@ -35,13 +37,19 @@ let useStyles = makeStyles((theme) => ({
   },
   toolbar: {
     minHeight: 0,
+    alignItems: "flex-end"
+  },
+  userControls: {
+    position: "absolute", 
+    right: "0",
+    paddingBottom: theme.spacing(2),
   },
   themeBtn: {
     padding: theme.spacing(1),
     marginRight: theme.spacing(2),
     '@media (max-width: 600px)': {
       marginRight: theme.spacing(1),
-    }
+    },
   },
 }));
 
@@ -87,25 +95,17 @@ export default function(props) {
     <Box className={classes.root}>
       <AppBar position="static" className={classes.appbar}>
         <Toolbar className={classes.toolbar} variant="regular">
-          <Grid container direction="row" alignContent="center" alignItems="center" justify="space-between">
-            <Grid item>
-              <Grid container direction="row" justify="flex-start">
-                <Grid>
-                  <Typography variant="h2" color="secondary" className={classes.logo}>indor</Typography>
-                  <Typography variant="h2" className={classes.logo2}>phins</Typography>
-                </Grid>
-                <Grid style={{display: "flex", alignItems: "flex-end"}}>
-                  <Navigation user={currentUser} />
-                </Grid>
-              </Grid>
-            </Grid>
-            <Grid item>
-              <Grid container direction='row' alignItems="center">
-                <IconButton edge="end" onClick={toggleTheme} className={classes.themeBtn} color="secondary">
-                  {themeButton}
-                </IconButton>
-                <UserAvatar edge="end" className={classes.userMenu} user={currentUser} />
-              </Grid>
+          <Typography variant="h2" color="secondary" className={classes.logo}>indor</Typography>
+          <Typography variant="h2" className={classes.logo2}>phins</Typography>
+          <Grid>
+            <Navigation user={currentUser} />
+          </Grid>
+          <Grid className={classes.userControls}>
+            <Grid container direction='row' alignItems="center">
+              <IconButton edge="end" onClick={toggleTheme} className={classes.themeBtn} color="secondary">
+                {themeButton}
+              </IconButton>
+              <UserAvatar edge="end" className={classes.userMenu} user={currentUser} />
             </Grid>
           </Grid>
         </Toolbar>
