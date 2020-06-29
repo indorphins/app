@@ -110,7 +110,12 @@ export default function() {
   }, [params])
 
   useEffect(() => {
-    if (!currentUser.id || !course.id) return;
+    if (!currentUser.id || !course.id) {
+      setSignup((
+        <Button variant="contained" color="secondary" onClick={goToLogin}>Login to Sign Up</Button>
+      ));
+      return;
+    }
 
     if (currentUser.id === course.instructor.id) {
       setSignup((
@@ -179,6 +184,10 @@ export default function() {
     }
 
     history.push(path.profile);
+  }
+
+  const goToLogin = async function() {
+    history.push(`${path.login}?redirect=${path.courses}/${course.id}`)
   }
 
   const courseLeaveHandler = async function() {
