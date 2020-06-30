@@ -12,10 +12,7 @@ import { getNextDate } from '../utils';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    justifyContent: 'space-around',
-    overflow: 'hidden',
+    overflow: 'hidden'
   },
   container: {
     position: 'relative',
@@ -114,6 +111,32 @@ export default function(props) {
     </Grid>
   );
 
+  const init = async function() {
+
+    let filter = props.filter;
+    let order = props.order;
+    let result = null;
+    let limit = 100;
+
+    if (props.limit) {
+      limit = props.limit;
+    }
+
+    try {
+      result = await Course.query(filter, order, limit);
+    } catch(err) {
+      setLoader(false);
+      return log.error("COURSE WIDGET:: query for courses", filter, order, err);
+    }
+
+    if (result && result.total > 0) {
+      setData(result);
+    }
+
+    setLoader(false);
+    log.debug("COURSE WIDGET:: got result", result);
+  }
+
   useEffect(() => {
     if (props.header) {
       setHeader(props.header);
@@ -140,33 +163,6 @@ export default function(props) {
   }, [small, med]);
 
   useEffect(() => {
-
-    const init = async function() {
-
-      let filter = props.filter;
-      let order = props.order;
-      let result = null;
-      let limit = 100;
-
-      if (props.limit) {
-        limit = props.limit;
-      }
-
-      try {
-        result = await Course.query(filter, order, limit);
-      } catch(err) {
-        setLoader(false);
-        return log.error("COURSE WIDGET:: query for courses", filter, order, err);
-      }
-
-      if (result && result.total > 0) {
-        setData(result);
-      }
-
-      setLoader(false);
-      log.debug("COURSE WIDGET:: got result", result);
-    }
-
     init();
   }, []);
 

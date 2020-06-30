@@ -27,14 +27,15 @@ export default function(props) {
   useEffect(() => {
     if (home && home.isExact) {
       setTab(1);
-      setProfileLabel('My Schedule');
     } else {
       setTab(0);
     }
+    setProfileLabel('My Schedule');
   }, [home]);
 
   useEffect(() => {
     if (profile) {
+      setShowProfile(true);
       setTab(2);
       setProfileLabel('My Schedule');
     }
@@ -47,10 +48,6 @@ export default function(props) {
       setProfileLabel('Instructor');
     }
   }, [instructor]);
-
-  useEffect(() => {
-    
-  }, [showProfile]);
 
   useEffect(() => {
     if (currentUser.id) {
