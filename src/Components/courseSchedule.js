@@ -34,6 +34,12 @@ const useStyles = makeStyles((theme) => ({
       width: "100%",
       height: "auto !important"
     },
+    '.rbc-month-view': {
+      borderRadius: '8px',
+    },
+    '.rbc-time-view': {
+      borderRadius: '8px',
+    },
     '.rbc-day-slot': {
       border: "none !important",
     },
@@ -53,6 +59,10 @@ const useStyles = makeStyles((theme) => ({
   },
   header: {
     color: theme.palette.text.disabled,
+  },
+  toolbar: {
+    paddingRight: theme.spacing(2),
+    paddingLeft: theme.spacing(2),
   }
 }));
 
@@ -192,7 +202,7 @@ export default function(props) {
     }
 
     return (
-      <Grid container direction="row" justify="space-between" alignItems="center">
+      <Grid container direction="row" justify="space-between" alignItems="center" className={classes.toolbar}>
         <Grid item>
         <ButtonGroup color="secondary" variant="contained">
           <Button onClick={goToBack}>Prev</Button>
