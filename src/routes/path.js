@@ -1,6 +1,7 @@
 const base = {
   home: "/",
   profile: "/profile",
+  schedule: "/schedule",
   signup: "/signup",
   login: "/login",
   courses: "/class",

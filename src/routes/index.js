@@ -5,6 +5,7 @@ import ClassRouter from './course';
 import Profile from '../pages/profile'
 import LoginView from '../pages/login';
 import Register from '../pages/signup';
+import Schedule from '../pages/schedule';
 import Header from '../components/header';
 import CourseSession from '../pages/course/session';
 
@@ -22,6 +23,9 @@ export default function() {
       <Header>
         <Route exact path={path.profile}>
           <Profile />
+        </Route>
+        <Route exact path={path.schedule}>
+          <Schedule />
         </Route>
         <Route exact path={path.instructorProfile}>
           <Profile />

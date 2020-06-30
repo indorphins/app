@@ -21,12 +21,13 @@ export default function(props) {
   const classes = useStyles();
   const history = useHistory();
   let home = useRouteMatch({ path: path.home, strict: true});
-  let profile = useRouteMatch(path.profile);
+  let profile = useRouteMatch(path.schedule);
   let instructor = useRouteMatch(path.instructorProfile);
 
   useEffect(() => {
     if (home && home.isExact) {
       setTab(1);
+      setProfileLabel('My Schedule');
     } else {
       setTab(0);
     }
@@ -65,7 +66,7 @@ export default function(props) {
   }
 
   async function navProfile() {
-    history.push(path.profile);
+    history.push(path.schedule);
   }
 
   let profileTab = null;
