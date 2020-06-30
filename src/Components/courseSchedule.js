@@ -6,7 +6,6 @@ import { format, startOfWeek, parse, getDay } from 'date-fns';
 import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
 import '../../node_modules/react-big-calendar/lib/css/react-big-calendar.css';
 
-import log from '../log';
 import path from '../routes/path';
 import { getNextDate } from '../utils';
 
@@ -155,7 +154,6 @@ export default function(props) {
 
     if (data.length > 0) {
       setStartDate(data[0].start);
-      log.debug("events items", data);
       setEvents(data);
     }
 

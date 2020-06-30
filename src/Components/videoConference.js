@@ -48,7 +48,7 @@ const useStyles = makeStyles((theme) => ({
   },
   subscriberItemAlt: {
     height: 240,
-    width: "calc(100% / 3)",
+    width: "calc(100% / 4)",
     background: theme.palette.grey[200],
   },
   subscriberFeatureVid: {
@@ -59,16 +59,16 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     background: theme.palette.grey[200],
     '@media (min-width: 1500px)': {
-      height: 600,
-    },
-    '@media (min-width: 1600px)': {
-      height: 650,
-    },
-    '@media (min-width: 1700px)': {
       height: 700,
     },
-    '@media (min-width: 1800px)': {
+    '@media (min-width: 1600px)': {
+      height: 750,
+    },
+    '@media (min-width: 1700px)': {
       height: 800,
+    },
+    '@media (min-width: 1800px)': {
+      height: 850,
     },
     '@media (min-width: 1900px)': {
       height: 900,
@@ -87,19 +87,19 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     background: theme.palette.grey[200],
     '@media (min-width: 1500px)': {
-      height: 600,
+      height: 700,
     },
     '@media (min-width: 1600px)': {
-      height: 650,
-    },
-    '@media (min-width: 1700px)': {
       height: 750,
     },
+    '@media (min-width: 1700px)': {
+      height: 850,
+    },
     '@media (min-width: 1800px)': {
-      height: 800,
+      height: 900,
     },
     '@media (min-width: 1900px)': {
-      height: 900,
+      height: 1000,
     },
   },
   videoControls: {
@@ -154,14 +154,13 @@ function MuteButton(props) {
 export default function(props) {
 
   let looper = null;
-  const loopTime = 5000;
+  const loopTime = 20000;
   const classes = useStyles();
-  const [maxStreams, setMaxStreams] = useState(2)
+  const [maxStreams, setMaxStreams] = useState(3)
   const [user, setUser] = useState(null);
   const [streams, setStreams] = useState([]);
   const [videoSubsCount, setVideoSubsCount] = useState(0);
   const [subs, setSubs] = useState([]);
-  const [courseLabel, setCourseLabel] = useState(null);
   const [course, setCourse] = useState(null);
   const [credentials, setCredentials] = useState(null);
   const [session, setSession] = useState(null);
@@ -190,8 +189,6 @@ export default function(props) {
   }
 
   async function initializeSession(apiKey, sessionId) {
-
-    //return;
 
     let session = OT.initSession(apiKey, sessionId);
     setSession(session);
@@ -484,17 +481,11 @@ export default function(props) {
   }, [loopMode]);
 
   useEffect(() => {
-    if (props.user.id === props.course.instructor.id) setMaxStreams(3);
+    if (props.user.id === props.course.instructor.id) setMaxStreams(5);
     setCredentials(props.credentials);
     setCourse(props.course);
     setUser(props.user);
   }, [props]);
-
-  useEffect(() => {
-    if (course && course.instructor) {
-      setCourseLabel(course.title + " with " + course.instructor.first_name + " " + course.instructor.last_name);
-    }
-  }, [course]);
 
   useEffect(() => {
     if (!credentials) return;
@@ -596,8 +587,6 @@ export default function(props) {
       </Paper>
     </Grid>
   );
-
-  //featurePanel = null;
 
   if (user && course && user.id === course.instructor.id) {
     featurePanel = null;
@@ -720,44 +709,8 @@ export default function(props) {
     participantsVideo = null;
   }
 
-  /*participantsVideo = (
-    <Grid container direction="row" justify="flex-start" className={classes.subscriberGridAlt}>
-      <Grid key="user1" item className={`${classes.subscriberItemAlt} ${classes.shown}`} style={{order: "2"}}>
-        <Box id="user1" className={classes.subscriberFeatureVid} />
-        <Box className={classes.subscriberLabelBox}>
-          <Typography align="center" variant="h5" className={classes.subscriberLabel}>username</Typography>
-        </Box>
-      </Grid>
-      <Grid key="user2" item className={`${classes.subscriberFeature} ${classes.shown}`} style={{order: "1"}}>
-        <Box id="user2" className={classes.subscriberFeatureVid}/>
-        <Box className={classes.subscriberLabelBox}>
-          <Typography align="center" variant="h5" className={classes.subscriberLabel}>username</Typography>
-        </Box>
-      </Grid>
-      <Grid key="user3" item className={`${classes.subscriberItemAlt} ${classes.shown}`} style={{order: "3"}}>
-        <Box id="user3" className={classes.subscriberFeatureVid} />
-        <Box className={classes.subscriberLabelBox}>
-          <Typography align="center" variant="h5" className={classes.subscriberLabel}>username</Typography>
-        </Box>
-      </Grid>
-      <Grid key="user4" item className={`${classes.subscriberItemAlt} ${classes.shown}`} style={{order: "4"}}>
-        <Box id="user4" className={classes.subscriberFeatureVid} />
-        <Box className={classes.subscriberLabelBox}>
-          <Typography align="center" variant="h5" className={classes.subscriberLabel}>username</Typography>
-        </Box>
-      </Grid>
-    </Grid>
-  );
-
-  participantsVideoContent = (
-    <Grid xs item>
-      {participantsVideo}
-    </Grid>
-  );*/
-
   return (
     <Grid container direction="row" justify="flex-start">
-      <Typography variant="h2">{courseLabel}</Typography>
       <Grid container direction="row" spacing={2} justify="flex-start">
         {featurePanel}
         {participantsVideoContent}

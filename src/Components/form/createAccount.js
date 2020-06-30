@@ -188,6 +188,7 @@ export default function(props) {
 	let phoneField = (
 		<TextField 
 			color="secondary" 
+			required
 			disabled={loader} 
 			className={classes.txtField} 
 			title={tooltips.phone} 
@@ -201,7 +202,8 @@ export default function(props) {
 	if (phoneErr) {
 		phoneField = (
 			<TextField 
-				error 
+				error
+				required
 				color="secondary" 
 				disabled={loader} 
 				className={classes.txtField} 
