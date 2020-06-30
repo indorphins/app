@@ -1,12 +1,13 @@
 {
   "host": "https://api.indorphins.com",
   "firebase": {
-    "apiKey": "AIzaSyCloQJaObNRC25LtWvaO9jXYOfpCzlj2jM",
-    "authDomain": "groupfit-auth.firebaseapp.com",
-    "databaseURL": "https://groupfit-auth.firebaseio.com",
-    "projectId": "groupfit-auth",
-    "storageBucket": "groupfit-auth.appspot.com",
-    "messagingSenderId": "657572658567",
-    "appId": "1:657572658567:web:9a1d85d6b627dce06da722"
+    "apiKey": "AIzaSyDvzc4jsC0j3jTnJQOucgtzwJbDUbWM7pE",
+    "authDomain": "indoorphins-f4de1.firebaseapp.com",
+    "databaseURL": "https://indoorphins-f4de1.firebaseio.com",
+    "projectId": "indoorphins-f4de1",
+    "storageBucket": "indoorphins-f4de1.appspot.com",
+    "messagingSenderId": "277590862006",
+    "appId": "1:277590862006:web:65adb854f186fb15e11e17",
+    "measurementId": "G-CWVMHW29VL"
   }
 }
