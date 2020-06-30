@@ -444,7 +444,7 @@ export default function(props) {
       {
         type: "chat",
         data: JSON.stringify({
-          username: user.id,
+          username: user.username,
           message: chatMsg,
         }),
       },

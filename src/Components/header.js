@@ -95,7 +95,7 @@ export default function(props) {
     <Box className={classes.root}>
       <AppBar position="static" className={classes.appbar}>
         <Toolbar className={classes.toolbar} variant="regular">
-          <Typography variant="h2" color="secondary" className={classes.logo}>indor</Typography>
+          <Typography variant="h2" color="secondary" className={classes.logo}>indoor</Typography>
           <Typography variant="h2" className={classes.logo2}>phins</Typography>
           <Grid>
             <Navigation user={currentUser} />
