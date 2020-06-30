@@ -127,33 +127,31 @@ export default function(props) {
     });
    
     formContent = (
-      <GridList cellHeight={height} cols={cols} spacing={spacing}>
-      {items.map(instructor => (
-        <GridListTile key={instructor.id} cols={1}>
-          <Link className={classes.anchor} to={instructor.url}>
-            <Grid container>
-              <img alt={instructor.firstName} className={classes.photo} src={instructor.photo} />
-              <GridListTileBar
-                title={instructor.firstName}
-                subtitle="See Schedule"
-                className={classes.desc}
-              />
-            </Grid>
-          </Link>
-        </GridListTile>
-      ))}
-      </GridList>
-    );
-  } else {
-    formContent = (
-      <Grid className={classes.loader} container direction="row" justify="center" alignItems="center">
-        <Typography variant="h5">
-          No results
-        </Typography>
+      <Grid>
+        <Grid>
+          {headerContent}
+        </Grid>
+        <GridList cellHeight={height} cols={cols} spacing={spacing}>
+        {items.map(instructor => (
+          <GridListTile key={instructor.id} cols={1}>
+            <Link className={classes.anchor} to={instructor.url}>
+              <Grid container>
+                <img alt={instructor.firstName} className={classes.photo} src={instructor.photo} />
+                <GridListTileBar
+                  title={instructor.firstName}
+                  subtitle="See Schedule"
+                  className={classes.desc}
+                />
+              </Grid>
+            </Link>
+          </GridListTile>
+        ))}
+        </GridList>
       </Grid>
     );
+  } else {
+    formContent = null;
   }
-
 
   content = formContent;
 
@@ -163,12 +161,7 @@ export default function(props) {
 
   return (
     <Grid container>
-      <Grid>
-        {headerContent}
-      </Grid>
-      <Grid container>
-        {content}
-      </Grid>
+      {content}
     </Grid>
   );
 }

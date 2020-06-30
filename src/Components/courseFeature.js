@@ -327,6 +327,10 @@ export default function(props) {
     </Grid>
   );
 
+  if (displayData && displayData.length === 0) {
+    formContent = null;
+  }
+
   content = formContent;
 
   if (loader) {
