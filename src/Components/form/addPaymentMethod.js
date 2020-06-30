@@ -154,7 +154,7 @@ export default function (props) {
     <Grid>
       <Grid container direction="row" justify="flex-end">
         <Grid item>
-          <Button id='edit-profile-btn' className={classes.btn} variant="contained" color="secondary" onClick={(() => props.backHandler(pMethod))}>Back</Button>
+          <Button id='back-btn' className={classes.btn} variant="contained" color="secondary" onClick={(() => props.backHandler(pMethod))}>Back</Button>
         </Grid>
       </Grid>
 

@@ -9,7 +9,6 @@ const urlBase = config.host + '/stripe/';
  * @param {String} returnUrl 
  */
 export async function redirectToSignUp(returnUrl) {
-  console.log("Redirect to sign up start")
   const url = urlBase + 'accountRedirect';
   const options = {
     method: 'post',
@@ -35,7 +34,8 @@ export async function redirectToSignUp(returnUrl) {
 export async function createPaymentIntent(
   instructorId,
   paymentMethodId,
-  classId
+  classId,
+  recurring
 ) {
   const url = urlBase + `payment`;
   const options = {
@@ -47,19 +47,20 @@ export async function createPaymentIntent(
       instructor_id: instructorId,
       payment_method: paymentMethodId,
       class_id: classId,
+      recurring: recurring
     }),
   };
   return callAPI(url, options, true);
 }
 
 /**
- * Finds the logged in user's Transaction for input classId.
+ * Finds the logged in user's Transaction for input paymentId.
  * Confirms transaction was a success and updates its status to reflect.
  * Note: stripe JS SDK is used before this to confirm the payment on their end.
  * Returns payment intent's client secret upon success.
- * @param {String} classId
+ * @param {String} paymentId
  */
-export async function confirmPayment(classId) {
+export async function confirmPayment(paymentId) {
   const url = urlBase + `confirmPayment`;
   const options = {
     method: 'POST',
@@ -67,7 +68,7 @@ export async function confirmPayment(classId) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      class_id: classId,
+      payment_id: paymentId,
     }),
   };
 
@@ -240,4 +241,18 @@ export async function createClassSku(classId) {
   };
 
   return callAPI(url, options, true);
+}
+
+/**
+ * Returns the first default payment method in an array of payment methods
+ * @param {Array} paymentMethods 
+ */
+export function getDefaultPaymentMethod(paymentMethods) {
+  let paymentMethod = null;
+  paymentMethods.forEach(pMethod => {
+    if (pMethod.default) {
+      paymentMethod = pMethod;
+    }
+  })
+  return paymentMethod;
 }

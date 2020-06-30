@@ -117,11 +117,7 @@ export default function () {
 
     // Show the default payment method
     if (pMethods && Array.isArray(pMethods.data)) {
-      pMethods.data.forEach(p => {
-        if (p.default) {
-          setPMethod(p);
-        }
-      })
+      setPMethod(Stripe.getDefaultPaymentMethod(pMethods.data))
     }
   }
 

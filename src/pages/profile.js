@@ -151,11 +151,7 @@ export default function () {
     }
 
     if (pMethods && Array.isArray(pMethods.data)) {
-      pMethods.data.forEach(pMethod => {
-        if (pMethod.default) {
-          setPMethod(pMethod);
-        }
-      })
+      setPMethod(Stripe.getDefaultPaymentMethod(pMethods.data))
     }
   }
 
