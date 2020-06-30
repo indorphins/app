@@ -197,7 +197,7 @@ export default function() {
         </Grid>
         {progress}
         <Grid>
-          <Button className={classes.btn} disabled={loader} variant="contained" color="primary" type="submit">Update</Button>
+          <Button className={classes.btn} disabled={loader} variant="contained" color="secondary" type="submit">Update</Button>
         </Grid>
       </form>
     </Grid>

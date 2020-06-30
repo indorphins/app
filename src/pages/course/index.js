@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { Container, Grid, Button, Grow, Divider }  from '@material-ui/core';
+import { Container, Grid, Fab, Grow, Divider }  from '@material-ui/core';
+import { Add, Clear } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 
 import CreateCourse from '../../components/form/editCourse';
@@ -15,6 +16,15 @@ const getUserSelector = createSelector([state => state.user.data], (user) => {
 const useStyles = makeStyles((theme) => ({
   content: {
     marginBottom: theme.spacing(4),
+  },
+  extendedBtn: {
+    marginRight: theme.spacing(1),
+  },
+  divider: {
+    margin: theme.spacing(2),
+  },
+  fab: {
+    fontWeight: "bold",
   }
 }));
 
@@ -60,17 +70,24 @@ export default function() {
 
   let createButton = null;
   if (allowCreate) {
-    let text = "Create";
-    let color = "secondary"
+    let btn = (
+      <Fab color="secondary" variant="extended" aria-label="create class" className={classes.fab} onClick={toggleCreateForm}>
+        <Add className={classes.extendedBtn} />
+        Class
+      </Fab>
+    );
 
     if (showForm) {
-      text = "Cancel";
-      color = "primary"
+      btn = (
+        <Fab color="primary" aria-label="cancel" onClick={toggleCreateForm}>
+          <Clear />
+        </Fab>
+      )
     }
 
     createButton = (
       <Grid  container direction="row" justify="flex-end" alignItems="center">
-        <Button color={color} variant="contained" onClick={toggleCreateForm}>{text}</Button>
+        {btn}
       </Grid>
     )
   }
@@ -81,7 +98,7 @@ export default function() {
       <Grow in={showForm}>
         <Grid>
           <CreateCourse instructorId={currentUser.id} photoUrl={currentUser.photo_url} spotsDisabled={true} costDisabled={true} />
-          <Divider />
+          <Divider className={classes.divider} />
         </Grid>
       </Grow>
     );

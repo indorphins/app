@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { Button, Container, Divider, Grid, CircularProgress } from '@material-ui/core';
+import { Container, Divider, Grid, CircularProgress, Fab } from '@material-ui/core';
+import { Create, Clear } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
@@ -22,6 +23,12 @@ const useStyles = makeStyles((theme) => ({
   },
   loader: {
     minHeight: 300,
+  },
+  extendedBtn: {
+    marginRight: theme.spacing(1),
+  },
+  fab: {
+    fontWeight: "bold",
   }
 }));
 
@@ -192,13 +199,25 @@ export default function() {
   );
 
   if (editButton) {
-    editButtonContent = (
-      <Grid container direction="row" justify="flex-end">
-        <Grid item>
-          <Button className={classes.btn} variant="contained" color="secondary" onClick={toggleEditForm}>Edit</Button>
-        </Grid>
-      </Grid>
+    let btn = (
+      <Fab color="secondary" aria-label="edit profile" className={classes.fab} onClick={toggleEditForm}>
+        <Create />
+      </Fab>
     );
+
+    if (editForm) {
+      btn = (
+        <Fab color="primary" aria-label="cancel" onClick={toggleEditForm}>
+          <Clear />
+        </Fab>
+      )
+    }
+
+    editButtonContent = (
+      <Grid  container direction="row" justify="flex-end" alignItems="center">
+        {btn}
+      </Grid>
+    )
   }
 
   if (editForm) {
@@ -206,7 +225,6 @@ export default function() {
       <Grid>
         {editButtonContent}
         <ProfileEdit />
-        <Divider className={classes.divider} />
       </Grid>
     );
   }
