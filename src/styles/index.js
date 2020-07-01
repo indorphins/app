@@ -171,12 +171,24 @@ export default function(props) {
     MUIRichTextEditor: {
       root: {
         width: "100%",
-        border: "1px solid gray",
+        border: "1px solid " + theme.palette.grey[400],
         borderRadius: "0.3rem",
+        '&:hover': {
+          border: "1px solid " + theme.palette.grey[800],
+        },
+        '&:focus': {
+          border: "1px solid " + theme.palette.grey[800],
+        }
       },
       editor: {
-        borderTop: "1px solid gray",
+        borderTop: "1px solid " + theme.palette.grey[400],
+        padding: 0,
+        minHeight: "40px",
+      },
+      editorContainer: {
+        margin: 0,
         padding: theme.spacing(1),
+        minHeight: "40px",
       }
     },
     MuiTab: {

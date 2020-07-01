@@ -275,7 +275,7 @@ export default function(props) {
             <TextField disabled={loader} className={classes.title} color="secondary" required id="title" type="text" label="Title" variant="outlined" value={title} onChange={titleHandler} />
           </Grid>
           <Grid item xs={12}>
-            <Editor value={props.description} id="description" label="Description" onChange={editorHandler} onSave={editorSaveHandler} />
+            <Editor value={props.description} id="description" label="Description *" onChange={editorHandler} onSave={editorSaveHandler} />
           </Grid>
           {loaderContent}
           <Grid>

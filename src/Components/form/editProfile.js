@@ -184,7 +184,7 @@ export default function() {
           <TextField className={classes.input} disabled={loader} required autoComplete="family_name" color="secondary" variant="outlined" type="text" id="last" label="Last Name" value={lastname} onChange={lastHandler} />
         </Grid>
         <Grid>
-          <TextField className={classes.input} disabled={loader} autoComplete="tel" color="secondary" variant="outlined" type="tel" id="phone" label="Phone Number" value={phone} onChange={phoneHandler} />
+          <TextField className={classes.input} disabled={loader} required autoComplete="tel" color="secondary" variant="outlined" type="tel" id="phone" label="Phone Number" value={phone} onChange={phoneHandler} />
         </Grid>
         <Grid>
           <TextField className={classes.input} disabled={loader} autoComplete="tel" color="secondary" variant="outlined" type="text" id="instagram" label="Instagram Handle" value={instagram} onChange={instaHandler} />
