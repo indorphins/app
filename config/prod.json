@@ -9,5 +9,6 @@
     "messagingSenderId": "277590862006",
     "appId": "1:277590862006:web:65adb854f186fb15e11e17",
     "measurementId": "G-CWVMHW29VL"
-  }
+  },
+  "stripe_public_key": "pk_live_3C7lhYxV5IMIUDOoCNceChIU00BTRQ5kPn"
 }
