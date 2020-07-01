@@ -293,11 +293,25 @@ export default function () {
   }
 
   const courseLeaveHandler = async function () {
+    // refund the payment
+    let refund;
+
+    try {
+      refund = await Stripe.refundPayment(course.id)
+    } catch (err) {
+      return log.error("COURSE INFO: refund course ", err);
+    }
+
+    if (refund.message.statusCode >= 400) {
+      // refund unsuccessful don't remove from class
+      return log.error("COURSE INFO: refund unsuccessful");
+    }
+
+    // remove from the course
     try {
       await Course.removeParticipant(params.id);
     } catch (err) {
-      return log.error("COURSE INFO: course signup", err);
-      // TODO: hookup with new stripe flows
+      return log.error("COURSE INFO: course leave", err);
     }
 
     history.push(path.profile);
