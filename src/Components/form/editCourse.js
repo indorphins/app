@@ -15,6 +15,7 @@ import Editor from '../editor';
 import log from '../../log';
 import * as Course from '../../api/course';
 import * as utils from '../../utils';
+import { createClassSku } from '../../api/stripe'
 import path from '../../routes/path';
 
 const useStyles = makeStyles((theme) => ({
@@ -40,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function(props) {
+export default function (props) {
 
   const classes = useStyles();
   const history = useHistory();
@@ -63,15 +64,15 @@ export default function(props) {
     if (props.recurring) setRecurring(true);
   }, [props]);
 
-  const titleHandler = function(e) {
+  const titleHandler = function (e) {
     setTitle(e.target.value)
   }
 
-  const typeHandler = function(e) {
+  const typeHandler = function (e) {
     setCourseType(e.target.value);
   }
 
-  const costHandler = function(e) {
+  const costHandler = function (e) {
     setCost(e.target.value);
   }
 
@@ -79,7 +80,7 @@ export default function(props) {
     setSelectedDate(date);
   };
 
-  const handleSpotsSlider = function(e) {
+  const handleSpotsSlider = function (e) {
     let value = Number(e.target.innerText);
 
     if (value) {
@@ -89,7 +90,7 @@ export default function(props) {
     }
   }
 
-  const handleDurationSlider = function(e) {
+  const handleDurationSlider = function (e) {
     let value = Number(e.target.innerText);
 
     if (value) {
@@ -99,11 +100,11 @@ export default function(props) {
     }
   }
 
-  const editorHandler = function(e) {
+  const editorHandler = function (e) {
     setDescription(e);
   }
 
-  const recurringHandler = function(e) {
+  const recurringHandler = function (e) {
     if (recurring) {
       setRecurring(false);
     } else {
@@ -111,7 +112,7 @@ export default function(props) {
     }
   }
 
-  const editorSaveHandler = async function(e) {
+  const editorSaveHandler = async function (e) {
     setLoader(true);
 
     let data = {
@@ -120,7 +121,7 @@ export default function(props) {
 
     try {
       await Course.update(data);
-    } catch(err) {
+    } catch (err) {
       // TODO: display error
       return log.error("COURSE EDIT:: save course description", err);
     }
@@ -128,9 +129,9 @@ export default function(props) {
     setLoader(false);
   }
 
-  const formHandler = async function(e) {
+  const formHandler = async function (e) {
     e.preventDefault();
-    
+
     if (!props.instructorId) {
       log.debug("COURSE EDIT:: no instructor set");
       return;
@@ -162,7 +163,7 @@ export default function(props) {
 
       try {
         await Course.update(props.courseId, data)
-      } catch(e) {
+      } catch (e) {
         setLoader(false);
         // TODO: display error
         return log.error("COURSE EDIT:: course update", e);
@@ -177,10 +178,18 @@ export default function(props) {
 
       try {
         created = await Course.create(data)
-      } catch(e) {
+      } catch (e) {
         setLoader(false);
         // TODO: display error
         return log.error("COURSE EDIT:: course creation", e);
+      }
+
+      // Create the product sku and tie to course
+      try {
+        await createClassSku(created.data.id);
+      } catch (err) {
+        setLoader(false);
+        return log.error("COURSE EDIT:: sku creation ", err);
       }
 
       setLoader(false);
@@ -190,17 +199,17 @@ export default function(props) {
 
   let costContent = (
     <Grid item xs>
-      <TextField 
+      <TextField
         disabled={loader}
-        color="secondary" 
-        required 
-        id="cost" 
-        type="text" 
-        label="Cost" 
-        variant="outlined" 
-        className={classes.cost} 
-        value={cost} 
-        onChange={costHandler} 
+        color="secondary"
+        required
+        id="cost"
+        type="text"
+        label="Cost"
+        variant="outlined"
+        className={classes.cost}
+        value={cost}
+        onChange={costHandler}
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">
@@ -253,7 +262,7 @@ export default function(props) {
               <Typography variant="subtitle2">{duration} minutes</Typography>
             </Box>
             <Slider disabled={loader} className={classes.durSlider} defaultValue={60} min={30} max={60} step={15} valueLabelDisplay="auto" onChangeCommitted={handleDurationSlider} />
-          </Grid>     
+          </Grid>
           <MuiPickersUtilsProvider utils={DateFnsUtils}>
             <Grid item xs>
               <KeyboardDatePicker disabled={loader} variant="inline" format="MM/dd/yyyy" margin="normal" id="date" label="Date" value={selectedDate} onChange={handleDateChange} />
@@ -275,7 +284,7 @@ export default function(props) {
             <TextField disabled={loader} className={classes.title} color="secondary" required id="title" type="text" label="Title" variant="outlined" value={title} onChange={titleHandler} />
           </Grid>
           <Grid item xs={12}>
-            <Editor value={props.description} id="description" label="Description" onChange={editorHandler} onSave={editorSaveHandler} />
+            <Editor value={props.description} id="description" label="Description *" onChange={editorHandler} onSave={editorSaveHandler} />
           </Grid>
           {loaderContent}
           <Grid>

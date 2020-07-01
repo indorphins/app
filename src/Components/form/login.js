@@ -30,6 +30,9 @@ const useStyles = makeStyles((theme) => ({
 	txtField: {
 		width: 350,
 	},
+	googBtn: {
+		marginTop: theme.spacing(3),
+	}
 }));
 
 export default function() {
@@ -166,18 +169,24 @@ export default function() {
 					<Button disabled={loader} className={classes.lgnBtn} color="primary" type="submit" variant="contained">{submitText}</Button>
 				</Grid>
 			</form>
-			<Grid>
-				<Typography>
-					<Link color="secondary" onClick={loadSignUpForm}>Need an account?</Link>
-				</Typography>
-				<Typography>
-					<Link color="secondary" onClick={switchMode}>{linkText}</Link>
-				</Typography>
+			<Grid container direction="row" justify="space-between">
+				<Grid item>
+					<Typography>
+						<Link color="secondary" onClick={loadSignUpForm}>Need an account?</Link>
+					</Typography>
+				</Grid>
+				<Grid item>
+					<Typography>
+						<Link color="secondary" onClick={switchMode}>{linkText}</Link>
+					</Typography>
+				</Grid>
 			</Grid>
-			<Grid>
-				<Button color="inherit" disableElevation className={classes.googBtn} onClick={googleSignInFlow}>
-					Sign in with Google
-				</Button>
+			<Grid container direction="row" justify="center">
+				<Grid item>
+					<Button color="inherit" disableElevation className={classes.googBtn} onClick={googleSignInFlow}>
+						Sign in with Google
+					</Button>
+				</Grid>
 			</Grid>
 		</Grid>
 	);

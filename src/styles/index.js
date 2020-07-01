@@ -11,7 +11,10 @@ const colors = {
   pinkishblack: "#262425",
   black: "#121212",
   black1: "#1a1a1a",
-  black2: "#1f1f1f"
+  black2: "#1f1f1f",
+  skyblue: "#b3d7ff",
+  royalblue: "#011f6b",
+  offwhite: "#f5f5f0",
 }
 
 const typography = {
@@ -48,12 +51,14 @@ let lightTheme = createMuiTheme({
   palette: {
     type: 'light',
     primary: {
-      main: colors.pinkishblack,
-      contrastText: colors.pink,
+      //main: colors.pinkishblack,
+      //contrastText: colors.pink,
+      main: colors.royalblue,
+      contrastText: colors.offwhite,
     },
     secondary: {
-      main: colors.pink,
-      contrastText: colors.pinkishblack,
+      main: colors.skyblue,
+      contrastText: colors.royalblue,
     }
   },
   spacing: 8,
@@ -66,11 +71,11 @@ let darkTheme = createMuiTheme({
     type: 'dark',
     primary: {
       main: colors.black,
-      contrastText: colors.pink,
+      contrastText: lightTheme.palette.grey[400],
     },
     secondary: {
-      main: colors.pink,
-      contrastText: colors.black,
+      main: colors.skyblue,
+      contrastText: colors.royalblue,
     },
     background: {
       paper: colors.black1,
@@ -153,8 +158,6 @@ export default function(props) {
     MuiGridListTileBar: {
       root: {
         background: "rgba(0, 0, 0, 0.5)",
-        borderBottomLeftRadius: "4px",
-        borderBottomRightRadius: "4px",
       },
       subtitle:{
         color: theme.palette.secondary.main
@@ -168,12 +171,24 @@ export default function(props) {
     MUIRichTextEditor: {
       root: {
         width: "100%",
-        border: "1px solid gray",
+        border: "1px solid " + theme.palette.grey[400],
         borderRadius: "0.3rem",
+        '&:hover': {
+          border: "1px solid " + theme.palette.grey[800],
+        },
+        '&:focus': {
+          border: "1px solid " + theme.palette.grey[800],
+        }
       },
       editor: {
-        borderTop: "1px solid gray",
+        borderTop: "1px solid " + theme.palette.grey[400],
+        padding: 0,
+        minHeight: "40px",
+      },
+      editorContainer: {
+        margin: 0,
         padding: theme.spacing(1),
+        minHeight: "40px",
       }
     },
     MuiTab: {

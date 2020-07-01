@@ -1,14 +1,26 @@
 import React, { useEffect } from 'react';
 import MUIRichTextEditor from 'mui-rte';
-import { EditorState, convertToRaw, ContentState, convertFromHTML } from 'draft-js';
+import { convertToRaw, ContentState, convertFromHTML } from 'draft-js';
 import { convertToHTML } from 'draft-convert';
-import Box from '@material-ui/core/Box';
-import Typography from '@material-ui/core/Typography';
+import { Box, Typography, makeStyles } from '@material-ui/core';
+
+const useStyles = makeStyles((theme) => ({
+  header: {
+    color: theme.palette.grey[600],
+    fontSize: '1rem',
+  }
+}));
 
 export default function(props) {
 
+  const classes = useStyles();
   const [html, setHtml] = React.useState(null);
-  const emptyContentState = JSON.stringify(convertToRaw(EditorState.createEmpty().getCurrentContent()));
+  const blocksFromHTML = convertFromHTML("");
+  const st = ContentState.createFromBlockArray(
+    blocksFromHTML.contentBlocks,
+    blocksFromHTML.entityMap,
+  );
+  const emptyContentState = JSON.stringify(convertToRaw(st));
   const[editorState, setEditorState] = React.useState(emptyContentState);
 
   const enabledControls = [
@@ -26,13 +38,13 @@ export default function(props) {
   ];
 
   useEffect(() => {
-    if (props.value) {
-      const blocksFromHTML = convertFromHTML(props.value);
-      const st = ContentState.createFromBlockArray(
+    if (props.value && props.value !== "") {
+      let blocksFromHTML = convertFromHTML(props.value);
+      let st = ContentState.createFromBlockArray(
         blocksFromHTML.contentBlocks,
         blocksFromHTML.entityMap,
       );
-      const content = JSON.stringify(convertToRaw(st))
+      let content = JSON.stringify(convertToRaw(st))
 
       setEditorState(content);
     }
@@ -56,7 +68,7 @@ export default function(props) {
   return (
     <Box>
       <Box>
-        <Typography variant="subtitle2">
+        <Typography variant="subtitle2" className={classes.header}>
           {props.label}
         </Typography>
       </Box>

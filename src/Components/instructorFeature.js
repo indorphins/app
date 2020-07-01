@@ -12,10 +12,16 @@ const useStyles = makeStyles((theme) => ({
     minHeight: 300,
   },
   photo: {
-    height: 300,
+    height: 400,
     width: "100%",
     objectFit: "cover",
-    borderRadius: "4px",
+    //borderRadius: "4px",
+    '@media (max-width: 600px)': {
+      height: 275,
+    },
+    '@media (max-width:950px)': {
+      height: 325,
+    },
   },
   desc: {
     fontWeight: "bold"
@@ -33,7 +39,8 @@ export default function(props) {
   const [data, setData] = useState(null);
   const [header, setHeader] = useState(null);
   const [cols, setCols] = useState(4);
-  const [spacing, setSpacing] = useState(40);
+  const [spacing, setSpacing] = useState(10);
+  const [height, setHeight] = useState(400);
   const [loader, setLoader] = useState(true);
 
   let content = null;
@@ -52,13 +59,16 @@ export default function(props) {
   useEffect(() => {
     if (small) {
       setCols(2);
+      setHeight(275);
       setSpacing(10);
     } else if (med) {
       setCols(3);
-      setSpacing(20);
+      setHeight(325);
+      setSpacing(10);
     }else {
       setCols(4);
-      setSpacing(40);
+      setHeight(400);
+      setSpacing(10);
     }
   }, [small, med]);
 
@@ -117,33 +127,31 @@ export default function(props) {
     });
    
     formContent = (
-      <GridList cellHeight={250} cols={cols} spacing={spacing}>
-      {items.map(instructor => (
-        <GridListTile key={instructor.id} cols={1}>
-          <Link className={classes.anchor} to={instructor.url}>
-            <Grid container>
-              <img alt={instructor.firstName} className={classes.photo} src={instructor.photo} />
-              <GridListTileBar
-                title={instructor.firstName}
-                subtitle="See Schedule"
-                className={classes.desc}
-              />
-            </Grid>
-          </Link>
-        </GridListTile>
-      ))}
-      </GridList>
-    );
-  } else {
-    formContent = (
-      <Grid className={classes.loader} container direction="row" justify="center" alignItems="center">
-        <Typography variant="h5">
-          No results
-        </Typography>
+      <Grid>
+        <Grid>
+          {headerContent}
+        </Grid>
+        <GridList cellHeight={height} cols={cols} spacing={spacing}>
+        {items.map(instructor => (
+          <GridListTile key={instructor.id} cols={1}>
+            <Link className={classes.anchor} to={instructor.url}>
+              <Grid container>
+                <img alt={instructor.firstName} className={classes.photo} src={instructor.photo} />
+                <GridListTileBar
+                  title={instructor.firstName}
+                  subtitle="See Schedule"
+                  className={classes.desc}
+                />
+              </Grid>
+            </Link>
+          </GridListTile>
+        ))}
+        </GridList>
       </Grid>
     );
+  } else {
+    formContent = null;
   }
-
 
   content = formContent;
 
@@ -153,12 +161,7 @@ export default function(props) {
 
   return (
     <Grid container>
-      <Grid>
-        {headerContent}
-      </Grid>
-      <Grid container>
-        {content}
-      </Grid>
+      {content}
     </Grid>
   );
 }

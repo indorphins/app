@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { Button, Container, Divider, Grid, CircularProgress } from '@material-ui/core';
+import { Button, Container, Divider, Grid, CircularProgress, Fab } from '@material-ui/core';
+import { Create, Clear } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
@@ -10,6 +11,7 @@ import ProfileEdit from '../components/form/editProfile';
 import UserData from '../components/userData';
 import * as Instructor from '../api/instructor';
 import * as Course from '../api/course';
+import * as Stripe from '../api/stripe';
 import log from '../log';
 import path from '../routes/path';
 
@@ -22,6 +24,12 @@ const useStyles = makeStyles((theme) => ({
   },
   loader: {
     minHeight: 300,
+  },
+  extendedBtn: {
+    marginRight: theme.spacing(1),
+  },
+  fab: {
+    fontWeight: "bold",
   }
 }));
 
@@ -29,7 +37,7 @@ const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
 });
 
-export default function() {
+export default function () {
 
   const history = useHistory();
   const classes = useStyles();
@@ -48,19 +56,73 @@ export default function() {
   const [coursesLabel, setCoursesLabel] = useState("Class Schedule");
   const [editButton, setEditButton] = useState(false);
   const [editForm, setEditForm] = useState(false);
+  const [pMethod, setPMethod] = useState();
+  const [createStripe, setCreateStripe] = useState(false);
 
+  useEffect(() => {
+
+    setCourses([]);
+
+    if (params.id) {
+      getInstructor(params.id);
+
+    } else {
+
+      if (currentUser.id) {
+        setUsername(currentUser.username);
+        setEmail(currentUser.email);
+        setFirstName(currentUser.first_name);
+        setLastName(currentUser.last_name);
+        setPhoto(currentUser.photo_url);
+        setPhone(currentUser.phone_number)
+        setBio(currentUser.bio);
+        if (currentUser.social && currentUser.social.instagram) setInsta(currentUser.social.instagram);
+        setLoader(false);
+
+        setCoursesLabel("Your Schedule");
+        if (currentUser.type === 'instructor') {
+          getInstructorSchedule(currentUser._id);
+        } else {
+          getUserSchedule(currentUser.id);
+        }
+        return;
+      }
+
+      history.push(path.login);
+    }
+
+  }, [currentUser, params]);
+
+  useEffect(() => {
+    if (currentUser.id === params.id || !params.id) {
+      setEditButton(true);
+    } else {
+      setEditButton(false);
+    }
+  }, [currentUser.id, params.id])
+
+  useEffect(() => {
+    if (currentUser.id === params.id || !params.id) {
+      getPaymentMethods()
+    }
+  }, [currentUser.id, params.id])
+
+  useEffect(() => {
+    if (currentUser.type === 'instructor' && (currentUser.id === params.id || !params.id)) {
+      getStripeAccount()
+    }
+  }, [currentUser.id, params.id])
 
   async function getInstructor(id) {
     let instructor;
 
     try {
       instructor = await Instructor.get(id);
-    } catch(err) {
+    } catch (err) {
       // redirect to user's profile
       log.error("PROFILE::", err);
       history.push(path.profile);
       return;
-
     }
 
     if (!instructor || !instructor.data) {
@@ -68,7 +130,7 @@ export default function() {
       history.push(path.profile);
       return;
     }
-    
+
     if (instructor && instructor.data) {
       setUsername(instructor.data.username);
       setEmail(instructor.data.email);
@@ -84,11 +146,59 @@ export default function() {
     }
   }
 
+  async function getPaymentMethods() {
+    let pMethods;
+
+    try {
+      pMethods = await Stripe.getPaymentMethods();
+    } catch (err) {
+      log.error("PROFILE:: ", err);
+      history.push(path.profile);
+      return;
+    }
+
+    if (pMethods && Array.isArray(pMethods.data)) {
+      setPMethod(Stripe.getDefaultPaymentMethod(pMethods.data))
+    }
+  }
+
+  async function createStripeAccount() {
+    let redirect;
+
+    try {
+      redirect = await Stripe.redirectToSignUp(window.location.href)
+      window.location.href = redirect.redirectUrl;
+    } catch (err) {
+      log.error("PROFILE:: error fetching stripe instructor redirect ", err);
+      history.push(path.profile);
+      return;
+    }
+  }
+
+  async function getStripeAccount() {
+    let stripeUser;
+
+    try {
+      stripeUser = await Stripe.getStripeUser()
+    } catch (err) {
+      log.error("PROFILE:: ", err);
+      history.push(path.profile);
+      return;
+    }
+
+    if (!stripeUser.data || !stripeUser.data.connectId) {
+      // Show create account button
+      setCreateStripe(true);
+    } else {
+      setCreateStripe(false);
+    }
+  }
+
   async function getSchedule(filter) {
     let result;
 
     try {
-      result = await Course.query(filter);
+      result = await Course.query(filter, {}, 500);
     } catch(err) {
       throw err;
     }
@@ -100,11 +210,20 @@ export default function() {
     }
   }
 
-  async function getUserSchedule(userId) {
+  async function getUserSchedule(userId, mongoId) {
     let now = new Date();
+    now.setHours(now.getHours() - 24);
     let schedFilter = {
-      participants: { $elemMatch: { id: userId }},
-      '$or': [ {start_date: {"$gte" : now.toISOString() }},  {end_date: {"$gte" : now.toISOString() }}, {recurring: { '$exists': true}} ],
+      '$and': [
+        {'$or': [
+          {instructor: mongoId},
+          {participants: { $elemMatch: { id: userId }}},
+        ]},
+        {'$or': [ 
+          { start_date: {"$gte" : now.toISOString() }},
+          { recurring: { '$exists': true }}
+        ]},
+      ],
       start_date: { '$exists': true },
     };
 
@@ -115,9 +234,13 @@ export default function() {
 
   async function getInstructorSchedule(mongoId) {
     let now = new Date();
+    now.setHours(now.getHours() - 24);
     let schedFilter = { 
       instructor: mongoId,
-      '$or': [ {start_date: {"$gte" : now.toISOString() }},  {end_date: {"$gte" : now.toISOString() }}, {recurring: { '$exists': true}} ],
+      '$or': [ 
+          { start_date: {"$gte" : now.toISOString() }},
+          { recurring: { '$exists': true }}
+      ],
       start_date: { '$exists': true },
     };
 
@@ -145,28 +268,13 @@ export default function() {
         setLoader(false);
 
         setCoursesLabel("Your Schedule");
-        if (currentUser.type === 'instructor') {
-          getInstructorSchedule(currentUser._id);
-        } else {
-          getUserSchedule(currentUser.id);
-        }
+        getUserSchedule(currentUser.id, currentUser._id);
         return;
       }
-
-      history.push(path.login);
     }
+  }, [params, currentUser]);
 
-  }, [currentUser, params]);
-
-  useEffect(() => {
-    if (currentUser.id === params.id || !params.id)  {
-      setEditButton(true);
-    } else {
-      setEditButton(false);
-    }
-  }, [currentUser.id, params.id])
-
-  const toggleEditForm = function() {
+  const toggleEditForm = function () {
     if (editForm) {
       setEditForm(false);
     } else {
@@ -176,6 +284,7 @@ export default function() {
 
   let editContent = null;
   let editButtonContent = null;
+  let createStripeButtonContent = null;
   let loaderContent = (
     <Grid container direction="row" justify="center" alignItems="center" className={classes.loader}>
       <CircularProgress color="secondary" />
@@ -183,13 +292,37 @@ export default function() {
   );
 
   if (editButton) {
+    let btn = (
+      <Fab color="secondary" aria-label="edit profile" className={classes.fab} onClick={toggleEditForm}>
+        <Create />
+      </Fab>
+    );
+
+    if (editForm) {
+      btn = (
+        <Fab color="primary" aria-label="cancel" onClick={toggleEditForm}>
+          <Clear />
+        </Fab>
+      )
+    }
+
     editButtonContent = (
       <Grid container direction="row" justify="flex-end">
         <Grid item>
-          <Button className={classes.btn} variant="contained" color="secondary" onClick={toggleEditForm}>Edit</Button>
+          {btn}
         </Grid>
       </Grid>
     );
+  }
+
+  if (createStripe) {
+    createStripeButtonContent = (
+      <Grid container direction="row" justify="flex-end">
+        <Grid item>
+          <Button id='create-stripe-acct-btn' className={classes.btn} variant="contained" color="secondary" onClick={createStripeAccount}>Create Payment Account</Button>
+        </Grid>
+      </Grid>
+    )
   }
 
   if (editForm) {
@@ -197,15 +330,15 @@ export default function() {
       <Grid>
         {editButtonContent}
         <ProfileEdit />
-        <Divider className={classes.divider} />
       </Grid>
     );
   }
 
   let userContent = (
     <Grid>
+      {createStripeButtonContent}
       {editButtonContent}
-      <UserData header={username} email={email} photo={photo} phone={phone} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} />
+      <UserData header={username} email={email} photo={photo} phone={phone} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} paymentMethod={pMethod} />
       <Divider className={classes.divider} />
       <CourseSchedule header={coursesLabel} course={courses} view="month" />
     </Grid>
@@ -226,4 +359,4 @@ export default function() {
       {content}
     </Container>
   );
-};
+}
