@@ -1,31 +1,41 @@
 {
 	"name": "indorphins-fe",
-	"version": "0.1.0",
+	"version": "0.0.1",
 	"private": true,
 	"dependencies": {
-		"@daily-co/daily-js": "^0.9.983",
-		"@testing-library/jest-dom": "^4.2.4",
-		"@testing-library/react": "^9.5.0",
-		"@testing-library/user-event": "^7.2.1",
-		"babel-plugin-react-css-modules": "^5.2.6",
+		"@date-io/date-fns": "==1.3.13",
+		"@material-ui/core": "^4.10.0",
+		"@material-ui/icons": "^4.9.1",
+		"@material-ui/lab": "^4.0.0-alpha.54",
+		"@material-ui/pickers": "^3.2.10",
+		"@opentok/client": "^2.17.2",
+		"@reduxjs/toolkit": "^1.3.6",
+		"@stripe/react-stripe-js": "^1.1.2",
+		"@stripe/stripe-js": "^1.7.0",
+		"clsx": "^1.1.1",
+		"cron-parser": "^2.15.0",
+		"date-fns": "^2.14.0",
+		"draft-convert": "^2.1.10",
 		"firebase": "^7.14.2",
+		"later": "RickCarlino/later",
 		"lodash": "^4.17.15",
+		"mui-rte": "^1.19.0",
 		"node-fetch": "^2.6.0",
+		"opentok-react": "^0.10.0",
 		"react": "^16.13.1",
-		"react-cookie": "^4.0.3",
+		"react-big-calendar": "^0.25.0",
 		"react-dom": "^16.13.1",
 		"react-jss": "^10.1.1",
+		"react-redux": "^7.2.0",
 		"react-router-dom": "^5.1.2",
-		"react-scripts": "2.0.4"
+		"reselect": "^4.0.0"
 	},
 	"scripts": {
-		"start": "source .env.development && npm run watch:css && react-scripts start",
-		"build": "npm run build:css && react-scripts build",
+		"start": "cp config/${APP_ENV}.json src/app.json && react-scripts start",
+		"build": "cp config/${APP_ENV}.json src/app.json && react-scripts build",
 		"test": "react-scripts test",
 		"eject": "react-scripts eject",
-		"transpile": "babel ./src --out-dir dist-server",
-		"build:css": "postcss src/Styles/tailwind.css -o src/Styles/main.css",
-		"watch:css": "postcss src/Styles/tailwind.css -o src/Styles/main.css"
+		"transpile": "babel ./src --out-dir dist-server"
 	},
 	"eslintConfig": {
 		"extends": "react-app"
@@ -54,10 +64,10 @@
 		"autoprefixer": "^9.7.5",
 		"babel-cli": "^6.26.0",
 		"babel-core": "^6.26.3",
+		"babel-plugin-react-css-modules": "^5.2.6",
 		"babel-preset-es2015": "^6.24.1",
 		"babel-preset-latest": "^6.24.1",
 		"babel-preset-react": "^6.24.1",
-		"postcss-cli": "^7.1.0",
-		"tailwindcss": "^1.2.0"
+		"react-scripts": "2.0.4"
 	}
 }
