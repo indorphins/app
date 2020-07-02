@@ -514,7 +514,7 @@ export default function(props) {
 
     if (user.id === course.instructor.id) {
       settings.resolution = "1280x720";
-      settings.audioBitrate = 64000;
+      settings.audioBitrate = 96000;
       settings.enableStereo = true;
       settings.disableAudioProcessing = true;
     }
