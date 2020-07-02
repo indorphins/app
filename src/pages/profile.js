@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { Button, Container, Divider, Grid, CircularProgress, Fab } from '@material-ui/core';
-import { Create, Clear } from '@material-ui/icons';
+import { Container, Divider, Grid, CircularProgress, Fab } from '@material-ui/core';
+import { Create, Clear, AccountBalanceOutlined } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
@@ -30,6 +30,8 @@ const useStyles = makeStyles((theme) => ({
   },
   fab: {
     fontWeight: "bold",
+    marginLeft: theme.spacing(2),
+    marginBottom: theme.spacing(2),
   }
 }));
 
@@ -108,10 +110,11 @@ export default function () {
   }, [currentUser.id, params.id])
 
   useEffect(() => {
-    if (currentUser.type === 'instructor' && (currentUser.id === params.id || !params.id)) {
+    if ((currentUser.type === 'instructor' || currentUser.type === 'admin') && (currentUser.id === params.id || !params.id)) {
       getStripeAccount()
     }
-  }, [currentUser.id, params.id])
+  }, [currentUser.id, params.id]);
+  
 
   async function getInstructor(id) {
     let instructor;
@@ -284,6 +287,7 @@ export default function () {
 
   let editContent = null;
   let editButtonContent = null;
+  let controlsContent = null;
   let createStripeButtonContent = null;
   let loaderContent = (
     <Grid container direction="row" justify="center" alignItems="center" className={classes.loader}>
@@ -292,43 +296,44 @@ export default function () {
   );
 
   if (editButton) {
-    let btn = (
-      <Fab color="secondary" aria-label="edit profile" className={classes.fab} onClick={toggleEditForm}>
+    editButtonContent = (
+      <Fab color="secondary" aria-label="edit profile" className={classes.fab} onClick={toggleEditForm} title="Edit your profile info">
         <Create />
       </Fab>
     );
 
     if (editForm) {
-      btn = (
+      editButtonContent = (
         <Fab color="primary" aria-label="cancel" onClick={toggleEditForm}>
           <Clear />
         </Fab>
       )
     }
-
-    editButtonContent = (
-      <Grid container direction="row" justify="flex-end">
-        <Grid item>
-          {btn}
-        </Grid>
-      </Grid>
-    );
   }
 
   if (createStripe) {
     createStripeButtonContent = (
-      <Grid container direction="row" justify="flex-end">
-        <Grid item>
-          <Button id='create-stripe-acct-btn' className={classes.btn} variant="contained" color="secondary" onClick={createStripeAccount}>Create Payment Account</Button>
-        </Grid>
-      </Grid>
+      <Fab color="secondary" aria-label="add bank account" onClick={createStripeAccount} title="Link your bank account">
+        <AccountBalanceOutlined />
+      </Fab>
     )
   }
+
+  controlsContent = (
+    <Grid container direction="row" justify="flex-end">
+      <Grid item>
+        {createStripeButtonContent}
+      </Grid>
+      <Grid item>
+        {editButtonContent}
+      </Grid>
+    </Grid>
+  );
 
   if (editForm) {
     editContent = (
       <Grid>
-        {editButtonContent}
+        {controlsContent}
         <ProfileEdit />
       </Grid>
     );
@@ -336,8 +341,7 @@ export default function () {
 
   let userContent = (
     <Grid>
-      {createStripeButtonContent}
-      {editButtonContent}
+      {controlsContent}
       <UserData header={username} email={email} photo={photo} phone={phone} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} paymentMethod={pMethod} />
       <Divider className={classes.divider} />
       <CourseSchedule header={coursesLabel} course={courses} view="month" />
