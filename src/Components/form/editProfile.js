@@ -1,12 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { Grid, TextField, Button, LinearProgress, Typography } from '@material-ui/core';
+import { Grid, TextField, Button, LinearProgress } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
-import AddPaymentMethod from './addPaymentMethod';
 import * as User from '../../api/user';
-import * as Stripe from '../../api/stripe';
 import log from '../../log';
 import { store, actions } from '../../store';
 import Editor from '../editor';
@@ -39,8 +37,6 @@ export default function () {
   const [bio, setBio] = useState('');
   const [bioContent, setBioContent] = useState('<p></p>');
   const [loader, setLoader] = useState(false);
-  const [addPaymentMethod, setAddPaymentMethod] = useState(false);
-  const [pMethod, setPMethod] = useState();
 
   let content;
 
@@ -68,14 +64,7 @@ export default function () {
       }
     }
 
-  }, [currentUser])
-
-  useEffect(async () => {
-    if (currentUser.id) {
-      getPaymentMethods()
-    }
-  }, [currentUser.id])
-
+  }, [currentUser]);
 
   const usernameHandler = function (e) {
     setUsername(e.target.value);
@@ -105,22 +94,6 @@ export default function () {
     setBio(e);
   }
 
-  async function getPaymentMethods() {
-    let pMethods;
-
-    try {
-      pMethods = await Stripe.getPaymentMethods();
-    } catch (err) {
-      log.error("EDIT_PROFILE:: ", err);
-      return;
-    }
-
-    // Show the default payment method
-    if (pMethods && Array.isArray(pMethods.data)) {
-      setPMethod(Stripe.getDefaultPaymentMethod(pMethods.data))
-    }
-  }
-
   const editorSaveHandler = async function (e) {
     setLoader(true);
 
@@ -143,30 +116,6 @@ export default function () {
     }
 
     setLoader(false);
-  }
-
-  const addPaymentMethodHandler = function () {
-    setAddPaymentMethod(true);
-  }
-
-  const backButtonHandler = (paymentMethod) => {
-    setAddPaymentMethod(false);
-    setPMethod(paymentMethod)
-  }
-
-  const removePaymentMethodHandler = function () {
-    Stripe.deletePaymentMethod(pMethod.id)
-      .then(result => {
-        if (result.statusCode >= 400) {
-          throw Error("Payment method removal failed");
-        } else {
-          log.info("EDIT_PROFILE:: remove payment method success: ", result);
-          setPMethod(null);
-        }
-      }).catch(err => {
-        log.error("EDIT_PROFILE:: remove payment method failure: ", err);
-        // TODO Display error
-      })
   }
 
   const formHandler = async function (e) {
@@ -246,34 +195,6 @@ export default function () {
       <Grid>
         <Editor label="Bio" value={bioContent} onChange={editorHandler} onSave={editorSaveHandler} />
       </Grid>
-      <Grid>
-        {pMethod ?
-          <Grid>
-            <label for='payment-method-type'>Payment Method</label>
-            <Grid container display='row' justify='space-between' alignItems='center'>
-              <Typography id='payment-method-type' label='Payment Method'>
-                {`${pMethod.type.toUpperCase()} Card ending in ${pMethod.last4}`}
-              </Typography>
-              <Button className={classes.btn} disabled={loader} variant="contained" color="primary" type="button" onClick={removePaymentMethodHandler}>
-                Remove Payment Method
-              </Button>
-
-            </Grid>
-          </Grid>
-          :
-          <Grid>
-            <label for='payment-method-type'>Payment Method</label>
-            <Grid container display='row' justify='space-between' alignItems='center'>
-              <Typography label='Payment Method'>
-                {`Add a Payment Method`}
-              </Typography>
-              <Button className={classes.btn} disabled={loader} variant="contained" color="primary" type="button" onClick={addPaymentMethodHandler}>
-                Add Payment Method
-              </Button>
-            </Grid>
-          </Grid>
-        }
-      </Grid>
       {progress}
       <Grid>
         <Button className={classes.btn} disabled={loader} variant="contained" color="primary" type="submit">Update</Button>
@@ -281,15 +202,7 @@ export default function () {
     </form>
   )
 
-  const addPMethodContent = (
-    <AddPaymentMethod backHandler={backButtonHandler} />
-  )
-
-  if (addPaymentMethod) {
-    content = addPMethodContent;
-  } else {
-    content = formContent;
-  }
+  content = formContent;
 
   return (
     <Grid>

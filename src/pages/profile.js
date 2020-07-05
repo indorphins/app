@@ -257,7 +257,6 @@ export default function () {
     window.location = await Stripe.getAccountLinkURL(path.home);
   }
 
-  let redirectContent = null
   let editContent = null;
   let editButtonContent = null;
   let controlsContent = null;
@@ -329,10 +328,6 @@ export default function () {
     if (editForm) {
       content = editContent;
     }
-  }
-
-  if (redirectContent) {
-    content = redirectContent;
   }
 
   return (
