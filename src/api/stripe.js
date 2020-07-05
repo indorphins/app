@@ -19,25 +19,6 @@ export async function getAccountLinkURL(url) {
 }
 
 /**
- * Makes call to backend to get redirect url to instructor stripe account sign up page 
- * Takes in a url to return to after account setup
- * @param {String} returnUrl 
- */
-export async function redirectToSignUp(returnUrl) {
-  const url = urlBase + 'accountRedirect';
-  const options = {
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      return_url: returnUrl
-    })
-  };
-  return callAPI(url, options, true);
-}
-
-/**
  * Creates a Stripe payment intent for the logged in user's stripe account
  * To pay the instructor in order to book and join the class. Takes in the
  * Instructor ID, class ID and payment method ID.
@@ -147,16 +128,14 @@ export async function cancelSubscription(classId) {
  * Returns the new payment method record.
  * @param {String} paymentMethodId
  */
-export async function createPaymentMethod(paymentMethodId) {
-  const url = urlBase + '/user/paymentmethod/' + paymentMethodId;
+export async function addPaymentMethod(data) {
+  const url = urlBase + '/user/paymentmethod/';
   const options = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      payment_method_id: paymentMethodId,
-    }),
+    body: JSON.stringify(data),
   };
 
   return callAPI(url, options, true);

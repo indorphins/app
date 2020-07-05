@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { Container, Divider, Grid, CircularProgress, Fab } from '@material-ui/core';
-import { Create, Clear, AccountBalanceOutlined } from '@material-ui/icons';
+import { RadioGroup, Radio,Container, Divider, Grid, CircularProgress, Fab, Typography } from '@material-ui/core';
+import { Create, Clear, AccountBalanceOutlined, Lens } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
@@ -9,6 +9,13 @@ import { createSelector } from 'reselect';
 import CourseSchedule from '../components/courseSchedule';
 import ProfileEdit from '../components/form/editProfile';
 import UserData from '../components/userData';
+import AddPaymentMethod from '../components/form/addPaymentMethod';
+import VisaIcon from '../components/icon/visa';
+import AmexIcon from '../components/icon/amex';
+import MastercardIcon from '../components/icon/mastercard';
+import DiscoverIcon from '../components/icon/discover';
+import JCBIcon from '../components/icon/jcb';
+import CCIcon from '../components/icon/cc';
 import * as Instructor from '../api/instructor';
 import * as Course from '../api/course';
 import * as Stripe from '../api/stripe';
@@ -32,12 +39,40 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: "bold",
     marginLeft: theme.spacing(2),
     marginBottom: theme.spacing(2),
-  }
+  },
+  masked: {
+    fontSize: "0.6rem",
+    display: "inline",
+  },
 }));
 
 const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
 });
+
+function CardLogo(props) {
+  if (props.brand === 'visa') {
+    return (<VisaIcon />);
+  }
+
+  if (props.brand === 'amex') {
+    return (<AmexIcon />);
+  }
+
+  if (props.brand === 'mastercard') {
+    return (<MastercardIcon />)
+  }
+
+  if (props.brand === 'discover') {
+    return (<DiscoverIcon />);
+  }
+
+  if (props.brand === 'jcb') {
+    return (<JCBIcon />);
+  }
+
+  return (<CCIcon />);
+}
 
 export default function () {
 
@@ -58,7 +93,8 @@ export default function () {
   const [coursesLabel, setCoursesLabel] = useState("Class Schedule");
   const [editButton, setEditButton] = useState(false);
   const [editForm, setEditForm] = useState(false);
-  const [pMethod, setPMethod] = useState();
+  const [paymentMethods, setPaymentMethods] = useState(null);
+  const [paymentData, setPaymentData] = useState(null);
   const [createStripe, setCreateStripe] = useState(false);
 
   useEffect(() => {
@@ -81,7 +117,7 @@ export default function () {
         if (currentUser.social && currentUser.social.instagram) setInsta(currentUser.social.instagram);
         setLoader(false);
 
-        setCoursesLabel("Your Schedule");
+        setCoursesLabel("My Schedule");
         if (currentUser.type === 'instructor') {
           getInstructorSchedule(currentUser._id);
         } else {
@@ -154,11 +190,8 @@ export default function () {
 
     if (!data) return;
 
-    let methods = [];
-
-    if (data.methods) methods = [];
-
-    setPMethod(methods.concat([]));
+    setPaymentData(data);
+    setPaymentMethods(data.methods.concat([]));
 
     if (!data.accountId) {
       setCreateStripe(true);
@@ -238,7 +271,7 @@ export default function () {
         if (currentUser.social && currentUser.social.instagram) setInsta(currentUser.social.instagram);
         setLoader(false);
 
-        setCoursesLabel("Your Schedule");
+        setCoursesLabel("My Schedule");
         getUserSchedule(currentUser.id, currentUser._id);
         return;
       }
@@ -255,6 +288,29 @@ export default function () {
 
   const linkBankAccount = async function() {
     window.location = await Stripe.getAccountLinkURL(path.home);
+  }
+
+  const changeDefaultPaymentMethod = function(event) {
+
+    let id = event.target.name;
+
+    paymentData.methods.forEach(function(item) {
+      if (item.id === id) {
+        item.default = true;
+      }
+       
+      item.default = false;
+    });
+
+    setPaymentData(paymentData);
+    setPaymentMethods(paymentData.methods.map(item => {
+      if (item.id === id) {
+        item.default = true;
+      } else { 
+        item.default = false;
+      }
+      return item;
+    }));
   }
 
   let editContent = null;
@@ -310,11 +366,86 @@ export default function () {
       </Grid>
     );
   }
+  
+  const handleAddPayment = function(paymentData) {
+    setPaymentData(paymentData);
+    setPaymentMethods(paymentData.methods.map(item => {
+      return item;
+    }))
+  }
+
+  let paymentFormContent = (
+    <Grid>
+      <Typography variant="h3">Add a new card</Typography>
+      <AddPaymentMethod onCreate={handleAddPayment}/>
+    </Grid>
+  );
+
+  let paymentMethodsContent = null;
+  if (paymentMethods && paymentMethods.length) {
+    paymentMethodsContent = (
+      <Grid>
+        <Typography variant="h3">Saved cards</Typography>
+        <Grid container direction="column">
+          <RadioGroup onChange={changeDefaultPaymentMethod}>
+            {paymentMethods.map(item => (
+              <Grid key={item.id} item>
+                <Grid container direction="row" justify="flex-start" alignItems="center">
+                  <Grid item>
+                    <Radio checked={item.default} name={item.id} />
+                  </Grid>
+                    <Grid item style={{marginRight: "5px"}}>
+                      <Grid container direction="column" justify="center" alignItems="center">
+                        <Grid item>
+                          <CardLogo brand={item.brand} />
+                        </Grid>
+                      </Grid>
+                    </Grid>
+                  <Grid item>
+                    <Grid container direction="row" spacing={1} justify="center" alignItems="center">
+                      <Grid item>
+                        <Lens className={classes.masked}/>
+                        <Lens className={classes.masked}/>
+                        <Lens className={classes.masked}/>
+                        <Lens className={classes.masked}/>
+                      </Grid>
+                      <Grid item>
+                        <Lens className={classes.masked}/>
+                        <Lens className={classes.masked}/>
+                        <Lens className={classes.masked}/>
+                        <Lens className={classes.masked}/>
+                      </Grid>
+                      <Grid item>
+                        <Lens className={classes.masked}/>
+                        <Lens className={classes.masked}/>
+                        <Lens className={classes.masked}/>
+                        <Lens className={classes.masked}/>
+                      </Grid>
+                      <Grid item>
+                        <Typography>{item.last4}</Typography>
+                      </Grid>
+                      <Grid item>
+                        <Typography variant="subtitle2">exp: {item.exp_month}/{item.exp_year}</Typography>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            ))}
+          </RadioGroup>
+        </Grid>
+      </Grid>
+    );
+  }
 
   let userContent = (
     <Grid>
       {controlsContent}
-      <UserData header={username} email={email} photo={photo} phone={phone} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} paymentMethod={pMethod} />
+      <UserData header={username} email={email} photo={photo} phone={phone} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} />
+      <Divider className={classes.divider} />
+      <Typography variant="h2">Cards</Typography>
+      {paymentFormContent}
+      {paymentMethodsContent}
       <Divider className={classes.divider} />
       <CourseSchedule header={coursesLabel} course={courses} view="month" />
     </Grid>
