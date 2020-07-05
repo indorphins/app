@@ -108,12 +108,6 @@ export default function () {
       getPaymentMethods()
     }
   }, [currentUser.id, params.id])
-
-  useEffect(() => {
-    if ((currentUser.type === 'instructor' || currentUser.type === 'admin') && (currentUser.id === params.id || !params.id)) {
-      getStripeAccount()
-    }
-  }, [currentUser.id, params.id]);
   
 
   async function getInstructor(id) {
@@ -150,50 +144,24 @@ export default function () {
   }
 
   async function getPaymentMethods() {
-    let pMethods;
+    let data;
 
     try {
-      pMethods = await Stripe.getPaymentMethods();
+      data = await Stripe.getPaymentMethods();
     } catch (err) {
-      log.error("PROFILE:: ", err);
-      history.push(path.profile);
-      return;
+      return log.error("PROFILE:: ", err);
     }
 
-    if (pMethods && Array.isArray(pMethods.data)) {
-      setPMethod(Stripe.getDefaultPaymentMethod(pMethods.data))
-    }
-  }
+    if (!data) return;
 
-  async function createStripeAccount() {
-    let redirect;
+    let methods = [];
 
-    try {
-      redirect = await Stripe.redirectToSignUp(window.location.href)
-      window.location.href = redirect.redirectUrl;
-    } catch (err) {
-      log.error("PROFILE:: error fetching stripe instructor redirect ", err);
-      history.push(path.profile);
-      return;
-    }
-  }
+    if (data.methods) methods = [];
 
-  async function getStripeAccount() {
-    let stripeUser;
+    setPMethod(methods.concat([]));
 
-    try {
-      stripeUser = await Stripe.getStripeUser()
-    } catch (err) {
-      log.error("PROFILE:: ", err);
-      history.push(path.profile);
-      return;
-    }
-
-    if (!stripeUser.data || !stripeUser.data.connectId) {
-      // Show create account button
+    if (!data.accountId) {
       setCreateStripe(true);
-    } else {
-      setCreateStripe(false);
     }
   }
 
@@ -285,6 +253,11 @@ export default function () {
     }
   }
 
+  const linkBankAccount = async function() {
+    window.location = await Stripe.getAccountLinkURL(path.home);
+  }
+
+  let redirectContent = null
   let editContent = null;
   let editButtonContent = null;
   let controlsContent = null;
@@ -313,7 +286,7 @@ export default function () {
 
   if (createStripe) {
     createStripeButtonContent = (
-      <Fab color="secondary" aria-label="add bank account" onClick={createStripeAccount} title="Link your bank account">
+      <Fab color="secondary" aria-label="add bank account" onClick={linkBankAccount} title="Link your bank account">
         <AccountBalanceOutlined />
       </Fab>
     )
@@ -356,6 +329,10 @@ export default function () {
     if (editForm) {
       content = editContent;
     }
+  }
+
+  if (redirectContent) {
+    content = redirectContent;
   }
 
   return (

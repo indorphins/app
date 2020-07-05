@@ -92,12 +92,10 @@ export default function (props) {
       return;
     }
     setLoader(true);
+    const cardElement = elements.getElement(CardElement);
     // Create stripe customer for user if none exists then add payment method
-    return Stripe.createCustomer(currentUser.email)
-      .then(result => {
-        const cardElement = elements.getElement(CardElement);
-        return createPaymentMethod(cardElement)
-      }).then(result => {
+    return Stripe.createPaymentMethod(cardElement)
+        .then(result => {
         log.info("ADD_PAYMENT_METHOD:: success ", result);
         setLoader(false);
         setCardAdded(true);

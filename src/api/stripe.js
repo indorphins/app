@@ -1,7 +1,22 @@
 import config from '../config';
+import Firebase from '../Firebase';
 import callAPI from './helper';
+import log from '../log';
 
-const urlBase = config.host + '/stripe/';
+const urlBase = config.host;
+
+export async function getAccountLinkURL(url) {
+  let token;
+
+  try {
+    token = await Firebase.getToken();
+  } catch(err) {
+    log.error("AUTH:: error fetching firebase token", err);
+    return null;
+  }
+
+  return urlBase + '/user/account?callbackURL=' + encodeURIComponent(window.location.origin + url) + '&token=' + token;
+}
 
 /**
  * Makes call to backend to get redirect url to instructor stripe account sign up page 
@@ -97,39 +112,16 @@ export async function refundPayment(classId) {
 }
 
 /**
- * Creates a Stripe customer with the logged in user and input email
- * Returns the Stripe User upon creation in db
- * @param {String} email
- */
-export async function createCustomer(email) {
-  const url = urlBase + 'customer';
-  const options = {
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      email: email,
-    }),
-  };
-
-  return callAPI(url, options, true);
-}
-
-/**
  * Creates a subscription for the user into the classId
  * @param {String} classId
  */
 export async function createSubscription(classId) {
-  const url = urlBase + 'subscription';
+  const url = urlBase + '/class/' + classId + '/subscription';
   const options = {
     method: 'post',
     headers: {
       'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      class_id: classId,
-    }),
+    }
   };
   return callAPI(url, options, true);
 }
@@ -139,15 +131,12 @@ export async function createSubscription(classId) {
  * @param {String} subscriptionId
  */
 export async function cancelSubscription(classId) {
-  const url = urlBase + 'subscription';
+  const url = urlBase + '/class/' + classId + '/subscription';
   const options = {
     method: 'delete',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      class_id: classId,
-    }),
   };
   return callAPI(url, options, true);
 }
@@ -159,7 +148,7 @@ export async function cancelSubscription(classId) {
  * @param {String} paymentMethodId
  */
 export async function createPaymentMethod(paymentMethodId) {
-  const url = urlBase + 'paymentMethod';
+  const url = urlBase + '/user/paymentmethod/' + paymentMethodId;
   const options = {
     method: 'POST',
     headers: {
@@ -178,7 +167,7 @@ export async function createPaymentMethod(paymentMethodId) {
  * Returns an array of all payment method IDs
  */
 export async function getPaymentMethods() {
-  const url = urlBase + 'paymentMethods';
+  const url = urlBase + '/user/paymentmethod/';
   const options = {
     method: 'get',
     headers: {
@@ -195,7 +184,7 @@ export async function getPaymentMethods() {
  * @param {String} paymentMethodId
  */
 export async function deletePaymentMethod(paymentMethodId) {
-  const url = urlBase + 'paymentMethod';
+  const url = urlBase + '/user/paymentmethod/' + paymentMethodId;
   const options = {
     method: 'delete',
     headers: {
@@ -203,40 +192,6 @@ export async function deletePaymentMethod(paymentMethodId) {
     },
     body: JSON.stringify({
       payment_method_id: paymentMethodId,
-    }),
-  };
-
-  return callAPI(url, options, true);
-}
-
-/**
- * Fetches the stripe user associated with auth token
- */
-export async function getStripeUser() {
-  const url = urlBase + 'customer';
-  const options = {
-    method: 'get',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  };
-
-  return callAPI(url, options, true);
-}
-
-/**
- * Creates a stripe sku with two prices (one-time/recurring) for classId
- * @param {String} classId
- */
-export async function createClassSku(classId) {
-  const url = urlBase + 'classSku';
-  const options = {
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      class_id: classId,
     }),
   };
 

@@ -15,7 +15,6 @@ import Editor from '../editor';
 import log from '../../log';
 import * as Course from '../../api/course';
 import * as utils from '../../utils';
-import { createClassSku } from '../../api/stripe'
 import path from '../../routes/path';
 
 const useStyles = makeStyles((theme) => ({
@@ -182,14 +181,6 @@ export default function (props) {
         setLoader(false);
         // TODO: display error
         return log.error("COURSE EDIT:: course creation", e);
-      }
-
-      // Create the product sku and tie to course
-      try {
-        await createClassSku(created.data.id);
-      } catch (err) {
-        setLoader(false);
-        return log.error("COURSE EDIT:: sku creation ", err);
       }
 
       setLoader(false);
