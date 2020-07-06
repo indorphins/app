@@ -24,6 +24,10 @@ const useStyles = makeStyles((theme) => ({
   actionBtn: {
     marginLeft: theme.spacing(1),
     marginBottom: theme.spacing(2),
+  },
+  signupBtn: {
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1)
   }
 }));
 
@@ -149,9 +153,20 @@ export default function () {
       }
     }
 
-    setSignup((
-      <Button variant="contained" color="secondary" onClick={courseSignupHandler}>Sign Up</Button>
-    ));
+    // Show two join buttons (one-time and weekly) if course is recurring
+    if (course.recurring) {
+      setSignup((
+        <Grid container>
+          <Button variant="contained" className={classes.signupBtn} color="secondary" onClick={() => courseSignupHandler(false)}>Sign Up Once</Button>
+          <Button variant="contained" className={classes.signupBtn} color="secondary" onClick={() => courseSignupHandler(true)}>Sign Up Weekly</Button>
+        </Grid>
+      ));
+    } else {
+      setSignup((
+        <Button variant="contained" color="secondary" onClick={() => courseSignupHandler(false)}>Sign Up</Button>
+      ));
+    }
+
 
   }, [currentUser, course]);
 
@@ -215,22 +230,22 @@ export default function () {
    * Will create a subscription if signing up for recurring class
    * Throws error if any async calls fail
    * @param {Object} pMethod 
+   * @param {Boolean} subscribe
    */
-  const payForClass = async (pMethod) => {
+  const payForClass = async (pMethod, subscribe) => {
     if (!course.instructor.id || !pMethod) {
       return log.error("PAY FOR CLASS: no instructor ID or payment method")
     }
     let payment, subscription, confirmed;
-    const recurring = course.recurring ? true : false;
 
     try {
-      payment = await Stripe.createPaymentIntent(course.instructor.id, pMethod.id, course.id, recurring)
+      payment = await Stripe.createPaymentIntent(course.instructor.id, pMethod.id, course.id, subscribe)
       log.debug("PAY FOR CLASS: created payment intent: ", payment);
     } catch (err) {
       log.error("PAY FOR CLASS: create payment intent error: ", err);
       throw err;
     }
-    if (recurring) {
+    if (subscribe) {
       try {
         subscription = await Stripe.createSubscription(course.id);
         log.debug("PAY FOR CLASS: created subscription: ", subscription);
@@ -269,7 +284,11 @@ export default function () {
     // and add user to class
   }
 
-  const courseSignupHandler = async function () {
+  /**
+   * Sign up for the course - if subscribe true then create a paying subscription
+   * @param {Boolean} subscribe 
+   */
+  const courseSignupHandler = async function (subscribe) {
     // Check if user has a payment method - add one if not
     // If so, create either a one-time payment or recurring subscription
     // confirm the one time payment in both cases that is returned
@@ -288,7 +307,7 @@ export default function () {
       return showAddPayment();
     } else {
       try {
-        await payForClass(Stripe.getDefaultPaymentMethod(pMethods.data))
+        await payForClass(Stripe.getDefaultPaymentMethod(pMethods.data), subscribe)
       } catch (err) {
         // Display error?
         return log.info("COURSE INFO: error paying for class: ", err)
