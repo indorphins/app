@@ -15,15 +15,15 @@ import DiscoverIcon from '../components/icon/discover';
 import JCBIcon from '../components/icon/jcb';
 import CCIcon from '../components/icon/cc';
 
-const styles = {
+const styles = theme => ({
   savedCardsContent: {
-    marginTop: "16px",
+    marginTop: theme.spacing(2),
   },
   masked: {
     fontSize: "0.6rem",
     display: "inline",
   },
-};
+});
 
 function CardLogo(props) {
   if (props.brand === 'visa') {

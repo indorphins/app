@@ -24,6 +24,9 @@ const useStyles = makeStyles((theme) => ({
   btn: {
     marginBottom: theme.spacing(2),
   },
+  header: {
+    color: theme.palette.text.disabled,
+  },
   loader: {
     minHeight: 300,
   },
@@ -331,7 +334,7 @@ export default function () {
       {controlsContent}
       <UserData header={username} email={email} photo={photo} phone={phone} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} />
       <Divider className={classes.divider} />
-      <Typography variant="h2">Cards</Typography>
+      <Typography variant="h2" className={classes.header}>Cards</Typography>
       <Cards />
       <Divider className={classes.divider} />
       <CourseSchedule header={coursesLabel} course={courses} view="month" />
