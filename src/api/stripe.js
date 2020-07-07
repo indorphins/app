@@ -10,7 +10,7 @@ export async function getAccountLinkURL(url) {
 
   try {
     token = await Firebase.getToken();
-  } catch(err) {
+  } catch (err) {
     log.error("AUTH:: error fetching firebase token", err);
     return null;
   }
@@ -33,41 +33,13 @@ export async function createPaymentIntent(
   classId,
   recurring
 ) {
-  const url = urlBase + `payment`;
+  const url = urlBase + `/class/${classId}/payment/${paymentMethodId}`;
   const options = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      instructor_id: instructorId,
-      payment_method: paymentMethodId,
-      class_id: classId,
-      recurring: recurring
-    }),
   };
-  return callAPI(url, options, true);
-}
-
-/**
- * Finds the logged in user's Transaction for input paymentId.
- * Confirms transaction was a success and updates its status to reflect.
- * Note: stripe JS SDK is used before this to confirm the payment on their end.
- * Returns payment intent's client secret upon success.
- * @param {String} paymentId
- */
-export async function confirmPayment(paymentId) {
-  const url = urlBase + `confirmPayment`;
-  const options = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      payment_id: paymentId,
-    }),
-  };
-
   return callAPI(url, options, true);
 }
 
@@ -78,9 +50,9 @@ export async function confirmPayment(paymentId) {
  * @param {String} classId
  */
 export async function refundPayment(classId) {
-  const url = urlBase + `refund`;
+  const url = urlBase + `/class/${classId}/payment/`;
   const options = {
-    method: 'POST',
+    method: 'delete',
     headers: {
       'Content-Type': 'application/json',
     },
@@ -97,7 +69,7 @@ export async function refundPayment(classId) {
  * @param {String} classId
  */
 export async function createSubscription(classId) {
-  const url = urlBase + '/class/' + classId + '/subscription';
+  const url = urlBase + `/class/${classId}/subscription`;
   const options = {
     method: 'post',
     headers: {
@@ -112,7 +84,7 @@ export async function createSubscription(classId) {
  * @param {String} subscriptionId
  */
 export async function cancelSubscription(classId) {
-  const url = urlBase + '/class/' + classId + '/subscription';
+  const url = urlBase + `/class/${classId}/subscription`;
   const options = {
     method: 'delete',
     headers: {
