@@ -119,7 +119,7 @@ export default function(props) {
       let info = {
         photo: i.photo_url,
         firstName: i.first_name,
-        url: path.profile + "/" + i.id,
+        url: path.instructor + "/" + i.id,
         id: i.id,
       };
 

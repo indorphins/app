@@ -11,7 +11,6 @@ import CourseSchedule from '../components/courseSchedule';
 import ProfileEdit from '../components/form/editProfile';
 import UserData from '../components/userData';
 import Cards from '../components/cards';
-import * as Instructor from '../api/instructor';
 import * as Course from '../api/course';
 import * as Stripe from '../api/stripe';
 import log from '../log';
@@ -69,7 +68,6 @@ export default function () {
   const [bio, setBio] = useState('');
   const [loader, setLoader] = useState(true);
   const [courses, setCourses] = useState([]);
-  const [coursesLabel, setCoursesLabel] = useState("Class Schedule");
   const [editButton, setEditButton] = useState(false);
   const [editForm, setEditForm] = useState(false);
   const [createStripe, setCreateStripe] = useState(false);
@@ -78,30 +76,18 @@ export default function () {
 
     setCourses([]);
 
-    if (params.id) {
-      getInstructor(params.id);
-
+    if (currentUser.id) {
+      setUsername(currentUser.username);
+      setEmail(currentUser.email);
+      setFirstName(currentUser.first_name);
+      setLastName(currentUser.last_name);
+      setPhoto(currentUser.photo_url);
+      setPhone(currentUser.phone_number)
+      setBio(currentUser.bio);
+      if (currentUser.social && currentUser.social.instagram) setInsta(currentUser.social.instagram);
+      setLoader(false);
+      getUserSchedule(currentUser.id);
     } else {
-
-      if (currentUser.id) {
-        setUsername(currentUser.username);
-        setEmail(currentUser.email);
-        setFirstName(currentUser.first_name);
-        setLastName(currentUser.last_name);
-        setPhoto(currentUser.photo_url);
-        setPhone(currentUser.phone_number)
-        setBio(currentUser.bio);
-        if (currentUser.social && currentUser.social.instagram) setInsta(currentUser.social.instagram);
-        setLoader(false);
-
-        setCoursesLabel("My Schedule");
-        if (currentUser.type === 'instructor') {
-          getInstructorSchedule(currentUser.id);
-        } else {
-          getUserSchedule(currentUser.id);
-        }
-        return;
-      }
 
       history.push(path.login);
     }
@@ -109,81 +95,17 @@ export default function () {
   }, [currentUser, params]);
 
   useEffect(() => {
-    if (currentUser.id === params.id || !params.id) {
+    if (currentUser.id) {
       setEditButton(true);
     } else {
       setEditButton(false);
     }
-  }, [currentUser.id, params.id])
+  }, [currentUser.userId])
 
-  useEffect(() => {
-    
-    setCourses([]);
-
-    if (params.id) {
-      getInstructor(params.id);
-
-    } else {
-      
-      if (currentUser.id) {
-        setUsername(currentUser.username);
-        setEmail(currentUser.email);
-        setFirstName(currentUser.first_name);
-        setLastName(currentUser.last_name);
-        setPhoto(currentUser.photo_url);
-        setPhone(currentUser.phone_number)
-        setBio(currentUser.bio);
-        if (currentUser.social && currentUser.social.instagram) setInsta(currentUser.social.instagram);
-        setLoader(false);
-
-        setCoursesLabel("My Schedule");
-        getUserSchedule(currentUser.id);
-        return;
-      }
-    }
-  }, [params, currentUser]);
-
-
-  async function getInstructor(id) {
-    let instructor;
-
-    try {
-      instructor = await Instructor.get(id);
-    } catch (err) {
-      // redirect to user's profile
-      log.error("PROFILE::", err);
-      history.push(path.profile);
-      return;
-    }
-
-    if (!instructor || !instructor.data) {
-      // redirect to user's profile
-      history.push(path.profile);
-      return;
-    }
-
-    if (instructor && instructor.data) {
-      setUsername(instructor.data.username);
-      setEmail(instructor.data.email);
-      setFirstName(instructor.data.first_name);
-      setLastName(instructor.data.last_name);
-      setPhoto(instructor.data.photo_url);
-      setPhone(instructor.data.phone_number)
-      setBio(instructor.data.bio);
-      if (instructor.data.social && instructor.data.social.instagram) setInsta(instructor.data.social.instagram);
-      setLoader(false);
-      setCoursesLabel("Instructor Schedule");
-      getInstructorSchedule(instructor.data._id);
-    }
-  }
 
   useEffect(() => {
 
     if (!currentUser.id) {
-      return;
-    }
-
-    if (params.id && params.id !== currentUser.id) {
       return;
     }
 
@@ -198,7 +120,7 @@ export default function () {
       log.error("PROFILE:: update user payment data", err);
     });
 
-  }, [paymentData.id, currentUser.id, params.id]);
+  }, [paymentData.id, currentUser.id]);
 
   useEffect(() => {
     if (paymentData && !paymentData.accountId) {
@@ -247,21 +169,6 @@ export default function () {
 
     return getSchedule(schedFilter);
   }
-
-  async function getInstructorSchedule(userId) {
-    let now = new Date();
-    now.setHours(now.getHours() - 24);
-    let schedFilter = { 
-      instructor: userId,
-      '$or': [ 
-          { start_date: {"$gte" : now.toISOString() }},
-          { recurring: { '$exists': true }}
-      ],
-      start_date: { '$exists': true },
-    };
-
-    return getSchedule(schedFilter);
-  } 
 
   const toggleEditForm = function () {
     if (editForm) {
@@ -337,7 +244,7 @@ export default function () {
       <Typography variant="h2" className={classes.header}>Cards</Typography>
       <Cards />
       <Divider className={classes.divider} />
-      <CourseSchedule header={coursesLabel} course={courses} view="month" />
+      <CourseSchedule header="My Schedule" course={courses} view="month" />
     </Grid>
   );
 
