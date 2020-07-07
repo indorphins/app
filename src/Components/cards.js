@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux'
-import { RadioGroup, Radio, Grid, Typography, withStyles } from '@material-ui/core';
-import { Lens } from '@material-ui/icons';
+import { IconButton, RadioGroup, Radio, Grid, Typography, withStyles } from '@material-ui/core';
+import { Lens, Delete } from '@material-ui/icons';
 import Alert from '@material-ui/lab/Alert';
 
 import { store, actions } from '../store';
@@ -55,6 +55,7 @@ class Cards extends React.Component {
       error: null,
     };
 
+    this.removePaymentMethod = this.removePaymentMethod.bind(this);
     this.changeDefaultPaymentMethod = this.changeDefaultPaymentMethod.bind(this);
   }
 
@@ -92,6 +93,34 @@ class Cards extends React.Component {
       this.setState({
         paymentData: oldData,
         error: err.message
+      });
+      return;
+    }
+
+    this.setState({
+      paymentData: updated,
+      error: null,
+    });
+
+    await store.dispatch(actions.user.setPaymentData(updated));
+  }
+
+  removePaymentMethod = async function(event) {
+    let id = event.target.name;
+    let updated;
+
+    log.debug("event target", event.target);
+
+    if (!id) { 
+      return;
+    }
+
+    try {
+      updated = await Stripe.deletePaymentMethod(id);
+    } catch (err) {
+      log.error("PROFILE:: update default payment method", err);
+      this.setState({
+        error: err.message,
       });
       return;
     }
@@ -162,6 +191,11 @@ class Cards extends React.Component {
                         </Grid>
                         <Grid item>
                           <Typography variant="subtitle2">exp: {item.exp_month}/{item.exp_year}</Typography>
+                        </Grid>
+                        <Grid item>
+                          <IconButton name={item.id} onClick={this.removePaymentMethod}>
+                            <Delete />
+                          </IconButton>
                         </Grid>
                       </Grid>
                     </Grid>

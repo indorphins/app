@@ -4,7 +4,7 @@ import { Button, Container, Divider, Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { useStripe } from '@stripe/react-stripe-js';
+//import { useStripe } from '@stripe/react-stripe-js';
 
 import UserData from '../../components/userData';
 import CourseSchedule from '../../components/courseSchedule';
@@ -71,7 +71,7 @@ export default function () {
   const classes = useStyles();
   const history = useHistory();
   const params = useParams();
-  const stripe = useStripe();
+  //const stripe = useStripe();
   const currentUser = useSelector(state => getUserSelector(state));
   const [photo, setPhoto] = useState('');
   const [title, setTitle] = useState('');
@@ -225,7 +225,7 @@ export default function () {
     if (!course.instructor.id || !pMethod) {
       return log.error("PAY FOR CLASS: no instructor ID or payment method")
     }
-    let payment, subscription, confirmed;
+    let payment, subscription/*, confirmed*/;
     const recurring = course.recurring ? true : false;
 
     try {
@@ -250,7 +250,7 @@ export default function () {
       throw Error("No payment intent created");
     }
 
-    try {
+    /*try {
       confirmed = await stripe.confirmCardPayment(payment.data.client_secret)
     } catch (err) {
       log.error("PAY FOR CLASS: confirm card payment w/ stripe error: ", err);
@@ -269,7 +269,7 @@ export default function () {
     } else {
       log.error("PAY FOR CLASS: Stripe couldn't confirm payment intent");
       throw Error("Payment confirmation failed")
-    }
+    }*/
 
     // and add user to class
   }

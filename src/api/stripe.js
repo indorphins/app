@@ -153,10 +153,7 @@ export async function deletePaymentMethod(paymentMethodId) {
     method: 'delete',
     headers: {
       'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      payment_method_id: paymentMethodId,
-    }),
+    }
   };
 
   return callAPI(url, options, true);

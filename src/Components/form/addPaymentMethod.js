@@ -3,6 +3,7 @@ import { Grid, Button, Checkbox, Typography, LinearProgress } from '@material-ui
 import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import Alert from '@material-ui/lab/Alert';
 import { makeStyles } from '@material-ui/core/styles';
+
 import * as StripeAPI from '../../api/stripe';
 import {store, actions} from '../../store';
 import log from '../../log';
@@ -74,6 +75,8 @@ export default function (props) {
       return;
     }
 
+    log.debug('paymentMethodRef', paymentMethodRef);
+
     let paymentData = null;
     try {
       paymentData = await StripeAPI.addPaymentMethod(paymentMethodRef);
@@ -121,6 +124,7 @@ export default function (props) {
           <Grid className={classes.cardBg}>
             <CardElement options={CARD_ELEMENT_OPTIONS} />
           </Grid>
+          {progress}
           <Grid container direction="row" alignContent="center" alignItems="center">
             <Grid item>
               <Checkbox checked={checked} onChange={handleCheck} />
@@ -129,7 +133,6 @@ export default function (props) {
               <Typography variant="subtitle2">You may charge my card before any class I book.</Typography>
             </Grid>
           </Grid>
-          {progress}
           <Grid container direction="row" justify="flex-start">
             <Grid item>
               <Button disabled={!checked} color="primary" type="submit" variant="contained">Add Card</Button>
