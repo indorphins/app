@@ -1,21 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { RadioGroup, Radio,Container, Divider, Grid, CircularProgress, Fab, Typography } from '@material-ui/core';
-import { Create, Clear, AccountBalanceOutlined, Lens } from '@material-ui/icons';
+import { Container, Divider, Grid, CircularProgress, Fab, Typography } from '@material-ui/core';
+import { Create, Clear, AccountBalanceOutlined } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 
+import { store, actions } from '../store';
 import CourseSchedule from '../components/courseSchedule';
 import ProfileEdit from '../components/form/editProfile';
 import UserData from '../components/userData';
-import AddPaymentMethod from '../components/form/addPaymentMethod';
-import VisaIcon from '../components/icon/visa';
-import AmexIcon from '../components/icon/amex';
-import MastercardIcon from '../components/icon/mastercard';
-import DiscoverIcon from '../components/icon/discover';
-import JCBIcon from '../components/icon/jcb';
-import CCIcon from '../components/icon/cc';
+import Cards from '../components/cards';
 import * as Instructor from '../api/instructor';
 import * as Course from '../api/course';
 import * as Stripe from '../api/stripe';
@@ -50,35 +45,16 @@ const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
 });
 
-function CardLogo(props) {
-  if (props.brand === 'visa') {
-    return (<VisaIcon />);
-  }
-
-  if (props.brand === 'amex') {
-    return (<AmexIcon />);
-  }
-
-  if (props.brand === 'mastercard') {
-    return (<MastercardIcon />)
-  }
-
-  if (props.brand === 'discover') {
-    return (<DiscoverIcon />);
-  }
-
-  if (props.brand === 'jcb') {
-    return (<JCBIcon />);
-  }
-
-  return (<CCIcon />);
-}
+const getPaymentDataSelector = createSelector([state => state.user.paymentData], (data) => {
+  return data;
+});
 
 export default function () {
 
   const history = useHistory();
   const classes = useStyles();
   const currentUser = useSelector(state => getUserSelector(state));
+  const paymentData = useSelector(state => getPaymentDataSelector(state));
   const params = useParams();
   const [photo, setPhoto] = useState('');
   const [username, setUsername] = useState('');
@@ -93,8 +69,6 @@ export default function () {
   const [coursesLabel, setCoursesLabel] = useState("Class Schedule");
   const [editButton, setEditButton] = useState(false);
   const [editForm, setEditForm] = useState(false);
-  const [paymentMethods, setPaymentMethods] = useState(null);
-  const [paymentData, setPaymentData] = useState(null);
   const [createStripe, setCreateStripe] = useState(false);
 
   useEffect(() => {
@@ -119,7 +93,7 @@ export default function () {
 
         setCoursesLabel("My Schedule");
         if (currentUser.type === 'instructor') {
-          getInstructorSchedule(currentUser._id);
+          getInstructorSchedule(currentUser.id);
         } else {
           getUserSchedule(currentUser.id);
         }
@@ -140,11 +114,32 @@ export default function () {
   }, [currentUser.id, params.id])
 
   useEffect(() => {
-    if (currentUser.id === params.id || !params.id) {
-      getPaymentMethods()
+    
+    setCourses([]);
+
+    if (params.id) {
+      getInstructor(params.id);
+
+    } else {
+      
+      if (currentUser.id) {
+        setUsername(currentUser.username);
+        setEmail(currentUser.email);
+        setFirstName(currentUser.first_name);
+        setLastName(currentUser.last_name);
+        setPhoto(currentUser.photo_url);
+        setPhone(currentUser.phone_number)
+        setBio(currentUser.bio);
+        if (currentUser.social && currentUser.social.instagram) setInsta(currentUser.social.instagram);
+        setLoader(false);
+
+        setCoursesLabel("My Schedule");
+        getUserSchedule(currentUser.id);
+        return;
+      }
     }
-  }, [currentUser.id, params.id])
-  
+  }, [params, currentUser]);
+
 
   async function getInstructor(id) {
     let instructor;
@@ -179,24 +174,38 @@ export default function () {
     }
   }
 
-  async function getPaymentMethods() {
-    let data;
+  useEffect(() => {
 
-    try {
-      data = await Stripe.getPaymentMethods();
-    } catch (err) {
-      return log.error("PROFILE:: ", err);
+    if (!currentUser.id) {
+      return;
     }
 
-    if (!data) return;
+    if (params.id && params.id !== currentUser.id) {
+      return;
+    }
 
-    setPaymentData(data);
-    setPaymentMethods(data.methods.concat([]));
+    if (paymentData.id) { 
+      return;
+    }
 
-    if (!data.accountId) {
+    Stripe.getPaymentMethods().then(result => {
+      return store.dispatch(actions.user.setPaymentData(result));
+    })
+    .catch(err => {
+      log.error("PROFILE:: update user payment data", err);
+    });
+
+  }, [paymentData.id, currentUser.id, params.id]);
+
+  useEffect(() => {
+    if (paymentData && !paymentData.accountId) {
       setCreateStripe(true);
     }
-  }
+    
+    if (paymentData && paymentData.accountId) {
+      setCreateStripe(false);
+    }
+  }, [paymentData]);
 
   async function getSchedule(filter) {
     let result;
@@ -214,13 +223,13 @@ export default function () {
     }
   }
 
-  async function getUserSchedule(userId, mongoId) {
+  async function getUserSchedule(userId) {
     let now = new Date();
     now.setHours(now.getHours() - 24);
     let schedFilter = {
       '$and': [
         {'$or': [
-          {instructor: mongoId},
+          {instructor: userId},
           {participants: { $elemMatch: { id: userId }}},
         ]},
         {'$or': [ 
@@ -236,11 +245,11 @@ export default function () {
     return getSchedule(schedFilter);
   }
 
-  async function getInstructorSchedule(mongoId) {
+  async function getInstructorSchedule(userId) {
     let now = new Date();
     now.setHours(now.getHours() - 24);
     let schedFilter = { 
-      instructor: mongoId,
+      instructor: userId,
       '$or': [ 
           { start_date: {"$gte" : now.toISOString() }},
           { recurring: { '$exists': true }}
@@ -250,33 +259,6 @@ export default function () {
 
     return getSchedule(schedFilter);
   } 
-
-  useEffect(() => {
-    
-    setCourses([]);
-
-    if (params.id) {
-      getInstructor(params.id);
-
-    } else {
-      
-      if (currentUser.id) {
-        setUsername(currentUser.username);
-        setEmail(currentUser.email);
-        setFirstName(currentUser.first_name);
-        setLastName(currentUser.last_name);
-        setPhoto(currentUser.photo_url);
-        setPhone(currentUser.phone_number)
-        setBio(currentUser.bio);
-        if (currentUser.social && currentUser.social.instagram) setInsta(currentUser.social.instagram);
-        setLoader(false);
-
-        setCoursesLabel("My Schedule");
-        getUserSchedule(currentUser.id, currentUser._id);
-        return;
-      }
-    }
-  }, [params, currentUser]);
 
   const toggleEditForm = function () {
     if (editForm) {
@@ -288,29 +270,6 @@ export default function () {
 
   const linkBankAccount = async function() {
     window.location = await Stripe.getAccountLinkURL(path.home);
-  }
-
-  const changeDefaultPaymentMethod = function(event) {
-
-    let id = event.target.name;
-
-    paymentData.methods.forEach(function(item) {
-      if (item.id === id) {
-        item.default = true;
-      }
-       
-      item.default = false;
-    });
-
-    setPaymentData(paymentData);
-    setPaymentMethods(paymentData.methods.map(item => {
-      if (item.id === id) {
-        item.default = true;
-      } else { 
-        item.default = false;
-      }
-      return item;
-    }));
   }
 
   let editContent = null;
@@ -367,85 +326,13 @@ export default function () {
     );
   }
   
-  const handleAddPayment = function(paymentData) {
-    setPaymentData(paymentData);
-    setPaymentMethods(paymentData.methods.map(item => {
-      return item;
-    }))
-  }
-
-  let paymentFormContent = (
-    <Grid>
-      <Typography variant="h3">Add a new card</Typography>
-      <AddPaymentMethod onCreate={handleAddPayment}/>
-    </Grid>
-  );
-
-  let paymentMethodsContent = null;
-  if (paymentMethods && paymentMethods.length) {
-    paymentMethodsContent = (
-      <Grid>
-        <Typography variant="h3">Saved cards</Typography>
-        <Grid container direction="column">
-          <RadioGroup onChange={changeDefaultPaymentMethod}>
-            {paymentMethods.map(item => (
-              <Grid key={item.id} item>
-                <Grid container direction="row" justify="flex-start" alignItems="center">
-                  <Grid item>
-                    <Radio checked={item.default} name={item.id} />
-                  </Grid>
-                    <Grid item style={{marginRight: "5px"}}>
-                      <Grid container direction="column" justify="center" alignItems="center">
-                        <Grid item>
-                          <CardLogo brand={item.brand} />
-                        </Grid>
-                      </Grid>
-                    </Grid>
-                  <Grid item>
-                    <Grid container direction="row" spacing={1} justify="center" alignItems="center">
-                      <Grid item>
-                        <Lens className={classes.masked}/>
-                        <Lens className={classes.masked}/>
-                        <Lens className={classes.masked}/>
-                        <Lens className={classes.masked}/>
-                      </Grid>
-                      <Grid item>
-                        <Lens className={classes.masked}/>
-                        <Lens className={classes.masked}/>
-                        <Lens className={classes.masked}/>
-                        <Lens className={classes.masked}/>
-                      </Grid>
-                      <Grid item>
-                        <Lens className={classes.masked}/>
-                        <Lens className={classes.masked}/>
-                        <Lens className={classes.masked}/>
-                        <Lens className={classes.masked}/>
-                      </Grid>
-                      <Grid item>
-                        <Typography>{item.last4}</Typography>
-                      </Grid>
-                      <Grid item>
-                        <Typography variant="subtitle2">exp: {item.exp_month}/{item.exp_year}</Typography>
-                      </Grid>
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
-            ))}
-          </RadioGroup>
-        </Grid>
-      </Grid>
-    );
-  }
-
   let userContent = (
     <Grid>
       {controlsContent}
       <UserData header={username} email={email} photo={photo} phone={phone} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} />
       <Divider className={classes.divider} />
       <Typography variant="h2">Cards</Typography>
-      {paymentFormContent}
-      {paymentMethodsContent}
+      <Cards />
       <Divider className={classes.divider} />
       <CourseSchedule header={coursesLabel} course={courses} view="month" />
     </Grid>

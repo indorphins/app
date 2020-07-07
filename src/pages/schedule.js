@@ -32,13 +32,13 @@ export default function() {
     }
   }
 
-  async function getUserSchedule(userId, mongoId) {
+  async function getUserSchedule(userId) {
     let now = new Date();
     now.setHours(now.getHours() - 24);
     let schedFilter = {
       '$and': [
         {'$or': [
-          {instructor: mongoId},
+          {instructor: userId},
           {participants: { $elemMatch: { id: userId }}},
         ]},
         {'$or': [ 
@@ -56,7 +56,7 @@ export default function() {
 
   useEffect(() => {
     if (currentUser.id) {
-      getUserSchedule(currentUser.id, currentUser._id);
+      getUserSchedule(currentUser.id);
     }
   }, [currentUser])
 

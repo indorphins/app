@@ -141,6 +141,19 @@ export async function addPaymentMethod(data) {
   return callAPI(url, options, true);
 }
 
+export async function updatePaymentMethod(data) {
+  const url = urlBase + '/user/paymentmethod/';
+  const options = {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  };
+
+  return callAPI(url, options, true);
+}
+
 /**
  * Fetches all payment methods + details for logged in user
  * Returns an array of all payment method IDs

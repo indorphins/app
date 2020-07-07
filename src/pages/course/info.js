@@ -126,7 +126,11 @@ export default function () {
       return;
     }
 
-    if (currentUser.id === course.instructor.id) {
+    let instructor = JSON.parse(course.instructor);
+
+    log.debug("test", instructor.id, currentUser.id);
+
+    if (currentUser.id === instructor.id) {
       setSignup((
         <Button variant="contained" color="secondary">Edit</Button>
       ));
@@ -159,8 +163,9 @@ export default function () {
     if (!currentUser.id || !course.id) return;
 
     let authorized = false;
+    let instructor = JSON.parse(course.instructor);
 
-    if (currentUser.id === course.instructor.id) {
+    if (currentUser.id === instructor.id) {
       authorized = true;
     }
 
