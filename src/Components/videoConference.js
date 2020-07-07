@@ -203,8 +203,10 @@ export default function(props) {
       showControls: false,
       publishAudio: true,
       publishVideo: true,
-      resolution: "1920x1080",
-      maxResolution: {width: 1920, height: 1080},
+      resolution: "1280x720",
+      audioBitrate: 96000,
+      enableStereo: false,
+      maxResolution: {width: 1280, height: 720},
     }, handleError);
     setPublisher(publisher);
   }
