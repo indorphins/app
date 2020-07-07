@@ -50,45 +50,19 @@ class Cards extends React.Component {
 
   constructor(props) {
     super(props);
-    log.debug("props", this.props);
     this.state = {
       paymentData: this.props.paymentData,
       error: null,
     };
 
-    this.handleAddPayment = this.handleAddPayment.bind(this);
     this.changeDefaultPaymentMethod = this.changeDefaultPaymentMethod.bind(this);
   }
 
-  componentDidMount() {
-    //let self = this;
-    /*return this.getPaymentMethods().then(result => {
-      self.setState({
-        paymentData: result,
-      });
-    });*/
-  }
-
-  handleAddPayment = function(paymentData) {
+  componentWillReceiveProps(nextProps) {
     this.setState({
-      paymentData: paymentData,
+      paymentData: nextProps.paymentData,
     });
   }
-
-  getPaymentMethods = async function() {
-    let data;
-
-    try {
-      data = await Stripe.getPaymentMethods();
-    } catch (err) {
-      log.error("CARDS:: ", err);
-      return this.setState({
-        error: err.message
-      });
-    }
-
-    return data;
-  };
 
   changeDefaultPaymentMethod = async function(event) {
 
@@ -202,7 +176,7 @@ class Cards extends React.Component {
   
     return (
       <Grid>
-        <AddPaymentMethod onCreate={this.handleAddPayment}/>
+        <AddPaymentMethod />
         {paymentMethodsContent}
       </Grid>
     );
@@ -211,7 +185,6 @@ class Cards extends React.Component {
 
 function mapStateToProps(state) {
   const { user } = state;
-  log.debug("return props", user.paymentData)
   return {
     paymentData: user.paymentData
   };

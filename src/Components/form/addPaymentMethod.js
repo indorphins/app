@@ -4,7 +4,7 @@ import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import Alert from '@material-ui/lab/Alert';
 import { makeStyles } from '@material-ui/core/styles';
 import * as StripeAPI from '../../api/stripe';
-
+import {store, actions} from '../../store';
 import log from '../../log';
 
 const CARD_ELEMENT_OPTIONS = {
@@ -57,7 +57,6 @@ export default function (props) {
     }
 
     setLoader(true);
-    setChecked(false);
     let paymentMethodRef = null;
     const cardElement = elements.getElement(CardElement);
     
@@ -71,7 +70,6 @@ export default function (props) {
     } catch(err) {
       log.error("ADD_PAYMENT_METHOD:: ", err);
       setLoader(false);
-      setChecked(true);
       setServerErr({type:"error", message: err.message});
       return;
     }
@@ -82,16 +80,16 @@ export default function (props) {
     } catch(err) {
       log.error("ADD_PAYMENT_METHOD:: ", err);
       setLoader(false);
-      setChecked(true);
       setServerErr({type:"error", message: err.message});
       return;
     }
 
+    await store.dispatch(actions.user.setPaymentData(paymentData));
+
     log.info("ADD_PAYMENT_METHOD:: success ", paymentMethodRef);
     cardElement.clear();
     setLoader(false);
-    setChecked(true);
-    setServerErr({type: "info", message: "Payment method added"});
+    setChecked(false);
     if (props.onCreate) props.onCreate(paymentData);
   };
 
