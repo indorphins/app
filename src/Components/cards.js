@@ -16,6 +16,9 @@ import JCBIcon from '../components/icon/jcb';
 import CCIcon from '../components/icon/cc';
 
 const styles = {
+  savedCardsContent: {
+    marginTop: "16px",
+  },
   masked: {
     fontSize: "0.6rem",
     display: "inline",
@@ -105,21 +108,35 @@ class Cards extends React.Component {
     await store.dispatch(actions.user.setPaymentData(updated));
   }
 
-  removePaymentMethod = async function(event) {
-    let id = event.target.name;
+  removePaymentMethod = async function(id) {
     let updated;
-
-    log.debug("event target", event.target);
 
     if (!id) { 
       return;
     }
+
+    let oldData = JSON.parse(JSON.stringify(this.state.paymentData));
+    let newData = JSON.parse(JSON.stringify(this.state.paymentData));
+
+    newData.methods = newData.methods.filter(item => {
+      if (item.id === id) {
+        return false;
+      }
+      return true;
+    });
+
+    log.debug("new data", newData);
+
+    this.setState({
+      paymentData: newData
+    });
 
     try {
       updated = await Stripe.deletePaymentMethod(id);
     } catch (err) {
       log.error("PROFILE:: update default payment method", err);
       this.setState({
+        paymentData: oldData,
         error: err.message,
       });
       return;
@@ -148,8 +165,7 @@ class Cards extends React.Component {
     let paymentMethodsContent = null;
     if (this.state.paymentData && this.state.paymentData.methods) {
       paymentMethodsContent = (
-        <Grid>
-          <Typography variant="h3">Saved cards</Typography>
+        <Grid className={classes.savedCardsContent}>
           {errorContent}
           <Grid container direction="column">
             <RadioGroup onChange={this.changeDefaultPaymentMethod}>
@@ -193,7 +209,7 @@ class Cards extends React.Component {
                           <Typography variant="subtitle2">exp: {item.exp_month}/{item.exp_year}</Typography>
                         </Grid>
                         <Grid item>
-                          <IconButton name={item.id} onClick={this.removePaymentMethod}>
+                          <IconButton onClick={() => {this.removePaymentMethod(item.id)}}>
                             <Delete />
                           </IconButton>
                         </Grid>
