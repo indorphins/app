@@ -39,7 +39,29 @@ export default function App() {
     try {
       user = await User.get();
     } catch (err) {
-      return log.error('AUTH:: Call User.get', err);
+      if (err.message === 'user does not exist') {
+        // TODO: if we don't have a user then we should redirect to the signup flow to get a username
+        // before creating the user but for now we will just auto populate the username
+        let firstname = firebaseUserData.displayName.split(' ')[0];
+        let lastname = firebaseUserData.displayName.split(' ')[1];
+
+        try {
+          user = await User.create(
+            firebaseUserData.displayName,
+            firstname,
+            lastname,
+            firebaseUserData.email,
+            firebaseUserData.phoneNumber
+          );
+        } catch (err) {
+          return log.warn(
+            'AUTH:: error creating user account from firebase token',
+            err
+          );
+        }
+      } else {
+        return log.error('AUTH:: Call User.get', err);
+      }
     }
 
     if (user && user.data) {
@@ -48,28 +70,9 @@ export default function App() {
       try {
         return await store.dispatch(actions.user.set(user.data));
       } catch (err) {
+       
         return log.error('AUTH:: save user to store', err);
       }
-    }
-
-    // TODO: if we don't have a user then we should redirect to the signup flow to get a username
-    // before creating the user but for now we will just auto populate the username
-    let firstname = firebaseUserData.displayName.split(' ')[0];
-    let lastname = firebaseUserData.displayName.split(' ')[1];
-
-    try {
-      user = await User.create(
-        firebaseUserData.displayName,
-        firstname,
-        lastname,
-        firebaseUserData.email,
-        firebaseUserData.phoneNumber
-      );
-    } catch (err) {
-      return log.warn(
-        'AUTH:: error creating user account from firebase token',
-        err
-      );
     }
 
     if (!user.data) {
