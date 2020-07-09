@@ -51,6 +51,7 @@ class Firebase {
 	};
 
 	logout = function() {
+		this.token = {};
 		this.auth.signOut();
 	};
 
@@ -103,13 +104,13 @@ class Firebase {
 		}
 
 		let now = new Date();
-		if (this.token && this.token.value && (now - this.token.date)/1000 < 3600) {
+		if (this.token && this.token.value && (now - this.token.date)/1000 < 1800) {
 			return this.token.value;
 		}
 
 		let self = this;
 		return this.auth.currentUser
-			.getIdToken(/* forceRefresh */ true)
+			.getIdToken(/* forceRefresh */ false)
 			.then(function(idToken) {
 				let now = new Date();
 				self.token.value = idToken;

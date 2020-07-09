@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Grid, Button, Checkbox, Typography, LinearProgress } from '@material-ui/core';
+import { Grid, Button, LinearProgress } from '@material-ui/core';
 import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import Alert from '@material-ui/lab/Alert';
 import { makeStyles } from '@material-ui/core/styles';
@@ -41,14 +41,9 @@ const useStyles = makeStyles((theme) => ({
 export default function (props) {
   const classes = useStyles();
   const [loader, setLoader] = useState(false);
-  const [checked, setChecked] = useState(false);
   const [serverErr, setServerErr] = useState(null);
   const stripe = useStripe();
   const elements = useElements();
-
-  const handleCheck = () => {
-    setChecked(!checked)
-  }
 
   const formHandler = async (event) => {
     event.preventDefault();
@@ -58,6 +53,7 @@ export default function (props) {
     }
 
     setLoader(true);
+    setServerErr(null);
     let paymentMethodRef = null;
     const cardElement = elements.getElement(CardElement);
     
@@ -77,6 +73,14 @@ export default function (props) {
 
     log.debug('paymentMethodRef', paymentMethodRef);
 
+    if (!paymentMethodRef) {
+      setLoader(false);
+      return setServerErr({
+        type: "error",
+        message: "Invalid card information"
+      });
+    }
+
     let paymentData = null;
     try {
       paymentData = await StripeAPI.addPaymentMethod(paymentMethodRef);
@@ -92,7 +96,6 @@ export default function (props) {
     log.info("ADD_PAYMENT_METHOD:: success ", paymentMethodRef);
     cardElement.clear();
     setLoader(false);
-    setChecked(false);
     if (props.onCreate) props.onCreate(paymentData);
   };
 
@@ -115,32 +118,26 @@ export default function (props) {
   }
 
   let formContent = (
-    <Grid container direction='column' spacing={2}>
-      <Grid item>
-        {errContent}
-      </Grid>
-      <Grid item>
-        <form onSubmit={formHandler} >
+    <form onSubmit={formHandler} >
+      <Grid container direction='column' spacing={2}>
+        <Grid item>
+          {errContent}
+        </Grid>
+        <Grid item>
           <Grid className={classes.cardBg}>
-            <CardElement options={CARD_ELEMENT_OPTIONS} />
+            <CardElement required options={CARD_ELEMENT_OPTIONS} />
           </Grid>
           {progress}
-          <Grid container direction="row" alignContent="center" alignItems="center">
+        </Grid>
+        <Grid item>
+          <Grid container direction="row" justify="flex-end">
             <Grid item>
-              <Checkbox checked={checked} onChange={handleCheck} />
-            </Grid>
-            <Grid item>
-              <Typography variant="subtitle2">You may charge my card before any class I book.</Typography>
-            </Grid>
-          </Grid>
-          <Grid container direction="row" justify="flex-start">
-            <Grid item>
-              <Button disabled={!checked} color="primary" type="submit" variant="contained">Add Card</Button>
+              <Button color="primary" type="submit" variant="contained">Add Card</Button>
             </Grid>
           </Grid>
-        </form>
+        </Grid>
       </Grid>
-    </Grid>
+    </form>
   );
 
   let content = formContent;

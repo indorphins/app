@@ -1,11 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { Button, Container, Divider, Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-//import { useStripe } from '@stripe/react-stripe-js';
+import Alert from '@material-ui/lab/Alert';
 
+import { store, actions } from '../../store';
 import UserData from '../../components/userData';
 import CourseSchedule from '../../components/courseSchedule';
 import * as Course from '../../api/course';
@@ -13,9 +14,9 @@ import * as Stripe from '../../api/stripe';
 import log from '../../log';
 import path from '../../routes/path';
 import { getNextDate, getPrevDate } from '../../utils';
-import AddPaymentMethod from '../../components/form/addPaymentMethod';
+import Cards from '../../components/cards';
 
-const sessionWindow = 15;
+const sessionWindow = 5;
 
 const useStyles = makeStyles((theme) => ({
   divider: {
@@ -27,9 +28,18 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const getUserSelector = createSelector([state => state.user.data], (user) => {
-  return user;
+const getUserSelector = createSelector([state => state.user], (user) => {
+  return user.data;
 });
+
+const paymentDataSelector = createSelector([state => state.user], (data) => {
+  return data.paymentData.methods;
+});
+
+const selectDefaultPaymentMethod = createSelector(
+  paymentDataSelector,
+  methods => methods.filter(item => item.default)
+)
 
 function getNextSession(now, c) {
   let start = new Date(c.start_date);
@@ -71,8 +81,10 @@ export default function () {
   const classes = useStyles();
   const history = useHistory();
   const params = useParams();
-  //const stripe = useStripe();
   const currentUser = useSelector(state => getUserSelector(state));
+  const paymentData = useSelector(state => paymentDataSelector);
+  const defaultPaymentMethod = useSelector(state => selectDefaultPaymentMethod(state));
+  const paymentMethod = useRef(defaultPaymentMethod);
   const [photo, setPhoto] = useState('');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -83,12 +95,13 @@ export default function () {
   const [signup, setSignup] = useState(null);
   const [joinSession, setJoinSession] = useState(null);
   const [needsPaymentMethod, setNeedsPaymentMethod] = useState(false);
+  const [errMessage, setErrMessage] = useState(null);
 
-  async function get() {
+  async function getCourse(id) {
     let cls;
 
     try {
-      cls = await Course.get(params.id);
+      cls = await Course.get(id);
     } catch (err) {
       log.error("COURSE INFO:: get course details", err);
       history.push(path.home);
@@ -101,18 +114,24 @@ export default function () {
     }
 
     log.debug("COURSE INFO:: got course details", cls);
-    setPhoto(cls.photo_url);
-    setTitle(cls.title);
-    setDescription(cls.description);
-    setEmail(cls.instructor.email);
-    setPhone(cls.instructor.phone_number);
     setCourse(cls);
-    if (cls.instructor.social) setInsta(cls.instructor.social.instagram);
   }
 
   useEffect(() => {
-    get();
-  }, [params])
+    getCourse(params.id);
+  }, [params]);
+
+  useEffect(() => {
+    if (course.id) {
+      let instructor = JSON.parse(course.instructor);
+      setPhoto(course.photo_url);
+      setTitle(course.title);
+      setDescription(course.description);
+      setEmail(instructor.email);
+      setPhone(instructor.phone_number);
+      if (course.instructor.social) setInsta(course.instructor.social.instagram);
+    }
+  }, [course]);
 
   useEffect(() => {
     if (!course.id) {
@@ -127,8 +146,6 @@ export default function () {
     }
 
     let instructor = JSON.parse(course.instructor);
-
-    log.debug("test", instructor.id, currentUser.id);
 
     if (currentUser.id === instructor.id) {
       setSignup((
@@ -154,10 +171,29 @@ export default function () {
     }
 
     setSignup((
-      <Button variant="contained" color="secondary" onClick={courseSignupHandler}>Sign Up</Button>
+      <Button variant="contained" color="secondary" onClick={showSignupForm}>Sign Up</Button>
     ));
 
   }, [currentUser, course]);
+
+  useEffect(() => {
+
+    if (!currentUser.id) {
+      return;
+    }
+
+    if (paymentData.id) { 
+      return;
+    }
+
+    Stripe.getPaymentMethods().then(result => {
+      return store.dispatch(actions.user.setPaymentData(result));
+    })
+    .catch(err => {
+      log.error("PROFILE:: update user payment data", err);
+    });
+
+  }, [paymentData.id, currentUser.id]);
 
   useEffect(() => {
     if (!currentUser.id || !course.id) return;
@@ -192,122 +228,51 @@ export default function () {
     history.push(`${path.login}?redirect=${path.courses}/${course.id}`);
   }
 
-  const showAddPayment = () => {
-    setNeedsPaymentMethod(true);
-  }
-
-  const paymentMethodAddedHandler = async (pMethod) => {
-    // return to this pages content then call pay for class helper
-    setNeedsPaymentMethod(false);
-    try {
-      await payForClass(pMethod);
-    } catch (err) {
-      return log.error("PAYMENT METHOD ADDED HANDLER: ERROR ", err);
+  const setupSubscription = async (paymentMethodId, course) => {
+    if (!course.recurring) {
+      return;
     }
 
+    let subscription;
     try {
-      await Course.addParticipant(params.id);
+      subscription = await Stripe.createSubscription(course.id);
+      log.debug("PAY FOR CLASS: created subscription: ", subscription);
     } catch (err) {
-      return log.error("COURSE INFO: course signup", err);
-    }
-
-    history.push(path.profile);
-  }
-
-  /**
-   * Takes in a payment method and books a class for the given user using the input pMethod
-   * Adds the user to the class after stripe confirms the one-time payment
-   * Will create a subscription if signing up for recurring class
-   * Throws error if any async calls fail
-   * @param {Object} pMethod 
-   */
-  const payForClass = async (pMethod) => {
-    if (!course.instructor.id || !pMethod) {
-      return log.error("PAY FOR CLASS: no instructor ID or payment method")
-    }
-    let payment, subscription/*, confirmed*/;
-    const recurring = course.recurring ? true : false;
-
-    try {
-      payment = await Stripe.createPaymentIntent(course.instructor.id, pMethod.id, course.id, recurring)
-      log.debug("PAY FOR CLASS: created payment intent: ", payment);
-    } catch (err) {
-      log.error("PAY FOR CLASS: create payment intent error: ", err);
       throw err;
     }
-    if (recurring) {
-      try {
-        subscription = await Stripe.createSubscription(course.id);
-        log.debug("PAY FOR CLASS: created subscription: ", subscription);
-      } catch (err) {
-        log.error("PAY FOR CLASS: create subscription error: ", err);
-        throw err;
-      }
-    }
 
-    if (!payment) {
-      log.error("PAY FOR CLASS: no payment intent created");
-      throw Error("No payment intent created");
-    }
-
-    /*try {
-      confirmed = await stripe.confirmCardPayment(payment.data.client_secret)
-    } catch (err) {
-      log.error("PAY FOR CLASS: confirm card payment w/ stripe error: ", err);
-      throw Error("No payment intent created");
-    }
-
-    if (confirmed && confirmed.paymentIntent.status === 'succeeded') {
-      // Once stripe confirms the payment update transaction on our back end
-      try {
-        await Stripe.confirmPayment(confirmed.paymentIntent.id)
-        log.debug("PAY FOR CLASS: update transaction success");
-      } catch (err) {
-        log.error("PAY FOR CLASS: update transaction failed: ", err);
-        throw err;
-      }
-    } else {
-      log.error("PAY FOR CLASS: Stripe couldn't confirm payment intent");
-      throw Error("Payment confirmation failed")
-    }*/
-
-    // and add user to class
+    return subscription;
   }
 
+  const showSignupForm = async function() {
+    setNeedsPaymentMethod(true);
+    setSignup((
+      <Button variant="contained" color="primary" onClick={courseSignupHandler}>Sign Up</Button>
+    ));
+  }
+
+  useEffect(() => {
+    if(defaultPaymentMethod) {
+      paymentMethod.current = defaultPaymentMethod;
+    }
+  }, [defaultPaymentMethod]);
+
   const courseSignupHandler = async function () {
-    // Check if user has a payment method - add one if not
-    // If so, create either a one-time payment or recurring subscription
-    // confirm the one time payment in both cases that is returned
-    // then add user to class backend (below)
-    let pMethods;
 
-    try {
-      pMethods = await Stripe.getPaymentMethods();
-    } catch (err) {
-      return log.error("PAYMENT METHODS: error fetching", err);
-    }
+    setErrMessage(null);
 
-    if (!pMethods || !Array.isArray(pMethods.data) || pMethods.data.length === 0) {
-      log.info("PAYMENT METHODS: no payment methods found add one")
-      // Show add payment method form
-      return showAddPayment();
-    } else {
-      try {
-        await payForClass(Stripe.getDefaultPaymentMethod(pMethods.data))
-      } catch (err) {
-        // Display error?
-        return log.info("COURSE INFO: error paying for class: ", err)
-      }
-    }
+    log.debug("local payment", paymentMethod);
 
+    let defaultPaymentMethod = paymentMethod.current[0];
 
-    try {
-      await Course.addParticipant(params.id);
-    } catch (err) {
-      return log.error("COURSE INFO: course signup", err);
-    }
-
-    history.push(path.profile);
+    Stripe.createPaymentIntent(defaultPaymentMethod.id, course.id)
+      .then(result => {
+        log.debug("payment intent result", result);
+        setCourse({...result});
+        //return setupSubscription(defaultPaymentMethod.id, course)
+      }).catch(err => {
+        setErrMessage(err.message);
+      });
   }
 
   const courseLeaveHandler = async function () {
@@ -339,28 +304,43 @@ export default function () {
     history.push(path.courses + "/" + course.id + path.joinPath);
   }
 
-  const content = (
-    needsPaymentMethod ?
-      <Container>
-        <Grid>
-          <AddPaymentMethod backHandler={paymentMethodAddedHandler} />
+  let errorContent = null;
+  if(errMessage) {
+    errorContent = (
+      <Alert severity="error">{errMessage}</Alert>
+    );
+  }
+
+  let paymentContent = null;
+  if (needsPaymentMethod) {
+    paymentContent = (
+      <Grid>
+        <Cards />
+      </Grid>
+    );
+  }
+
+  let content = (
+    <Grid>
+      {errorContent}
+      {paymentContent}
+      <Grid container direction="row" justify="flex-end">
+        <Grid item className={classes.actionBtn}>
+          {joinSession}
         </Grid>
-      </Container>
-      :
-      <Container>
-        <Grid container direction="row" justify="flex-end">
-          <Grid item className={classes.actionBtn}>
-            {joinSession}
-          </Grid>
-          <Grid item className={classes.actionBtn}>
-            {signup}
-          </Grid>
+        <Grid item className={classes.actionBtn}>
+          {signup}
         </Grid>
-        <UserData header={title} bio={description} email={email} phone={phone} instagram={insta} photo={photo} />
-        <Divider className={classes.divider} />
-        <CourseSchedule header="Class Schedule" course={[course]} view="week" />
-      </Container>
+      </Grid>
+      <UserData header={title} bio={description} email={email} phone={phone} instagram={insta} photo={photo} />
+      <Divider className={classes.divider} />
+      <CourseSchedule header="Class Schedule" course={[course]} view="week" />
+    </Grid>
   );
 
-  return content;
+  return (
+    <Container>
+      {content}
+    </Container> 
+  )
 }

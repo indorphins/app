@@ -179,7 +179,9 @@ export default function () {
   }
 
   const linkBankAccount = async function() {
-    window.location = await Stripe.getAccountLinkURL(path.home);
+    let url = await Stripe.getAccountLinkURL(path.home);
+    log.debug("REDIRECT to", url);
+    window.location = url;
   }
 
   let editContent = null;

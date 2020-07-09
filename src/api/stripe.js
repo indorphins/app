@@ -28,10 +28,8 @@ export async function getAccountLinkURL(url) {
  * @param {String} classId
  */
 export async function createPaymentIntent(
-  instructorId,
   paymentMethodId,
   classId,
-  recurring
 ) {
   const url = urlBase + `/class/${classId}/payment/${paymentMethodId}`;
   const options = {
