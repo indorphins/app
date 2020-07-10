@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { Button, Container, Divider, Grid } from '@material-ui/core';
+import { Button, Container, Divider, Grid, CircularProgress } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
@@ -95,6 +95,7 @@ export default function () {
   const [signup, setSignup] = useState(null);
   const [joinSession, setJoinSession] = useState(null);
   const [needsPaymentMethod, setNeedsPaymentMethod] = useState(false);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [errMessage, setErrMessage] = useState(null);
 
   async function getCourse(id) {
@@ -228,22 +229,6 @@ export default function () {
     history.push(`${path.login}?redirect=${path.courses}/${course.id}`);
   }
 
-  const setupSubscription = async (paymentMethodId, course) => {
-    if (!course.recurring) {
-      return;
-    }
-
-    let subscription;
-    try {
-      subscription = await Stripe.createSubscription(course.id);
-      log.debug("PAY FOR CLASS: created subscription: ", subscription);
-    } catch (err) {
-      throw err;
-    }
-
-    return subscription;
-  }
-
   const showSignupForm = async function() {
     setNeedsPaymentMethod(true);
     setSignup((
@@ -260,6 +245,7 @@ export default function () {
   const courseSignupHandler = async function () {
 
     setErrMessage(null);
+    setPaymentProcessing(true);
 
     log.debug("local payment", paymentMethod);
 
@@ -269,8 +255,10 @@ export default function () {
       .then(result => {
         log.debug("payment intent result", result);
         setCourse({...result});
-        //return setupSubscription(defaultPaymentMethod.id, course)
+        setPaymentProcessing(false);
+        setNeedsPaymentMethod(false);
       }).catch(err => {
+        setPaymentProcessing(false);
         setErrMessage(err.message);
       });
   }
@@ -313,11 +301,21 @@ export default function () {
 
   let paymentContent = null;
   if (needsPaymentMethod) {
-    paymentContent = (
-      <Grid>
-        <Cards />
-      </Grid>
-    );
+    if (paymentProcessing) {
+      paymentContent = ( 
+        <Grid container direction="row" justify="center" alignItems="center" style={{minHeight: 250}}>
+          <Grid item>
+            <CircularProgress color="secondary" />
+          </Grid>
+        </Grid>
+      );
+    } else {
+      paymentContent = (
+        <Grid>
+          <Cards />
+        </Grid>
+      );
+    }
   }
 
   let content = (
