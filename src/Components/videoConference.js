@@ -192,8 +192,9 @@ export default function(props) {
 
     let session = OT.initSession(apiKey, sessionId);
     setSession(session);
-
-    let settings = {
+  
+    // Create a publisher
+    let publisher = OT.initPublisher('publisher', {
       insertMode: 'append',
       width: '100%',
       height: '100%',
@@ -202,15 +203,9 @@ export default function(props) {
       showControls: false,
       publishAudio: true,
       publishVideo: true,
-      resolution: "1280x720",
-      audioBitrate: 64000,
-      enableStereo: true,
-      disableAudioProcessing: true,
-      maxResolution: {width: 1280, height: 720},
-    };
-  
-    // Create a publisher
-    let publisher = OT.initPublisher('publisher', settings, handleError);
+      resolution: "1920x1080",
+      maxResolution: {width: 1920, height: 1080},
+    }, handleError);
     setPublisher(publisher);
   }
 
@@ -494,35 +489,12 @@ export default function(props) {
   }, [props]);
 
   useEffect(() => {
-    if (!credentials || !course || !user) return;
-
-    let settings = {
-      insertMode: 'append',
-      width: '100%',
-      height: '100%',
-      name: session.data,
-      mirror: false,
-      showControls: false,
-      publishAudio: true,
-      publishVideo: true,
-      resolution: "320x240",
-      audioBitrate: 40000,
-      enableStereo: false,
-      disableAudioProcessing: false,
-      maxResolution: {width: 1280, height: 720},
-    };
-
-    if (user.id === course.instructor.id) {
-      settings.resolution = "1280x720";
-      settings.audioBitrate = 96000;
-      settings.enableStereo = true;
-      settings.disableAudioProcessing = true;
-    }
+    if (!credentials) return;
 
     if (credentials.apiKey && credentials.sessionId) {
-      initializeSession(credentials.apiKey, credentials.sessionId, settings);
+      initializeSession(credentials.apiKey, credentials.sessionId);
     }
-  }, [credentials, course, user]);
+  }, [credentials]);
 
   useEffect(() => {
 
