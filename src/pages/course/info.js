@@ -246,6 +246,7 @@ export default function () {
 
     setErrMessage(null);
     setPaymentProcessing(true);
+    setNeedsPaymentMethod(false);
 
     log.debug("local payment", paymentMethod);
 
@@ -259,33 +260,28 @@ export default function () {
         setNeedsPaymentMethod(false);
       }).catch(err => {
         setPaymentProcessing(false);
+        setNeedsPaymentMethod(true);
         setErrMessage(err.message);
       });
   }
 
   const courseLeaveHandler = async function () {
-    // refund the payment
-    let refund;
-
-    try {
-      refund = await Stripe.refundPayment(course.id)
-    } catch (err) {
-      return log.error("COURSE INFO: refund course ", err);
-    }
-
-    if (refund.message.statusCode >= 400) {
-      // refund unsuccessful don't remove from class
-      return log.error("COURSE INFO: refund unsuccessful");
-    }
+    let updatedCourse;
+    setPaymentProcessing(true);
+    setErrMessage(null);
 
     // remove from the course
     try {
-      await Course.removeParticipant(params.id);
+      updatedCourse = await Stripe.refundPayment(course.id);
     } catch (err) {
-      return log.error("COURSE INFO: course leave", err);
+      log.error("COURSE INFO: course leave", err);
+      setPaymentProcessing(false);
+      return setErrMessage(err.message);
     }
 
-    history.push(path.profile);
+    setPaymentProcessing(false);
+    setErrMessage(null);
+    setCourse(updatedCourse);
   }
 
   const joinHandler = function () {
@@ -299,28 +295,30 @@ export default function () {
     );
   }
 
+  let paymentProcessingContent = null;
+  if (paymentProcessing) {
+    paymentProcessingContent = ( 
+      <Grid container direction="row" justify="center" alignItems="center">
+        <Grid item>
+          <CircularProgress color="secondary" />
+        </Grid>
+      </Grid>
+    );
+  }
+
   let paymentContent = null;
   if (needsPaymentMethod) {
-    if (paymentProcessing) {
-      paymentContent = ( 
-        <Grid container direction="row" justify="center" alignItems="center" style={{minHeight: 250}}>
-          <Grid item>
-            <CircularProgress color="secondary" />
-          </Grid>
-        </Grid>
-      );
-    } else {
-      paymentContent = (
-        <Grid>
-          <Cards />
-        </Grid>
-      );
-    }
+    paymentContent = (
+      <Grid>
+        <Cards />
+      </Grid>
+    );
   }
 
   let content = (
     <Grid>
       {errorContent}
+      {paymentProcessingContent}
       {paymentContent}
       <Grid container direction="row" justify="flex-end">
         <Grid item className={classes.actionBtn}>
