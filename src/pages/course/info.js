@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { Button, Container, Divider, Grid, CircularProgress } from '@material-ui/core';
+import { Button, Container, Divider, Grid, LinearProgress, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
@@ -25,6 +25,9 @@ const useStyles = makeStyles((theme) => ({
   actionBtn: {
     marginLeft: theme.spacing(1),
     marginBottom: theme.spacing(2),
+  },
+  alert: {
+    marginBottom: theme.spacing(1),
   }
 }));
 
@@ -172,7 +175,7 @@ export default function () {
     }
 
     setSignup((
-      <Button variant="contained" color="secondary" onClick={showSignupForm}>Sign Up</Button>
+      <Button disabled={paymentProcessing} variant="contained" color="secondary" onClick={showSignupForm}>Sign Up</Button>
     ));
 
   }, [currentUser, course]);
@@ -232,7 +235,7 @@ export default function () {
   const showSignupForm = async function() {
     setNeedsPaymentMethod(true);
     setSignup((
-      <Button variant="contained" color="primary" onClick={courseSignupHandler}>Sign Up</Button>
+      <Button disabled={paymentProcessing} variant="contained" color="primary" onClick={courseSignupHandler}>Submit Payment</Button>
     ));
   }
 
@@ -244,9 +247,10 @@ export default function () {
 
   const courseSignupHandler = async function () {
 
-    setErrMessage(null);
+    setErrMessage({severity: "info", message: "Processing..."});
     setPaymentProcessing(true);
     setNeedsPaymentMethod(false);
+    setSignup(null);
 
     log.debug("local payment", paymentMethod);
 
@@ -254,21 +258,21 @@ export default function () {
 
     Stripe.createPaymentIntent(defaultPaymentMethod.id, course.id)
       .then(result => {
-        log.debug("payment intent result", result);
-        setCourse({...result});
+        setCourse({...result.course});
         setPaymentProcessing(false);
         setNeedsPaymentMethod(false);
+        setErrMessage({severity: "success", message: result.message});
       }).catch(err => {
         setPaymentProcessing(false);
-        setNeedsPaymentMethod(true);
-        setErrMessage(err.message);
+        showSignupForm();
+        setErrMessage({severity: "error", message: err.message});
       });
   }
 
   const courseLeaveHandler = async function () {
     let updatedCourse;
     setPaymentProcessing(true);
-    setErrMessage(null);
+    setErrMessage({severity: "info", message: "Processing..."});
 
     // remove from the course
     try {
@@ -276,32 +280,32 @@ export default function () {
     } catch (err) {
       log.error("COURSE INFO: course leave", err);
       setPaymentProcessing(false);
-      return setErrMessage(err.message);
+      return setErrMessage({severity: "error", message: err.message});
     }
 
     setPaymentProcessing(false);
-    setErrMessage(null);
-    setCourse(updatedCourse);
+    setErrMessage({severity: "success", message: updatedCourse.message});
+    setCourse(updatedCourse.course);
   }
 
   const joinHandler = function () {
     history.push(path.courses + "/" + course.id + path.joinPath);
   }
 
-  let errorContent = null;
-  if(errMessage) {
-    errorContent = (
-      <Alert severity="error">{errMessage}</Alert>
-    );
-  }
 
   let paymentProcessingContent = null;
   if (paymentProcessing) {
     paymentProcessingContent = ( 
-      <Grid container direction="row" justify="center" alignItems="center">
-        <Grid item>
-          <CircularProgress color="secondary" />
-        </Grid>
+      <LinearProgress color="secondary" />
+    );
+  }
+
+  let errorContent = null;
+  if(errMessage) {
+    errorContent = (
+      <Grid className={classes.alert}>
+        <Alert severity={errMessage.severity} >{errMessage.message}</Alert>
+        {paymentProcessingContent}
       </Grid>
     );
   }
@@ -310,6 +314,7 @@ export default function () {
   if (needsPaymentMethod) {
     paymentContent = (
       <Grid>
+        <Typography variant="h5">Select or enter your default payment method</Typography>
         <Cards />
       </Grid>
     );
@@ -318,7 +323,6 @@ export default function () {
   let content = (
     <Grid>
       {errorContent}
-      {paymentProcessingContent}
       {paymentContent}
       <Grid container direction="row" justify="flex-end">
         <Grid item className={classes.actionBtn}>
