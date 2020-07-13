@@ -145,7 +145,7 @@ function MuteButton(props) {
   }
 
   return (
-    <IconButton name={props.name} onClick={(evt) => props.onClick(evt)}>
+    <IconButton name={props.name} onClick={() => { props.onClick(props.name); }}>
       {soundBtn}
     </IconButton>
   );
@@ -195,20 +195,6 @@ export default function(props) {
 
     let data = settings;
     data.name = session.data;
-  
-    // Create a publisher
-    /*let publisher = OT.initPublisher('publisher', {
-      insertMode: 'append',
-      width: '100%',
-      height: '100%',
-      name: session.data,
-      mirror: false,
-      showControls: false,
-      publishAudio: true,
-      publishVideo: true,
-      resolution: "1920x1080",
-      maxResolution: {width: 1920, height: 1080},
-    }, handleError);*/
 
     let publisher = OT.initPublisher('publisher', data)
     setPublisher(publisher);
@@ -396,7 +382,7 @@ export default function(props) {
   }
 
   function toggleSubscriberAudio(evt) {
-    let data = evt.target.name;
+    let data = evt;
 
     setSubs(subs.map(item => {
       if (item.user.id === data) {
