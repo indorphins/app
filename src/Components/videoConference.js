@@ -188,13 +188,16 @@ export default function(props) {
     }
   }
 
-  async function initializeSession(apiKey, sessionId) {
+  async function initializeSession(apiKey, sessionId, settings) {
 
     let session = OT.initSession(apiKey, sessionId);
     setSession(session);
+
+    let data = settings;
+    data.name = session.data;
   
     // Create a publisher
-    let publisher = OT.initPublisher('publisher', {
+    /*let publisher = OT.initPublisher('publisher', {
       insertMode: 'append',
       width: '100%',
       height: '100%',
@@ -205,7 +208,9 @@ export default function(props) {
       publishVideo: true,
       resolution: "1920x1080",
       maxResolution: {width: 1920, height: 1080},
-    }, handleError);
+    }, handleError);*/
+
+    let publisher = OT.initPublisher('publisher', data)
     setPublisher(publisher);
   }
 
@@ -246,7 +251,6 @@ export default function(props) {
     if (data.instructor) {
       props.subscribeToAudio = true;
       props.subscribeToVideo = true;
-      //props.preferredResolution = {width: 1920, height: 1080};
       subscriber = session.subscribe(event.stream, 'feature', props, handleError);
       return;
     }
@@ -489,12 +493,32 @@ export default function(props) {
   }, [props]);
 
   useEffect(() => {
-    if (!credentials) return;
+    if (!credentials || !user || !course) return;
 
-    if (credentials.apiKey && credentials.sessionId) {
-      initializeSession(credentials.apiKey, credentials.sessionId);
+    let settings = {
+      insertMode: 'append',
+      width: '100%',
+      height: '100%',
+      mirror: true,
+      showControls: false,
+      publishAudio: false,
+      publishVideo: true,
+      resolution: "320x240",
+      audioBitrate: 44000,
+      maxResolution: {width: 1280, height: 720},
     }
-  }, [credentials]);
+
+    let instructor = JSON.parse(course.instructor);
+
+    if (user.id === instructor.id) {
+      settings.resolution = "1280x720";
+      settings.publishAudio = true;
+      settings.audioBitrate= 96000;
+    }
+
+    initializeSession(credentials.apiKey, credentials.sessionId, settings);
+
+  }, [credentials, user, course]);
 
   useEffect(() => {
 
