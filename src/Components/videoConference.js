@@ -23,6 +23,8 @@ import {
   VolumeUp, 
   ExpandMoreOutlined,
   Loop,
+  ChevronLeft,
+  ChevronRight,
 } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import * as OT from '@opentok/client';
@@ -89,11 +91,15 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     background: theme.palette.grey[800],
   },
-  videoControls: {
-    width: 400,
-    '@media (max-width: 800px)': {
-      width: 350,
-    },
+  videoControls: {},
+  drawer: {
+    backgroundColor: theme.palette.primary.main,
+  },
+  drawerBtn: {
+    position: 'relative',
+    top: '10px',
+    right: '50px',
+    zIndex: '9999',
   },
   chat: {
     width: "100%",
@@ -679,6 +685,38 @@ export default function(props) {
     </Grid>
   );
 
+  const [drawer, setDrawer] = useState(true);
+  function toggleDrawer() {
+    if (drawer) {
+      setDrawer(false);
+    } else {
+      setDrawer(true);
+    }
+  }
+
+  let drawerBtn = (
+    <IconButton onClick={toggleDrawer} className={classes.drawerBtn}>
+      <ChevronLeft />
+    </IconButton>
+  );
+  let drawerContent = (
+    <Grid item xs={0} className={classes.drawer} style={{ display: "none"}}>
+      {videoControls}
+    </Grid>
+  );
+  if (drawer) {
+    drawerContent = (
+      <Grid item xs={3} className={classes.drawer}>
+        {videoControls}
+      </Grid>
+    );
+    drawerBtn = (
+      <IconButton onClick={toggleDrawer} className={classes.drawerBtn}>
+        <ChevronRight />
+      </IconButton>
+    );
+  }
+
   let containerClass = classes.subscriberGrid;
 
   if (course && user && user.id === course.instructor.id) {
@@ -720,10 +758,13 @@ export default function(props) {
 
   return (
     <Grid container direction="row" justify="flex-start" style={{height:"100%"}}>
-      <Grid container direction="row" spacing={2} justify="flex-start" style={{overflow: "hidden"}} >
+      <Grid container direction="row" spacing={0} justify="flex-start" style={{overflow: "hidden"}} >
         {featurePanel}
         {participantsVideoContent}
-        {videoControls}
+        <Grid item style={{width: 0}}>
+          {drawerBtn}
+        </Grid>
+        {drawerContent}
       </Grid>
     </Grid>
   );

@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: dark.palette.background.default,
   },
   contentCol: {
-    padding: theme.spacing(2),
+    padding: 0,
     height: "100%",
   }
 }));
