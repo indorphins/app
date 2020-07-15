@@ -9,6 +9,7 @@ import Alert from '@material-ui/lab/Alert';
 import { store, actions } from '../../store';
 import UserData from '../../components/userData';
 import CourseSchedule from '../../components/courseSchedule';
+import CreateMessage from '../../components/form/createMessage'
 import * as Course from '../../api/course';
 import * as Stripe from '../../api/stripe';
 import log from '../../log';
@@ -96,6 +97,8 @@ export default function () {
   const [insta, setInsta] = useState('');
   const [course, setCourse] = useState('');
   const [signup, setSignup] = useState(null);
+  const [notify, setNotify] = useState(null);
+  const [makeMessage, setMakeMessage] = useState(false);
   const [joinSession, setJoinSession] = useState(null);
   const [needsPaymentMethod, setNeedsPaymentMethod] = useState(false);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
@@ -155,6 +158,9 @@ export default function () {
       setSignup((
         <Button variant="contained" color="secondary">Edit</Button>
       ));
+      setNotify((
+        <Button variant='contained' color='secondary' onClick={createMessageHandler}>Message Class</Button>
+      ))
       return;
     }
 
@@ -186,16 +192,16 @@ export default function () {
       return;
     }
 
-    if (paymentData.id) { 
+    if (paymentData.id) {
       return;
     }
 
     Stripe.getPaymentMethods().then(result => {
       return store.dispatch(actions.user.setPaymentData(result));
     })
-    .catch(err => {
-      log.error("PROFILE:: update user payment data", err);
-    });
+      .catch(err => {
+        log.error("PROFILE:: update user payment data", err);
+      });
 
   }, [paymentData.id, currentUser.id]);
 
@@ -228,26 +234,38 @@ export default function () {
 
   }, [currentUser, course]);
 
-  const goToLogin = async function() {
+  const goToLogin = async function () {
     history.push(`${path.login}?redirect=${path.courses}/${course.id}`);
   }
 
-  const showSignupForm = async function() {
+  const showSignupForm = async function () {
     setNeedsPaymentMethod(true);
     setSignup((
       <Button disabled={paymentProcessing} variant="contained" color="primary" onClick={courseSignupHandler}>Submit Payment</Button>
     ));
   }
 
+  const createMessageHandler = function () {
+    setMakeMessage(true);
+    setNotify(null)
+  }
+
+  const sendMessageHandler = function () {
+    setMakeMessage(false);
+    setNotify((
+      <Button variant='contained' color='secondary' onClick={createMessageHandler}>Message Sent</Button>
+    ))
+  }
+
   useEffect(() => {
-    if(defaultPaymentMethod) {
+    if (defaultPaymentMethod) {
       paymentMethod.current = defaultPaymentMethod;
     }
   }, [defaultPaymentMethod]);
 
   const courseSignupHandler = async function () {
 
-    setErrMessage({severity: "info", message: "Processing..."});
+    setErrMessage({ severity: "info", message: "Processing..." });
     setPaymentProcessing(true);
     setNeedsPaymentMethod(false);
     setSignup(null);
@@ -258,21 +276,21 @@ export default function () {
 
     Stripe.createPaymentIntent(defaultPaymentMethod.id, course.id)
       .then(result => {
-        setCourse({...result.course});
+        setCourse({ ...result.course });
         setPaymentProcessing(false);
         setNeedsPaymentMethod(false);
-        setErrMessage({severity: "success", message: result.message});
+        setErrMessage({ severity: "success", message: result.message });
       }).catch(err => {
         setPaymentProcessing(false);
         showSignupForm();
-        setErrMessage({severity: "error", message: err.message});
+        setErrMessage({ severity: "error", message: err.message });
       });
   }
 
   const courseLeaveHandler = async function () {
     let updatedCourse;
     setPaymentProcessing(true);
-    setErrMessage({severity: "info", message: "Processing..."});
+    setErrMessage({ severity: "info", message: "Processing..." });
 
     // remove from the course
     try {
@@ -280,11 +298,11 @@ export default function () {
     } catch (err) {
       log.error("COURSE INFO: course leave", err);
       setPaymentProcessing(false);
-      return setErrMessage({severity: "error", message: err.message});
+      return setErrMessage({ severity: "error", message: err.message });
     }
 
     setPaymentProcessing(false);
-    setErrMessage({severity: "success", message: updatedCourse.message});
+    setErrMessage({ severity: "success", message: updatedCourse.message });
     setCourse(updatedCourse.course);
   }
 
@@ -295,13 +313,13 @@ export default function () {
 
   let paymentProcessingContent = null;
   if (paymentProcessing) {
-    paymentProcessingContent = ( 
+    paymentProcessingContent = (
       <LinearProgress color="secondary" />
     );
   }
 
   let errorContent = null;
-  if(errMessage) {
+  if (errMessage) {
     errorContent = (
       <Grid className={classes.alert}>
         <Alert severity={errMessage.severity} >{errMessage.message}</Alert>
@@ -320,11 +338,22 @@ export default function () {
     );
   }
 
+  let messageContent = null;
+  if (makeMessage) {
+    messageContent = (
+      <CreateMessage onSend={sendMessageHandler} courseId={course.id} />
+    )
+  }
+
   let content = (
     <Grid>
       {errorContent}
       {paymentContent}
+      {messageContent}
       <Grid container direction="row" justify="flex-end">
+        <Grid item className={classes.actionBtn}>
+          {notify}
+        </Grid>
         <Grid item className={classes.actionBtn}>
           {joinSession}
         </Grid>
@@ -341,6 +370,6 @@ export default function () {
   return (
     <Container>
       {content}
-    </Container> 
+    </Container>
   )
 }
