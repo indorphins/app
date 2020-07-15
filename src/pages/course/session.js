@@ -24,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
     /*flex: 1,
     overflow: 'auto',*/
     padding: theme.spacing(2),
+    height: "100%",
   }
 }));
 
@@ -94,7 +95,7 @@ export default function() {
   return (
     <Grid className={classes.root}>
       <Grid className={classes.contentCol}>
-        <Grid container direction="row" justify="center" alignItems="center" alignContent="center" className={classes.root}>
+        <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
           {content}
         </Grid>
       </Grid>

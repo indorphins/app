@@ -84,10 +84,10 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.primary.contrastText,
   },
   instructor: {
-    height: 500,
+    height: "100%",
     width: "100%",
     background: theme.palette.grey[200],
-    '@media (min-width: 1500px)': {
+    /*'@media (min-width: 1500px)': {
       height: 700,
     },
     '@media (min-width: 1600px)': {
@@ -101,7 +101,7 @@ const useStyles = makeStyles((theme) => ({
     },
     '@media (min-width: 1900px)': {
       height: 1000,
-    },
+    },*/
   },
   videoControls: {
     width: 400,
@@ -267,7 +267,6 @@ export default function(props) {
     if (data.instructor) {
       props.subscribeToAudio = true;
       props.subscribeToVideo = true;
-      //props.preferredResolution = {width: 1920, height: 1080};
       subscriber = session.subscribe(event.stream, 'feature', props, handleError);
       return;
     }
@@ -596,7 +595,7 @@ export default function(props) {
 
   let featurePanel = (
     <Grid xs item>
-      <Paper>
+      <Paper style={{height: "100%"}}>
         <Box id="feature" className={classes.instructor} />
       </Paper>
     </Grid>
@@ -728,7 +727,7 @@ export default function(props) {
   }
 
   return (
-    <Grid container direction="row" justify="flex-start">
+    <Grid container direction="row" justify="flex-start" style={{height:"100%"}}>
       <Grid container direction="row" spacing={2} justify="flex-start">
         {featurePanel}
         {participantsVideoContent}
