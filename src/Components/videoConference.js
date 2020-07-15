@@ -22,6 +22,7 @@ import {
   VolumeOff, 
   VolumeUp, 
   ExpandMoreOutlined,
+  Loop,
 } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -139,13 +140,15 @@ function MuteButton(props) {
   }, [props.checked]);
 
   let soundBtn = (<VolumeOff />);
+  let title = "Unmute this participant";
 
   if (isChecked) {
     soundBtn = (<VolumeUp />);
+    title = "Mute this participant";
   }
 
   return (
-    <IconButton name={props.name} onClick={(evt) => props.onClick(evt)}>
+    <IconButton name={props.name} title={title} onClick={() => props.onClick(props.name)}>
       {soundBtn}
     </IconButton>
   );
@@ -166,7 +169,7 @@ export default function(props) {
   const [session, setSession] = useState(null);
   const [publisher, setPublisher] = useState(null);
   const [publishVideo, setPublishVideo] = useState(true);
-  const [publishAudio, setPublishAudio] = useState(true);
+  const [publishAudio, setPublishAudio] = useState(false);
   const [chatMsg, setChatMsg] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
   const [loopMode, setLoopMode] = useState(true);
@@ -188,28 +191,44 @@ export default function(props) {
     }
   }
 
-  async function initializeSession(apiKey, sessionId) {
+  async function initializeSession(apiKey, sessionId, settings) {
 
     let session = OT.initSession(apiKey, sessionId);
     setSession(session);
+
+    settings.name = session.data;
   
     // Create a publisher
-    let publisher = OT.initPublisher('publisher', {
+    let publisher = OT.initPublisher('publisher', settings, handleError);
+    setPublisher(publisher);
+  }
+
+  useEffect(() => {
+    if (!credentials) return;
+
+    let settings = {
       insertMode: 'append',
       width: '100%',
       height: '100%',
-      name: session.data,
       mirror: false,
       showControls: false,
-      publishAudio: true,
+      publishAudio: false,
       publishVideo: true,
       resolution: "1280x720",
       audioBitrate: 96000,
       enableStereo: false,
       maxResolution: {width: 1280, height: 720},
-    }, handleError);
-    setPublisher(publisher);
-  }
+    };
+
+    if (props.user.id === course.instructor.id) {
+      settings.publishAudio = true;
+      setPublishAudio(true);
+    }
+
+    if (credentials.apiKey && credentials.sessionId) {
+      initializeSession(credentials.apiKey, credentials.sessionId, settings);
+    }
+  }, [credentials, props.user, props.course]);
 
   function streamDestroyed(event) {
     log.debug('OPENTOK:: stream destroyed', event);
@@ -239,7 +258,7 @@ export default function(props) {
       insertMode: 'append',
       width: '100%',
       height: '100%',
-      preferredResolution: {width: 1920, height: 1080},
+      preferredResolution: {width: 1280, height: 720},
       showControls: false,
       subscribeToAudio: false,
       subscribeToVideo: false,
@@ -394,7 +413,7 @@ export default function(props) {
   }
 
   function toggleSubscriberAudio(evt) {
-    let data = evt.target.name;
+    let data = evt;
 
     setSubs(subs.map(item => {
       if (item.user.id === data) {
@@ -489,14 +508,6 @@ export default function(props) {
     setCourse(props.course);
     setUser(props.user);
   }, [props]);
-
-  useEffect(() => {
-    if (!credentials) return;
-
-    if (credentials.apiKey && credentials.sessionId) {
-      initializeSession(credentials.apiKey, credentials.sessionId);
-    }
-  }, [credentials]);
 
   useEffect(() => {
 
@@ -620,23 +631,27 @@ export default function(props) {
   );
 
   let videoBtn = (<VideocamOffOutlined />);
+  let videoTitle = "Enable camera";
   if (publishVideo) {
     videoBtn = (<VideocamOutlined />);
+    videoTitle = "Disable camera";
   }
 
   let micBtn = (<MicOffOutlined />);
+  let micTitle = "Enable microphone";
   if (publishAudio) {
     micBtn = (<MicNone />);
+    micTitle = "Disable microphone"
   }
 
   let videoControls = (
     <Grid item className={classes.videoControls}>
       <Box>
         <Grid id="publisher" className={classes.publisher}></Grid>
-        <IconButton onClick={toggleVideo}>
+        <IconButton title={videoTitle} onClick={toggleVideo}>
           {videoBtn}
         </IconButton>
-        <IconButton onClick={toggleAudio}>
+        <IconButton title={micTitle} onClick={toggleAudio}>
           {micBtn}
         </IconButton>
       </Box>
@@ -647,12 +662,12 @@ export default function(props) {
           </ExpansionPanelSummary>
           <ExpansionPanelDetails>
             <Grid container direction="column">
-              <Grid item container direction="row" justify="flex-end" alignItems="center" style={{width: "100%"}}>
+              <Grid item container direction="row" justify="flex-end" alignItems="center" alignContent="center" style={{width: "100%"}}>
                 <Grid item>
-                  <Switch checked={loopMode} onChange={toggleLoopMode} name="Loop" />
+                  <Loop/>
                 </Grid>
                 <Grid item>
-                  <Typography variant="subtitle1">Loop</Typography>
+                  <Switch checked={loopMode} onChange={toggleLoopMode} title="Rotate participants video" name="loop" />
                 </Grid>
               </Grid>
               <Grid item container style={{width: "100%"}}>
