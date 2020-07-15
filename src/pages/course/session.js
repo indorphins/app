@@ -1,6 +1,6 @@
 import React, { useState, useEffect }  from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { Grid, CircularProgress } from '@material-ui/core';
+import { Grid, LinearProgress } from '@material-ui/core';
 import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
@@ -81,11 +81,13 @@ export default function() {
   }, [params.id, currentUser]);
 
   let chatContent = (
-    <Opentok credentials={authData} course={course} user={currentUser}></Opentok>
+    <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
+      <Opentok credentials={authData} course={course} user={currentUser}></Opentok>
+    </Grid>
   );
 
   let content = (
-    <CircularProgress color="secondary" />
+    <LinearProgress color="secondary" />
   );
 
   if (!loader) {
@@ -96,9 +98,7 @@ export default function() {
     <ThemeProvider theme={dark}>
       <Grid className={classes.root}>
         <Grid className={classes.contentCol}>
-          <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
-            {content}
-          </Grid>
+          {content}
         </Grid>
       </Grid>
     </ThemeProvider>

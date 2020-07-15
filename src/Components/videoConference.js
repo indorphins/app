@@ -50,7 +50,7 @@ const useStyles = makeStyles((theme) => ({
     background: theme.palette.grey[200],
   },
   subscriberItemAlt: {
-    height: 240,
+    height: "25%",
     width: "calc(100% / 4)",
     background: theme.palette.grey[200],
   },
@@ -58,38 +58,22 @@ const useStyles = makeStyles((theme) => ({
     height: "100%",
   },  
   subscriberFeature: {
-    height: 500,
-    //height: "calc(100% - 35px)",
+    height: "75%",
     width: "100%",
     background: theme.palette.grey[200],
-    '@media (min-width: 1500px)': {
-      height: 700,
-    },
-    '@media (min-width: 1600px)': {
-      height: 750,
-    },
-    '@media (min-width: 1700px)': {
-      height: 800,
-    },
-    '@media (min-width: 1800px)': {
-      height: 850,
-    },
-    '@media (min-width: 1900px)': {
-      height: 900,
-    },
   },
   subscriberLabelBox: {
-    background: theme.palette.primary.main,
-    padding: theme.spacing(1),
+    position: 'relative',
+    bottom: '50px',
   },
   subscriberLabel: {
-    fontSize: "0.9rem",
+    fontSize: "2rem",
     color: theme.palette.primary.contrastText,
   },
   instructor: {
     height: "100%",
     width: "100%",
-    background: theme.palette.grey[800],
+    background: theme.palette.grey[900],
   },
   videoControls: {},
   drawer: {
@@ -257,12 +241,11 @@ export default function(props) {
       height: '100%',
       preferredResolution: {width: 1280, height: 720},
       showControls: false,
-      subscribeToAudio: false,
+      subscribeToAudio: true,
       subscribeToVideo: false,
     };
 
     if (data.instructor) {
-      props.subscribeToAudio = true;
       props.subscribeToVideo = true;
       subscriber = session.subscribe(event.stream, 'feature', props, handleError);
       return;
@@ -282,10 +265,6 @@ export default function(props) {
       }
       props.subscribeToVideo = true;
       setVideoSubsCount(videoSubsCountRef.current + 1);
-    }
-
-    if (event.stream.hasAudio) {
-      props.subscribeToAudio = true;
     }
 
     subscriber = session.subscribe(event.stream, data.id, props, handleError);
@@ -664,7 +643,7 @@ export default function(props) {
                   <Loop/>
                 </Grid>
                 <Grid item>
-                  <Switch checked={loopMode} onChange={toggleLoopMode} title="Rotate participants video" name="loop" />
+                  <Switch checked={loopMode} onChange={toggleLoopMode} title="Rotate participants viewed" name="loop" />
                 </Grid>
               </Grid>
               <Grid item container style={{width: "100%"}}>
@@ -695,7 +674,7 @@ export default function(props) {
   }
 
   let drawerBtn = (
-    <IconButton onClick={toggleDrawer} className={classes.drawerBtn}>
+    <IconButton title="Expand video controls" onClick={toggleDrawer} className={classes.drawerBtn}>
       <ChevronLeft />
     </IconButton>
   );
@@ -711,7 +690,7 @@ export default function(props) {
       </Grid>
     );
     drawerBtn = (
-      <IconButton onClick={toggleDrawer} className={classes.drawerBtn}>
+      <IconButton title="Collapse video controls" onClick={toggleDrawer} className={classes.drawerBtn}>
         <ChevronRight />
       </IconButton>
     );
@@ -724,7 +703,7 @@ export default function(props) {
   }
 
   let participantsVideo = (
-    <Grid xs item>
+    <Grid xs item style={{height:"100%"}}>
       <Grid container direction="row" justify="flex-start" className={containerClass}>
         {combined.map(item => (
           <Grid key={item.user.id} item className={item.className} style={{order: item.order}}>
