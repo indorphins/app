@@ -12,7 +12,7 @@ import log from '../../log';
 import path from '../../routes/path';
 import { getNextDate, getPrevDate } from '../../utils';
 
-const sessionWindow = 15;
+const sessionWindow = 5;
 
 const useStyles = makeStyles((theme) => ({
   divider: {

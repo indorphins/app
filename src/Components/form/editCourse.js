@@ -221,7 +221,7 @@ export default function(props) {
       <Box>
         <Typography variant="subtitle2">{spots} spots</Typography>
       </Box>
-      <Slider disabled={loader} className={classes.slider} defaultValue={20} min={5} max={20} step={1} valueLabelDisplay="auto" onChangeCommitted={handleSpotsSlider} />
+      <Slider disabled={loader} className={classes.slider} defaultValue={20} min={10} max={30} step={5} valueLabelDisplay="auto" onChangeCommitted={handleSpotsSlider} />
     </Grid>
   );
 
