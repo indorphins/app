@@ -47,7 +47,7 @@ export default function (props) {
   const [title, setTitle] = useState('');
   const [courseType, setCourseType] = useState('');
   const [cost, setCost] = useState("20.00");
-  const [spots, setSpots] = useState(20);
+  const [spots, setSpots] = useState(30);
   const [duration, setDuration] = useState(60);
   const [selectedDate, setSelectedDate] = useState(null);
   const [description, setDescription] = useState('');
