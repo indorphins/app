@@ -1,7 +1,7 @@
 import React, { useState, useEffect }  from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { Grid, CircularProgress } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 
@@ -9,7 +9,7 @@ import * as Course from '../../api/course';
 import path from '../../routes/path';
 import log from '../../log';
 import Opentok from '../../components/videoConference';
-
+import { dark } from '../../styles/theme';
 
 const useStyles = makeStyles((theme) => ({
   '@global': {
@@ -19,10 +19,10 @@ const useStyles = makeStyles((theme) => ({
   },
   root: {
     height: '100%',
+    overflow: 'hidden',
+    backgroundColor: dark.palette.background.default,
   },
   contentCol: {
-    /*flex: 1,
-    overflow: 'auto',*/
     padding: theme.spacing(2),
     height: "100%",
   }
@@ -93,12 +93,14 @@ export default function() {
   }
 
   return (
-    <Grid className={classes.root}>
-      <Grid className={classes.contentCol}>
-        <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
-          {content}
+    <ThemeProvider theme={dark}>
+      <Grid className={classes.root}>
+        <Grid className={classes.contentCol}>
+          <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
+            {content}
+          </Grid>
         </Grid>
       </Grid>
-    </Grid>
+    </ThemeProvider>
   );
 };

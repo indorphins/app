@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
     maxWidth: 320
   },
   subscriberGridAlt: {
-    //height: "100%",
+    height: "100%",
   },
   subscriberItem: {
     height: 240,
@@ -53,10 +53,11 @@ const useStyles = makeStyles((theme) => ({
     background: theme.palette.grey[200],
   },
   subscriberFeatureVid: {
-    height: "calc(100% - 35px)",
+    height: "100%",
   },  
   subscriberFeature: {
     height: 500,
+    //height: "calc(100% - 35px)",
     width: "100%",
     background: theme.palette.grey[200],
     '@media (min-width: 1500px)': {
@@ -86,22 +87,7 @@ const useStyles = makeStyles((theme) => ({
   instructor: {
     height: "100%",
     width: "100%",
-    background: theme.palette.grey[200],
-    /*'@media (min-width: 1500px)': {
-      height: 700,
-    },
-    '@media (min-width: 1600px)': {
-      height: 750,
-    },
-    '@media (min-width: 1700px)': {
-      height: 850,
-    },
-    '@media (min-width: 1800px)': {
-      height: 900,
-    },
-    '@media (min-width: 1900px)': {
-      height: 1000,
-    },*/
+    background: theme.palette.grey[800],
   },
   videoControls: {
     width: 400,
@@ -675,7 +661,7 @@ export default function(props) {
             </Grid>
           </ExpansionPanelDetails>
         </ExpansionPanel>
-        <ExpansionPanel>
+        <ExpansionPanel defaultExpanded>
           <ExpansionPanelSummary expandIcon={<ExpandMoreOutlined />}>
           <Typography variant="h5">Chat</Typography>
           </ExpansionPanelSummary>
@@ -728,7 +714,7 @@ export default function(props) {
 
   return (
     <Grid container direction="row" justify="flex-start" style={{height:"100%"}}>
-      <Grid container direction="row" spacing={2} justify="flex-start">
+      <Grid container direction="row" spacing={2} justify="flex-start" style={{overflow: "hidden"}} >
         {featurePanel}
         {participantsVideoContent}
         {videoControls}
