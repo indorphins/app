@@ -25,8 +25,8 @@ import {
   Loop,
 } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
-
 import * as OT from '@opentok/client';
+import { format } from 'date-fns'
 
 import log from '../log';
 
@@ -103,6 +103,11 @@ const useStyles = makeStyles((theme) => ({
   },
   chatMsg: {
     display: "inline",
+  },
+  chatUsername: {
+    display: "inline",
+    fontWeight: "bold",
+    color: theme.palette.secondary.main
   },
   chatContainer: {
     width: '100%',
@@ -453,6 +458,7 @@ export default function(props) {
         data: JSON.stringify({
           username: user.username,
           message: chatMsg,
+          date: new Date().toISOString(),
         }),
       },
       function(error) {
@@ -571,7 +577,7 @@ export default function(props) {
       <Grid container direction="column">
         {chatHistory.map(message => (
           <Grid item key={(Math.random() * 1000000)} className={classes.chatContainer}>
-            <Typography variant="body2" className={classes.chatMsg}>{message.username}: </Typography>
+            <Typography variant="body2" className={classes.chatUsername}>{message.username} [{format(new Date(message.date), 'h:mm aa')}]: </Typography>
             <Typography variant="body1" className={classes.chatMsg}>{message.message}</Typography>
           </Grid>
         ))}
