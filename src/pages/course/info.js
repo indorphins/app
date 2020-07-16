@@ -7,6 +7,7 @@ import { createSelector } from 'reselect';
 
 import UserData from '../../components/userData';
 import CourseSchedule from '../../components/courseSchedule';
+import CreateMessage from '../../components/form/createMessage'
 import * as Course from '../../api/course';
 import log from '../../log';
 import path from '../../routes/path';
@@ -63,7 +64,7 @@ function getNextSession(now, c) {
   };
 }
 
-export default function() {
+export default function () {
 
   const classes = useStyles();
   const history = useHistory();
@@ -77,6 +78,8 @@ export default function() {
   const [insta, setInsta] = useState('');
   const [course, setCourse] = useState('');
   const [signup, setSignup] = useState(null);
+  const [notify, setNotify] = useState(null);
+  const [makeMessage, setMakeMessage] = useState(false);
   const [joinSession, setJoinSession] = useState(null);
 
   async function get() {
@@ -84,7 +87,7 @@ export default function() {
 
     try {
       cls = await Course.get(params.id);
-    } catch(err) {
+    } catch (err) {
       log.error("COURSE INFO:: get course details", err);
       history.push(path.home);
     }
@@ -94,7 +97,7 @@ export default function() {
       history.push(path.home);
       return;
     }
-    
+
     log.debug("COURSE INFO:: got course details", cls);
     setPhoto(cls.photo_url);
     setTitle(cls.title);
@@ -102,7 +105,7 @@ export default function() {
     setEmail(cls.instructor.email);
     setPhone(cls.instructor.phone_number);
     setCourse(cls);
-    if(cls.instructor.social) setInsta(cls.instructor.social.instagram);
+    if (cls.instructor.social) setInsta(cls.instructor.social.instagram);
   }
 
   useEffect(() => {
@@ -119,6 +122,12 @@ export default function() {
         <Button variant="contained" color="secondary" onClick={goToLogin}>Login to Sign Up</Button>
       ));
       return;
+    }
+
+    if (currentUser.id === course.instructor.id || currentUser.type === 'admin') {
+      setNotify((
+        <Button variant='contained' color='secondary' onClick={createMessageHandler}>Message Class</Button>
+      ))
     }
 
     if (currentUser.id === course.instructor.id) {
@@ -159,7 +168,7 @@ export default function() {
       authorized = true;
     }
 
-    course.participants.forEach(function(user) {
+    course.participants.forEach(function (user) {
       if (user.id === currentUser.id) {
         authorized = true;
       }
@@ -178,11 +187,23 @@ export default function() {
 
   }, [currentUser, course])
 
-  const courseSignupHandler = async function() {
+  const createMessageHandler = function () {
+    setMakeMessage(true)
+    setNotify(null)
+  }
+
+  const sendMessageHandler = function () {
+    setMakeMessage(false)
+    setNotify((
+      <Button variant='contained' color='secondary' onClick={createMessageHandler}>Message Sent</Button>
+    ))
+  }
+
+  const courseSignupHandler = async function () {
 
     try {
       await Course.addParticipant(params.id);
-    } catch(err) {
+    } catch (err) {
       return log.error("COURSE INFO: course signup", err);
       // TODO: hookup with new stripe flows
     }
@@ -190,14 +211,14 @@ export default function() {
     history.push(path.profile);
   }
 
-  const goToLogin = async function() {
+  const goToLogin = async function () {
     history.push(`${path.login}?redirect=${path.courses}/${course.id}`)
   }
 
-  const courseLeaveHandler = async function() {
+  const courseLeaveHandler = async function () {
     try {
       await Course.removeParticipant(params.id);
-    } catch(err) {
+    } catch (err) {
       return log.error("COURSE INFO: course signup", err);
       // TODO: hookup with new stripe flows
     }
@@ -205,13 +226,24 @@ export default function() {
     history.push(path.profile);
   }
 
-  const joinHandler = function() {
+  const joinHandler = function () {
     history.push(path.courses + "/" + course.id + path.joinPath);
+  }
+
+  let messageContent = null;
+  if (makeMessage) {
+    messageContent = (
+      <CreateMessage onSend={sendMessageHandler} courseId={course.id} />
+    )
   }
 
   return (
     <Container>
+      {messageContent}
       <Grid container direction="row" justify="flex-end">
+        <Grid item className={classes.actionBtn}>
+          {notify}
+        </Grid>
         <Grid item className={classes.actionBtn}>
           {joinSession}
         </Grid>
