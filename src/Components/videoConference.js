@@ -41,9 +41,6 @@ const useStyles = makeStyles((theme) => ({
   subscriberGrid: {
     height: "100%",
   },
-  subscriberGridAlt: {
-    height: "100%",
-  },
   subscriberItem: {
     height: "calc(100% / 4)",
     width: 420,
@@ -696,15 +693,9 @@ export default function(props) {
     );
   }
 
-  let containerClass = classes.subscriberGrid;
-
-  if (course && user && user.id === course.instructor.id) {
-    containerClass = classes.subscriberGridAlt;
-  }
-
   let participantsVideo = (
     <Grid xs item style={{height:"100%"}}>
-      <Grid container direction="row" justify="flex-start" className={containerClass}>
+      <Grid container direction="row" justify="flex-start" className={classes.subscriberGrid}>
         {combined.map(item => (
           <Grid key={item.user.id} item className={item.className} style={{order: item.order}}>
             <Box id={item.user.id} className={classes.subscriberFeatureVid} />
