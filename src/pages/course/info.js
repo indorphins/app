@@ -154,13 +154,16 @@ export default function () {
 
     let instructor = JSON.parse(course.instructor);
 
+    if (currentUser.id === instructor.id || currentUser.type === 'admin') {
+      setNotify((
+        <Button variant='contained' color='secondary' onClick={createMessageHandler}>Message Class</Button>
+      ))
+    }
+
     if (currentUser.id === instructor.id) {
       setSignup((
         <Button variant="contained" color="secondary">Edit</Button>
       ));
-      setNotify((
-        <Button variant='contained' color='secondary' onClick={createMessageHandler}>Message Class</Button>
-      ))
       return;
     }
 
