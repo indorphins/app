@@ -2,7 +2,8 @@ import React from 'react';
 import { Switch, Route } from 'react-router-dom';
 import path from './path';
 import ClassRouter from './course';
-import Profile from '../pages/profile'
+import Profile from '../pages/profile';
+import Instructor from '../pages/instructor';
 import LoginView from '../pages/login';
 import Register from '../pages/signup';
 import Schedule from '../pages/schedule';
@@ -28,7 +29,7 @@ export default function() {
           <Schedule />
         </Route>
         <Route exact path={path.instructorProfile}>
-          <Profile />
+          <Instructor />
         </Route>
         <Route path={path.home}>
           <ClassRouter />

@@ -145,7 +145,7 @@ function MuteButton(props) {
   }
 
   return (
-    <IconButton name={props.name} onClick={(evt) => props.onClick(evt)}>
+    <IconButton name={props.name} onClick={() => { props.onClick(props.name); }}>
       {soundBtn}
     </IconButton>
   );
@@ -188,29 +188,15 @@ export default function(props) {
     }
   }
 
-  async function initializeSession(apiKey, sessionId) {
+  async function initializeSession(apiKey, sessionId, settings) {
 
     let session = OT.initSession(apiKey, sessionId);
     setSession(session);
 
-    let settings = {
-      insertMode: 'append',
-      width: '100%',
-      height: '100%',
-      name: session.data,
-      mirror: false,
-      showControls: false,
-      publishAudio: true,
-      publishVideo: true,
-      resolution: "1280x720",
-      audioBitrate: 64000,
-      enableStereo: true,
-      disableAudioProcessing: true,
-      maxResolution: {width: 1280, height: 720},
-    };
-  
-    // Create a publisher
-    let publisher = OT.initPublisher('publisher', settings, handleError);
+    let data = settings;
+    data.name = session.data;
+
+    let publisher = OT.initPublisher('publisher', data)
     setPublisher(publisher);
   }
 
@@ -251,7 +237,6 @@ export default function(props) {
     if (data.instructor) {
       props.subscribeToAudio = true;
       props.subscribeToVideo = true;
-      //props.preferredResolution = {width: 1920, height: 1080};
       subscriber = session.subscribe(event.stream, 'feature', props, handleError);
       return;
     }
@@ -397,7 +382,7 @@ export default function(props) {
   }
 
   function toggleSubscriberAudio(evt) {
-    let data = evt.target.name;
+    let data = evt;
 
     setSubs(subs.map(item => {
       if (item.user.id === data) {
@@ -494,35 +479,32 @@ export default function(props) {
   }, [props]);
 
   useEffect(() => {
-    if (!credentials || !course || !user) return;
+    if (!credentials || !user || !course) return;
 
     let settings = {
       insertMode: 'append',
       width: '100%',
       height: '100%',
-      name: session.data,
-      mirror: false,
+      mirror: true,
       showControls: false,
-      publishAudio: true,
+      publishAudio: false,
       publishVideo: true,
       resolution: "320x240",
-      audioBitrate: 40000,
-      enableStereo: false,
-      disableAudioProcessing: false,
+      audioBitrate: 44000,
       maxResolution: {width: 1280, height: 720},
-    };
+    }
 
-    if (user.id === course.instructor.id) {
+    let instructor = JSON.parse(course.instructor);
+
+    if (user.id === instructor.id) {
       settings.resolution = "1280x720";
-      settings.audioBitrate = 96000;
-      settings.enableStereo = true;
-      settings.disableAudioProcessing = true;
+      settings.publishAudio = true;
+      settings.audioBitrate= 96000;
     }
 
-    if (credentials.apiKey && credentials.sessionId) {
-      initializeSession(credentials.apiKey, credentials.sessionId, settings);
-    }
-  }, [credentials, course, user]);
+    initializeSession(credentials.apiKey, credentials.sessionId, settings);
+
+  }, [credentials, user, course]);
 
   useEffect(() => {
 

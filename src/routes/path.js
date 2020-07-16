@@ -5,10 +5,11 @@ const base = {
   signup: "/signup",
   login: "/login",
   courses: "/class",
+  instructor: "/instructor",
 };
 
 let params = Object.assign({}, base);
-params.instructorProfile = base.profile + "/:id";
+params.instructorProfile = base.instructor + "/:id";
 params.courseDetail = base.courses + "/:id";
 params.joinPath = "/join";
 params.courseJoinSession = params.courseDetail + params.joinPath;
