@@ -39,14 +39,15 @@ const useStyles = makeStyles((theme) => ({
     background: theme.palette.grey[200],
   },
   subscriberGrid: {
-    maxWidth: 320
+    maxWidth: 360,
+    height: "100%",
   },
   subscriberGridAlt: {
     height: "100%",
   },
   subscriberItem: {
-    height: 240,
-    width: 320,
+    height: "calc(100% / 3)",
+    width: 360,
     background: theme.palette.grey[200],
   },
   subscriberItemAlt: {
