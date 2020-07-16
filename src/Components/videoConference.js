@@ -39,15 +39,14 @@ const useStyles = makeStyles((theme) => ({
     background: theme.palette.grey[200],
   },
   subscriberGrid: {
-    maxWidth: 360,
     height: "100%",
   },
   subscriberGridAlt: {
     height: "100%",
   },
   subscriberItem: {
-    height: "calc(100% / 3)",
-    width: 360,
+    height: "calc(100% / 4)",
+    width: 420,
     background: theme.palette.grey[200],
   },
   subscriberItemAlt: {
@@ -141,7 +140,7 @@ export default function(props) {
   let looper = null;
   const loopTime = 20000;
   const classes = useStyles();
-  const [maxStreams, setMaxStreams] = useState(3)
+  const [maxStreams, setMaxStreams] = useState(4)
   const [user, setUser] = useState(null);
   const [streams, setStreams] = useState([]);
   const [videoSubsCount, setVideoSubsCount] = useState(0);
