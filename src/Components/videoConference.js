@@ -27,8 +27,11 @@ import {
   ChevronRight,
 } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
+import { Alert } from '@material-ui/lab';
 import * as OT from '@opentok/client';
-import { format } from 'date-fns'
+import { format } from 'date-fns';
+import { isSafari, isMobile, fullBrowserVersion } from 'react-device-detect';
+import compareVersions from 'compare-versions';
 
 import log from '../log';
 
@@ -151,6 +154,7 @@ export default function(props) {
   const [chatMsg, setChatMsg] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
   const [loopMode, setLoopMode] = useState(true);
+  const [displayMsg, setDisplayMsg] = useState(null);
   const userRef = useRef();
   const courseRef = useRef();
   const subsRef = useRef();
@@ -163,9 +167,18 @@ export default function(props) {
   videoSubsCountRef.current = videoSubsCount;
   maxStreamsRef.current = maxStreams;
 
-  function handleError(err) {
+  async function handleError(err) {
     if (err) {
       log.error("OPENTOK::", err);
+
+      if (err.message.match("End-user denied permission to hardware devices")) {
+        
+        setDisplayMsg({severity: "error", message: "We cannot access your camera or microphone. Please refresh the page, making sure to 'accept' the request for camera and microphone device access."});
+        await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+        return;
+      }
+
+      setDisplayMsg({severity: "error", message: err.message});
     }
   }
 
@@ -181,8 +194,30 @@ export default function(props) {
     setPublisher(publisher);
   }
 
+  function validateBrowserVersion() {
+    let valid = true;
+
+    if (isMobile) {
+      setDisplayMsg({severity: "warning", message: "Indoorphins classes are not yet optimized for mobile devices. Apologies for the inconvenience."});
+      valid = false;
+    }
+
+    if (isSafari) {
+      let compare = compareVersions(fullBrowserVersion, '12.1.0');
+      if (compare === -1) {
+        setDisplayMsg({severity: "error", message: "This version of Safari is not supported. Please update your system."});
+        valid = false;
+      }
+    }
+    return valid;
+  }
+
   useEffect(() => {
     if (!credentials) return;
+
+    let valid = validateBrowserVersion();
+
+    if (!valid) return;
 
     let settings = {
       insertMode: 'append',
@@ -676,7 +711,7 @@ export default function(props) {
     </IconButton>
   );
   let drawerContent = (
-    <Grid item xs={0} className={classes.drawer} style={{ display: "none"}}>
+    <Grid item className={classes.drawer} style={{ display: "none"}}>
       {videoControls}
     </Grid>
   );
@@ -726,15 +761,26 @@ export default function(props) {
     participantsVideo = null;
   }
 
+  let displayMsgContent = null;
+  
+  if (displayMsg) {
+    displayMsgContent = (
+      <Alert severity={displayMsg.severity}>{displayMsg.message}</Alert>
+    )
+  }
+
   return (
-    <Grid container direction="row" justify="flex-start" style={{height:"100%"}}>
-      <Grid container direction="row" spacing={0} justify="flex-start" style={{overflow: "hidden"}} >
-        {featurePanel}
-        {participantsVideoContent}
-        <Grid item style={{width: 0}}>
-          {drawerBtn}
+    <Grid style={{width: "100%", height: "100%"}}>
+      {displayMsgContent}
+      <Grid container direction="row" justify="flex-start" style={{height:"100%"}}>
+        <Grid container direction="row" spacing={0} justify="flex-start" style={{overflow: "hidden"}} >
+          {featurePanel}
+          {participantsVideoContent}
+          <Grid item style={{width: 0}}>
+            {drawerBtn}
+          </Grid>
+          {drawerContent}
         </Grid>
-        {drawerContent}
       </Grid>
     </Grid>
   );
