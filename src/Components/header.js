@@ -17,18 +17,20 @@ let useStyles = makeStyles((theme) => ({
     display: 'inline',
     marginTop: theme.spacing(3),
     marginBottom: theme.spacing(3),
+    color: theme.palette.secondary.main,
   },
   logo2: {
     display: 'inline',
     marginTop: theme.spacing(3),
     marginBottom: theme.spacing(3),
     marginRight: theme.spacing(5),
-    color: theme.palette.grey[200],
+    color: theme.palette.primary.main,
   },
   appbar: {
     paddingRight: theme.spacing(5),
     paddingLeft: theme.spacing(2),
     marginBottom: theme.spacing(2),
+    backgroundColor: theme.palette.header.background,
     '@media (max-width: 600px)': {
       paddingRight: theme.spacing(2),
       paddingLeft: theme.spacing(1),

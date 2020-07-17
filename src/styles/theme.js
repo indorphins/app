@@ -3,12 +3,14 @@ import { createMuiTheme } from '@material-ui/core/styles';
 const colors = {
   pink: "#fab4cd",
   pinkishblack: "#262425",
-  black: "#121212",
+  black: "#191b22",
   black1: "#1a1a1a",
   black2: "#1f1f1f",
   skyblue: "#b3d7ff",
   royalblue: "#011f6b",
   offwhite: "#f5f5f0",
+  salmon: "#ff877e",
+  cream: "#ffc772",
 }
 
 const typography = {
@@ -45,14 +47,15 @@ export const light = createMuiTheme({
   palette: {
     type: 'light',
     primary: {
-      //main: colors.pinkishblack,
-      //contrastText: colors.pink,
-      main: colors.royalblue,
+      main: colors.cream,
       contrastText: colors.offwhite,
     },
     secondary: {
-      main: colors.skyblue,
-      contrastText: colors.royalblue,
+      main: colors.salmon,
+      contrastText: colors.offwhite,
+    },
+    header: {
+      background: colors.black,
     }
   },
   spacing: 8,
@@ -64,16 +67,19 @@ export const dark = createMuiTheme({
   palette: {
     type: 'dark',
     primary: {
-      main: colors.black,
-      contrastText: light.palette.grey[400],
+      main: colors.salmon,
+      contrastText: colors.black,
     },
     secondary: {
-      main: colors.skyblue,
-      contrastText: colors.royalblue,
+      main: colors.cream,
+      contrastText: colors.black,
     },
     background: {
       paper: colors.black1,
       default: colors.black2
+    },
+    header: {
+      background: colors.black,
     },
     text: {
       primary: light.palette.grey[300],
