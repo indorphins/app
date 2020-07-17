@@ -43,11 +43,28 @@ const useStyles = makeStyles((theme) => ({
   },
   subscriberGrid: {
     height: "100%",
+    maxWidth: 240,
+    alignContent: "flex-start",
+    '@media (min-width: 1200px)': {
+      maxWidth: 320
+    },
+    '@media (min-width: 1600px)': {
+      maxWidth: 420
+    },
+  },
+  subscriberGridAlt: {
+    height: "100%",
   },
   subscriberItem: {
     height: "calc(100% / 4)",
-    width: 420,
     background: theme.palette.grey[200],
+    width: 240,
+    '@media (min-width: 1200px)': {
+      width: 320
+    },
+    '@media (min-width: 1600px)': {
+      width: 420
+    },
   },
   subscriberItemAlt: {
     height: "25%",
@@ -138,7 +155,7 @@ function MuteButton(props) {
 export default function(props) {
 
   let looper = null;
-  const loopTime = 20000;
+  const loopTime = 3000;
   const classes = useStyles();
   const [maxStreams, setMaxStreams] = useState(4)
   const [user, setUser] = useState(null);
@@ -172,17 +189,15 @@ export default function(props) {
       log.error("OPENTOK::", err);
 
       if (err.message.match("End-user denied permission to hardware devices")) {
-        
         setDisplayMsg({severity: "error", message: "We cannot access your camera or microphone. Please refresh the page, making sure to 'accept' the request for camera and microphone device access."});
-        await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
         return;
       }
-
-      setDisplayMsg({severity: "error", message: err.message});
     }
   }
 
   async function initializeSession(apiKey, sessionId, settings) {
+
+    //return;
 
     let session = OT.initSession(apiKey, sessionId);
     setSession(session);
@@ -329,11 +344,12 @@ export default function(props) {
     first.video = false;
     first.className = `${classes.subscriberItem} ${classes.hidden}`;
     first.subscriber.subscribeToVideo(false);
+    setVideoSubsCount(videoSubsCountRef.current - 1);
 
     updated.push(first);
 
     for (var i = 0; i < updated.length; i++) {
-      if (i < maxStreamsRef.current) {
+      if (videoSubsCountRef.current < maxStreamsRef.current && updated[i].subscriber.stream.hasVideo) {
         if (i === 0 && props.user.id === props.course.instructor.id) {
           updated[i].className = `${classes.subscriberFeature} ${classes.shown}`;
         } else if (i !== 0 && props.user.id === props.course.instructor.id) {
@@ -343,10 +359,12 @@ export default function(props) {
         }
         updated[i].video = true;
         updated[i].subscriber.subscribeToVideo(true);
+        setVideoSubsCount(videoSubsCountRef.current + 1);
       } else {
         updated[i].className = `${classes.subscriberItem} ${classes.hidden}`;
         updated[i].video = false;
         updated[i].subscriber.subscribeToVideo(false);
+        setVideoSubsCount(videoSubsCountRef.current - 1);
       }
       updated[i].order = Number(i) + 1;
     }
@@ -359,7 +377,7 @@ export default function(props) {
     let count = 0;
 
     for (var i = 0; i < updated.length; i++) {
-      if (i < maxStreamsRef.current) {
+      if (videoSubsCountRef.current < maxStreamsRef.current && updated[i].subscriber.stream.hasVideo) {
         if (i === 0 && props.user.id === props.course.instructor.id) {
           updated[i].className = `${classes.subscriberFeature} ${classes.shown}`;
         } else if (i !== 0 && props.user.id === props.course.instructor.id) {
@@ -603,8 +621,8 @@ export default function(props) {
   );
 
   let featurePanel = (
-    <Grid xs item>
-      <Paper style={{height: "100%"}}>
+    <Grid xs item style={{height: "100%", overflow: "hidden"}}>
+      <Paper style={{height: "100%", overflow: "hidden"}}>
         <Box id="feature" className={classes.instructor} />
       </Paper>
     </Grid>
@@ -728,9 +746,16 @@ export default function(props) {
     );
   }
 
+  let participantsClass = classes.subscriberGrid;
+  let instructor = props.course.instructor;
+
+  if (props.user.id === instructor.id) {
+    participantsClass = classes.subscriberGridAlt;
+  }
+
   let participantsVideo = (
-    <Grid xs item style={{height:"100%"}}>
-      <Grid container direction="row" justify="flex-start" className={classes.subscriberGrid}>
+    <Grid xs item style={{height:"100%", overflow: "hidden"}}>
+      <Grid container direction="row" justify="flex-start" className={participantsClass} style={{height:"100%", overflow: "hidden"}}>
         {combined.map(item => (
           <Grid key={item.user.id} item className={item.className} style={{order: item.order}}>
             <Box id={item.user.id} className={classes.subscriberFeatureVid} />
@@ -743,15 +768,80 @@ export default function(props) {
     </Grid>
   );
 
+
+  // Instructor example
+  /*participantsVideo = (
+    <Grid xs item style={{height:"100%", overflow: "hidden"}}>
+      <Grid container direction="row" justify="flex-start" className={classes.subscriberGridAlt} style={{height:"100%", overflow: "hidden"}}>
+          <Grid key="user1" item className={classes.subscriberFeature} style={{order: 1}}>
+            <Box id="user1" className={classes.subscriberFeatureVid} />
+            <Box className={classes.subscriberLabelBox}>
+              <Typography align="center" variant="h5" className={classes.subscriberLabel}>user 1</Typography>
+            </Box>
+          </Grid>
+          <Grid key="user2" item className={classes.subscriberItemAlt} style={{order: 2, background: "green"}}>
+            <Box id="user2" className={classes.subscriberFeatureVid} />
+            <Box className={classes.subscriberLabelBox}>
+              <Typography align="center" variant="h5" className={classes.subscriberLabel}>user 2</Typography>
+            </Box>
+          </Grid>
+          <Grid key="user3" item className={classes.subscriberItemAlt} style={{order: 3, background: "red"}}>
+            <Box id="user3" className={classes.subscriberFeatureVid} />
+            <Box className={classes.subscriberLabelBox}>
+              <Typography align="center" variant="h5" className={classes.subscriberLabel}>user 3</Typography>
+            </Box>
+          </Grid>
+          <Grid key="user4" item className={classes.subscriberItemAlt} style={{order: 4, background: "blue"}}>
+            <Box id="user4" className={classes.subscriberFeatureVid} />
+            <Box className={classes.subscriberLabelBox}>
+              <Typography align="center" variant="h5" className={classes.subscriberLabel}>user 3</Typography>
+            </Box>
+          </Grid> 
+          <Grid key="user5" item className={classes.subscriberItemAlt} style={{order: 5, background: "yellow"}}>
+            <Box id="user5" className={classes.subscriberFeatureVid} />
+            <Box className={classes.subscriberLabelBox}>
+              <Typography align="center" variant="h5" className={classes.subscriberLabel}>user 5</Typography>
+            </Box>
+          </Grid>
+          <Grid key="user6" item className={classes.subscriberItemAlt} style={{order: 5, background: "yellow", display: "hidden"}}>
+            <Box id="user6" className={classes.subscriberFeatureVid} />
+            <Box className={classes.subscriberLabelBox}>
+              <Typography align="center" variant="h5" className={classes.subscriberLabel}>user 6</Typography>
+            </Box>
+          </Grid>
+      </Grid>
+    </Grid>
+  );*/
+
+  // Participant example
+  /*participantsVideo = (
+    <Grid xs item style={{height:"100%", overflow: "hidden"}}>
+      <Grid container direction="row" justify="flex-start" className={classes.subscriberGrid} style={{height:"100%", overflow: "hidden"}}>
+          <Grid key="user1" item className={classes.subscriberItem} style={{order: 1}}>
+            <Box id="user1" className={classes.subscriberFeatureVid} />
+            <Box className={classes.subscriberLabelBox}>
+              <Typography align="center" variant="h5" className={classes.subscriberLabel}>user 1</Typography>
+            </Box>
+          </Grid>
+          <Grid key="user2" item className={classes.subscriberItem} style={{order: 2, background: "green"}}>
+            <Box id="user2" className={classes.subscriberFeatureVid} />
+            <Box className={classes.subscriberLabelBox}>
+              <Typography align="center" variant="h5" className={classes.subscriberLabel}>user 2</Typography>
+            </Box>
+          </Grid>          
+      </Grid>
+    </Grid>
+  );*/
+
   let participantsVideoContent = (
-    <Grid item>
+    <Grid item style={{height:"100%", overflow: "hidden"}}>
       {participantsVideo}
     </Grid>
   );
 
   if (course && user && user.id === course.instructor.id) {
     participantsVideoContent = (
-      <Grid item xs>
+      <Grid item xs style={{height:"100%", overflow: "hidden"}}>
         {participantsVideo}
       </Grid>
     );
@@ -770,10 +860,10 @@ export default function(props) {
   }
 
   return (
-    <Grid style={{width: "100%", height: "100%"}}>
+    <Grid style={{width: "100%", height: "100%", overflow: "hidden"}}>
       {displayMsgContent}
-      <Grid container direction="row" justify="flex-start" style={{height:"100%"}}>
-        <Grid container direction="row" spacing={0} justify="flex-start" style={{overflow: "hidden"}} >
+      <Grid container direction="row" justify="flex-start" style={{height:"100%", overflow: "hidden"}}>
+        <Grid container direction="row" spacing={0} justify="flex-start" style={{height: "100%", overflow: "hidden"}} >
           {featurePanel}
           {participantsVideoContent}
           <Grid item style={{width: 0}}>
