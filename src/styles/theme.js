@@ -1,8 +1,6 @@
 import { createMuiTheme } from '@material-ui/core/styles';
 
 const colors = {
-  pink: "#fab4cd",
-  pinkishblack: "#262425",
   black: "#191b22",
   black1: "#1a1a1a",
   black2: "#1f1f1f",
@@ -48,7 +46,7 @@ export const light = createMuiTheme({
     type: 'light',
     primary: {
       main: colors.cream,
-      contrastText: colors.offwhite,
+      contrastText: colors.black,
     },
     secondary: {
       main: colors.salmon,
@@ -68,7 +66,7 @@ export const dark = createMuiTheme({
     type: 'dark',
     primary: {
       main: colors.salmon,
-      contrastText: colors.black,
+      contrastText: colors.offwhite,
     },
     secondary: {
       main: colors.cream,

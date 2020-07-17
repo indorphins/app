@@ -97,7 +97,7 @@ const useStyles = makeStyles((theme) => ({
     height: "100%",
     overflowY: "scroll",
     overflowX: "hidden",
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: "#0e0e0e",
   },
   drawerBtn: {
     position: 'relative',
