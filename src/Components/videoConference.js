@@ -57,7 +57,7 @@ const useStyles = makeStyles((theme) => ({
   },
   subscriberItem: {
     height: "calc(100% / 4)",
-    background: theme.palette.grey[200],
+    background: theme.palette.grey[800],
     width: 240,
     '@media (min-width: 1200px)': {
       width: 320
@@ -69,7 +69,7 @@ const useStyles = makeStyles((theme) => ({
   subscriberItemAlt: {
     height: "25%",
     width: "calc(100% / 4)",
-    background: theme.palette.grey[200],
+    background: theme.palette.grey[800],
   },
   subscriberFeatureVid: {
     height: "100%",
@@ -77,7 +77,7 @@ const useStyles = makeStyles((theme) => ({
   subscriberFeature: {
     height: "75%",
     width: "100%",
-    background: theme.palette.grey[200],
+    background: theme.palette.grey[700],
   },
   subscriberLabelBox: {
     position: 'relative',
@@ -94,6 +94,9 @@ const useStyles = makeStyles((theme) => ({
   },
   videoControls: {},
   drawer: {
+    height: "100%",
+    overflowY: "scroll",
+    overflowX: "hidden",
     backgroundColor: theme.palette.primary.main,
   },
   drawerBtn: {
