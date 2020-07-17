@@ -158,7 +158,7 @@ function MuteButton(props) {
 export default function(props) {
 
   let looper = null;
-  const loopTime = 3000;
+  const loopTime = 20000;
   const classes = useStyles();
   const [maxStreams, setMaxStreams] = useState(4)
   const [user, setUser] = useState(null);
@@ -199,8 +199,6 @@ export default function(props) {
   }
 
   async function initializeSession(apiKey, sessionId, settings) {
-
-    //return;
 
     let session = OT.initSession(apiKey, sessionId);
     setSession(session);
@@ -264,19 +262,10 @@ export default function(props) {
   function streamDestroyed(event) {
     log.debug('OPENTOK:: stream destroyed', event);
     let data = JSON.parse(event.stream.connection.data);
-    let doSetup = false;
-
-    subsRef.current.forEach(item => {
-      if (item.video && item.user.id === data.id) {
-        doSetup = true;
-      }
-    });
 
     setStreams(streams => streams.filter(item => item.user.id !== data.id));
     setSubs(subs => subs.filter(item => item.user.id !== data.id));
-    if (doSetup) {
-      setupLoopMode();
-    }
+    setupLoopMode();
   }
 
   function streamCreated(event) {
@@ -347,12 +336,11 @@ export default function(props) {
     first.video = false;
     first.className = `${classes.subscriberItem} ${classes.hidden}`;
     first.subscriber.subscribeToVideo(false);
-    setVideoSubsCount(videoSubsCountRef.current - 1);
 
     updated.push(first);
 
     for (var i = 0; i < updated.length; i++) {
-      if (videoSubsCountRef.current < maxStreamsRef.current && updated[i].subscriber.stream.hasVideo) {
+      if (i < maxStreamsRef.current) {
         if (i === 0 && props.user.id === props.course.instructor.id) {
           updated[i].className = `${classes.subscriberFeature} ${classes.shown}`;
         } else if (i !== 0 && props.user.id === props.course.instructor.id) {
@@ -362,12 +350,10 @@ export default function(props) {
         }
         updated[i].video = true;
         updated[i].subscriber.subscribeToVideo(true);
-        setVideoSubsCount(videoSubsCountRef.current + 1);
       } else {
         updated[i].className = `${classes.subscriberItem} ${classes.hidden}`;
         updated[i].video = false;
         updated[i].subscriber.subscribeToVideo(false);
-        setVideoSubsCount(videoSubsCountRef.current - 1);
       }
       updated[i].order = Number(i) + 1;
     }
@@ -380,7 +366,7 @@ export default function(props) {
     let count = 0;
 
     for (var i = 0; i < updated.length; i++) {
-      if (videoSubsCountRef.current < maxStreamsRef.current && updated[i].subscriber.stream.hasVideo) {
+      if (i < maxStreamsRef.current) {
         if (i === 0 && props.user.id === props.course.instructor.id) {
           updated[i].className = `${classes.subscriberFeature} ${classes.shown}`;
         } else if (i !== 0 && props.user.id === props.course.instructor.id) {
