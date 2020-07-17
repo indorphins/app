@@ -265,7 +265,9 @@ export default function(props) {
 
     setStreams(streams => streams.filter(item => item.user.id !== data.id));
     setSubs(subs => subs.filter(item => item.user.id !== data.id));
-    setupLoopMode();
+    if (loopMode) {
+      setupLoopMode();
+    }
   }
 
   function streamCreated(event) {
