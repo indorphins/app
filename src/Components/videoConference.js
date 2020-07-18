@@ -13,6 +13,9 @@ import {
   ExpansionPanelSummary, 
   ExpansionPanelDetails,
   Switch,
+  Menu,
+  MenuItem,
+  Snackbar,
 } from '@material-ui/core';
 import { 
   VideocamOffOutlined, 
@@ -25,6 +28,7 @@ import {
   Loop,
   ChevronLeft,
   ChevronRight,
+  InsertEmoticon,
 } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { Alert } from '@material-ui/lab';
@@ -129,6 +133,9 @@ const useStyles = makeStyles((theme) => ({
   },
   hidden: {
     display: "none",
+  },
+  emoteMenu: {
+    columns: 2,
   }
 }));
 
@@ -155,6 +162,54 @@ function MuteButton(props) {
   );
 }
 
+function Emote(props) {
+
+  const classes = useStyles();
+  const btn = useRef(null);
+  const [anchorEl, setAnchorEl] = useState(null);
+
+  const handleClick = () => {
+    setAnchorEl(btn.current);
+  };
+
+  const handleClose = function() {
+    setAnchorEl(null);
+  }
+
+  const handleSelect = function(event) {
+    if (props.onSelect) {
+      props.onSelect({id: props.userId, value: event});
+    }
+    setAnchorEl(null);
+  }
+
+  return (
+    <Grid style={{display: "inline"}}>
+      <IconButton ref={btn} onClick={handleClick} title="Send an emote"><InsertEmoticon color="primary" /></IconButton>
+      <Menu keepMounted open={Boolean(anchorEl)} anchorEl={anchorEl} onClose={handleClose} classes={{list: classes.emoteMenu}}>
+        <MenuItem value="✋" title="Give them a high-five" onClick={() => handleSelect(`${props.username} high-fives you ✋`)}>
+            <span aria-label="high-five" role="img">✋</span>
+          </MenuItem>
+        <MenuItem value="👋" title="Wave hello" onClick={() => handleSelect(`${props.username} says hi 👋`)}>
+          <span aria-label="hand-wave" role="img">👋</span>
+        </MenuItem>
+        <MenuItem value="✊" title="Give them a fist bump" onClick={() => handleSelect(`fist bump ✊ from ${props.username}`)}>
+          <span aria-label="fist-bump" role="img">✊</span>
+        </MenuItem>
+        <MenuItem value="🥵" title="Let them know you're exhausted" onClick={() => handleSelect(`${props.username} is exhausted 🥵`)}>
+          <span aria-label="worn-out" role="img">🥵</span>
+        </MenuItem>
+        <MenuItem value="🔥" title="Let them know they're on fire" onClick={() => handleSelect(`${props.username} thinks you're on 🔥!`)}>
+          <span aria-label="on-fire" role="img">🔥</span>
+        </MenuItem>
+        <MenuItem value="💩" title="Hiddy Ho!" onClick={() => handleSelect(`${props.username} says Hiddy Ho! 💩`)}>
+          <span aria-label="hiddy-ho" role="img">💩</span>
+        </MenuItem>      
+      </Menu>
+    </Grid>
+  )
+}
+
 export default function(props) {
 
   let looper = null;
@@ -175,6 +230,7 @@ export default function(props) {
   const [chatHistory, setChatHistory] = useState([]);
   const [loopMode, setLoopMode] = useState(true);
   const [displayMsg, setDisplayMsg] = useState(null);
+  const [emotes, setEmotes] = useState([]);
   const userRef = useRef();
   const courseRef = useRef();
   const subsRef = useRef();
@@ -239,17 +295,21 @@ export default function(props) {
       insertMode: 'append',
       width: '100%',
       height: '100%',
-      mirror: false,
+      mirror: true,
       showControls: false,
       publishAudio: false,
       publishVideo: true,
       resolution: "1280x720",
-      audioBitrate: 96000,
+      frameRate: 30,
+      audioBitrate: 20000,
       enableStereo: false,
       maxResolution: {width: 1280, height: 720},
     };
 
     if (props.user.id === course.instructor.id) {
+      settings.resolution = "1280x720";
+      settings.audioBitrate = 96000;
+      settings.disableAudioProcessing = true;
       settings.publishAudio = true;
       setPublishAudio(true);
     }
@@ -270,7 +330,7 @@ export default function(props) {
     }
   }
 
-  function streamCreated(event) {
+  async function streamCreated(event) {
 
     let data = JSON.parse(event.stream.connection.data);
     log.debug('OPENTOK:: stream created event', event, data);
@@ -280,15 +340,21 @@ export default function(props) {
       insertMode: 'append',
       width: '100%',
       height: '100%',
-      preferredResolution: {width: 1280, height: 720},
+      preferredFrameRate: 15,
+      preferredResolution: {width: 320, height: 240},
       showControls: false,
       subscribeToAudio: true,
       subscribeToVideo: false,
     };
 
     if (data.instructor) {
+      props.preferredFrameRate = 30;
+      props.preferredResolution = {width: 1280, height: 720};
       props.subscribeToVideo = true;
-      subscriber = session.subscribe(event.stream, 'feature', props, handleError);
+      subscriber = await session.subscribe(event.stream, 'feature', props, handleError);
+      let width = await subscriber.videoWidth();
+      let height = await subscriber.videoHeight();
+      log.debug("instructor stream resolution", subscriber, width, height);
       return;
     }
     
@@ -298,6 +364,8 @@ export default function(props) {
 
     if (event.stream.hasVideo && videoSubsCountRef.current < maxStreamsRef.current) {
       if (videoSubsCountRef.current === 0 && userRef.current.id === courseRef.current.instructor.id) {
+        props.preferredResolution = {width: 1280, height: 720};
+        props.preferredFrameRate = 30;
         classname = `${classes.subscriberFeature} ${classes.shown}`;
       } else if (videoSubsCountRef.current !== 0 && userRef.current.id === courseRef.current.instructor.id) {
         classname = `${classes.subscriberItemAlt} ${classes.shown}`;
@@ -308,7 +376,7 @@ export default function(props) {
       setVideoSubsCount(videoSubsCountRef.current + 1);
     }
 
-    subscriber = session.subscribe(event.stream, data.id, props, handleError);
+    subscriber = await session.subscribe(event.stream, data.id, props, handleError);
 
     setSubs(subs => [...subs, {
       user: data, 
@@ -344,8 +412,12 @@ export default function(props) {
     for (var i = 0; i < updated.length; i++) {
       if (i < maxStreamsRef.current) {
         if (i === 0 && props.user.id === props.course.instructor.id) {
+          updated[i].subscriber.preferredResolution = {width: 1280, height: 720};
+          updated[i].subscriber.preferredFrameRate = 30;
           updated[i].className = `${classes.subscriberFeature} ${classes.shown}`;
         } else if (i !== 0 && props.user.id === props.course.instructor.id) {
+          updated[i].subscriber.preferredResolution = {width: 320, height: 240};
+          updated[i].subscriber.preferredFrameRate = 15;
           updated[i].className = `${classes.subscriberItemAlt} ${classes.shown}`;
         } else {
           updated[i].className = `${classes.subscriberItem} ${classes.shown}`;
@@ -370,8 +442,12 @@ export default function(props) {
     for (var i = 0; i < updated.length; i++) {
       if (i < maxStreamsRef.current) {
         if (i === 0 && props.user.id === props.course.instructor.id) {
+          updated[i].subscriber.preferredResolution = {width: 1280, height: 720};
+          updated[i].subscriber.preferredFrameRate = 30;
           updated[i].className = `${classes.subscriberFeature} ${classes.shown}`;
         } else if (i !== 0 && props.user.id === props.course.instructor.id) {
+          updated[i].subscriber.preferredResolution = {width: 320, height: 240};
+          updated[i].subscriber.preferredFrameRate = 15;
           updated[i].className = `${classes.subscriberItemAlt} ${classes.shown}`;
         } else {
           updated[i].className = `${classes.subscriberItem} ${classes.shown}`;
@@ -471,6 +547,14 @@ export default function(props) {
     if (event.type === "signal:chat") {
       let data = JSON.parse(event.data);
       setChatHistory(chatHistory => [data, ...chatHistory]);
+    }
+
+    if (event.type === "signal:emote") {
+      let data = JSON.parse(event.data);
+      if (data.userId === user.id) {
+        log.debug('emote for you', data.message)
+        setEmotes(emotes => [data.message, ...emotes]);
+      }
     }
   };
 
@@ -635,14 +719,35 @@ export default function(props) {
     return strm;
   });
 
+  function sendEmote(event) {
+    log.debug('emote event', event);
+
+    session.signal(
+      {
+        type: "emote",
+        data: JSON.stringify({
+          userId: event.id,
+          message: event.value,
+          date: new Date().toISOString(),
+        }),
+      },
+      function(error) {
+        if (error) {
+          log.error("OPENTOK:: user signal error" + error.message);
+        }
+      }
+    );
+  }
+
   let participantsControls = (
-    <Grid>
+    <Grid container direction="column" justify="flex-start" alignItems="flex-start">
       {subs.map(item => (
-        <Box key={item.user.id}>
+        <Grid item key={item.user.id}>
           <Checkbox disabled={loopMode} name={item.user.id} checked={item.video} onClick={toggleSubscriberVideo} />
           <Chip label={item.user.username} />
           <MuteButton name={item.user.id} checked={item.audio} onClick={toggleSubscriberAudio} />
-        </Box>
+          <Emote userId={item.user.id} username={user.username} onSelect={sendEmote} />
+        </Grid>
       ))}
     </Grid>
   );
@@ -687,7 +792,7 @@ export default function(props) {
                   <Switch checked={loopMode} onChange={toggleLoopMode} title="Rotate participants viewed" name="loop" />
                 </Grid>
               </Grid>
-              <Grid item container style={{width: "100%"}}>
+              <Grid item style={{width: "100%"}}>
                 {participantsControls}
               </Grid>
             </Grid>
@@ -759,71 +864,6 @@ export default function(props) {
     </Grid>
   );
 
-
-  // Instructor example
-  /*participantsVideo = (
-    <Grid xs item style={{height:"100%", overflow: "hidden"}}>
-      <Grid container direction="row" justify="flex-start" className={classes.subscriberGridAlt} style={{height:"100%", overflow: "hidden"}}>
-          <Grid key="user1" item className={classes.subscriberFeature} style={{order: 1}}>
-            <Box id="user1" className={classes.subscriberFeatureVid} />
-            <Box className={classes.subscriberLabelBox}>
-              <Typography align="center" variant="h5" className={classes.subscriberLabel}>user 1</Typography>
-            </Box>
-          </Grid>
-          <Grid key="user2" item className={classes.subscriberItemAlt} style={{order: 2, background: "green"}}>
-            <Box id="user2" className={classes.subscriberFeatureVid} />
-            <Box className={classes.subscriberLabelBox}>
-              <Typography align="center" variant="h5" className={classes.subscriberLabel}>user 2</Typography>
-            </Box>
-          </Grid>
-          <Grid key="user3" item className={classes.subscriberItemAlt} style={{order: 3, background: "red"}}>
-            <Box id="user3" className={classes.subscriberFeatureVid} />
-            <Box className={classes.subscriberLabelBox}>
-              <Typography align="center" variant="h5" className={classes.subscriberLabel}>user 3</Typography>
-            </Box>
-          </Grid>
-          <Grid key="user4" item className={classes.subscriberItemAlt} style={{order: 4, background: "blue"}}>
-            <Box id="user4" className={classes.subscriberFeatureVid} />
-            <Box className={classes.subscriberLabelBox}>
-              <Typography align="center" variant="h5" className={classes.subscriberLabel}>user 3</Typography>
-            </Box>
-          </Grid> 
-          <Grid key="user5" item className={classes.subscriberItemAlt} style={{order: 5, background: "yellow"}}>
-            <Box id="user5" className={classes.subscriberFeatureVid} />
-            <Box className={classes.subscriberLabelBox}>
-              <Typography align="center" variant="h5" className={classes.subscriberLabel}>user 5</Typography>
-            </Box>
-          </Grid>
-          <Grid key="user6" item className={classes.subscriberItemAlt} style={{order: 5, background: "yellow", display: "hidden"}}>
-            <Box id="user6" className={classes.subscriberFeatureVid} />
-            <Box className={classes.subscriberLabelBox}>
-              <Typography align="center" variant="h5" className={classes.subscriberLabel}>user 6</Typography>
-            </Box>
-          </Grid>
-      </Grid>
-    </Grid>
-  );*/
-
-  // Participant example
-  /*participantsVideo = (
-    <Grid xs item style={{height:"100%", overflow: "hidden"}}>
-      <Grid container direction="row" justify="flex-start" className={classes.subscriberGrid} style={{height:"100%", overflow: "hidden"}}>
-          <Grid key="user1" item className={classes.subscriberItem} style={{order: 1}}>
-            <Box id="user1" className={classes.subscriberFeatureVid} />
-            <Box className={classes.subscriberLabelBox}>
-              <Typography align="center" variant="h5" className={classes.subscriberLabel}>user 1</Typography>
-            </Box>
-          </Grid>
-          <Grid key="user2" item className={classes.subscriberItem} style={{order: 2, background: "green"}}>
-            <Box id="user2" className={classes.subscriberFeatureVid} />
-            <Box className={classes.subscriberLabelBox}>
-              <Typography align="center" variant="h5" className={classes.subscriberLabel}>user 2</Typography>
-            </Box>
-          </Grid>          
-      </Grid>
-    </Grid>
-  );*/
-
   let participantsVideoContent = (
     <Grid item style={{height:"100%", overflow: "hidden"}}>
       {participantsVideo}
@@ -850,9 +890,18 @@ export default function(props) {
     )
   }
 
+  let emotesContent = (
+      <Grid style={{position: "absolute", bottom: 0, left: 0, zIndex: 9999}}>
+        {emotes.map(item => (
+          <Snackbar key={item} message={item} />
+        ))}
+      </Grid>
+  );
+
   return (
     <Grid style={{width: "100%", height: "100%", overflow: "hidden"}}>
       {displayMsgContent}
+      {emotesContent}
       <Grid container direction="row" justify="flex-start" style={{height:"100%", overflow: "hidden"}}>
         <Grid container direction="row" spacing={0} justify="flex-start" style={{height: "100%", overflow: "hidden"}} >
           {featurePanel}
