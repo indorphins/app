@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux'
-import { SnackbarProvider } from 'notistack';
 
 import { store } from './store';
 
@@ -10,9 +9,7 @@ import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
   <Provider store={store}>
-    <SnackbarProvider maxSnack={10}>
-      <App />
-    </SnackbarProvider>
+    <App />
   </Provider>, 
   document.getElementById('root')
 );

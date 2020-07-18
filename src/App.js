@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter} from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
+import { SnackbarProvider } from 'notistack';
 
 import AppTheme from './styles';
 import log from './log';
@@ -86,9 +87,11 @@ export default function App() {
 
   return (
 		<AppTheme>
+      <SnackbarProvider maxSnack={10}>
 			<BrowserRouter>
 				<Routes />
 			</BrowserRouter>
+      </SnackbarProvider>
 		</AppTheme>
   );
 };

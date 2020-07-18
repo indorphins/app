@@ -112,6 +112,11 @@ export default function(props) {
         paddingBottom: theme.spacing(0.5),
       }
     },
+    MuiSnackbarContent: {
+      root: {
+        fontSize: '1.2rem',
+      }
+    },
     MUIRichTextEditor: {
       root: {
         width: "100%",

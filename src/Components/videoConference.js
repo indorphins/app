@@ -215,7 +215,7 @@ export default function(props) {
   let looper = null;
   const loopTime = 20000;
   const classes = useStyles();
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const { enqueueSnackbar } = useSnackbar();
   const [maxStreams, setMaxStreams] = useState(4)
   const [user, setUser] = useState(null);
   const [streams, setStreams] = useState([]);
@@ -231,20 +231,17 @@ export default function(props) {
   const [chatHistory, setChatHistory] = useState([]);
   const [loopMode, setLoopMode] = useState(true);
   const [displayMsg, setDisplayMsg] = useState(null);
-  const [emotes, setEmotes] = useState([]);
   const userRef = useRef();
   const courseRef = useRef();
   const subsRef = useRef();
   const videoSubsCountRef = useRef();
   const maxStreamsRef = useRef();
-  const emotesRef = useRef();
 
   userRef.current = user;
   courseRef.current = course;
   subsRef.current = subs;
   videoSubsCountRef.current = videoSubsCount;
   maxStreamsRef.current = maxStreams;
-  emotesRef.current = emotes;
 
   async function handleError(err) {
     if (err) {
@@ -698,13 +695,19 @@ export default function(props) {
     </Grid>
   );
 
-  let featurePanel = (
-    <Grid xs item style={{height: "100%", overflow: "hidden"}}>
-      <Paper style={{height: "100%", overflow: "hidden"}}>
-        <Box id="feature" className={classes.instructor} />
-      </Paper>
-    </Grid>
-  );
+  let featurePanel = null
+  if (course) {
+    featurePanel = (
+      <Grid xs item style={{height: "100%", overflow: "hidden", position: "relative"}}>
+        <Paper style={{height: "100%", overflow: "hidden"}}>
+          <Box id="feature" className={classes.instructor} />
+          <Grid style={{position: "absolute", zIndex: 999, bottom: "10px", right: "10px"}}>
+            <Emote userId={course.instructor.id} username={user.username} onSelect={sendEmote} />
+          </Grid>
+        </Paper>
+      </Grid>
+    );
+  }
 
   if (user && course && user.id === course.instructor.id) {
     featurePanel = null;
