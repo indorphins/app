@@ -20,6 +20,7 @@
 		"lodash": "^4.17.15",
 		"mui-rte": "^1.19.0",
 		"node-fetch": "^2.6.0",
+		"notistack": "^0.9.17",
 		"opentok-react": "^0.10.0",
 		"react": "^16.13.1",
 		"react-big-calendar": "^0.25.0",

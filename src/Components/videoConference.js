@@ -15,7 +15,6 @@ import {
   Switch,
   Menu,
   MenuItem,
-  Snackbar,
 } from '@material-ui/core';
 import { 
   VideocamOffOutlined, 
@@ -36,6 +35,7 @@ import * as OT from '@opentok/client';
 import { format } from 'date-fns';
 import { isSafari, isMobile, fullBrowserVersion } from 'react-device-detect';
 import compareVersions from 'compare-versions';
+import { useSnackbar } from 'notistack';
 
 import log from '../log';
 
@@ -215,6 +215,7 @@ export default function(props) {
   let looper = null;
   const loopTime = 20000;
   const classes = useStyles();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [maxStreams, setMaxStreams] = useState(4)
   const [user, setUser] = useState(null);
   const [streams, setStreams] = useState([]);
@@ -236,12 +237,14 @@ export default function(props) {
   const subsRef = useRef();
   const videoSubsCountRef = useRef();
   const maxStreamsRef = useRef();
+  const emotesRef = useRef();
 
   userRef.current = user;
   courseRef.current = course;
   subsRef.current = subs;
   videoSubsCountRef.current = videoSubsCount;
   maxStreamsRef.current = maxStreams;
+  emotesRef.current = emotes;
 
   async function handleError(err) {
     if (err) {
@@ -553,7 +556,7 @@ export default function(props) {
       let data = JSON.parse(event.data);
       if (data.userId === user.id) {
         log.debug('emote for you', data.message)
-        setEmotes(emotes => [data.message, ...emotes]);
+        enqueueSnackbar(data.message);
       }
     }
   };
@@ -890,18 +893,9 @@ export default function(props) {
     )
   }
 
-  let emotesContent = (
-      <Grid style={{position: "absolute", bottom: 0, left: 0, zIndex: 9999}}>
-        {emotes.map(item => (
-          <Snackbar key={item} message={item} />
-        ))}
-      </Grid>
-  );
-
   return (
     <Grid style={{width: "100%", height: "100%", overflow: "hidden"}}>
       {displayMsgContent}
-      {emotesContent}
       <Grid container direction="row" justify="flex-start" style={{height:"100%", overflow: "hidden"}}>
         <Grid container direction="row" spacing={0} justify="flex-start" style={{height: "100%", overflow: "hidden"}} >
           {featurePanel}
