@@ -109,6 +109,10 @@ export default function () {
   }
 
   useEffect(() => {
+    document.querySelector('body').scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     get();
   }, [params])
 
@@ -154,7 +158,7 @@ export default function () {
     }
 
     setSignup((
-      <Button variant="contained" color="secondary" onClick={courseSignupHandler}>Sign Up</Button>
+      <Button variant="contained" color="secondary" onClick={courseSignupHandler}>Book Class</Button>
     ));
 
   }, [currentUser, course]);
@@ -181,7 +185,7 @@ export default function () {
 
     if (now > sessionTime.startDate && now < sessionTime.endDate) {
       setJoinSession((
-        <Button variant="contained" color="secondary" onClick={joinHandler}>Join</Button>
+        <Button variant="contained" color="secondary" onClick={joinHandler}>Join Session</Button>
       ))
     }
 

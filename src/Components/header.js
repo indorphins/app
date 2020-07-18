@@ -4,6 +4,7 @@ import { Brightness5Rounded, Brightness4Rounded } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
+import { isMobile } from 'react-device-detect';
 
 import UserAvatar from "./userAvatar";
 import Navigation from './nav';
@@ -83,7 +84,6 @@ export default function(props) {
 
   let lightButton = (<Brightness4Rounded />);
   let darkButton = (<Brightness5Rounded />);
-
 
   useEffect(() => {
     if (theme === 'light') {

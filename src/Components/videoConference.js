@@ -345,6 +345,7 @@ export default function(props) {
       showControls: false,
       subscribeToAudio: true,
       subscribeToVideo: false,
+      fitMode: "cover",
     };
 
     if (data.instructor) {
