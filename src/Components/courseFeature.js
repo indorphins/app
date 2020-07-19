@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Grid, GridList, GridListTile, GridListTileBar, Typography, CircularProgress, IconButton, Fab, useMediaQuery} from '@material-ui/core';
 import { InfoOutlined, ArrowForward, ArrowBack } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
-import { format } from 'date-fns'
+import { format, isTomorrow, isToday } from 'date-fns'
 
 import * as Course from '../api/course';
 import log from '../log';
@@ -198,6 +198,14 @@ export default function(props) {
 
         if (d.getDate() - now.getDate() >= 7) {
           dt = format(d, "M/d");
+        }
+
+        if (isTomorrow(d)) {
+          dt = "Tomorrow";
+        }
+  
+        if (isToday(d)) {
+          dt = "Today";
         }
 
         data.label = "BOOK: " + dt + " @ " + time;

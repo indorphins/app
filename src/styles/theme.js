@@ -11,81 +11,157 @@ const colors = {
   cream: "#ffc772",
 }
 
-const typography = {
+const lightPalette = {
+  type: 'light',
+  primary: {
+    main: colors.cream,
+    contrastText: colors.black,
+  },
+  secondary: {
+    main: colors.salmon,
+    contrastText: colors.offwhite,
+  },
+  header: {
+    background: colors.black,
+  },
+  text: {
+    primary: '#616161',
+    secondary: '#9e9e9e',
+    disabled: '#e0e0e0',
+    hint: '#eeeeee',
+  },
+  grey: {
+    50: '#fafafa',
+    100: '#f5f5f5',
+    200: '#eeeeee',
+    300: '#e0e0e0',
+    400: '#bdbdbd',
+    500: '#9e9e9e',
+    600: '#757575',
+    700: '#616161',
+    800: '#424242',
+    900: '#212121',
+  }
+}; 
+
+const lightTypography = {
   direction: 'ltr',
-  fontSize: 14,
+  fontSize: 16,
   h1: {
-    fontSize: '2.2rem',
-    fontWeight: 900,
-    marginBottom: '0.5em',
+    fontSize: '2.5rem',
+    fontWeight: 300,
+    color: lightPalette.grey[700],
   },
   h2: {
-    fontSize: '1.6rem',
-    fontWeight: 500,
-    marginBottom: '0.3em',
+    fontSize: '2.2rem',
+    fontWeight: 300,
+    color: lightPalette.grey[700],
   },
   h3: {
-    fontSize: '1.3rem',
+    fontSize: '1.8rem',
+    fontWeight: 300,
+    color: lightPalette.grey[600],
   },
   h4: {
-    fontSize: '1.1rem',
-    fontWeight: 500,
+    fontSize: '1.5rem',
+    fontWeight: 300,
+    color: lightPalette.grey[800],
   },
   h5: {
-    fontSize: '1.1rem',
+    fontSize: '1.3rem',
     fontWeight: 300,
+    color: lightPalette.grey[800],
   },
   h6: {
     fontSize: '1.1rem',
     fontStyle: 'italic',
+    fontWeight: 100,
+    color: lightPalette.grey[900],
+  }
+};
+
+const darkPalette = {
+  type: 'dark',
+  primary: {
+    main: colors.salmon,
+    contrastText: colors.offwhite,
+  },
+  secondary: {
+    main: colors.cream,
+    contrastText: colors.black,
+  },
+  background: {
+    paper: colors.black1,
+    default: colors.black2
+  },
+  header: {
+    background: colors.black,
+  },
+  text: {
+    primary: '#eeeeee',
+    secondary: '#bdbdbd',
+    disabled: '#757575',
+    hint: '#616161',
+  },
+  grey: {
+    900: '#fafafa',
+    800: '#f5f5f5',
+    700: '#eeeeee',
+    600: '#e0e0e0',
+    500: '#bdbdbd',
+    400: '#9e9e9e',
+    300: '#757575',
+    200: '#616161',
+    100: '#424242',
+    50: '#212121',
+  }
+}; 
+
+const darkTypography = {
+  direction: 'ltr',
+  fontSize: 16,
+  h1: {
+    fontSize: '2.5rem',
+    fontWeight: 300,
+    color: darkPalette.grey[700],
+  },
+  h2: {
+    fontSize: '2.2rem',
+    fontWeight: 300,
+    color: darkPalette.grey[700],
+  },
+  h3: {
+    fontSize: '1.8rem',
+    fontWeight: 300,
+    color: darkPalette.grey[600],
+  },
+  h4: {
+    fontSize: '1.5rem',
+    fontWeight: 300,
+    color: darkPalette.grey[800],
+  },
+  h5: {
+    fontSize: '1.3rem',
+    fontWeight: 300,
+    color: darkPalette.grey[800],
+  },
+  h6: {
+    fontSize: '1.1rem',
+    fontStyle: 'italic',
+    fontWeight: 100,
+    color: darkPalette.grey[900],
   }
 }
 
 export const light = createMuiTheme({
-  palette: {
-    type: 'light',
-    primary: {
-      main: colors.cream,
-      contrastText: colors.black,
-    },
-    secondary: {
-      main: colors.salmon,
-      contrastText: colors.offwhite,
-    },
-    header: {
-      background: colors.black,
-    }
-  },
+  palette: lightPalette,
   spacing: 8,
-  typography: typography,
+  typography: lightTypography,
 });
 
 
 export const dark = createMuiTheme({
-  palette: {
-    type: 'dark',
-    primary: {
-      main: colors.salmon,
-      contrastText: colors.offwhite,
-    },
-    secondary: {
-      main: colors.cream,
-      contrastText: colors.black,
-    },
-    background: {
-      paper: colors.black1,
-      default: colors.black2
-    },
-    header: {
-      background: colors.black,
-    },
-    text: {
-      primary: light.palette.grey[300],
-      secondary: light.palette.grey[400],
-      disabled: light.palette.grey[600],
-      hint: light.palette.grey[800],
-    }
-  },
+  palette: darkPalette,
   spacing: 8,
-  typography: typography,
+  typography: darkTypography,
 });

@@ -14,11 +14,8 @@ import path from '../../routes/path';
 import { getNextSession } from '../../utils';
 
 const useStyles = makeStyles((theme) => ({
-  divider: {
-    margin: theme.spacing(2),
-  },
-  actionBtn: {
-    //marginLeft: theme.spacing(1),
+  title: {
+    paddingBottom: theme.spacing(2),
   },
   cost: {
     fontWeight: "bold",
@@ -47,6 +44,39 @@ const useStyles = makeStyles((theme) => ({
   },
   courseTime: {
     marginBottom: theme.spacing(2),
+  },
+  '@global': {
+    html: {
+      overflow: 'hidden',
+      height: '100%',
+    },
+    body: {
+      overflow: 'auto',
+      height: '100%',
+    },
+    '#wysiwygContent > h2': {
+      color: theme.palette.text.secondary, 
+      fontSize: "1.5rem"
+    },
+    '#wysiwygContent > p': {
+      fontSize: "1.1rem",
+      color: theme.palette.text.secondary,
+    },
+    '#wysiwygContent > ol': {
+      fontSize: "1.1rem",
+      color: theme.palette.text.secondary,
+    },
+    '#wysiwygContent > ul': {
+      fontSize: "1.1rem",
+      color: theme.palette.text.secondary,
+    },
+    '#wysiwygContent > blockquote': {
+      borderLeft: "3px solid grey",
+      paddingLeft: "2em",
+      fontStyle: "italic",
+      fontWeight: "bold",
+      color: theme.palette.text.secondary,
+    }
   }
 }));
 
@@ -188,7 +218,7 @@ export default function () {
       // TODO: hookup with new stripe flows
     }
 
-    history.push(path.profile);
+    history.push(path.schedule);
   }
 
   const goToLogin = async function () {
@@ -282,7 +312,7 @@ export default function () {
         <Grid container direction="column">
         {course.participants.map(item => (
           <Grid key={item.username} item xs={6}>
-            <Typography variant="h4">{item.username}</Typography>
+            <Typography variant="body1">{item.username}</Typography>
           </Grid>
         ))}
         </Grid>
@@ -320,7 +350,7 @@ export default function () {
 
   if (course.title) {
     courseTitle = (
-      <Typography variant="h1">
+      <Typography variant="h1" className={classes.title}>
         {course.title}
       </Typography>
     );
@@ -351,6 +381,9 @@ export default function () {
       }
 
       formatted = dt + " @ " + time;
+      if (course.recurring) {
+        formatted = formatted + " - weekly";
+      }
     } else {
       formatted = "Class over";
     }
@@ -418,7 +451,7 @@ export default function () {
   let notifyBtn = null;
   if (notify) {
     notifyBtn = (
-      <Grid item xs={layout.actionBtnSize} className={classes.actionBtn}>
+      <Grid item xs={layout.actionBtnSize}>
         {notify}
       </Grid>
     );
@@ -427,7 +460,7 @@ export default function () {
   let joinBtn = null;
   if (joinSession) {
     joinBtn = (
-      <Grid item xs={layout.actionBtnSize} className={classes.actionBtn}>
+      <Grid item xs={layout.actionBtnSize}>
         {joinSession}
       </Grid>
     );
@@ -436,14 +469,14 @@ export default function () {
   let signupBtn = null;
   if (signup) {
     signupBtn = (
-      <Grid item xs={layout.actionBtnSize} className={classes.actionBtn}>
+      <Grid item xs={layout.actionBtnSize}>
         {signup}
       </Grid>
     );
   }
 
   return (
-    <Container>
+    <Container style={{paddingTop: "2rem", paddingBottom: "2rem"}}>
       <Grid container direction={layout.main} spacing={2}>
         <Grid item>
           <Grid container direction={layout.actionBtnDirection} justify="flex-end" spacing={2}>

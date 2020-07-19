@@ -86,6 +86,39 @@ const useStyles = makeStyles((theme) => ({
     cursor: "pointer",
     color: theme.palette.primary.main,
     display: "inline-block",
+  },
+  '@global': {
+    html: {
+      overflow: 'hidden',
+      height: '100%',
+    },
+    body: {
+      overflow: 'auto',
+      height: '100%',
+    },
+    '#wysiwygContent > h2': {
+      color: theme.palette.text.secondary, 
+      fontSize: "1.5rem"
+    },
+    '#wysiwygContent > p': {
+      fontSize: "1.1rem",
+      color: theme.palette.text.secondary,
+    },
+    '#wysiwygContent > ol': {
+      fontSize: "1.1rem",
+      color: theme.palette.text.secondary,
+    },
+    '#wysiwygContent > ul': {
+      fontSize: "1.1rem",
+      color: theme.palette.text.secondary,
+    },
+    '#wysiwygContent > blockquote': {
+      borderLeft: "3px solid grey",
+      paddingLeft: "2em",
+      fontStyle: "italic",
+      fontWeight: "bold",
+      color: theme.palette.text.secondary,
+    }
   }
 }));
 
