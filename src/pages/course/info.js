@@ -5,7 +5,7 @@ import { Photo } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { format } from 'date-fns';
+import { format, isTomorrow, isToday } from 'date-fns';
 
 import CreateMessage from '../../components/form/createMessage'
 import * as Course from '../../api/course';
@@ -342,7 +342,15 @@ export default function () {
         dt = format(d, "iiii MMMM do");
       }
 
-      formatted = "Join us " + dt + " @ " + time;
+      if (isTomorrow(d)) {
+        dt = "Tomorrow";
+      }
+
+      if (isToday(d)) {
+        dt = "Today";
+      }
+
+      formatted = dt + " @ " + time;
     } else {
       formatted = "Class over";
     }
