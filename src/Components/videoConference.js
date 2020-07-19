@@ -872,7 +872,7 @@ export default function(props) {
               <Typography align="center" variant="h5" className={classes.subscriberLabel}>{item.user.username}</Typography>
             </Box>
             <Grid style={{position: "absolute", zIndex: 999, bottom: "10px", right: "10px"}}>
-              <Emote userId={item.user.id} username={item.user.username} onSelect={sendEmote} />
+              <Emote userId={item.user.id} username={user.username} onSelect={sendEmote} />
             </Grid>
           </Grid>
         ))}
