@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { AppBar, IconButton, Box, Grid, Toolbar, Typography } from '@material-ui/core';
+import { AppBar, IconButton, Box, Grid, Toolbar, Typography, Container, useMediaQuery } from '@material-ui/core';
 import { Brightness5Rounded, Brightness4Rounded } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { isMobile } from 'react-device-detect';
 
 import UserAvatar from "./userAvatar";
 import Navigation from './nav';
@@ -18,42 +17,41 @@ let useStyles = makeStyles((theme) => ({
     display: 'inline',
     marginTop: theme.spacing(3),
     marginBottom: theme.spacing(3),
+    marginLeft: theme.spacing(8),
     color: theme.palette.secondary.main,
+    '@media (max-width: 900px)': {
+      marginLeft: 0,
+    }
   },
   logo2: {
     display: 'inline',
     marginTop: theme.spacing(3),
     marginBottom: theme.spacing(3),
-    marginRight: theme.spacing(5),
     color: theme.palette.primary.main,
   },
   appbar: {
     paddingRight: theme.spacing(5),
     paddingLeft: theme.spacing(2),
+    paddingTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
     backgroundColor: theme.palette.header.background,
-    '@media (max-width: 600px)': {
-      paddingRight: theme.spacing(2),
-      paddingLeft: theme.spacing(1),
+    '@media (max-width: 900px)': {
+      paddingRight: theme.spacing(1),
+      paddingLeft: theme.spacing(0),
+      paddingTop: theme.spacing(1),
       marginBottom: theme.spacing(1),
     }
   },
   toolbar: {
-    minHeight: 0,
-    alignItems: "flex-end"
-  },
-  userControls: {
-    position: "absolute", 
-    right: "0",
-    paddingBottom: theme.spacing(2),
-  },
-  themeBtn: {
-    padding: theme.spacing(1),
-    marginRight: theme.spacing(2),
-    '@media (max-width: 600px)': {
-      marginRight: theme.spacing(1),
+    '@media (max-width: 900px)': {
+      padding: 0,
     },
   },
+  container: {
+    '@media (max-width: 900px)': {
+      padding: 0,
+    },
+  }
 }));
 
 const getThemeSelector = createSelector([state => state.theme], (theme) => {
@@ -69,6 +67,7 @@ export default function(props) {
   if (props.className) {
     useStyles = props.className;
   }
+  const med = useMediaQuery('(max-width:900px)');
   const classes = useStyles();
   const theme = useSelector(state => getThemeSelector(state));
   const currentUser = useSelector(state => getUserSelector(state));
@@ -93,23 +92,41 @@ export default function(props) {
     }
   }, [theme])
 
+  let headerJustify = 'flex-start';
+
+  if (med) {
+    headerJustify = 'center';
+  }
+
   return (
     <Box className={classes.root}>
       <AppBar position="static" className={classes.appbar}>
         <Toolbar className={classes.toolbar} variant="regular">
-          <Typography variant="h2" color="secondary" className={classes.logo}>indoor</Typography>
-          <Typography variant="h2" className={classes.logo2}>phins</Typography>
-          <Grid>
-            <Navigation user={currentUser} />
-          </Grid>
-          <Grid className={classes.userControls}>
-            <Grid container direction='row' alignItems="center">
-              <IconButton edge="end" onClick={toggleTheme} className={classes.themeBtn} color="secondary">
-                {themeButton}
-              </IconButton>
-              <UserAvatar edge="end" className={classes.userMenu} user={currentUser} />
+          <Container className={classes.container}>
+            <Grid container direction="row" justify={headerJustify}>
+              <Grid item>
+                <Typography variant="h2" color="secondary" className={classes.logo}>indoor</Typography>
+                <Typography variant="h2" className={classes.logo2}>phins</Typography>
+              </Grid>
             </Grid>
-          </Grid>
+            <Grid container direction="row" justify="space-between" alignItems="flex-end">
+              <Grid item>
+                <Navigation user={currentUser} />
+              </Grid>
+              <Grid item>
+                <Grid container direction='row' alignItems="center" spacing={2}>
+                  <Grid item>
+                    <IconButton edge="end" onClick={toggleTheme} color="secondary">
+                      {themeButton}
+                    </IconButton>
+                  </Grid>
+                  <Grid item>
+                    <UserAvatar edge="end" user={currentUser} />
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Container>
         </Toolbar>
       </AppBar>
       {props.children}

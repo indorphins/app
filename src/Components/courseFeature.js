@@ -76,6 +76,10 @@ const useStyles = makeStyles((theme) => ({
   },
   anchor: {
     textDecoration: "none",
+  },
+  textWrap: {
+    whiteSpace: 'break-spaces',
+    textOverflow: 'inherit',
   }
 }));
 
@@ -194,7 +198,7 @@ export default function(props) {
         }
 
         let dt = format(d, "iiii");
-        let time = format(d, "h:mm a");
+        let time = format(d, "h:mma");
 
         if (d.getDate() - now.getDate() >= 7) {
           dt = format(d, "M/d");
@@ -319,6 +323,7 @@ export default function(props) {
                   title={course.title}
                   subtitle={course.label}
                   className={classes.desc}
+                  classes={{title: classes.textWrap, subtitle: classes.textWrap}}
                   actionIcon={
                     <IconButton color="secondary" aria-label={`info about ${course.title}`}>
                       <InfoOutlined />

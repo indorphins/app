@@ -9,7 +9,12 @@ const useStyles = makeStyles((theme) => ({
   hidden: {
     display: "none",
     visibility: "hidden",
-  }
+  },
+  tab: {
+    '@media (max-width: 900px)': {
+      fontSize: ".8rem",
+    },
+  },
 }));
 
 export default function(props) {
@@ -70,19 +75,18 @@ export default function(props) {
 
   if (showProfile) {
     profileTab = (
-      <Tab value={2} label={profileLabel} onClick={navProfile} />
+      <Tab value={2} label={profileLabel} onClick={navProfile} className={classes.tab} />
     );
   }
 
   return (
     <Tabs
     value={tab}
-    indicatorColor="secondary"
+    indicatorColor="primary"
     textColor="secondary"
-    aria-label="disabled tabs example"
   >
     <Tab value={0} className={classes.hidden} />
-    <Tab value={1} label="Classes" onClick={navHome} />
+    <Tab value={1} label="Classes" onClick={navHome} className={classes.tab} />
     {profileTab}
   </Tabs>
   )
