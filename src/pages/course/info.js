@@ -34,13 +34,13 @@ const useStyles = makeStyles((theme) => ({
     objectFit: "cover",
     borderRadius: "4px",
     minHeight: 300,
-    maxHeight: 450,
+    maxHeight: 500,
   },
   nophoto: {
     width: "100%",
     background: "#e4e4e4;",
     minHeight: 300,
-    maxHeight: 450,
+    maxHeight: 500,
   },
   courseTime: {
     marginBottom: theme.spacing(2),
@@ -309,7 +309,7 @@ export default function () {
         <Typography variant="h5" align="center" style={{marginBottom: 10}}>
           Participants
         </Typography>
-        <Grid container direction="column">
+        <Grid container direction="row" justify="flex-start">
         {course.participants.map(item => (
           <Grid key={item.username} item xs={6}>
             <Typography variant="body1">{item.username}</Typography>
