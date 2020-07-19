@@ -339,7 +339,7 @@ export default function () {
       let time = format(d, "h:mm a");
 
       if (d.getDate() - now.getDate() >= 7) {
-        dt = format(d, "iiii MMMM do");
+        dt = format(d, "iiii, MMMM do");
       }
 
       if (isTomorrow(d)) {
