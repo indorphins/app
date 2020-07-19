@@ -866,11 +866,14 @@ export default function(props) {
     <Grid xs item style={{height:"100%", overflow: "hidden"}}>
       <Grid container direction="row" justify="flex-start" className={participantsClass} style={{height:"100%", overflow: "hidden"}}>
         {combined.map(item => (
-          <Grid key={item.user.id} item className={item.className} style={{order: item.order}}>
+          <Grid key={item.user.id} item className={item.className} style={{order: item.order, position: "relative"}}>
             <Box id={item.user.id} className={classes.subscriberFeatureVid} />
             <Box className={classes.subscriberLabelBox}>
               <Typography align="center" variant="h5" className={classes.subscriberLabel}>{item.user.username}</Typography>
             </Box>
+            <Grid style={{position: "absolute", zIndex: 999, bottom: "10px", right: "10px"}}>
+              <Emote userId={item.user.id} username={item.user.username} onSelect={sendEmote} />
+            </Grid>
           </Grid>
         ))}
       </Grid>
