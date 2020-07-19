@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { Button, Container, Grid, Typography, Card, useMediaQuery } from '@material-ui/core';
-import { Photo } from '@material-ui/icons';
+import { Photo, ShoppingCartOutlined, GroupAdd } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
@@ -28,6 +28,23 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
     cursor: "default",
+    backgroundColor: theme.palette.grey[100],
+  },
+  participantContainer: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    cursor: "default",
+    backgroundColor: theme.palette.grey[100],
+  },
+  instructorContainer: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    cursor: "default",
+    backgroundColor: theme.palette.grey[100],
   },
   photo: {
     width: "100%",
@@ -256,13 +273,17 @@ export default function () {
 
   if (course.cost) {
     costContent = (
-      <Card className={classes.spotsContainer} title="Classes can be left up to 24 hours before the class start time, and any charges for future classes will be refunded">
-        <Typography variant="h5" align="center">
-          Cost
-        </Typography>
-        <Typography className={classes.cost} variant="h2" align="center">
-          X
-        </Typography>
+      <Card className={classes.spotsContainer} title="Classes can be left up to 24 hours before the class start time">
+        <Grid container direction="column" justify="center" alignItems="center">
+          <Grid item>
+            <ShoppingCartOutlined />
+          </Grid>
+          <Grid item>
+            <Typography className={classes.cost} variant="h2" align="center">
+              $0
+            </Typography>
+          </Grid>
+        </Grid>
       </Card>
     );
   }
@@ -270,13 +291,17 @@ export default function () {
   let spotsCount = course.available_spots;
   if (spotsCount < 0) spotsCount = 0;
   let spotsContent = (
-    <Card className={classes.spotsContainer}>
-      <Typography variant="h5" align="center">
-        Spaces
-      </Typography>
-      <Typography className={classes.cost} variant="h2" align="center">
-        {spotsCount}
-      </Typography>
+    <Card className={classes.spotsContainer} title="Spaces remaining">
+      <Grid container direction="column" justify="center" alignItems="center">
+        <Grid item>
+          <GroupAdd />
+        </Grid>
+        <Grid item>
+          <Typography className={classes.cost} variant="h2" align="center">
+            {spotsCount}
+          </Typography>
+        </Grid>
+      </Grid>
     </Card>
   )
 
@@ -284,7 +309,7 @@ export default function () {
 
   if (course.instructor) {
     instructorContent = (
-      <Card className={classes.spotsContainer}>
+      <Card className={classes.instructorContainer}>
         <Typography variant="h5" align="center" style={{marginBottom: 10}}>
           Instructor
         </Typography>
@@ -305,7 +330,7 @@ export default function () {
 
   if (course.participants && course.participants.length) {
     participantsContent = (
-      <Card className={classes.spotsContainer}>
+      <Card className={classes.participantContainer}>
         <Typography variant="h5" align="center" style={{marginBottom: 10}}>
           Participants
         </Typography>
