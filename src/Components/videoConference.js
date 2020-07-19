@@ -43,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
   publisher: {
     height: 150,
     width: 250,
-    background: theme.palette.grey[200],
+    background: theme.palette.grey[100],
   },
   subscriberGrid: {
     height: "100%",
@@ -61,7 +61,7 @@ const useStyles = makeStyles((theme) => ({
   },
   subscriberItem: {
     height: "calc(100% / 4)",
-    background: theme.palette.grey[800],
+    background: theme.palette.grey[100],
     width: 240,
     '@media (min-width: 1200px)': {
       width: 320
@@ -73,7 +73,7 @@ const useStyles = makeStyles((theme) => ({
   subscriberItemAlt: {
     height: "25%",
     width: "calc(100% / 4)",
-    background: theme.palette.grey[800],
+    background: theme.palette.grey[100],
   },
   subscriberFeatureVid: {
     height: "100%",
@@ -81,7 +81,7 @@ const useStyles = makeStyles((theme) => ({
   subscriberFeature: {
     height: "75%",
     width: "100%",
-    background: theme.palette.grey[700],
+    background: theme.palette.grey[50],
   },
   subscriberLabelBox: {
     position: 'relative',
@@ -94,7 +94,7 @@ const useStyles = makeStyles((theme) => ({
   instructor: {
     height: "100%",
     width: "100%",
-    background: theme.palette.grey[900],
+    background: theme.palette.grey[50],
   },
   videoControls: {},
   drawer: {
@@ -187,24 +187,30 @@ function Emote(props) {
     <Grid style={{display: "inline"}}>
       <IconButton ref={btn} onClick={handleClick} title="Send an emote"><InsertEmoticon color="primary" /></IconButton>
       <Menu keepMounted open={Boolean(anchorEl)} anchorEl={anchorEl} onClose={handleClose} classes={{list: classes.emoteMenu}}>
+        <MenuItem value="👍" title="Send a thumbs-up" onClick={() => handleSelect(`👍 from ${props.username}`)}>
+          <span aria-label="thumbs-up" role="img">👍</span>
+        </MenuItem>
         <MenuItem value="✋" title="Give them a high-five" onClick={() => handleSelect(`${props.username} high-fives you ✋`)}>
             <span aria-label="high-five" role="img">✋</span>
-          </MenuItem>
+        </MenuItem>
         <MenuItem value="👋" title="Wave hello" onClick={() => handleSelect(`${props.username} says hi 👋`)}>
           <span aria-label="hand-wave" role="img">👋</span>
         </MenuItem>
-        <MenuItem value="✊" title="Give them a fist bump" onClick={() => handleSelect(`fist bump ✊ from ${props.username}`)}>
+        <MenuItem value="✊" title="Fist bump" onClick={() => handleSelect(`fist bump ✊ from ${props.username}`)}>
           <span aria-label="fist-bump" role="img">✊</span>
         </MenuItem>
-        <MenuItem value="🥵" title="Let them know you're exhausted" onClick={() => handleSelect(`${props.username} is exhausted 🥵`)}>
+        <MenuItem value="🤣" title="That was hilarious" onClick={() => handleSelect(`${props.username} thought that was hilarious 🤣`)}>
+          <span aria-label="loved-that" role="img">🤣</span>
+        </MenuItem>
+        <MenuItem value="😍" title="Let them know you loved that" onClick={() => handleSelect(`${props.username} loved that 😍`)}>
+          <span aria-label="loved-that" role="img">😍</span>
+        </MenuItem>
+        <MenuItem value="🥵" title="Let them know you are exhausted" onClick={() => handleSelect(`${props.username} is exhausted 🥵`)}>
           <span aria-label="worn-out" role="img">🥵</span>
         </MenuItem>
-        <MenuItem value="🔥" title="Let them know they're on fire" onClick={() => handleSelect(`${props.username} thinks you're on 🔥!`)}>
+        <MenuItem value="🔥" title="You are on fire" onClick={() => handleSelect(`${props.username} thinks you are on 🔥`)}>
           <span aria-label="on-fire" role="img">🔥</span>
-        </MenuItem>
-        <MenuItem value="💩" title="Hiddy Ho!" onClick={() => handleSelect(`${props.username} says Hiddy Ho! 💩`)}>
-          <span aria-label="hiddy-ho" role="img">💩</span>
-        </MenuItem>      
+        </MenuItem>     
       </Menu>
     </Grid>
   )
