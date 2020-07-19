@@ -20,7 +20,7 @@ let useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(8),
     color: theme.palette.secondary.main,
     '@media (max-width: 900px)': {
-      marginLeft: 0,
+      marginLeft: theme.spacing(1),
     }
   },
   logo2: {
@@ -48,6 +48,7 @@ let useStyles = makeStyles((theme) => ({
     },
   },
   container: {
+    position: "relative",
     '@media (max-width: 900px)': {
       padding: 0,
     },
@@ -93,9 +94,11 @@ export default function(props) {
   }, [theme])
 
   let headerJustify = 'flex-start';
+  let controlsSpacing = 2;
 
   if (med) {
-    headerJustify = 'center';
+    headerJustify = 'flex-start';
+    controlsSpacing = 1;
   }
 
   return (
@@ -113,21 +116,22 @@ export default function(props) {
               <Grid item>
                 <Navigation user={currentUser} />
               </Grid>
-              <Grid item>
-                <Grid container direction='row' alignItems="center" spacing={2}>
-                  <Grid item>
-                    <IconButton edge="end" onClick={toggleTheme} color="secondary">
-                      {themeButton}
-                    </IconButton>
-                  </Grid>
-                  <Grid item>
-                    <UserAvatar edge="end" user={currentUser} />
-                  </Grid>
+            </Grid>
+            <Grid style={{display:"inline-block", position: "absolute", top: 0, right: 0}}>
+              <Grid container direction='row' alignItems="center" spacing={controlsSpacing}>
+                <Grid item>
+                  <IconButton edge="end" onClick={toggleTheme} color="secondary">
+                    {themeButton}
+                  </IconButton>
+                </Grid>
+                <Grid item>
+                  <UserAvatar edge="end" user={currentUser} />
                 </Grid>
               </Grid>
             </Grid>
           </Container>
         </Toolbar>
+
       </AppBar>
       {props.children}
     </Box>
