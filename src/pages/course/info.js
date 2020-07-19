@@ -1,26 +1,51 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { Button, Container, Divider, Grid } from '@material-ui/core';
+import { Button, Container, Grid, Typography, Card, useMediaQuery } from '@material-ui/core';
+import { Photo } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
+import { format } from 'date-fns';
 
-import UserData from '../../components/userData';
-import CourseSchedule from '../../components/courseSchedule';
 import CreateMessage from '../../components/form/createMessage'
 import * as Course from '../../api/course';
 import log from '../../log';
 import path from '../../routes/path';
-import { getNextDate, getPrevDate } from '../../utils';
-
-const sessionWindow = 5;
+import { getNextSession } from '../../utils';
 
 const useStyles = makeStyles((theme) => ({
   divider: {
     margin: theme.spacing(2),
   },
   actionBtn: {
-    marginLeft: theme.spacing(1),
+    //marginLeft: theme.spacing(1),
+  },
+  cost: {
+    fontWeight: "bold",
+    display: "inline-block",
+    width: "100%",
+  },
+  spotsContainer: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    cursor: "default",
+  },
+  photo: {
+    width: "100%",
+    objectFit: "cover",
+    borderRadius: "4px",
+    minHeight: 300,
+    maxHeight: 450,
+  },
+  nophoto: {
+    width: "100%",
+    background: "#e4e4e4;",
+    minHeight: 300,
+    maxHeight: 450,
+  },
+  courseTime: {
     marginBottom: theme.spacing(2),
   }
 }));
@@ -29,53 +54,12 @@ const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
 });
 
-function getNextSession(now, c) {
-  let start = new Date(c.start_date);
-  let end = new Date(c.start_date);
-  end.setMinutes(end.getMinutes() + c.duration);
-  let startWindow = new Date(start.setMinutes(start.getMinutes() - sessionWindow));
-  let endWindow = new Date(end.setMinutes(end.getMinutes() + sessionWindow));
-
-  // if it's a recurring class and the first class is in the past
-  if (c.recurring && now > endWindow) {
-
-    // get the previous event date for the recurring class in case there is an
-    // active session right now
-    start = getPrevDate(c.recurring, 1, now);
-    end = new Date(start);
-    end.setMinutes(end.getMinutes() + c.duration);
-    startWindow = new Date(start.setMinutes(start.getMinutes() - sessionWindow));
-    endWindow = new Date(end.setMinutes(end.getMinutes() + sessionWindow));
-
-    // if the prev session is over then get the next session
-    if (now > endWindow) {
-      start = getNextDate(c.recurring, 1, now);
-      end = new Date(start);
-      end.setMinutes(end.getMinutes() + c.duration);
-      startWindow = new Date(start.setMinutes(start.getMinutes() - sessionWindow));
-      endWindow = new Date(end.setMinutes(end.getMinutes() + sessionWindow));
-    }
-  }
-
-  return {
-    eventDate: start,
-    startDate: startWindow,
-    endDate: endWindow,
-  };
-}
-
 export default function () {
 
   const classes = useStyles();
   const history = useHistory();
   const params = useParams();
   const currentUser = useSelector(state => getUserSelector(state));
-  const [photo, setPhoto] = useState('');
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [insta, setInsta] = useState('');
   const [course, setCourse] = useState('');
   const [signup, setSignup] = useState(null);
   const [notify, setNotify] = useState(null);
@@ -99,13 +83,7 @@ export default function () {
     }
 
     log.debug("COURSE INFO:: got course details", cls);
-    setPhoto(cls.photo_url);
-    setTitle(cls.title);
-    setDescription(cls.description);
-    setEmail(cls.instructor.email);
-    setPhone(cls.instructor.phone_number);
     setCourse(cls);
-    if (cls.instructor.social) setInsta(cls.instructor.social.instagram);
   }
 
   useEffect(() => {
@@ -123,20 +101,18 @@ export default function () {
 
     if (!currentUser.id) {
       setSignup((
-        <Button variant="contained" color="secondary" onClick={goToLogin}>Login to Sign Up</Button>
+        <Button variant="contained" color="secondary" onClick={goToLogin} style={{width:"100%"}}>Login to Book Class</Button>
       ));
       return;
     }
 
     if (currentUser.id === course.instructor.id || currentUser.type === 'admin') {
-      setNotify((
-        <Button variant='contained' color='secondary' onClick={createMessageHandler}>Message Class</Button>
-      ))
+      setMakeMessage(true);
     }
 
     if (currentUser.id === course.instructor.id) {
       setSignup((
-        <Button variant="contained" color="secondary">Edit</Button>
+        <Button variant="contained" color="secondary" style={{width:"100%"}}>Edit Class</Button>
       ));
       return;
     }
@@ -151,14 +127,14 @@ export default function () {
 
       if (enrolled) {
         setSignup((
-          <Button variant="contained" color="secondary" onClick={courseLeaveHandler}>Leave Class</Button>
+          <Button variant="contained" color="secondary" onClick={courseLeaveHandler} style={{width:"100%"}}>Leave Class</Button>
         ));
         return;
       }
     }
 
     setSignup((
-      <Button variant="contained" color="secondary" onClick={courseSignupHandler}>Book Class</Button>
+      <Button variant="contained" color="secondary" onClick={courseSignupHandler} style={{width:"100%"}}>Book Class</Button>
     ));
 
   }, [currentUser, course]);
@@ -183,9 +159,9 @@ export default function () {
     let now = new Date();
     let sessionTime = getNextSession(now, course);
 
-    if (now > sessionTime.startDate && now < sessionTime.endDate) {
+    if (now > sessionTime.start && now < sessionTime.end) {
       setJoinSession((
-        <Button variant="contained" color="secondary" onClick={joinHandler}>Join Session</Button>
+        <Button variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
       ))
     }
 
@@ -237,27 +213,279 @@ export default function () {
   let messageContent = null;
   if (makeMessage) {
     messageContent = (
-      <CreateMessage onSend={sendMessageHandler} courseId={course.id} />
+      <Grid>
+        <Typography variant="h5">
+          Send your class a message
+        </Typography>
+        <CreateMessage onSend={sendMessageHandler} courseId={course.id} />
+      </Grid>
     )
+  }
+
+  let costContent = null;
+
+  if (course.cost) {
+    costContent = (
+      <Card className={classes.spotsContainer} title="Classes can be left up to 24 hours before the class start time, and any charges for future classes will be refunded">
+        <Typography variant="h5" align="center">
+          Cost
+        </Typography>
+        <Typography className={classes.cost} variant="h2" align="center">
+          X
+        </Typography>
+      </Card>
+    );
+  }
+
+  let spotsCount = course.available_spots;
+  if (spotsCount < 0) spotsCount = 0;
+  let spotsContent = (
+    <Card className={classes.spotsContainer}>
+      <Typography variant="h5" align="center">
+        Spaces
+      </Typography>
+      <Typography className={classes.cost} variant="h2" align="center">
+        {spotsCount}
+      </Typography>
+    </Card>
+  )
+
+  let instructorContent = null;
+
+  if (course.instructor) {
+    instructorContent = (
+      <Card className={classes.spotsContainer}>
+        <Typography variant="h5" align="center" style={{marginBottom: 10}}>
+          Instructor
+        </Typography>
+        <Grid container direction="row" justify="flex-start" alignItems="center" spacing={2}>
+          <Grid item>
+            <Typography variant="body1">{course.instructor.first_name} {course.instructor.last_name}</Typography>
+          </Grid>
+          <Grid item>
+            <Typography variant="body2">{course.instructor.username}</Typography>
+          </Grid>
+        </Grid>
+        <Typography variant="body1">{course.instructor.email}</Typography>
+      </Card>
+    )
+  }
+
+  let participantsContent = null
+
+  if (course.participants && course.participants.length) {
+    participantsContent = (
+      <Card className={classes.spotsContainer}>
+        <Typography variant="h5" align="center" style={{marginBottom: 10}}>
+          Participants
+        </Typography>
+        <Grid container direction="column">
+        {course.participants.map(item => (
+          <Grid key={item.username} item xs={6}>
+            <Typography variant="h4">{item.username}</Typography>
+          </Grid>
+        ))}
+        </Grid>
+      </Card>
+    )
+  }
+
+  let photoContent = (
+    <Grid item xs>
+      <Grid container direction="row" justify="center" alignContent="center" className={classes.nophoto}>
+        <Grid item>
+          <Photo className={classes.nophotoIcon} />
+        </Grid>
+      </Grid>
+    </Grid>
+  )
+
+  if (course.photo_url) {
+    photoContent = (  
+      <Grid item xs>
+        <img className={classes.photo} alt={course.title} src={course.photo_url} />
+      </Grid>
+    );
+  }
+
+  let descriptionContent = null;
+
+  if (course.description) {
+    descriptionContent = (
+      <div id="wysiwygContent" className={classes.bio} dangerouslySetInnerHTML={{__html: course.description}}></div>
+    );
+  }
+
+  let courseTitle = null;
+
+  if (course.title) {
+    courseTitle = (
+      <Typography variant="h1">
+        {course.title}
+      </Typography>
+    );
+  }
+
+  let courseTimeContent = null;
+
+  if (course.start_date) {
+    let now = new Date();
+    let next = getNextSession(now, course);
+    let formatted = null;
+
+    if (next) {
+      let d = new Date(next.date);
+      let dt = format(d, "iiii");
+      let time = format(d, "h:mm a");
+
+      if (d.getDate() - now.getDate() >= 7) {
+        dt = format(d, "iiii MMMM do");
+      }
+
+      formatted = "Join us " + dt + " @ " + time;
+    } else {
+      formatted = "Class over";
+    }
+
+    courseTimeContent = (
+      <Typography variant="h3" className={classes.courseTime}>{formatted}</Typography>
+    );
+  }
+
+
+  const sml = useMediaQuery('(max-width:600px)');
+  const med = useMediaQuery('(max-width:900px)');
+
+  let layout = null;
+  if (sml) {
+    layout = {
+      main: "column-reverse",
+      courseDetailsDirection: "column",
+      courseDetailsJustify: "flex-start",
+      courseDetailsSize: 12,
+      courseCostSize: 12,
+      costSize: 6,
+      spotsSize: 6,
+      coursePhotoDirection: "column",
+      coursePhotoSize: "auto",
+      actionBtnDirection: "column",
+      actionBtnSize: "auto",
+      instructorDetailsDirection: "column",
+      instructorDetailsSize: "auto",
+    };
+  } else if (med) {
+    layout = {
+      main: "column-reverse",
+      courseDetailsDirection: "column",
+      courseDetailsJustify: "flex-start",
+      courseDetailsSize: 12,
+      courseCostSize: 12,
+      costSize: 6,
+      spotsSize: 6,
+      coursePhotoDirection: "row",
+      coursePhotoSize: 4,
+      actionBtnDirection: "row",
+      actionBtnSize: 6,
+      instructorDetailsDirection: "row",
+      instructorDetailsSize: 6,
+    }
+  } else {
+    layout = {
+      main: "column-reverse",
+      courseDetailsDirection: "row",
+      courseDetailsJustify: "space-between",
+      courseDetailsSize: 9,
+      courseCostSize: 3,
+      costSize: "auto",
+      spotsSize: "auto",
+      coursePhotoDirection: "row",
+      coursePhotoSize: 4,
+      actionBtnDirection: "row",
+      actionBtnSize: 3,
+      instructorDetailsDirection: "column",
+      instructorDetailsSize: "auto",
+    }
+  }
+
+  let notifyBtn = null;
+  if (notify) {
+    notifyBtn = (
+      <Grid item xs={layout.actionBtnSize} className={classes.actionBtn}>
+        {notify}
+      </Grid>
+    );
+  }
+
+  let joinBtn = null;
+  if (joinSession) {
+    joinBtn = (
+      <Grid item xs={layout.actionBtnSize} className={classes.actionBtn}>
+        {joinSession}
+      </Grid>
+    );
+  }
+
+  let signupBtn = null;
+  if (signup) {
+    signupBtn = (
+      <Grid item xs={layout.actionBtnSize} className={classes.actionBtn}>
+        {signup}
+      </Grid>
+    );
   }
 
   return (
     <Container>
-      {messageContent}
-      <Grid container direction="row" justify="flex-end">
-        <Grid item className={classes.actionBtn}>
-          {notify}
+      <Grid container direction={layout.main} spacing={2}>
+        <Grid item>
+          <Grid container direction={layout.actionBtnDirection} justify="flex-end" spacing={2}>
+            {notifyBtn}
+            {joinBtn}
+            {signupBtn}
+          </Grid>
         </Grid>
-        <Grid item className={classes.actionBtn}>
-          {joinSession}
-        </Grid>
-        <Grid item className={classes.actionBtn}>
-          {signup}
+        <Grid item>
+          <Grid container direction={layout.courseDetailsDirection} justify={layout.courseDetailsJustify}>
+            <Grid item xs={layout.courseDetailsSize}>
+              <Grid container direction={layout.coursePhotoDirection} justify="flex-start" spacing={2}>
+                <Grid item xs={layout.coursePhotoSize}>
+                  {photoContent}
+                </Grid>
+                <Grid item xs>
+                  {courseTitle}
+                  {descriptionContent}
+                  {courseTimeContent}
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item xs={layout.courseCostSize}>
+              <Grid container direction="column" spacing={2}>
+                <Grid item>
+                  <Grid container direction="row" justify="flex-end" spacing={2}>
+                    <Grid item xs={layout.costSize}>
+                      {costContent}
+                    </Grid>
+                    <Grid item xs={layout.spotsSize}>
+                      {spotsContent}
+                    </Grid>               
+                  </Grid>
+                </Grid>
+                <Grid item>
+                  <Grid container direction={layout.instructorDetailsDirection} spacing={2}>
+                    <Grid item xs={layout.instructorDetailsSize}>
+                      {instructorContent}
+                    </Grid>
+                    <Grid item xs={layout.instructorDetailsSize}>
+                      {participantsContent}
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
-      <UserData header={title} bio={description} email={email} phone={phone} instagram={insta} photo={photo} />
-      <Divider className={classes.divider} />
-      <CourseSchedule header="Class Schedule" course={[course]} view="week" />
+      {messageContent}
     </Container>
   )
 }

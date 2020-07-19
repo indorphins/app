@@ -213,6 +213,17 @@ export default function(props) {
     );
   }
 
+  let contactInfo = null;
+
+  if (props.showContactInfo) {
+    contactInfo = (
+      <Grid container direction="row" justify="flex-start" alignItems="center">
+        {emailContent}
+        {phoneContent}
+        {instaContent}
+      </Grid>
+    )
+  }
   
   let userContent = (
     <Grid>
@@ -227,12 +238,8 @@ export default function(props) {
           </Grid>
         </Grid>
         <Grid item xs>
-          <Grid container direction="row" justify="flex-start" alignItems="center">
-            {emailContent}
-            {phoneContent}
-            {instaContent}
-          </Grid>
-        </Grid>
+          {contactInfo}
+        </Grid> 
       </Grid>
     </Grid>
   );
