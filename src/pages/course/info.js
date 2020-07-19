@@ -159,7 +159,7 @@ export default function () {
     let now = new Date();
     let sessionTime = getNextSession(now, course);
 
-    if (now > sessionTime.start && now < sessionTime.end) {
+    if (sessionTime && now > sessionTime.start && now < sessionTime.end) {
       setJoinSession((
         <Button variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
       ))
@@ -453,7 +453,7 @@ export default function () {
           </Grid>
         </Grid>
         <Grid item>
-          <Grid container direction={layout.courseDetailsDirection} justify={layout.courseDetailsJustify}>
+          <Grid container direction={layout.courseDetailsDirection} justify={layout.courseDetailsJustify} spacing={2}>
             <Grid item xs={layout.courseDetailsSize}>
               <Grid container direction={layout.coursePhotoDirection} justify="flex-start" spacing={2}>
                 <Grid item xs={layout.coursePhotoSize}>
@@ -461,8 +461,8 @@ export default function () {
                 </Grid>
                 <Grid item xs>
                   {courseTitle}
-                  {descriptionContent}
                   {courseTimeContent}
+                  {descriptionContent}
                 </Grid>
               </Grid>
             </Grid>
