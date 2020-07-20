@@ -95,15 +95,17 @@ export default function(props) {
 
   let headerJustify = 'flex-start';
   let controlsSpacing = 2;
+  let appBarPosition = "static"
 
   if (med) {
     headerJustify = 'flex-start';
     controlsSpacing = 1;
+    appBarPosition = "sticky"
   }
 
   return (
     <Box className={classes.root}>
-      <AppBar position="static" className={classes.appbar}>
+      <AppBar position={appBarPosition} className={classes.appbar}>
         <Toolbar className={classes.toolbar} variant="regular">
           <Container className={classes.container}>
             <Grid container direction="row" justify={headerJustify}>

@@ -11,7 +11,7 @@ import { store, actions } from '../../store';
 
 const useStyles = makeStyles((theme) => ({
 	txtField: {
-		width: 400,
+		width: "100%",
 	},
 	submitBtn: {
 		marginTop: theme.spacing(2),

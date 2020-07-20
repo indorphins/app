@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { Button, Container, Grid, Typography, Card, useMediaQuery } from '@material-ui/core';
-import { Photo, ShoppingCartOutlined, GroupAdd } from '@material-ui/icons';
+import { Photo, ShoppingCartOutlined, GroupAdd, People, RecordVoiceOver } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
     cursor: "default",
-    backgroundColor: theme.palette.grey[100],
+    backgroundColor: theme.palette.grey[200],
   },
   participantContainer: {
     paddingLeft: theme.spacing(2),
@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
     cursor: "default",
-    backgroundColor: theme.palette.grey[100],
+    backgroundColor: theme.palette.grey[200],
   },
   instructorContainer: {
     paddingLeft: theme.spacing(2),
@@ -44,7 +44,7 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
     cursor: "default",
-    backgroundColor: theme.palette.grey[100],
+    backgroundColor: theme.palette.grey[200],
   },
   photo: {
     width: "100%",
@@ -276,7 +276,7 @@ export default function () {
       <Card className={classes.spotsContainer} title="Classes can be left up to 24 hours before the class start time">
         <Grid container direction="column" justify="center" alignItems="center">
           <Grid item>
-            <ShoppingCartOutlined />
+            <ShoppingCartOutlined color="primary" />
           </Grid>
           <Grid item>
             <Typography className={classes.cost} variant="h2" align="center">
@@ -294,7 +294,7 @@ export default function () {
     <Card className={classes.spotsContainer} title="Spaces remaining">
       <Grid container direction="column" justify="center" alignItems="center">
         <Grid item>
-          <GroupAdd />
+          <GroupAdd color="primary" />
         </Grid>
         <Grid item>
           <Typography className={classes.cost} variant="h2" align="center">
@@ -310,9 +310,16 @@ export default function () {
   if (course.instructor) {
     instructorContent = (
       <Card className={classes.instructorContainer}>
-        <Typography variant="h5" align="center" style={{marginBottom: 10}}>
-          Instructor
-        </Typography>
+        <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={2}>
+          <Grid item>
+            <RecordVoiceOver color="primary" />
+          </Grid>
+          <Grid item>
+            <Typography variant="h5">
+              Instructor
+            </Typography>
+          </Grid>
+        </Grid>
         <Grid container direction="row" justify="flex-start" alignItems="center" spacing={2}>
           <Grid item>
             <Typography variant="body1">{course.instructor.first_name} {course.instructor.last_name}</Typography>
@@ -331,9 +338,16 @@ export default function () {
   if (course.participants && course.participants.length) {
     participantsContent = (
       <Card className={classes.participantContainer}>
-        <Typography variant="h5" align="center" style={{marginBottom: 10}}>
-          Participants
-        </Typography>
+        <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={2}>
+          <Grid item>
+            <People color="primary" />
+          </Grid>
+          <Grid item>
+            <Typography variant="h5">
+              Participants
+            </Typography>
+          </Grid>
+        </Grid>
         <Grid container direction="row" justify="flex-start">
         {course.participants.map(item => (
           <Grid key={item.username} item xs={6}>

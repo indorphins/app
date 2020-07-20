@@ -20,19 +20,19 @@ import path from '../../routes/path';
 const useStyles = makeStyles((theme) => ({
   root: {},
   slider: {
-    width: 200,
+    width: "100%",
   },
   durSlider: {
-    width: 200,
+    width: "100%",
   },
   title: {
     width: "100%",
   },
   type: {
-    width: 200,
+    width: "100%",
   },
   cost: {
-    width: 200,
+    width: "100%",
   },
   btn: {
     marginTop: theme.spacing(2),
@@ -189,7 +189,7 @@ export default function(props) {
   }
 
   let costContent = (
-    <Grid item xs>
+    <Grid item>
       <TextField 
         disabled={loader}
         color="secondary" 
@@ -217,11 +217,11 @@ export default function(props) {
   }
 
   let spotsContent = (
-    <Grid item xs>
+    <Grid item>
       <Box>
-        <Typography variant="subtitle2">{spots} spots</Typography>
+        <Typography variant="body1">{spots} spots</Typography>
       </Box>
-      <Slider disabled={loader} className={classes.slider} defaultValue={20} min={10} max={30} step={5} valueLabelDisplay="auto" onChangeCommitted={handleSpotsSlider} />
+      <Slider disabled={loader} className={classes.slider} defaultValue={20} min={10} max={20} step={5} valueLabelDisplay="auto" onChangeCommitted={handleSpotsSlider} />
     </Grid>
   );
 
@@ -242,43 +242,57 @@ export default function(props) {
   let form = (
     <Grid className={classes.root}>
       <form onSubmit={formHandler}>
-        <Grid container spacing={2} justify="flex-start" alignItems="flex-end">
-          <Grid item xs>
-            <TextField disabled={loader} className={classes.type} color="secondary" required id="type" type="text" label="Class Type" variant="outlined" value={courseType} onChange={typeHandler} />
+        <Grid container direction="row" spacing={2} justify="flex-start" alignItems="flex-end">
+          <Grid item>
+            <Grid container direction="column" justify="flex-start" alignItems="flex-start">
+              <MuiPickersUtilsProvider utils={DateFnsUtils} className={classes.slider}>
+                <Grid item className={classes.slider}>
+                  <KeyboardDatePicker disabled={loader} variant="inline" format="MM/dd/yyyy" margin="normal" id="date" label="Date" value={selectedDate} onChange={handleDateChange} />
+                </Grid>
+                <Grid item className={classes.slider}>
+                  <KeyboardTimePicker disabled={loader} variant="inline" margin="normal" id="time" label="Time" value={selectedDate} onChange={handleDateChange} />
+                </Grid>
+              </MuiPickersUtilsProvider>
+            </Grid>
           </Grid>
-          {costContent}
-          {spotsContent}
-          <Grid item xs>
-            <Box>
-              <Typography variant="subtitle2">{duration} minutes</Typography>
-            </Box>
-            <Slider disabled={loader} className={classes.durSlider} defaultValue={60} min={30} max={60} step={15} valueLabelDisplay="auto" onChangeCommitted={handleDurationSlider} />
-          </Grid>     
-          <MuiPickersUtilsProvider utils={DateFnsUtils}>
-            <Grid item xs>
-              <KeyboardDatePicker disabled={loader} variant="inline" format="MM/dd/yyyy" margin="normal" id="date" label="Date" value={selectedDate} onChange={handleDateChange} />
+          <Grid item>
+            <Grid container direction="column" justify="flex-start" alignItems="flex-start" spacing={2}>
+              {costContent}
+              {spotsContent}
+              <Grid item>
+                <Box>
+                  <Typography variant="body1">{duration} minutes</Typography>
+                </Box>
+                <Slider disabled={loader} className={classes.durSlider} defaultValue={60} min={30} max={60} step={15} valueLabelDisplay="auto" onChangeCommitted={handleDurationSlider} />
+              </Grid>
             </Grid>
-            <Grid item xs>
-              <KeyboardTimePicker disabled={loader} variant="inline" margin="normal" id="time" label="Time" value={selectedDate} onChange={handleDateChange} />
-            </Grid>
-          </MuiPickersUtilsProvider>
-          <Grid item xs>
-            <Switch
-              checked={recurring}
-              onChange={recurringHandler}
-            />
-            <Typography variant="subtitle2">Weekly Class</Typography>
           </Grid>
         </Grid>
-        <Grid container spacing={1}>
-          <Grid item xs={12}>
+        <Grid container direction="row" justify="flex-start" spacing={2}>
+          <Grid item xs={4}>
+            <TextField disabled={loader} className={classes.type} color="secondary" required id="type" type="text" label="Type" variant="outlined" value={courseType} onChange={typeHandler} />
+          </Grid>
+          <Grid item xs={8}>
             <TextField disabled={loader} className={classes.title} color="secondary" required id="title" type="text" label="Title" variant="outlined" value={title} onChange={titleHandler} />
           </Grid>
           <Grid item xs={12}>
             <Editor value={props.description} id="description" label="Description *" onChange={editorHandler} onSave={editorSaveHandler} />
+            {loaderContent}
           </Grid>
-          {loaderContent}
-          <Grid>
+          <Grid item xs={12}>
+            <Grid container direction="row" justify="flex-start" alignItems="center" spacing={1}>
+                <Grid item>
+                  <Switch
+                    checked={recurring}
+                    onChange={recurringHandler}
+                  />
+                </Grid>
+                <Grid item>
+                  <Typography variant="body1">Weekly</Typography>
+                </Grid>
+            </Grid>
+          </Grid>
+          <Grid item xs={12}>
             <Button disabled={loader} className={classes.btn} type="submit" variant="contained" color="secondary">Create</Button>
           </Grid>
         </Grid>

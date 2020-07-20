@@ -11,6 +11,14 @@ const useStyles = makeStyles((theme) => ({
 		paddingRight: theme.spacing(4),
 		paddingTop: theme.spacing(6),
 		paddingBottom: theme.spacing(2),
+		width: 500,
+		'@media (max-width: 600px)': {
+			paddingLeft: theme.spacing(1),
+			paddingRight: theme.spacing(1),
+			paddingTop: theme.spacing(3),
+			width: "100%",
+			borderRadius: 0,
+    },
 	},
 	logo: {
 		fontSize: "2.2rem",
