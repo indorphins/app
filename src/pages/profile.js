@@ -29,6 +29,7 @@ const useStyles = makeStyles((theme) => ({
   },
   fab: {
     fontWeight: "bold",
+    marginBottom: theme.spacing(1),
   }
 }));
 
@@ -207,7 +208,7 @@ export default function() {
 
     if (editForm) {
       btn = (
-        <Fab color="primary" aria-label="cancel" onClick={toggleEditForm}>
+        <Fab color="primary" aria-label="cancel" onClick={toggleEditForm} className={classes.fab}>
           <Clear />
         </Fab>
       )
@@ -232,7 +233,7 @@ export default function() {
   let userContent = (
     <Grid>
       {editButtonContent}
-      <UserData header={username} email={email} photo={photo} phone={phone} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} />
+      <UserData header={username} email={email} photo={photo} phone={phone} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} showContactInfo={true} />
       <Divider className={classes.divider} />
       <CourseSchedule header={coursesLabel} course={courses} view="month" />
     </Grid>

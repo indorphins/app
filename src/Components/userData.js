@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Grid, Typography, useMediaQuery } from '@material-ui/core';
-import { makeStyles, useTheme } from '@material-ui/core';
-import { EmailOutlined, PhoneOutlined, Photo } from '@material-ui/icons';
-import InstagramIcon from './icon/instagram';
+import { Box, Card, Grid, Typography, useMediaQuery } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
+import { Photo } from '@material-ui/icons';
+
+import ContactInfo from './contactInfo';
 
 const useStyles = makeStyles((theme) => ({
   photo: {
@@ -63,30 +64,6 @@ const useStyles = makeStyles((theme) => ({
     display: "inline",
     fontStyle: "italic",
   },
-  contact: {
-    background: theme.palette.primary.main,
-    padding: theme.spacing(1.5),
-    minWidth: 225,
-    maxWidth: 300,
-    '@media (max-width: 900px)': {
-      maxWidth: "100%",
-      width: "100%",
-    }
-  },
-  contactLabel: {
-    color: theme.palette.text.secondary,
-  },
-  icon: {
-    color: theme.palette.secondary.main,
-    fontSize: "1.2rem",
-    marginRight: theme.spacing(1),
-  },
-  link: {
-    textDecoration: "none",
-    cursor: "pointer",
-    color: theme.palette.primary.main,
-    display: "inline-block",
-  },
   '@global': {
     html: {
       overflow: 'hidden',
@@ -119,6 +96,9 @@ const useStyles = makeStyles((theme) => ({
       fontWeight: "bold",
       color: theme.palette.text.secondary,
     }
+  },
+  contactInfo: {
+    backgroundColor: theme.palette.grey[200],
   }
 }));
 
@@ -128,8 +108,6 @@ export default function(props) {
   const classes = useStyles();
   const [fullname, setFullname] = useState('');
   const [direction, setDirection] = useState("row");
-  const theme = useTheme();
-  const iconColor = theme.palette.secondary.main;
 
   useEffect(() => {
     if (med) {
@@ -146,10 +124,6 @@ export default function(props) {
   }, [props]);
 
   let bioContent = null;
-  let phoneContent = null;
-  let instaContent = null;
-  let emailContent = null;
-  let mailTo = "mailto:" + props.email;
 
   let nameHeader = (
     <Typography className={classes.fullname} variant="h1">
@@ -172,60 +146,10 @@ export default function(props) {
     );
   }
 
-  if (props.email) {
-    emailContent = (
-      <a title="Send me an email" className={classes.link} target="_blank" rel="noopener noreferrer" href={mailTo}>
-        <Grid container>
-          <Grid item>
-            <EmailOutlined className={classes.icon} />
-          </Grid>
-          <Grid item>
-            <Typography className={classes.contactLabel}>
-              {props.email}
-            </Typography>
-          </Grid>
-        </Grid>
-      </a>
-    );
-  }
-
   if (props.bio) {
     bioContent = (
       <div id="wysiwygContent" className={classes.bio} dangerouslySetInnerHTML={{__html: props.bio}}></div>
     );
-  }
-
-  if (props.phone) {
-    phoneContent = (
-      <Grid container>
-        <Grid item>
-          <PhoneOutlined className={classes.icon} />
-        </Grid>
-        <Grid item>
-          <Typography className={classes.contactLabel}>
-            {props.phone}
-          </Typography>
-        </Grid>
-      </Grid>
-    );
-  }
-
-  if (props.instagram) {
-    let url = `https://www.instagram.com/${props.instagram}`;
-    instaContent = (
-      <a title="View my Instagram profile" className={classes.link} target="_blank" rel="noopener noreferrer" href={url}>
-        <Grid container>
-          <Grid item>
-            <InstagramIcon color={iconColor} width="24px" height="24px" className={classes.icon} />
-          </Grid>
-          <Grid item>
-            <Typography className={classes.contactLabel}>
-              {props.instagram}
-            </Typography>
-          </Grid>
-        </Grid>
-      </a>
-    );    
   }
 
   let photoContent = (
@@ -245,18 +169,6 @@ export default function(props) {
       </Grid>
     );
   }
-
-  let contactInfo = null;
-
-  if (props.showContactInfo) {
-    contactInfo = (
-      <Grid container direction="row" justify="flex-start" alignItems="center">
-        {emailContent}
-        {phoneContent}
-        {instaContent}
-      </Grid>
-    )
-  }
   
   let userContent = (
     <Grid>
@@ -271,7 +183,9 @@ export default function(props) {
           </Grid>
         </Grid>
         <Grid item xs>
-          {contactInfo}
+          <Card className={classes.contactInfo}>
+            <ContactInfo wrap={true} phone={props.phone} email={props.email} instagram={props.instagram} />
+          </Card>
         </Grid> 
       </Grid>
     </Grid>
