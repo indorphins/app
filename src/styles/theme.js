@@ -84,7 +84,7 @@ const darkPalette = {
   type: 'dark',
   primary: {
     main: colors.salmon,
-    contrastText: colors.offwhite,
+    contrastText: colors.black,
   },
   secondary: {
     main: colors.cream,

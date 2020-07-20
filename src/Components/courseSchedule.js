@@ -42,8 +42,14 @@ const useStyles = makeStyles((theme) => ({
     '.rbc-day-slot': {
       border: "none !important",
     },
+    '.rbc-day-bg': {
+      backgroundColor: theme.palette.grey[50],
+    },
+    '.rbc-off-range-bg': {
+      backgroundColor: theme.palette.grey[200]
+    },
     '.rbc-today': {
-      backgroundColor: theme.palette.secondary.main,
+      backgroundColor: theme.palette.secondary.light,
     }
   },
   calendar: {
