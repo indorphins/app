@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { Container, Divider, Grid, CircularProgress, Fab } from '@material-ui/core';
+import { Container, Grid, CircularProgress, Fab } from '@material-ui/core';
 import { Create, Clear } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core';
 import { useSelector } from 'react-redux';
@@ -52,7 +52,6 @@ export default function() {
   const [bio, setBio] = useState('');
   const [loader, setLoader] = useState(true);
   const [courses, setCourses] = useState([]);
-  const [coursesLabel, setCoursesLabel] = useState("Class Schedule");
   const [editButton, setEditButton] = useState(false);
   const [editForm, setEditForm] = useState(false);
 
@@ -86,7 +85,6 @@ export default function() {
       setBio(instructor.data.bio);
       if (instructor.data.social && instructor.data.social.instagram) setInsta(instructor.data.social.instagram);
       setLoader(false);
-      setCoursesLabel("Instructor Schedule");
       getInstructorSchedule(instructor.data._id);
     }
   }
@@ -163,8 +161,6 @@ export default function() {
         setBio(currentUser.bio);
         if (currentUser.social && currentUser.social.instagram) setInsta(currentUser.social.instagram);
         setLoader(false);
-
-        setCoursesLabel("Your Schedule");
         getUserSchedule(currentUser.id, currentUser._id);
         return;
       }
