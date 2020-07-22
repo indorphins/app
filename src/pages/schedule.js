@@ -6,6 +6,7 @@ import { createSelector } from 'reselect';
 import log from '../log';
 import * as Course from '../api/course';
 import CourseSchedule from '../components/courseSchedule';
+import Calendar from '../components/calendar';
 
 const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
@@ -60,9 +61,9 @@ export default function() {
     }
   }, [currentUser])
 
-	return (
+  return (
 		<Container>
       <CourseSchedule course={courses} view="week" />
 		</Container>
-	);
+  );
 };

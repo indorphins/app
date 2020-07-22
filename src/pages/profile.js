@@ -29,7 +29,6 @@ const useStyles = makeStyles((theme) => ({
   },
   fab: {
     fontWeight: "bold",
-    marginBottom: theme.spacing(1),
   }
 }));
 
@@ -231,11 +230,16 @@ export default function() {
   }
 
   let userContent = (
-    <Grid>
-      {editButtonContent}
-      <UserData header={username} email={email} photo={photo} phone={phone} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} showContactInfo={true} />
-      <Divider className={classes.divider} />
-      <CourseSchedule header={coursesLabel} course={courses} view="month" />
+    <Grid container direction="column" spacing={2}>
+      <Grid item>
+        {editButtonContent}
+      </Grid>
+      <Grid item>
+        <UserData header={username} email={email} photo={photo} phone={phone} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} showContactInfo={true} />
+      </Grid>
+      <Grid item>
+        <CourseSchedule course={courses} view="month" />
+      </Grid>
     </Grid>
   );
 

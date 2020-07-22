@@ -1,62 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
-import { Box, Grid, Typography, Button, ButtonGroup, Tabs, Tab } from '@material-ui/core';
+import { Grid, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { format, startOfWeek, parse, getDay } from 'date-fns';
-import { Calendar, dateFnsLocalizer } from 'react-big-calendar';
-import '../../node_modules/react-big-calendar/lib/css/react-big-calendar.css';
+import { format } from 'date-fns';
 
+import Calendar from './calendar';
 import path from '../routes/path';
 import { getNextDate } from '../utils';
 
-const locales = {
-  'en-US': require('date-fns/locale/en-US'),
-};
-
-const localizer = dateFnsLocalizer({
-  format,
-  parse,
-  startOfWeek,
-  getDay,
-  locales,
-});
-
 const useStyles = makeStyles((theme) => ({
-  '@global': {
-    '.rbc-event-label': {
-      display: 'none',
-    },
-    '.rbc-event': {
-      backgroundColor: theme.palette.primary.main,
-      color: theme.palette.primary.contrastText,
-      border: 'none !important',
-      width: "100%",
-      height: "auto !important"
-    },
-    '.rbc-month-view': {
-      borderRadius: '8px',
-    },
-    '.rbc-time-view': {
-      borderRadius: '8px',
-    },
-    '.rbc-day-slot': {
-      border: "none !important",
-    },
-    '.rbc-day-bg': {
-      backgroundColor: theme.palette.grey[50],
-    },
-    '.rbc-off-range-bg': {
-      backgroundColor: theme.palette.grey[200]
-    },
-    '.rbc-today': {
-      backgroundColor: theme.palette.secondary.light,
-    }
-  },
-  calendar: {
-    width: "100%",
-    height: 700,
-
-  },
   calContainer: {
     width: "100%",
     marginTop: theme.spacing(5),
@@ -99,24 +50,10 @@ const extrapolateRecurringEvents = function(course) {
   return data;
 }
 
-
 export default function(props) {
 
   const classes = useStyles();
-  const history = useHistory();
-  const views = ['month', 'week'];
   const [events, setEvents] = useState([]);
-  const [tabValue, setTabValue] = useState(1);
-  const [startDate, setStartDate] = useState(new Date());
-
-  useEffect(() => {
-    if (props.view === "week") {
-      setTabValue(1);
-    }
-    if (props.view === "month") {
-      setTabValue(0);
-    }
-  }, [props.view]);
 
   useEffect(() => {
 
@@ -159,126 +96,17 @@ export default function(props) {
     }
 
     if (data.length > 0) {
-      setStartDate(data[0].start);
       setEvents(data);
     }
 
   }, [props.course]);
-
-
-  const CalendarToolbar = function(toolbar) {
-
-    const goToBack = () => {
-      console.log(toolbar);
-      if (toolbar.view === 'month') {
-        toolbar.date.setMonth(toolbar.date.getMonth() - 1);
-      }
-
-      if (toolbar.view === 'week') {
-        let d = startDate;
-        d.setHours(d.getHours() - 168);
-        setStartDate(d);
-      }
-      toolbar.onNavigate('prev');
-    };
-  
-    const goToNext = () => {
-      if (toolbar.view === 'month') {
-        toolbar.date.setMonth(toolbar.date.getMonth() + 1);
-      }
-
-      if (toolbar.view === 'week') {
-        let d = startDate;
-        d.setHours(d.getHours() + 168);
-        setStartDate(d);
-      }
-      toolbar.onNavigate('next');
-    };
-
-    const setMonthView = function() {
-      toolbar.onView('month');
-      setTabValue(0);
-    }
-
-    const setWeekView = function() {
-      toolbar.onView('week');
-      setTabValue(1);
-    }
-
-    return (
-      <Grid container direction="row" justify="space-between" alignItems="center" className={classes.toolbar}>
-        <Grid item>
-        <ButtonGroup color="secondary" variant="contained">
-          <Button onClick={goToBack}>Prev</Button>
-          <Button onClick={goToNext}>Next</Button>
-        </ButtonGroup>
-        </Grid>
-        <Grid item>
-          <Tabs value={tabValue} indicatorColor="secondary" textColor="secondary">
-            <Tab label="Month" onClick={setMonthView} />
-            <Tab label="Week" onClick={setWeekView} />
-          </Tabs>
-        </Grid>
-      </Grid>
-    );
-  }
-
-  function navigateToCourse(evt) {
-    history.push(evt.target.id);
-  }
-
-  const EventItem = function(event) {
-    return (
-      <Grid id={event.event.url} onClick={navigateToCourse}>
-        {event.event.time} {event.title}
-      </Grid>
-    )
-  }
-
-  const AgendaEventItem = function(event) {
-    return (
-      <Grid id={event.event.url} onClick={navigateToCourse}>
-        {event.title}
-      </Grid>
-    )
-  }
-
-  const onNavigate = function(e) {
-    setStartDate(e);
-  }
-
-  let components = {
-    toolbar: CalendarToolbar,
-    event: EventItem,
-    week: {
-      event: EventItem,
-    },
-    agenda: {
-      event: AgendaEventItem,
-    }
-  }
 
   return (
     <Grid container m={12}>
       <Typography className={classes.header} variant="h2">
         {props.header}
       </Typography>
-      <Box className={classes.calContainer}>
-        <Calendar
-          localizer={localizer}
-          events={events}
-          date={startDate}
-          onNavigate={onNavigate}
-          startAccessor="start"
-          endAccessor="end"
-          defaultView={props.view}
-          views={views}
-          className={classes.calendar}
-          step={120}
-          timelots={60}
-          components={components}
-        />
-      </Box>
+      <Calendar events={events} />
     </Grid>
   );
 }
