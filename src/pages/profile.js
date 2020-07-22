@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { Container, Grid, CircularProgress, Fab } from '@material-ui/core';
+import { Container, Grid, CircularProgress, Fab, Typography } from '@material-ui/core';
 import { Create, Clear } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core';
 import { useSelector } from 'react-redux';
@@ -234,7 +234,14 @@ export default function() {
         <UserData header={username} email={email} photo={photo} phone={phone} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} showContactInfo={true} />
       </Grid>
       <Grid item>
-        <CourseSchedule course={courses} view="month" />
+        <Grid container direction="column" spacing={2}>
+          <Grid item>
+            <Typography variant="h2">Schedule</Typography>
+          </Grid>
+          <Grid item>
+            <CourseSchedule course={courses} view="month" />
+          </Grid>
+        </Grid>
       </Grid>
     </Grid>
   );

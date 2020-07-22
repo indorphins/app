@@ -49,16 +49,19 @@ const useStyles = makeStyles((theme) => ({
       paddingLeft: theme.spacing(2),
       paddingRight: theme.spacing(2),
     },
+    '@media (max-width: 900px)': {
+      minWidth: 400,
+      paddingLeft: theme.spacing(0),
+      paddingRight: theme.spacing(0),
+    },
   },
   fullname: {
     display: "inline",
     marginRight: theme.spacing(1),
-    color: theme.palette.text.secondary,
   },
   header: {
     display: "inline",
     fontStyle: "italic",
-    color: theme.palette.text.secondary,
   },
   username: {
     display: "inline",
@@ -74,27 +77,27 @@ const useStyles = makeStyles((theme) => ({
       height: '100%',
     },
     '#wysiwygContent > h2': {
-      color: theme.palette.text.secondary, 
+      color: theme.palette.grey[500], 
       fontSize: "1.5rem"
     },
     '#wysiwygContent > p': {
       fontSize: "1.1rem",
-      color: theme.palette.text.secondary,
+      color: theme.palette.grey[500],
     },
     '#wysiwygContent > ol': {
       fontSize: "1.1rem",
-      color: theme.palette.text.secondary,
+      color: theme.palette.grey[500],
     },
     '#wysiwygContent > ul': {
       fontSize: "1.1rem",
-      color: theme.palette.text.secondary,
+      color: theme.palette.grey[500],
     },
     '#wysiwygContent > blockquote': {
       borderLeft: "3px solid grey",
       paddingLeft: "2em",
       fontStyle: "italic",
       fontWeight: "bold",
-      color: theme.palette.text.secondary,
+      color: theme.palette.grey[400],
     }
   },
   contactInfo: {
