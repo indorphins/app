@@ -1,7 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
 import { Box, Button, Card, Grid, Typography, withStyles, ButtonGroup, useMediaQuery } from '@material-ui/core';
-import { ChevronLeft, ChevronRight, TodayOutlined } from '@material-ui/icons';
+import { ChevronLeft, ChevronRight, TodayOutlined, NoEncryption } from '@material-ui/icons';
 import { format, endOfMonth } from 'date-fns';
 
 const styles = (theme) => ({
@@ -82,6 +83,10 @@ const styles = (theme) => ({
     '@media (max-width: 900px)': {
       fontSize: "0.8rem",
     }
+  },
+  link: {
+    textDecoration: "none",
+    width: "100%",
   }
 });
 
@@ -158,6 +163,7 @@ function Day(props) {
       <Grid container direction="column">
         {props.events.map(evt => (
           <Grid item container key={evt.start}>
+            <Link to={evt.url} className={classes.link}>
             <Card className={classes.eventCard}>
               <Grid container direction="column">
                 <Grid item container>
@@ -168,6 +174,7 @@ function Day(props) {
                 </Grid>
               </Grid>
             </Card>
+            </Link>
           </Grid>
         ))}
       </Grid>
@@ -205,19 +212,7 @@ class Calendar extends React.Component {
     }
 
     if (props.events && Array.isArray(props.events)) {
-      this.state.events = props.events.map(item => {
-        let start = new Date(item.start);
-        let end = new Date(item.end);
-        let day = new Date(start.getFullYear(), start.getMonth(), start.getDate());
-
-        item.startTime = format(start, "h:mmaaaaa");
-        item.endTime = format(end, "h:mmaaaaa");
-
-        item.start = start;
-        item.end = end;
-        item.day = day;
-        return item;
-      });
+      this.state.events = this.parseEvents(props.events);
     }
 
     this.prev = this.prev.bind(this);
@@ -234,22 +229,25 @@ class Calendar extends React.Component {
 
   componentDidUpdate(prevProps) {
     if (this.props.events && this.props.events !== prevProps.events) {
-      let eventList = this.props.events.map(item => {
-        let start = new Date(item.start);
-        let end = new Date(item.end);
-        let day = new Date(start.getFullYear(), start.getMonth(), start.getDate());
-
-        item.startTime = format(start, "h:mmaaaaa");
-        item.endTime = format(end, "h:mmaaaaa");
-
-        item.start = start;
-        item.end = end;
-        item.day = day;
-        return item;
-      });
-
+      let eventList = this.parseEvents(this.props.events);
       this.setState({events: eventList});
     }
+  }
+
+  parseEvents = function(events) {
+    return events.map(item => {
+      let start = new Date(item.start);
+      let end = new Date(item.end);
+      let day = new Date(start.getFullYear(), start.getMonth(), start.getDate());
+
+      item.startTime = format(start, "h:mmaaaaa");
+      item.endTime = format(end, "h:mmaaaaa");
+
+      item.start = start;
+      item.end = end;
+      item.day = day;
+      return item;
+    });
   }
 
   today = function() {

@@ -7,17 +7,18 @@ import ContactInfo from './contactInfo';
 
 const useStyles = makeStyles((theme) => ({
   photo: {
-    height: 350,
-    minWidth: 300,
-    maxWidth: 550,
+    minHeight: 400,
+    maxHeight: 550,
     width: "100%",
     objectFit: "cover",
     borderRadius: "4px",
-    '@media (max-width: 1100px)': {
-      height: 300,
+    '@media (max-width: 900px)': {
+      minHeight: 350,
+      maxHeight: 500,
     },
-    '@media (max-width: 850px)': {
-      height: 400,
+    '@media (max-width: 600px)': {
+      minHeight: 300,
+      maxHeight: 450,
     },
   },
   nophoto: {
@@ -32,28 +33,6 @@ const useStyles = makeStyles((theme) => ({
   loader: {
     width: "100%",
     minHeight: 300,
-  },
-  metadata: {
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(2),
-    paddingLeft: theme.spacing(6),
-    paddingRight: theme.spacing(6),
-    minWidth: 650,
-    '@media (max-width: 1200px)': {
-      paddingLeft: theme.spacing(3),
-      paddingRight: theme.spacing(3),
-      minWidth: 550,
-    },
-    '@media (max-width: 900px)': {
-      minWidth: 400,
-      paddingLeft: theme.spacing(2),
-      paddingRight: theme.spacing(2),
-    },
-    '@media (max-width: 900px)': {
-      minWidth: 400,
-      paddingLeft: theme.spacing(0),
-      paddingRight: theme.spacing(0),
-    },
   },
   fullname: {
     display: "inline",
@@ -102,6 +81,7 @@ const useStyles = makeStyles((theme) => ({
   },
   contactInfo: {
     backgroundColor: theme.palette.grey[200],
+    width: "100%",
   }
 }));
 
@@ -110,15 +90,6 @@ export default function(props) {
   const med = useMediaQuery('(max-width:700px)');
   const classes = useStyles();
   const [fullname, setFullname] = useState('');
-  const [direction, setDirection] = useState("row");
-
-  useEffect(() => {
-    if (med) {
-      setDirection("column");
-    } else {
-      setDirection("row");
-    }
-  }, [med]);
 
   useEffect(() => {
     if (props.firstName && props.lastName) {
@@ -156,41 +127,55 @@ export default function(props) {
   }
 
   let photoContent = (
-    <Grid item xs>
-      <Grid container direction="row" justify="center" alignContent="center" className={classes.nophoto}>
-        <Grid item>
-          <Photo className={classes.nophotoIcon} />
-        </Grid>
+    <Grid container direction="row" justify="center" alignContent="center" className={classes.nophoto}>
+      <Grid item>
+        <Photo className={classes.nophotoIcon} />
       </Grid>
     </Grid>
   )
 
   if (props.photo) {
     photoContent = (  
-      <Grid item xs>
-        <img className={classes.photo} alt={props.username} src={props.photo} />
-      </Grid>
+      <img className={classes.photo} alt={props.username} src={props.photo} />
     );
+  }
+
+  let layout = null;
+
+  if (med) {
+    layout = {
+      direction: "column",
+      photoSize: 12,
+      bioSize: 12,
+      contactSize: 12,
+    }
+  } else {
+    layout = {
+      direction: "row",
+      photoSize: 3,
+      bioSize: 6,
+      contactSize: 3,
+    }
   }
   
   let userContent = (
-    <Grid>
-      <Grid container direction={direction} justify="space-evenly" alignItems="flex-start">
+    <Grid container direction={layout.direction} justify="flex-start" alignItems="flex-start" spacing={2}>
+      <Grid item xs={layout.photoSize}>
         {photoContent}
-        <Grid className={classes.metadata} item xs>
-          <Grid>
-            {nameHeader}
-          </Grid>
-          <Grid>
-            {bioContent}
-          </Grid>
-        </Grid>
-        <Grid item xs>
-          <Card className={classes.contactInfo}>
-            <ContactInfo wrap={true} phone={props.phone} email={props.email} instagram={props.instagram} />
-          </Card>
-        </Grid> 
       </Grid>
+      <Grid item xs={layout.bioSize}>
+        <Grid>
+          {nameHeader}
+        </Grid>
+        <Grid>
+          {bioContent}
+        </Grid>
+      </Grid>
+      <Grid item container xs={layout.contactSize}>
+        <Card className={classes.contactInfo}>
+          <ContactInfo wrap={true} phone={props.phone} email={props.email} instagram={props.instagram} />
+        </Card>
+      </Grid> 
     </Grid>
   );
 

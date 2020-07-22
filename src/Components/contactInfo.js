@@ -31,6 +31,7 @@ const useStyles = makeStyles((theme) => ({
     cursor: "pointer",
     color: theme.palette.primary.main,
     display: "inline-block",
+    width: "100%",
   },
   container: {
     padding: theme.spacing(1),
