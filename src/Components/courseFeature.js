@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
     height: "42px",
     right: '-20px',
     bottom: '40%',
-    zIndex: '99999',
+    zIndex: '9',
     '@media (max-width: 600px)': {
       width: "36px",
       height: "36px",
@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
     height: "42px",
     left: '-20px',
     bottom: '40%',
-    zIndex: '99999',
+    zIndex: '9',
     '@media (max-width: 600px)': {
       width: "32px",
       height: "32px",
@@ -82,6 +82,7 @@ const useStyles = makeStyles((theme) => ({
     textOverflow: "ellipsis",
     '@media (max-width: 600px)': {
       height: 50,
+      wordWrap: "break-word",
       whiteSpace: "break-spaces",
       display: "-webkit-box",
       '-webkit-line-clamp': 2,
@@ -322,6 +323,16 @@ export default function(props) {
     );
   }
 
+  let infoIcon = null;
+
+  if (!small) {
+    infoIcon = (
+      <IconButton color="primary">
+        <InfoOutlined />
+      </IconButton>
+    );
+  }
+
   formContent = (
     <Grid>
       <Grid>
@@ -340,11 +351,7 @@ export default function(props) {
                   subtitle={course.label}
                   className={classes.desc}
                   classes={{title: classes.noWrap, subtitle: classes.textWrap}}
-                  actionIcon={
-                    <IconButton color="primary" aria-label={`info about ${course.title}`}>
-                      <InfoOutlined />
-                    </IconButton>
-                  }
+                  actionIcon={infoIcon}
                 />
               </Grid>
             </Link>

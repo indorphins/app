@@ -180,9 +180,11 @@ export default function () {
       }
     }
 
-    setSignup((
-      <Button variant="contained" color="secondary" onClick={courseSignupHandler} style={{width:"100%"}}>Book Class</Button>
-    ));
+    if (course.available_spots > 0) {
+      setSignup((
+        <Button variant="contained" color="secondary" onClick={courseSignupHandler} style={{width:"100%"}}>Book Class</Button>
+      ));
+    }
 
   }, [currentUser, course]);
 

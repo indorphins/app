@@ -98,7 +98,7 @@ export default function(props) {
 
   if (med) {
     headerJustify = 'flex-start';
-    appBarPosition = "sticky"
+    appBarPosition = "static"
   }
 
   return (

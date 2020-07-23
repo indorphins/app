@@ -91,16 +91,17 @@ const styles = (theme) => ({
   },
   titleLbl: {
     fontSize: "1.1rem",
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
+    whiteSpace: "break-spaces",
     minWidth: 0,
     '@media (max-width: 900px)': {
       fontSize: "1rem",
-    }
+    },
   },
   titleLblSml: {
     fontSize: "1rem",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
     '@media (max-width: 900px)': {
       fontSize: "0.9rem",
     }
@@ -207,6 +208,9 @@ function Day(props) {
   let smlEventsContent = null;
 
   if (props.events && props.events.length > 0) {
+    props.events.sort(function(a,b) {
+      return a.start < b.start;
+    });
     indicator = (
       <Grid item style={style}>
         <Box className={classes.eventIndicator}></Box>
@@ -220,10 +224,10 @@ function Day(props) {
             <Link to={evt.url} className={classes.link}>
             <Card className={classes.eventCard}>
               <Grid container direction="row" spacing={1}>
-                <Grid item>
+                <Grid item container>
                   <Typography variant="body2" className={classes.timeLbl}>{evt.startTime} - {evt.endTime}:</Typography>
                 </Grid>
-                <Grid item>
+                <Grid item container>
                   <Typography variant="body2" className={classes.titleLbl}>{evt.title}</Typography>
                 </Grid>
               </Grid>
@@ -291,10 +295,10 @@ function Day(props) {
               <Link to={evt.url} className={classes.link}>
               <Card className={`${classes.eventCard} ${classes.eventCardSml}`}>
                 <Grid container direction="column">
-                  <Grid item>
+                  <Grid item container>
                     <Typography variant="body2" className={`${classes.timeLbl} ${classes.timeLblSml}`}>{evt.startTime} - {evt.endTime}:</Typography>
                   </Grid>
-                  <Grid item>
+                  <Grid item container>
                     <Typography variant="body2" className={`${classes.titleLbl} ${classes.titleLblSml}`}>{evt.title}</Typography>
                   </Grid>
                 </Grid>
