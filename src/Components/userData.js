@@ -87,7 +87,8 @@ const useStyles = makeStyles((theme) => ({
 
 export default function(props) {
 
-  const med = useMediaQuery('(max-width:700px)');
+  const sm = useMediaQuery('(max-width:600px)');
+  const med = useMediaQuery('(max-width:900px)');
   const classes = useStyles();
   const [fullname, setFullname] = useState('');
 
@@ -142,33 +143,47 @@ export default function(props) {
 
   let layout = null;
 
-  if (med) {
+  if (sm) {
     layout = {
       direction: "column",
       photoSize: 12,
       bioSize: 12,
       contactSize: 12,
+      userData: 12,
+    }
+  } else if (med) {
+    layout = {
+      direction: "column",
+      photoSize: 4,
+      bioSize: 8,
+      contactSize: 12,
+      userData: 12,
     }
   } else {
     layout = {
       direction: "row",
-      photoSize: 3,
-      bioSize: 6,
+      photoSize: 4,
+      bioSize: 8,
       contactSize: 3,
+      userData: 9,
     }
   }
   
   let userContent = (
     <Grid container direction={layout.direction} justify="flex-start" alignItems="flex-start" spacing={2}>
-      <Grid item xs={layout.photoSize}>
-        {photoContent}
-      </Grid>
-      <Grid item xs={layout.bioSize}>
-        <Grid>
-          {nameHeader}
-        </Grid>
-        <Grid>
-          {bioContent}
+      <Grid item xs={layout.userData}>
+        <Grid container direction="row" justify="flex-start" spacing={2}>
+          <Grid item xs={layout.photoSize}>
+            {photoContent}
+          </Grid>
+          <Grid item xs={layout.bioSize}>
+            <Grid>
+              {nameHeader}
+            </Grid>
+            <Grid>
+              {bioContent}
+            </Grid>
+          </Grid>
         </Grid>
       </Grid>
       <Grid item container xs={layout.contactSize}>

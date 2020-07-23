@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Box, Button, Card, Grid, Typography, withStyles, ButtonGroup, useMediaQuery } from '@material-ui/core';
-import { ChevronLeft, ChevronRight, TodayOutlined, NoEncryption } from '@material-ui/icons';
+import { ChevronLeft, ChevronRight, TodayOutlined } from '@material-ui/icons';
 import { format, endOfMonth } from 'date-fns';
 
 const styles = (theme) => ({
