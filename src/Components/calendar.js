@@ -209,7 +209,7 @@ function Day(props) {
 
   if (props.events && props.events.length > 0) {
     props.events.sort(function(a,b) {
-      return a.start < b.start;
+      return a.start.getTime() - b.start.getTime();
     });
     indicator = (
       <Grid item style={style}>
