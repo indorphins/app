@@ -77,9 +77,25 @@ const useStyles = makeStyles((theme) => ({
   anchor: {
     textDecoration: "none",
   },
+  noWrap: {
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
+    '@media (max-width: 600px)': {
+      height: 50,
+      whiteSpace: "break-spaces",
+      display: "-webkit-box",
+      '-webkit-line-clamp': 2,
+      '-webkit-box-orient': "vertical",
+    },
+    '@media (max-width: 400px)': {
+      fontSize: "1.1rem",
+    }
+  },
   textWrap: {
-    whiteSpace: 'break-spaces',
-    textOverflow: 'inherit',
+    whiteSpace: "break-spaces",
+    '@media (max-width: 400px)': {
+      height: 40,
+    }
   }
 }));
 
@@ -212,7 +228,7 @@ export default function(props) {
           dt = "Today";
         }
 
-        data.label = "BOOK: " + dt + " @ " + time;
+        data.label = dt + " @ " + time;
 
         items.push(data);
       });
@@ -323,9 +339,9 @@ export default function(props) {
                   title={course.title}
                   subtitle={course.label}
                   className={classes.desc}
-                  classes={{title: classes.textWrap, subtitle: classes.textWrap}}
+                  classes={{title: classes.noWrap, subtitle: classes.textWrap}}
                   actionIcon={
-                    <IconButton color="secondary" aria-label={`info about ${course.title}`}>
+                    <IconButton color="primary" aria-label={`info about ${course.title}`}>
                       <InfoOutlined />
                     </IconButton>
                   }
