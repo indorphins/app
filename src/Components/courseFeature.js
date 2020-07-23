@@ -94,6 +94,7 @@ const useStyles = makeStyles((theme) => ({
   },
   textWrap: {
     whiteSpace: "break-spaces",
+    fontSize: "1rem",
     '@media (max-width: 400px)': {
       height: 40,
     }
