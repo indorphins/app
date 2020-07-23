@@ -13,6 +13,10 @@ const colors = {
 
 const lightPalette = {
   type: 'light',
+  common: {
+    white: colors.offwhite,
+    black: colors.black,
+  },
   primary: {
     main: colors.cream,
     contrastText: colors.black,
@@ -82,6 +86,10 @@ const lightTypography = {
 
 const darkPalette = {
   type: 'dark',
+  common: {
+    white: colors.offwhite,
+    black: colors.black,
+  },
   primary: {
     main: colors.salmon,
     contrastText: colors.black,
