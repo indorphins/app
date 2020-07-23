@@ -100,6 +100,8 @@ export default function () {
   const [needsPaymentMethod, setNeedsPaymentMethod] = useState(false);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [errMessage, setErrMessage] = useState(null);
+  const [cancel, setCancel] = useState(null);
+  const [cancellingClass, setCancellingClass] = useState(false);
 
   async function getCourse(id) {
     let cls;
@@ -150,6 +152,12 @@ export default function () {
     }
 
     let instructor = JSON.parse(course.instructor);
+
+    if (currentUser.id === instructor.id || currentUser.type === 'admin') {
+      setCancel(
+        <Button variant="contained" disabled={cancellingClass} color="secondary" onClick={cancelClassHandler} style={{width:"100%"}}>Cancel Class</Button>
+      )
+    }
 
     if (currentUser.id === instructor.id) {
       setSignup((
@@ -239,6 +247,23 @@ export default function () {
     ));
   }
 
+  const cancelClassHandler = async function () {
+    setCancellingClass(true);
+    setPaymentProcessing(true);
+    
+    try {
+      await Course.remove(params.id);
+    } catch (err) {
+      setErrMessage({severity: 'error', message: 'Class failed to cancel'})
+      setPaymentProcessing(false);
+      return log.error("COURSE INFO: course cancel ", err);
+    }
+
+    setCancellingClass(false);
+    setPaymentProcessing(false);
+    history.push(path.home);
+  }
+
   useEffect(() => {
     if(defaultPaymentMethod) {
       paymentMethod.current = defaultPaymentMethod;
@@ -320,6 +345,15 @@ export default function () {
     );
   }
 
+  let cancelBtn = null;
+  if (cancel) {
+    cancelBtn = (
+      <Grid item>
+        {cancel}
+      </Grid>
+    )
+  }
+
   let content = (
     <Grid>
       {errorContent}
@@ -330,6 +364,9 @@ export default function () {
         </Grid>
         <Grid item className={classes.actionBtn}>
           {signup}
+        </Grid>
+        <Grid item className={classes.actionBtn}>
+          {cancel}
         </Grid>
       </Grid>
       <UserData header={title} bio={description} email={email} phone={phone} instagram={insta} photo={photo} />
