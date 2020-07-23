@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { Button, Container, Grid, Typography, Card, useMediaQuery } from '@material-ui/core';
-import { Photo, ShoppingCartOutlined, GroupAdd, People, RecordVoiceOver } from '@material-ui/icons';
+import { Photo, ShoppingCartOutlined, GroupAdd, People, RecordVoiceOver, AvTimer } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
@@ -273,7 +273,7 @@ export default function () {
 
   if (course.cost) {
     costContent = (
-      <Card className={classes.spotsContainer} title="Classes can be left up to 24 hours before the class start time">
+      <Card className={classes.spotsContainer} title="Per class cost. Classes can be left up to 24 hours before the class start time">
         <Grid container direction="column" justify="center" alignItems="center">
           <Grid item>
             <ShoppingCartOutlined color="primary" />
@@ -290,20 +290,42 @@ export default function () {
 
   let spotsCount = course.available_spots;
   if (spotsCount < 0) spotsCount = 0;
-  let spotsContent = (
-    <Card className={classes.spotsContainer} title="Spaces remaining">
-      <Grid container direction="column" justify="center" alignItems="center">
-        <Grid item>
-          <GroupAdd color="primary" />
+  let spotsContent = null;
+
+  if (course.cost) {
+    spotsContent = (
+      <Card className={classes.spotsContainer} title="Spaces remaining">
+        <Grid container direction="column" justify="center" alignItems="center">
+          <Grid item>
+            <GroupAdd color="primary" />
+          </Grid>
+          <Grid item>
+            <Typography className={classes.cost} variant="h2" align="center">
+              {spotsCount}
+            </Typography>
+          </Grid>
         </Grid>
-        <Grid item>
-          <Typography className={classes.cost} variant="h2" align="center">
-            {spotsCount}
-          </Typography>
+      </Card>
+    );
+  }
+
+  let durationContent = null;
+  if (course.duration) {
+    durationContent = (
+      <Card className={classes.spotsContainer} title="Class duration in minutes">
+        <Grid container direction="column" justify="center" alignItems="center">
+          <Grid item>
+            <AvTimer color="primary" />
+          </Grid>
+          <Grid item>
+            <Typography className={classes.cost} variant="h2" align="center">
+              {course.duration}
+            </Typography>
+          </Grid>
         </Grid>
-      </Grid>
-    </Card>
-  )
+      </Card>
+    );
+  }
 
   let instructorContent = null;
 
@@ -444,8 +466,8 @@ export default function () {
       courseDetailsJustify: "flex-start",
       courseDetailsSize: 12,
       courseCostSize: 12,
-      costSize: 6,
-      spotsSize: 6,
+      costSize: 4,
+      spotsSize: 4,
       coursePhotoDirection: "column",
       coursePhotoSize: "auto",
       actionBtnDirection: "column",
@@ -460,8 +482,8 @@ export default function () {
       courseDetailsJustify: "flex-start",
       courseDetailsSize: 12,
       courseCostSize: 12,
-      costSize: 6,
-      spotsSize: 6,
+      costSize: 4,
+      spotsSize: 4,
       coursePhotoDirection: "row",
       coursePhotoSize: 4,
       actionBtnDirection: "row",
@@ -544,6 +566,9 @@ export default function () {
                   <Grid container direction="row" justify="flex-end" spacing={2}>
                     <Grid item xs={layout.costSize}>
                       {costContent}
+                    </Grid>
+                    <Grid item xs={layout.costSize}>
+                      {durationContent}
                     </Grid>
                     <Grid item xs={layout.spotsSize}>
                       {spotsContent}
