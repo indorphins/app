@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Box, Button, Card, Grid, Typography, withStyles, ButtonGroup, useMediaQuery } from '@material-ui/core';
@@ -26,12 +26,13 @@ const styles = (theme) => ({
     overflow: "hidden",
     background: theme.palette.grey[100],
     padding: 2,
+    cursor: "pointer",
     '@media (max-width: 900px)': {
       minHeight: 120,
     },
     '@media (max-width: 600px)': {
-      minHeight: 70,
-      height: 70,
+      minHeight: 60,
+      height: 60,
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
@@ -42,6 +43,9 @@ const styles = (theme) => ({
   },
   today: {
     background: theme.palette.primary.light,
+  },
+  month: {
+    background: theme.palette.grey[300],
   },
   button: {
     '@media (max-width: 600px)': {
@@ -63,30 +67,41 @@ const styles = (theme) => ({
     },
   },
   eventCard: {
-    padding: 2,
+    padding: theme.spacing(1),
     overflow: "hidden",
     width: "100%",
-    marginBottom: 4,
+  },
+  eventCardList: {
+    padding: theme.spacing(1),
   },
   timeLbl: {
-    fontSize: "0.8rem",
+    fontSize: "1rem",
     '@media (max-width: 900px)': {
-      fontSize: "0.7rem",
+      fontSize: "0.9rem",
     }
   },
   titleLbl: {
-    fontSize: "1rem",
+    fontSize: "1.1rem",
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
     minWidth: 0,
     '@media (max-width: 900px)': {
-      fontSize: "0.8rem",
+      fontSize: "1rem",
     }
+  },
+  dateLbl: {
+    padding: theme.spacing(1),
   },
   link: {
     textDecoration: "none",
     width: "100%",
+  },
+  agenda: {
+    width: "100%",
+  },
+  hidden: {
+    display: "none",
   }
 });
 
@@ -120,14 +135,29 @@ function Weekdays(props) {
 }
 
 function Day(props) {
-  const { classes } = props;
+  const { classes, date } = props;
+  const [open, setOpen] = useState(false);
+  const eventsAgenda = useRef(null);
   const sm = useMediaQuery('(max-width:600px)');
+
+  function toggleEventsAgenda() {
+    if (!eventsAgenda.current) return;
+
+    if (open) {
+      setOpen(false);
+      eventsAgenda.current.className = `${classes.agenda} ${classes.hidden}`;
+    } else {
+      setOpen(true);
+      eventsAgenda.current.className = `${classes.agenda}`;
+    }
+  }
 
   let layout = {
     direction: "row",
     justify: "flex-start",
     align: "center",
     spacing: 1,
+    eventSpacing: 1,
   }
 
   let style = {};
@@ -138,6 +168,7 @@ function Day(props) {
       justify: "center",
       align: "center",
       spacing: 0,
+      eventSpacing: 1
     }
 
     style = {
@@ -158,40 +189,94 @@ function Day(props) {
 
   let eventsContent = null;
 
-  if (props.events && props.events.length > 0 && !sm) {
-    eventsContent = (
-      <Grid container direction="column">
-        {props.events.map(evt => (
-          <Grid item container key={evt.start}>
-            <Link to={evt.url} className={classes.link}>
-            <Card className={classes.eventCard}>
-              <Grid container direction="column">
-                <Grid item container>
-                  <Typography variant="subtitle2" className={classes.timeLbl}>{evt.startTime} - {evt.endTime}</Typography>
+  if (props.events && props.events.length > 0) {
+      eventsContent = (
+        <Grid container direction="column" spacing={layout.eventSpacing} className={classes.eventCardList}>
+          {props.events.map(evt => (
+            <Grid item container key={evt.start}>
+              <Link to={evt.url} className={classes.link}>
+              <Card className={classes.eventCard}>
+                <Grid container direction="column">
+                  <Grid item container>
+                    <Typography variant="subtitle2" className={classes.timeLbl}>{evt.startTime} - {evt.endTime}</Typography>
+                  </Grid>
+                  <Grid item container>
+                    <Typography variant="body2" className={classes.titleLbl}>{evt.title}</Typography>
+                  </Grid>
                 </Grid>
-                <Grid item container>
-                  <Typography variant="body2" className={classes.titleLbl}>{evt.title}</Typography>
-                </Grid>
-              </Grid>
-            </Card>
-            </Link>
-          </Grid>
-        ))}
-      </Grid>
-    );
+              </Card>
+              </Link>
+            </Grid>
+          ))}
+        </Grid>
+      );
   }
 
-  return (
-    <Grid key={props.id} item className={props.className}>
-      <Grid container direction={layout.direction} justify={layout.justify} alignItems={layout.align} spacing={layout.spacing}>
-        <Grid item>
-          <Typography variant="body2" className={classes.number}>{props.day}</Typography>
+  //if (sm) {
+
+    let wrapper = null;
+
+    if (eventsContent) {
+
+      let wkday = date.getDay();
+      let classNames = `${classes.agenda} ${classes.hidden}`;
+      
+      let wkdayBuf = null;
+
+      if (wkday < 6 && open) {
+        let wkdayMap = [];
+        for (var i = 0; i < wkday + 1; i++) {
+          wkdayMap.push(i);
+        }
+
+        wkdayBuf = (
+          <React.Fragment>
+            {wkdayMap.map(w => (
+              <Grid key={w} item className={`${classes.day} ${classes.noday}`}></Grid>
+            ))}
+          </React.Fragment>
+        )
+      }
+
+      wrapper = (
+        <React.Fragment>
+          <Grid container className={classNames} ref={eventsAgenda}>
+            <Typography variant="h4" className={classes.dateLbl}>{format(props.date, "iiii, MMMM do")}</Typography>
+            {eventsContent}
+          </Grid>
+          {wkdayBuf}
+        </React.Fragment>
+      );
+    }
+
+    return (
+      <React.Fragment>
+        <Grid item className={props.className} onClick={toggleEventsAgenda}>
+          <Grid container direction={layout.direction} justify={layout.justify} alignItems={layout.align} spacing={layout.spacing}>
+            <Grid item>
+              <Typography variant="body2" className={classes.number}>{props.day}</Typography>
+            </Grid>
+            {indicator}
+          </Grid>
         </Grid>
-        {indicator}
+        {wrapper}
+      </React.Fragment>
+    );
+
+  /*} else {
+
+    return (
+      <Grid item className={props.className}>
+        <Grid container direction={layout.direction} justify={layout.justify} alignItems={layout.align} spacing={layout.spacing}>
+          <Grid item>
+            <Typography variant="body2" className={classes.number}>{props.day}</Typography>
+          </Grid>
+          {indicator}
+        </Grid>
+        {eventsContent}
       </Grid>
-      {eventsContent}
-    </Grid>
-  );
+    );
+  }*/
 }
 
 class Calendar extends React.Component {
@@ -290,7 +375,7 @@ class Calendar extends React.Component {
         classNames = classNames + ` ${classes.today}`;
       }
 
-      let data = {key: i, day: i, className: classNames};
+      let data = {key: i, day: i, className: classNames, date: d};
 
       let matchedEvents = this.state.events.filter(item => {
         return item.day.getTime() === d.getTime();
@@ -314,9 +399,9 @@ class Calendar extends React.Component {
     content = (
       <Grid>
         <Weekdays classes={classes} />
-        <Grid container direction="row">
+        <Grid container direction="row" className={classes.month}>
           {days.map(d => (
-            <Day id={d.key} key={d.key} className={d.className} classes={classes} day={d.day} events={d.events} />
+            <Day id={d.key} key={d.key} className={d.className} classes={classes} day={d.day} date={d.date} events={d.events} />
           ))}
         </Grid>
       </Grid>
