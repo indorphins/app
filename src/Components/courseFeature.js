@@ -25,8 +25,8 @@ const useStyles = makeStyles((theme) => ({
     bottom: '40%',
     zIndex: '99999',
     '@media (max-width: 600px)': {
-      width: "32px",
-      height: "32px",
+      width: "36px",
+      height: "36px",
       right: "-12px",
     },
     '@media (min-width:1300px)': {

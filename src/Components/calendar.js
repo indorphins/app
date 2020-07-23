@@ -1,8 +1,8 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { Box, Button, Card, Grid, Typography, withStyles, ButtonGroup, useMediaQuery } from '@material-ui/core';
-import { ChevronLeft, ChevronRight, TodayOutlined } from '@material-ui/icons';
+import { ChevronLeft, ChevronRight, ExpandMore, TodayOutlined } from '@material-ui/icons';
 import { format, endOfMonth } from 'date-fns';
 
 const styles = (theme) => ({
@@ -26,7 +26,6 @@ const styles = (theme) => ({
     overflow: "hidden",
     background: theme.palette.grey[100],
     padding: 2,
-    cursor: "pointer",
     '@media (max-width: 900px)': {
       minHeight: 120,
     },
@@ -71,13 +70,23 @@ const styles = (theme) => ({
     overflow: "hidden",
     width: "100%",
   },
+  eventCardSml: {
+    padding: 2,
+  },
   eventCardList: {
     padding: theme.spacing(1),
   },
   timeLbl: {
     fontSize: "1rem",
+    fontWeight: "bold",
     '@media (max-width: 900px)': {
       fontSize: "0.9rem",
+    }
+  },
+  timeLblSml: {
+    fontSize: "0.8rem",
+    '@media (max-width: 900px)': {
+      fontSize: "0.7rem",
     }
   },
   titleLbl: {
@@ -88,6 +97,12 @@ const styles = (theme) => ({
     minWidth: 0,
     '@media (max-width: 900px)': {
       fontSize: "1rem",
+    }
+  },
+  titleLblSml: {
+    fontSize: "1rem",
+    '@media (max-width: 900px)': {
+      fontSize: "0.9rem",
     }
   },
   dateLbl: {
@@ -152,14 +167,21 @@ function Day(props) {
     }
   }
 
+  useEffect(() => {
+    return function() {
+      setOpen(false);
+    }
+  }, [])
+
   let layout = {
     direction: "row",
     justify: "flex-start",
     align: "center",
     spacing: 1,
     eventSpacing: 1,
+    agendaSize: 6,
+    agendaDirection: "row",
   }
-
   let style = {};
 
   if (sm) {
@@ -168,7 +190,9 @@ function Day(props) {
       justify: "center",
       align: "center",
       spacing: 0,
-      eventSpacing: 1
+      eventSpacing: 1,
+      agendaSize: 12,
+      agendaDirection: "column",
     }
 
     style = {
@@ -178,6 +202,9 @@ function Day(props) {
   }
 
   let indicator = null;
+  let eventsContent = null;
+  let wrapper = null;
+  let smlEventsContent = null;
 
   if (props.events && props.events.length > 0) {
     indicator = (
@@ -185,98 +212,131 @@ function Day(props) {
         <Box className={classes.eventIndicator}></Box>
       </Grid>
     );
-  }
 
-  let eventsContent = null;
+    eventsContent = (
+      <Grid container direction={layout.agendaDirection} spacing={layout.eventSpacing} className={classes.eventCardList}>
+        {props.events.map(evt => (
+          <Grid item container key={evt.start} xs={layout.agendaSize}>
+            <Link to={evt.url} className={classes.link}>
+            <Card className={classes.eventCard}>
+              <Grid container direction="row" spacing={1}>
+                <Grid item>
+                  <Typography variant="body2" className={classes.timeLbl}>{evt.startTime} - {evt.endTime}:</Typography>
+                </Grid>
+                <Grid item>
+                  <Typography variant="body2" className={classes.titleLbl}>{evt.title}</Typography>
+                </Grid>
+              </Grid>
+            </Card>
+            </Link>
+          </Grid>
+        ))}
+      </Grid>
+    );
 
-  if (props.events && props.events.length > 0) {
-      eventsContent = (
-        <Grid container direction="column" spacing={layout.eventSpacing} className={classes.eventCardList}>
-          {props.events.map(evt => (
+    let wkday = date.getDay();
+    let wkdayBufTiles = null;
+
+    if (wkday < 6 && open && eventsAgenda.current) {
+      let wkdayMap = [];
+      for (var i = 0; i < wkday + 1; i++) {
+        wkdayMap.push(i);
+      }
+
+      wkdayBufTiles = (
+        <React.Fragment>
+          {wkdayMap.map(w => (
+            <Grid key={w} item className={`${classes.day} ${classes.noday}`}></Grid>
+          ))}
+        </React.Fragment>
+      )
+    }
+
+    let formatted = format(props.date, "iiii, MMMM do");
+    wrapper = (
+      <React.Fragment>
+        <Grid container className={`${classes.agenda} ${classes.hidden}`} ref={eventsAgenda}>
+          <Typography variant="h4" className={classes.dateLbl}>{formatted}</Typography>
+          {eventsContent}
+        </Grid>
+        {wkdayBufTiles}
+      </React.Fragment>
+    );
+
+    if (!sm) {
+      let smlEventsData = props.events.slice(0,2);
+      let more = null;
+      let count = props.events.length - smlEventsData.length;
+
+      if (count > 0) {
+        more = (
+          <Typography variant="subtitle1" className={`${classes.timeLbl} ${classes.timeLblSml}`}>+{count} more</Typography>
+        )
+      }
+
+      let expandBtn = (
+        <ChevronRight onClick={toggleEventsAgenda} style={{cursor:"pointer"}} />
+      )
+
+      if (open) {
+        expandBtn = (
+          <ExpandMore onClick={toggleEventsAgenda} style={{cursor:"pointer"}} />
+        );
+      }
+
+      smlEventsContent = (
+        <React.Fragment>
+          {smlEventsData.map(evt => (
             <Grid item container key={evt.start}>
               <Link to={evt.url} className={classes.link}>
-              <Card className={classes.eventCard}>
+              <Card className={`${classes.eventCard} ${classes.eventCardSml}`}>
                 <Grid container direction="column">
-                  <Grid item container>
-                    <Typography variant="subtitle2" className={classes.timeLbl}>{evt.startTime} - {evt.endTime}</Typography>
+                  <Grid item>
+                    <Typography variant="body2" className={`${classes.timeLbl} ${classes.timeLblSml}`}>{evt.startTime} - {evt.endTime}:</Typography>
                   </Grid>
-                  <Grid item container>
-                    <Typography variant="body2" className={classes.titleLbl}>{evt.title}</Typography>
+                  <Grid item>
+                    <Typography variant="body2" className={`${classes.titleLbl} ${classes.titleLblSml}`}>{evt.title}</Typography>
                   </Grid>
                 </Grid>
               </Card>
               </Link>
             </Grid>
           ))}
-        </Grid>
-      );
-  }
-
-  //if (sm) {
-
-    let wrapper = null;
-
-    if (eventsContent) {
-
-      let wkday = date.getDay();
-      let classNames = `${classes.agenda} ${classes.hidden}`;
-      
-      let wkdayBuf = null;
-
-      if (wkday < 6 && open) {
-        let wkdayMap = [];
-        for (var i = 0; i < wkday + 1; i++) {
-          wkdayMap.push(i);
-        }
-
-        wkdayBuf = (
-          <React.Fragment>
-            {wkdayMap.map(w => (
-              <Grid key={w} item className={`${classes.day} ${classes.noday}`}></Grid>
-            ))}
-          </React.Fragment>
-        )
-      }
-
-      wrapper = (
-        <React.Fragment>
-          <Grid container className={classNames} ref={eventsAgenda}>
-            <Typography variant="h4" className={classes.dateLbl}>{format(props.date, "iiii, MMMM do")}</Typography>
-            {eventsContent}
+          <Grid item container>
+            <Grid container direction="row" justify="space-between" alignItems="center" alignContent="center">
+              <Grid item xs>
+                {more}
+              </Grid>
+              <Grid item>
+                {expandBtn}
+              </Grid>
+            </Grid>
           </Grid>
-          {wkdayBuf}
         </React.Fragment>
       );
     }
+  }
 
-    return (
-      <React.Fragment>
-        <Grid item className={props.className} onClick={toggleEventsAgenda}>
-          <Grid container direction={layout.direction} justify={layout.justify} alignItems={layout.align} spacing={layout.spacing}>
-            <Grid item>
-              <Typography variant="body2" className={classes.number}>{props.day}</Typography>
-            </Grid>
-            {indicator}
-          </Grid>
-        </Grid>
-        {wrapper}
-      </React.Fragment>
-    );
+  let smHandler = null;
 
-  /*} else {
+  if (sm) {
+    smHandler = toggleEventsAgenda;
+  }
 
-    return (
-      <Grid item className={props.className}>
+  return (
+    <React.Fragment>
+      <Grid item className={props.className} onClick={smHandler}>
         <Grid container direction={layout.direction} justify={layout.justify} alignItems={layout.align} spacing={layout.spacing}>
           <Grid item>
             <Typography variant="body2" className={classes.number}>{props.day}</Typography>
           </Grid>
           {indicator}
+          {smlEventsContent}
         </Grid>
-        {eventsContent}
       </Grid>
-    );
-  }*/
+      {wrapper}
+    </React.Fragment>
+  );
 }
 
 class Calendar extends React.Component {
