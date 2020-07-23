@@ -94,12 +94,10 @@ export default function(props) {
   }, [theme])
 
   let headerJustify = 'flex-start';
-  let controlsSpacing = 2;
   let appBarPosition = "static"
 
   if (med) {
     headerJustify = 'flex-start';
-    controlsSpacing = 1;
     appBarPosition = "sticky"
   }
 
@@ -120,14 +118,16 @@ export default function(props) {
               </Grid>
             </Grid>
             <Grid style={{display:"inline-block", position: "absolute", top: 0, right: 0}}>
-              <Grid container direction='row' alignItems="center" spacing={controlsSpacing}>
-                <Grid item>
-                  <IconButton edge="end" onClick={toggleTheme} color="secondary">
-                    {themeButton}
-                  </IconButton>
-                </Grid>
-                <Grid item>
-                  <UserAvatar edge="end" user={currentUser} />
+              <Grid container>
+                <Grid container direction='row' alignItems="center">
+                  <Grid item>
+                    <IconButton edge="end" onClick={toggleTheme} color="secondary">
+                      {themeButton}
+                    </IconButton>
+                  </Grid>
+                  <Grid item style={{paddingLeft: 10}}>
+                    <UserAvatar edge="end" user={currentUser} />
+                  </Grid>
                 </Grid>
               </Grid>
             </Grid>
