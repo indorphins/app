@@ -118,6 +118,9 @@ const styles = (theme) => ({
   },
   hidden: {
     display: "none",
+  },
+  selected: {
+    backgroundColor: theme.palette.grey[400],
   }
 });
 
@@ -322,14 +325,19 @@ function Day(props) {
   }
 
   let smHandler = null;
+  let classNames = props.className;
 
   if (sm) {
     smHandler = toggleEventsAgenda;
   }
 
+  if (open) {
+    classNames = `${props.className} ${classes.selected}`;
+  }
+
   return (
     <React.Fragment>
-      <Grid item className={props.className} onClick={smHandler}>
+      <Grid item className={classNames} onClick={smHandler}>
         <Grid container direction={layout.direction} justify={layout.justify} alignItems={layout.align} spacing={layout.spacing}>
           <Grid item>
             <Typography variant="body2" className={classes.number}>{props.day}</Typography>
