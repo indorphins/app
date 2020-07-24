@@ -89,7 +89,7 @@ const useStyles = makeStyles((theme) => ({
   },
   subscriberLabel: {
     fontSize: "2rem",
-    color: theme.palette.primary.contrastText,
+    color: theme.palette.grey[800],
   },
   instructor: {
     height: "100%",

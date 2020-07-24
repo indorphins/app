@@ -157,6 +157,7 @@ function Day(props) {
   const { classes, date } = props;
   const [open, setOpen] = useState(false);
   const eventsAgenda = useRef(null);
+  const dayRef = useRef(null);
   const sm = useMediaQuery('(max-width:600px)');
 
   function toggleEventsAgenda() {
@@ -165,14 +166,17 @@ function Day(props) {
     if (open) {
       setOpen(false);
       eventsAgenda.current.className = `${classes.agenda} ${classes.hidden}`;
+      dayRef.current.className = `${props.className}`;
     } else {
       setOpen(true);
       eventsAgenda.current.className = `${classes.agenda}`;
+      dayRef.current.className = `${props.className} ${classes.selected}`;
     }
   }
 
   useEffect(() => {
     return function() {
+      if (dayRef && dayRef.current) dayRef.current.className = `${props.className}`;
       setOpen(false);
     }
   }, [])
@@ -331,13 +335,13 @@ function Day(props) {
     smHandler = toggleEventsAgenda;
   }
 
-  if (open) {
+  if (open && dayRef.current) {
     classNames = `${props.className} ${classes.selected}`;
   }
 
   return (
     <React.Fragment>
-      <Grid item className={classNames} onClick={smHandler}>
+      <Grid item className={classNames} onClick={smHandler} ref={dayRef}>
         <Grid container direction={layout.direction} justify={layout.justify} alignItems={layout.align} spacing={layout.spacing}>
           <Grid item>
             <Typography variant="body2" className={classes.number}>{props.day}</Typography>
