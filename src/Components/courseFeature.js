@@ -12,10 +12,12 @@ import { getNextDate } from '../utils';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    overflow: 'hidden'
+    overflow: 'hidden',
+    width: "100%",
   },
   container: {
     position: 'relative',
+    width: '100%,'
   },
   nextPageBtn: {
     position: 'absolute',
@@ -335,7 +337,7 @@ export default function(props) {
   }
 
   formContent = (
-    <Grid>
+    <Grid container style={{width: "100%"}}>
       <Grid>
         {headerContent}
       </Grid>
