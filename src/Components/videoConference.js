@@ -28,6 +28,8 @@ import {
   ChevronLeft,
   ChevronRight,
   InsertEmoticon,
+  Fullscreen,
+  FullscreenExit,
 } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { Alert } from '@material-ui/lab';
@@ -41,8 +43,8 @@ import log from '../log';
 
 const useStyles = makeStyles((theme) => ({
   publisher: {
-    height: 150,
-    width: 250,
+    height: 240,
+    width: 320,
     background: theme.palette.grey[100],
   },
   subscriberGrid: {
@@ -60,7 +62,7 @@ const useStyles = makeStyles((theme) => ({
     height: "100%",
   },
   subscriberItem: {
-    height: "calc(100% / 4)",
+    height: "calc(100% / 3)",
     background: theme.palette.grey[100],
     width: 240,
     '@media (min-width: 1200px)': {
@@ -72,7 +74,7 @@ const useStyles = makeStyles((theme) => ({
   },
   subscriberItemAlt: {
     height: "25%",
-    width: "calc(100% / 4)",
+    width: "calc(100% / 3)",
     background: theme.palette.grey[100],
   },
   subscriberFeatureVid: {
@@ -136,7 +138,7 @@ const useStyles = makeStyles((theme) => ({
   },
   emoteMenu: {
     columns: 2,
-  }
+  },
 }));
 
 function MuteButton(props) {
@@ -222,7 +224,7 @@ export default function(props) {
   const loopTime = 20000;
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
-  const [maxStreams, setMaxStreams] = useState(4)
+  const [maxStreams, setMaxStreams] = useState(3)
   const [user, setUser] = useState(null);
   const [streams, setStreams] = useState([]);
   const [videoSubsCount, setVideoSubsCount] = useState(0);
@@ -236,6 +238,7 @@ export default function(props) {
   const [chatMsg, setChatMsg] = useState('');
   const [chatHistory, setChatHistory] = useState([]);
   const [loopMode, setLoopMode] = useState(true);
+  const [fullscreenMode, setFullscreenMode] = useState(false);
   const [displayMsg, setDisplayMsg] = useState(null);
   const userRef = useRef();
   const courseRef = useRef();
@@ -359,9 +362,6 @@ export default function(props) {
       props.preferredResolution = {width: 1280, height: 720};
       props.subscribeToVideo = true;
       subscriber = await session.subscribe(event.stream, 'feature', props, handleError);
-      let width = await subscriber.videoWidth();
-      let height = await subscriber.videoHeight();
-      log.debug("instructor stream resolution", subscriber, width, height);
       return;
     }
     
@@ -482,6 +482,28 @@ export default function(props) {
     }
   }
 
+  async function toggleFullscreenMode() {
+    if (fullscreenMode) {
+      setFullscreenMode(false);
+    } else {
+      setSubs(subs.map(item => {
+        if (item.video) {
+          item.video = false;
+          item.className = `${classes.subscriberItem} ${classes.hidden}`
+          item.subscriber.subscribeToVideo(false);
+          setVideoSubsCount(videoSubsCountRef.current - 1);
+        }
+        return item;
+      }));
+      if (drawer) {
+        toggleDrawer();
+      }
+      setFullscreenMode(true);
+    }
+
+    toggleLoopMode();
+  }
+
   async function toggleSubscriberVideo(evt) {
     let data = evt.target.name;
 
@@ -560,7 +582,12 @@ export default function(props) {
       let data = JSON.parse(event.data);
       if (data.userId === user.id) {
         log.debug('emote for you', data.message)
-        enqueueSnackbar(data.message);
+        enqueueSnackbar(data.message, {
+          persist: false,
+          autoHideDuration: 5000,
+          classes: {root: classes.emote},
+          anchorOrigin: { horizontal: "left", vertical: "top" }
+        });
       }
     }
   };
@@ -611,7 +638,7 @@ export default function(props) {
   }, [loopMode]);
 
   useEffect(() => {
-    if (props.user.id === props.course.instructor.id) setMaxStreams(5);
+    if (props.user.id === props.course.instructor.id) setMaxStreams(4);
     setCredentials(props.credentials);
     setCourse(props.course);
     setUser(props.user);
@@ -702,6 +729,23 @@ export default function(props) {
     </Grid>
   );
 
+  let fullscreenBtn = null;
+  if (props.user.id !== props.course.instructor.id) {
+    if (fullscreenMode) {
+      fullscreenBtn = (
+        <IconButton onClick={toggleFullscreenMode}>
+          <FullscreenExit />
+        </IconButton>
+      );
+    } else {
+      fullscreenBtn = (
+        <IconButton onClick={toggleFullscreenMode}>
+          <Fullscreen />
+        </IconButton>
+      );
+    }
+  }
+
   let featurePanel = null
   if (course) {
     featurePanel = (
@@ -710,6 +754,9 @@ export default function(props) {
           <Box id="feature" className={classes.instructor} />
           <Grid style={{position: "absolute", zIndex: 999, bottom: "10px", right: "10px"}}>
             <Emote userId={course.instructor.id} username={user.username} onSelect={sendEmote} />
+          </Grid>
+          <Grid style={{position: "absolute", zIndex: 999, top: "10px", left: "20px"}}>
+            {fullscreenBtn}
           </Grid>
         </Paper>
       </Grid>
@@ -789,6 +836,7 @@ export default function(props) {
         <IconButton title={micTitle} onClick={toggleAudio}>
           {micBtn}
         </IconButton>
+        {fullscreenBtn}
       </Box>
       <Box>
         <ExpansionPanel defaultExpanded>

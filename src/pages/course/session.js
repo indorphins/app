@@ -4,6 +4,7 @@ import { Grid, LinearProgress } from '@material-ui/core';
 import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
+import { SnackbarProvider } from 'notistack';
 
 import * as Course from '../../api/course';
 import path from '../../routes/path';
@@ -15,6 +16,9 @@ const useStyles = makeStyles((theme) => ({
   '@global': {
     '#root': {
       height: '100%',
+    },
+    '.MuiSnackbarContent-message': {
+      fontSize: '2rem',
     }
   },
   root: {
@@ -25,6 +29,9 @@ const useStyles = makeStyles((theme) => ({
   contentCol: {
     padding: 0,
     height: "100%",
+  },
+  emote: {
+    fontSize: "2rem",
   }
 }));
 
@@ -95,12 +102,14 @@ export default function() {
   }
 
   return (
-    <ThemeProvider theme={dark}>
-      <Grid className={classes.root}>
-        <Grid className={classes.contentCol}>
-          {content}
+    <SnackbarProvider classes={{root: classes.emote}} maxSnack={10}>
+      <ThemeProvider theme={dark}>
+        <Grid className={classes.root}>
+          <Grid className={classes.contentCol}>
+            {content}
+          </Grid>
         </Grid>
-      </Grid>
-    </ThemeProvider>
+      </ThemeProvider>
+    </SnackbarProvider>
   );
 };
