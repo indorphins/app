@@ -122,7 +122,6 @@ export default function(props) {
   const { enqueueSnackbar } = useSnackbar();
   const [maxStreams, setMaxStreams] = useState(3)
   const [user, setUser] = useState(null);
-  const [streams, setStreams] = useState([]);
   const [videoSubsCount, setVideoSubsCount] = useState(0);
   const [subs, setSubs] = useState([]);
   const [course, setCourse] = useState(null);
@@ -135,18 +134,12 @@ export default function(props) {
   const [fullscreenMode, setFullscreenMode] = useState(false);
   const [displayMsg, setDisplayMsg] = useState(null);
   const [permissionsError, setPermissionsError] = useState(false);
-  const userRef = useRef();
-  const courseRef = useRef();
   const subsRef = useRef();
   const videoSubsCountRef = useRef();
-  const maxStreamsRef = useRef();
   const fullscreenRef = useRef();
 
-  userRef.current = user;
-  courseRef.current = course;
   subsRef.current = subs;
   videoSubsCountRef.current = videoSubsCount;
-  maxStreamsRef.current = maxStreams;
   fullscreenRef.current = fullscreenMode;
 
   async function handleError(err) {
@@ -261,7 +254,6 @@ export default function(props) {
     log.debug('OPENTOK:: stream destroyed', event);
     let data = JSON.parse(event.stream.connection.data);
 
-    setStreams(streams => streams.filter(item => item.user.id !== data.id));
     setSubs(subs => subs.filter(item => item.user.id !== data.id));
     if (loopMode) {
       setupLoopMode();
@@ -294,40 +286,54 @@ export default function(props) {
       subscriber = await session.subscribe(event.stream, 'feature', props, handleError);
       return;
     }
-    
-    setStreams(streams => [...streams, {user: data, stream: event.stream}]);
 
     let classname = `${classes.subscriberItem} ${classes.hidden}`;
+    let order = 0;
 
-    if (event.stream.hasVideo && videoSubsCountRef.current < maxStreamsRef.current && !fullscreenRef.current) {
-      if (videoSubsCountRef.current === 0 && userRef.current.id === courseRef.current.instructor.id) {
+    if (event.stream.hasVideo && videoSubsCountRef.current < maxStreams && !fullscreenRef.current) {
+      if (videoSubsCountRef.current === 0 && user.id === course.instructor.id) {
         props.preferredResolution = {width: 1280, height: 720};
         props.preferredFrameRate = 30;
         classname = `${classes.subscriberFeature} ${classes.shown}`;
-      } else if (videoSubsCountRef.current !== 0 && userRef.current.id === courseRef.current.instructor.id) {
+      } else if (videoSubsCountRef.current !== 0 && user.id === course.instructor.id) {
         classname = `${classes.subscriberItemAlt} ${classes.shown}`;
       } else {
         classname = `${classes.subscriberItem} ${classes.shown}`;
       }
-      props.subscribeToVideo = true;
-      setVideoSubsCount(videoSubsCountRef.current + 1);
-    }
 
-    subscriber = await session.subscribe(event.stream, data.id, props, handleError);
+      props.subscribeToVideo = true;
+      order = videoSubsCountRef.current + 1;
+      setVideoSubsCount(order);
+    }
 
     setSubs(subs => [...subs, {
       user: data, 
-      subscriber: subscriber, 
-      audio: props.subscribeToAudio, 
-      video: props.subscribeToVideo, 
+      stream: event.stream,
+      audio: props.subscribeToAudio,
+      video: props.subscribeToVideo,
       className: classname,
-      order: subs.length + 1,
+      order: order,
     }]);
+
+    try {
+      subscriber = await session.subscribe(event.stream, data.id, props, handleError);
+    } catch (err) {
+      log.error("Subscribe to stream", err);
+    }
+
+    log.debug("Created subscriber", subscriber);
+
+    setSubs(subs => subs.map(item => {
+      if (item.user.id === data.id) {
+        item.subscriber = subscriber;
+      }
+      return item;
+    }));
   }
 
   async function loop() {
     
-    if (!loopMode || subsRef.current.length <= maxStreamsRef.current) {
+    if (!loopMode || subsRef.current.length <= maxStreams) {
       return;
     }
 
@@ -347,7 +353,7 @@ export default function(props) {
     updated.push(first);
 
     for (var i = 0; i < updated.length; i++) {
-      if (i < maxStreamsRef.current) {
+      if (i < maxStreams) {
         if (i === 0 && props.user.id === props.course.instructor.id) {
           updated[i].subscriber.preferredResolution = {width: 1280, height: 720};
           updated[i].subscriber.preferredFrameRate = 30;
@@ -378,7 +384,7 @@ export default function(props) {
     let count = 0;
 
     for (var i = 0; i < updated.length; i++) {
-      if (i < maxStreamsRef.current) {
+      if (i < maxStreams) {
         if (i === 0 && props.user.id === props.course.instructor.id) {
           updated[i].subscriber.preferredResolution = {width: 1280, height: 720};
           updated[i].subscriber.preferredFrameRate = 30;
@@ -623,7 +629,7 @@ export default function(props) {
   }
 
   let fullscreenBtn = null;
-  if (props.user.id !== props.course.instructor.id) {
+  if (user && course && user.id !== course.instructor.id) {
     if (fullscreenMode) {
       fullscreenBtn = (
         <IconButton title="Watch instructor and class participants" onClick={toggleFullscreenMode}>
@@ -765,28 +771,16 @@ export default function(props) {
     );
   }
 
-  let combined = streams.map(strm => {
-    let existing = subs.filter(s => {
-      return s.user.id === strm.user.id;
-    });
-
-    if (existing && existing[0]) {
-      strm.className = existing[0].className;
-      strm.order = existing[0].order;
-    }
-    return strm;
-  });
   let participantsClass = classes.subscriberGrid;
-  let instructor = props.course.instructor;
 
-  if (props.user.id === instructor.id) {
+  if (user && course && user.id === course.instructor.id) {
     participantsClass = classes.subscriberGridAlt;
   }
 
   let participantsVideo = (
     <Grid xs item style={{height:"100%", overflow: "hidden"}}>
       <Grid container direction="row" justify="flex-start" className={participantsClass} style={{height:"100%", overflow: "hidden"}}>
-        {combined.map(item => (
+        {subs.map(item => (
           <Grid key={item.user.id} item className={item.className} style={{order: item.order, position: "relative"}}>
             <Box id={item.user.id} className={classes.subscriberFeatureVid} />
             <Box className={classes.subscriberLabelBox}>
