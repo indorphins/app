@@ -28,7 +28,8 @@ const useStyles = makeStyles((theme) => ({
 		marginBottom: theme.spacing(2),
 	},
 	txtField: {
-		width: 350,
+		minWidth: 300,
+		width: "100%",
 	},
 	googBtn: {
 		marginTop: theme.spacing(3),

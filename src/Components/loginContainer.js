@@ -4,13 +4,21 @@ import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
 	root: {
-		backgroundColor: theme.palette.primary.main,
+		backgroundColor: theme.palette.header.background,
 	},
 	paperContainer: {
 		paddingLeft: theme.spacing(4),
 		paddingRight: theme.spacing(4),
 		paddingTop: theme.spacing(6),
 		paddingBottom: theme.spacing(2),
+		width: 500,
+		'@media (max-width: 600px)': {
+			paddingLeft: theme.spacing(1),
+			paddingRight: theme.spacing(1),
+			paddingTop: theme.spacing(3),
+			width: "100%",
+			borderRadius: 0,
+    },
 	},
 	logo: {
 		fontSize: "2.2rem",

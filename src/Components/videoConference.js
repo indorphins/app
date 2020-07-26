@@ -1,14 +1,11 @@
 import React, {useState, useEffect, useRef} from 'react';
 import { 
   Box, 
-  Button, 
   Grid, 
+  Chip,
   IconButton, 
-  Checkbox, 
-  Paper, 
-  Chip, 
+  Checkbox,  
   Typography, 
-  TextField, 
   ExpansionPanel, 
   ExpansionPanelSummary, 
   ExpansionPanelDetails,
@@ -19,108 +16,95 @@ import {
   VideocamOutlined, 
   MicNone, 
   MicOffOutlined, 
-  VolumeOff, 
-  VolumeUp, 
   ExpandMoreOutlined,
+  Loop,
+  ChevronLeft,
+  ChevronRight,
+  Person,
+  Group,
 } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
-
+import { Alert } from '@material-ui/lab';
 import * as OT from '@opentok/client';
+import { isSafari, isMobile, fullBrowserVersion } from 'react-device-detect';
+import compareVersions from 'compare-versions';
+import { useSnackbar } from 'notistack';
 
+import Chat from './video/chat';
+import Emote from './video/emote';
+import MuteButton from './video/mute';
+import PermissionsError from './video/permissionsError';
 import log from '../log';
 
 const useStyles = makeStyles((theme) => ({
   publisher: {
-    height: 150,
-    width: 250,
-    background: theme.palette.grey[200],
-  },
-  subscriberGrid: {
-    maxWidth: 320
-  },
-  subscriberGridAlt: {
-    //height: "100%",
-  },
-  subscriberItem: {
     height: 240,
     width: 320,
-    background: theme.palette.grey[200],
+    background: theme.palette.grey[100],
+  },
+  subscriberGrid: {
+    height: "100%",
+    maxWidth: 240,
+    alignContent: "flex-start",
+    '@media (min-width: 1200px)': {
+      maxWidth: 320
+    },
+    '@media (min-width: 1600px)': {
+      maxWidth: 420
+    },
+  },
+  subscriberGridAlt: {
+    height: "100%",
+  },
+  subscriberItem: {
+    height: "calc(100% / 3)",
+    background: theme.palette.grey[100],
+    width: 240,
+    '@media (min-width: 1200px)': {
+      width: 320
+    },
+    '@media (min-width: 1600px)': {
+      width: 420
+    },
   },
   subscriberItemAlt: {
-    height: 240,
-    width: "calc(100% / 4)",
-    background: theme.palette.grey[200],
+    height: "25%",
+    width: "calc(100% / 3)",
+    background: theme.palette.grey[100],
   },
   subscriberFeatureVid: {
-    height: "calc(100% - 35px)",
+    height: "100%",
   },  
   subscriberFeature: {
-    height: 500,
+    height: "75%",
     width: "100%",
-    background: theme.palette.grey[200],
-    '@media (min-width: 1500px)': {
-      height: 700,
-    },
-    '@media (min-width: 1600px)': {
-      height: 750,
-    },
-    '@media (min-width: 1700px)': {
-      height: 800,
-    },
-    '@media (min-width: 1800px)': {
-      height: 850,
-    },
-    '@media (min-width: 1900px)': {
-      height: 900,
-    },
+    background: theme.palette.grey[50],
   },
   subscriberLabelBox: {
-    background: theme.palette.primary.main,
-    padding: theme.spacing(1),
+    position: 'relative',
+    bottom: '50px',
   },
   subscriberLabel: {
-    fontSize: "0.9rem",
-    color: theme.palette.primary.contrastText,
+    fontSize: "2rem",
+    color: theme.palette.grey[800],
   },
   instructor: {
-    height: 500,
+    height: "100%",
     width: "100%",
-    background: theme.palette.grey[200],
-    '@media (min-width: 1500px)': {
-      height: 700,
-    },
-    '@media (min-width: 1600px)': {
-      height: 750,
-    },
-    '@media (min-width: 1700px)': {
-      height: 850,
-    },
-    '@media (min-width: 1800px)': {
-      height: 900,
-    },
-    '@media (min-width: 1900px)': {
-      height: 1000,
-    },
+    background: theme.palette.grey[50],
   },
-  videoControls: {
-    width: 400,
-    '@media (max-width: 800px)': {
-      width: 350,
-    },
+  videoControls: {},
+  drawer: {
+    height: "100%",
+    overflowY: "scroll",
+    overflowX: "hidden",
+    backgroundColor: "#0e0e0e",
   },
-  chat: {
-    width: "100%",
-  },
-  chatField: {
-    width: "100%",
-  },
-  chatMsg: {
-    display: "inline",
-  },
-  chatContainer: {
-    width: '100%',
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
+  drawerBtn: {
+    position: 'relative',
+    top: '10px',
+    right: '50px',
+    zIndex: '9999',
   },
   shown: {
     display: "block",
@@ -130,35 +114,14 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-function MuteButton(props) {
-
-  const [isChecked, setChecked] = useState(props.checked);
-
-  useEffect(() => {
-    setChecked(props.checked);
-  }, [props.checked]);
-
-  let soundBtn = (<VolumeOff />);
-
-  if (isChecked) {
-    soundBtn = (<VolumeUp />);
-  }
-
-  return (
-    <IconButton name={props.name} onClick={() => { props.onClick(props.name); }}>
-      {soundBtn}
-    </IconButton>
-  );
-}
-
 export default function(props) {
 
   let looper = null;
   const loopTime = 20000;
   const classes = useStyles();
+  const { enqueueSnackbar } = useSnackbar();
   const [maxStreams, setMaxStreams] = useState(3)
   const [user, setUser] = useState(null);
-  const [streams, setStreams] = useState([]);
   const [videoSubsCount, setVideoSubsCount] = useState(0);
   const [subs, setSubs] = useState([]);
   const [course, setCourse] = useState(null);
@@ -166,59 +129,138 @@ export default function(props) {
   const [session, setSession] = useState(null);
   const [publisher, setPublisher] = useState(null);
   const [publishVideo, setPublishVideo] = useState(true);
-  const [publishAudio, setPublishAudio] = useState(true);
-  const [chatMsg, setChatMsg] = useState('');
-  const [chatHistory, setChatHistory] = useState([]);
+  const [publishAudio, setPublishAudio] = useState(false);
   const [loopMode, setLoopMode] = useState(true);
-  const userRef = useRef();
-  const courseRef = useRef();
+  const [fullscreenMode, setFullscreenMode] = useState(false);
+  const [displayMsg, setDisplayMsg] = useState(null);
+  const [permissionsError, setPermissionsError] = useState(false);
   const subsRef = useRef();
   const videoSubsCountRef = useRef();
-  const maxStreamsRef = useRef();
+  const fullscreenRef = useRef();
 
-  userRef.current = user;
-  courseRef.current = course;
   subsRef.current = subs;
   videoSubsCountRef.current = videoSubsCount;
-  maxStreamsRef.current = maxStreams;
+  fullscreenRef.current = fullscreenMode;
 
-  function handleError(err) {
+  async function handleError(err) {
     if (err) {
       log.error("OPENTOK::", err);
+
+      if (err.name === 'OT_HARDWARE_UNAVAILABLE') {
+        setDisplayMsg({severity: "error", message: "We cannot access your camera or microphone, they are already in use by another application."});
+        return;
+      }
+
+      if (err.name === 'OT_MEDIA_ERR_NETWORK') {
+        setDisplayMsg({severity: "error", message: "Network conection error. Please check your internet connection and then reconnect to this session"});
+        return;
+      }
+
+      if (err.name === 'OT_NOT_SUPPORTED') {
+        setDisplayMsg({severity: "error", message: "Device not supported."});
+        return;
+      }
+
+      if (err.name === 'OT_TIMEOUT') {
+        setDisplayMsg({severity: "error", message: "Network conection error. Please check your internet connection and then reconnect to this session"});
+        return;
+      }
     }
   }
 
   async function initializeSession(apiKey, sessionId, settings) {
 
     let session = OT.initSession(apiKey, sessionId);
+    
+
+    log.debug("session publish", session.capabilities.publish);
+
+    if (session.capabilities.publish !== 0) {
+      setDisplayMsg({severity: "error", message: "Not allowed to publish to session"});
+      return;
+    }
+
     setSession(session);
 
-    let data = settings;
-    data.name = session.data;
-
-    let publisher = OT.initPublisher('publisher', data)
+    settings.name = session.data;
+  
+    // Create a publisher
+    let publisher = OT.initPublisher('publisher', settings, handleError);
     setPublisher(publisher);
+
+    publisher.on({
+      accessDenied: function accessDeniedHandler(event) {
+        setPermissionsError(true);
+      }
+    });
   }
+
+  function validateBrowserVersion() {
+    let valid = true;
+
+    if (isMobile) {
+      setDisplayMsg({severity: "warning", message: "Indoorphins classes are not yet optimized for mobile devices. Apologies for the inconvenience."});
+      valid = false;
+    }
+
+    if (isSafari) {
+      let compare = compareVersions(fullBrowserVersion, '12.1.0');
+      if (compare === -1) {
+        setDisplayMsg({severity: "error", message: "This version of Safari is not supported. Please update your system."});
+        valid = false;
+      }
+    }
+    return valid;
+  }
+
+  useEffect(() => {
+    if (!credentials) return;
+
+    let valid = validateBrowserVersion();
+
+    if (!valid) return;
+
+    let settings = {
+      insertMode: 'append',
+      width: '100%',
+      height: '100%',
+      mirror: true,
+      showControls: false,
+      insertDefaultUI: true,
+      publishAudio: false,
+      publishVideo: true,
+      resolution: "1280x720",
+      frameRate: 30,
+      audioBitrate: 20000,
+      enableStereo: false,
+      maxResolution: {width: 1280, height: 720},
+    };
+
+    if (user.id === course.instructor.id) {
+      settings.resolution = "1280x720";
+      settings.audioBitrate = 96000;
+      settings.disableAudioProcessing = true;
+      settings.publishAudio = true;
+      setPublishAudio(true);
+    }
+
+    if (credentials.apiKey && credentials.sessionId) {
+      initializeSession(credentials.apiKey, credentials.sessionId, settings);
+    }
+  }, [credentials, user, course]);
+
 
   function streamDestroyed(event) {
     log.debug('OPENTOK:: stream destroyed', event);
     let data = JSON.parse(event.stream.connection.data);
-    let doSetup = false;
 
-    subsRef.current.forEach(item => {
-      if (item.video && item.user.id === data.id) {
-        doSetup = true;
-      }
-    });
-
-    setStreams(streams => streams.filter(item => item.user.id !== data.id));
     setSubs(subs => subs.filter(item => item.user.id !== data.id));
-    if (doSetup) {
+    if (loopMode) {
       setupLoopMode();
     }
   }
 
-  function streamCreated(event) {
+  async function streamCreated(event) {
 
     let data = JSON.parse(event.stream.connection.data);
     log.debug('OPENTOK:: stream created event', event, data);
@@ -228,54 +270,70 @@ export default function(props) {
       insertMode: 'append',
       width: '100%',
       height: '100%',
-      preferredResolution: {width: 1920, height: 1080},
+      preferredFrameRate: 15,
+      preferredResolution: {width: 320, height: 240},
       showControls: false,
-      subscribeToAudio: false,
+      insertDefaultUI: true,
+      subscribeToAudio: true,
       subscribeToVideo: false,
+      fitMode: "cover",
     };
 
     if (data.instructor) {
-      props.subscribeToAudio = true;
+      props.preferredFrameRate = 30;
+      props.preferredResolution = {width: 1280, height: 720};
       props.subscribeToVideo = true;
-      subscriber = session.subscribe(event.stream, 'feature', props, handleError);
+      subscriber = await session.subscribe(event.stream, 'feature', props, handleError);
       return;
     }
-    
-    setStreams(streams => [...streams, {user: data, stream: event.stream}]);
 
     let classname = `${classes.subscriberItem} ${classes.hidden}`;
+    let order = 0;
 
-    if (event.stream.hasVideo && videoSubsCountRef.current < maxStreamsRef.current) {
-      if (videoSubsCountRef.current === 0 && userRef.current.id === courseRef.current.instructor.id) {
+    if (event.stream.hasVideo && videoSubsCountRef.current < maxStreams && !fullscreenRef.current) {
+      if (videoSubsCountRef.current === 0 && user.id === course.instructor.id) {
+        props.preferredResolution = {width: 1280, height: 720};
+        props.preferredFrameRate = 30;
         classname = `${classes.subscriberFeature} ${classes.shown}`;
-      } else if (videoSubsCountRef.current !== 0 && userRef.current.id === courseRef.current.instructor.id) {
+      } else if (videoSubsCountRef.current !== 0 && user.id === course.instructor.id) {
         classname = `${classes.subscriberItemAlt} ${classes.shown}`;
       } else {
         classname = `${classes.subscriberItem} ${classes.shown}`;
       }
+
       props.subscribeToVideo = true;
-      setVideoSubsCount(videoSubsCountRef.current + 1);
+      order = videoSubsCountRef.current + 1;
+      setVideoSubsCount(order);
     }
-
-    if (event.stream.hasAudio) {
-      props.subscribeToAudio = true;
-    }
-
-    subscriber = session.subscribe(event.stream, data.id, props, handleError);
 
     setSubs(subs => [...subs, {
       user: data, 
-      subscriber: subscriber, 
-      audio: props.subscribeToAudio, 
-      video: props.subscribeToVideo, 
+      stream: event.stream,
+      audio: props.subscribeToAudio,
+      video: props.subscribeToVideo,
       className: classname,
-      order: subs.length + 1,
+      order: order,
     }]);
+
+    try {
+      subscriber = await session.subscribe(event.stream, data.id, props, handleError);
+    } catch (err) {
+      log.error("Subscribe to stream", err);
+    }
+
+    log.debug("Created subscriber", subscriber);
+
+    setSubs(subs => subs.map(item => {
+      if (item.user.id === data.id) {
+        item.subscriber = subscriber;
+      }
+      return item;
+    }));
   }
 
   async function loop() {
     
-    if (!loopMode || subsRef.current.length <= maxStreamsRef.current) {
+    if (!loopMode || subsRef.current.length <= maxStreams) {
       return;
     }
 
@@ -295,22 +353,27 @@ export default function(props) {
     updated.push(first);
 
     for (var i = 0; i < updated.length; i++) {
-      if (i < maxStreamsRef.current) {
+      if (i < maxStreams) {
         if (i === 0 && props.user.id === props.course.instructor.id) {
+          updated[i].subscriber.preferredResolution = {width: 1280, height: 720};
+          updated[i].subscriber.preferredFrameRate = 30;
           updated[i].className = `${classes.subscriberFeature} ${classes.shown}`;
         } else if (i !== 0 && props.user.id === props.course.instructor.id) {
+          updated[i].subscriber.preferredResolution = {width: 320, height: 240};
+          updated[i].subscriber.preferredFrameRate = 15;
           updated[i].className = `${classes.subscriberItemAlt} ${classes.shown}`;
         } else {
           updated[i].className = `${classes.subscriberItem} ${classes.shown}`;
         }
         updated[i].video = true;
+        updated[i].order = i;
         updated[i].subscriber.subscribeToVideo(true);
       } else {
         updated[i].className = `${classes.subscriberItem} ${classes.hidden}`;
         updated[i].video = false;
+        updated[i].order = 0;
         updated[i].subscriber.subscribeToVideo(false);
       }
-      updated[i].order = Number(i) + 1;
     }
 
     setSubs(updated.concat([]));
@@ -321,21 +384,27 @@ export default function(props) {
     let count = 0;
 
     for (var i = 0; i < updated.length; i++) {
-      if (i < maxStreamsRef.current) {
+      if (i < maxStreams) {
         if (i === 0 && props.user.id === props.course.instructor.id) {
+          updated[i].subscriber.preferredResolution = {width: 1280, height: 720};
+          updated[i].subscriber.preferredFrameRate = 30;
           updated[i].className = `${classes.subscriberFeature} ${classes.shown}`;
         } else if (i !== 0 && props.user.id === props.course.instructor.id) {
+          updated[i].subscriber.preferredResolution = {width: 320, height: 240};
+          updated[i].subscriber.preferredFrameRate = 15;
           updated[i].className = `${classes.subscriberItemAlt} ${classes.shown}`;
         } else {
           updated[i].className = `${classes.subscriberItem} ${classes.shown}`;
         }
         updated[i].video = true;
         updated[i].subscriber.subscribeToVideo(true);
+        updated[i].order = count;
         count = count + 1;
       } else {
         updated[i].video = false;
         updated[i].className = `${classes.subscriberItem} ${classes.hidden}`;
         updated[i].subscriber.subscribeToVideo(false);
+        updated[i].order = 0;
       }
     }
 
@@ -352,31 +421,75 @@ export default function(props) {
     }
   }
 
-  async function toggleSubscriberVideo(evt) {
-    let data = evt.target.name;
-
-    setSubs(subs.map(item => {
-      if (item.user.id === data) {
+  async function toggleFullscreenMode() {
+    if (fullscreenMode) {
+      setFullscreenMode(false);
+      setLoopMode(true);
+      setupLoopMode();
+    } else {
+      setSubs(subs.map(item => {
         if (item.video) {
           item.video = false;
           item.className = `${classes.subscriberItem} ${classes.hidden}`
           item.subscriber.subscribeToVideo(false);
           setVideoSubsCount(videoSubsCountRef.current - 1);
-        } else {
-          if (videoSubsCountRef.current < maxStreams) {
-            if (videoSubsCountRef.current === 0 && props.user.id === props.course.instructor.id) {
-              item.className = `${classes.subscriberFeature} ${classes.shown}`;
-            } else if (videoSubsCountRef.current !== 0 && props.user.id === props.course.instructor.id) {
-              item.className = `${classes.subscriberItemAlt} ${classes.shown}`;
-            } else {
-              item.className = `${classes.subscriberItem} ${classes.shown}`;
-            }
-            item.video = true;
-            item.subscriber.subscribeToVideo(true);
-            setVideoSubsCount(videoSubsCountRef.current + 1);
-          }
         }
+        return item;
+      }));
+      setFullscreenMode(true);
+      setLoopMode(false);
+    }
+
+    if (drawer) {
+      toggleDrawer();
+    }
+  }
+
+  async function toggleSubscriberVideo(evt) {
+    let data = evt.target.name;
+    let index = 2;
+
+    let disabled = false;
+    let current = subsRef.current.filter(item => { return item.user.id === data });
+
+    if (current[0].video) {
+      current[0].video = false;
+      current[0].className = `${classes.subscriberItem} ${classes.hidden}`
+      current[0].subscriber.subscribeToVideo(false);
+      current[0].order = 0;
+      disabled = true;
+      setVideoSubsCount(videoSubsCountRef.current - 1);
+    } else {
+      if (videoSubsCountRef.current < maxStreams) {
+        if (user.id === course.instructor.id) {
+          current[0].className = `${classes.subscriberFeature} ${classes.shown}`;
+        } else {
+          current[0].className = `${classes.subscriberItem} ${classes.shown}`;
+        }
+        current[0].video = true;
+        current[0].order = 1;
+        current[0].subscriber.subscribeToVideo(true);
+        setVideoSubsCount(videoSubsCountRef.current + 1);
       }
+    }
+
+    setSubs(subs.map(item => {
+      if (item.user.id === data) {
+        return current[0];
+      }
+
+      if (item.video) {
+        item.order = index;
+        if (disabled && index === 2) {
+          item.className = `${classes.subscriberFeature} ${classes.shown}`;
+        } else {
+          item.className = `${classes.subscriberItemAlt} ${classes.shown}`;
+        }
+        index++;
+      } else {
+        item.className = `${classes.subscriberItem} ${classes.hidden}`;
+      }
+
       return item;
     }));
   }
@@ -419,44 +532,19 @@ export default function(props) {
   }
 
   function handleSignal(event) {
-    log.debug('OPENTOK:: got signal from client', event);
-    
-    if (event.type === "signal:chat") {
+
+    if (event.type === "signal:emote") {
       let data = JSON.parse(event.data);
-      setChatHistory(chatHistory => [data, ...chatHistory]);
+      if (data.userId === user.id) {
+        enqueueSnackbar(data.message, {
+          persist: false,
+          autoHideDuration: 5000,
+          classes: {root: classes.emote},
+          anchorOrigin: { horizontal: "left", vertical: "top" }
+        });
+      }
     }
   };
-
-  async function sendChat() {
-
-    if (!chatMsg || chatMsg.trim() === "") return;
-
-    session.signal(
-      {
-        type: "chat",
-        data: JSON.stringify({
-          username: user.username,
-          message: chatMsg,
-        }),
-      },
-      function(error) {
-        if (error) {
-          log.error("OPENTOK:: user signal error" + error.message);
-        }
-      }
-    );
-
-    setChatMsg('');
-  }
-
-  function chatFormHandler(e) {
-    e.preventDefault();
-    sendChat();
-  }
-
-  function chatMsgHandler(evt) {
-    setChatMsg(evt.target.value);
-  }
 
   useEffect(() => {
     if (loopMode) {
@@ -472,39 +560,11 @@ export default function(props) {
   }, [loopMode]);
 
   useEffect(() => {
-    if (props.user.id === props.course.instructor.id) setMaxStreams(5);
+    if (props.user.id === props.course.instructor.id) setMaxStreams(4);
     setCredentials(props.credentials);
     setCourse(props.course);
     setUser(props.user);
   }, [props]);
-
-  useEffect(() => {
-    if (!credentials || !user || !course) return;
-
-    let settings = {
-      insertMode: 'append',
-      width: '100%',
-      height: '100%',
-      mirror: true,
-      showControls: false,
-      publishAudio: false,
-      publishVideo: true,
-      resolution: "320x240",
-      audioBitrate: 44000,
-      maxResolution: {width: 1280, height: 720},
-    }
-
-    let instructor = JSON.parse(course.instructor);
-
-    if (user.id === instructor.id) {
-      settings.resolution = "1280x720";
-      settings.publishAudio = true;
-      settings.audioBitrate= 96000;
-    }
-
-    initializeSession(credentials.apiKey, credentials.sessionId, settings);
-
-  }, [credentials, user, course]);
 
   useEffect(() => {
 
@@ -560,93 +620,91 @@ export default function(props) {
     }
   }, [session, publisher]);
 
-  let chatWindow = (
-    <Grid className={classes.chat}>
-      <form onSubmit={chatFormHandler}>
-        <Grid container direction="row" justify="flex-start" alignContent="center" alignItems="flex-end">
-          <Grid item xs>
-            <TextField 
-              color="secondary" 
-              type="text" 
-              label="Message" 
-              variant="standard" 
-              onChange={chatMsgHandler} 
-              value={chatMsg} 
-              className={classes.chatField} 
-            />
-          </Grid>
-          <Grid item>
-            <Button type="submit" color="secondary">Send</Button>
-          </Grid>
-        </Grid>
-      </form>
-      <Grid container direction="column">
-        {chatHistory.map(message => (
-          <Grid item key={(Math.random() * 1000000)} className={classes.chatContainer}>
-            <Typography variant="body2" className={classes.chatMsg}>{message.username}: </Typography>
-            <Typography variant="body1" className={classes.chatMsg}>{message.message}</Typography>
-          </Grid>
-        ))}
-      </Grid>
-    </Grid>
-  );
+  let chatWindow = (<Grid></Grid>);
+
+  if (session && user) {
+    chatWindow = (
+      <Chat session={session} user={user} />
+    );
+  }
+
+  let fullscreenBtn = null;
+  if (user && course && user.id !== course.instructor.id) {
+    if (fullscreenMode) {
+      fullscreenBtn = (
+        <IconButton title="Watch instructor and class participants" onClick={toggleFullscreenMode}>
+          <Group />
+        </IconButton>
+      );
+    } else {
+      fullscreenBtn = (
+        <IconButton title="Watch instructor only" onClick={toggleFullscreenMode}>
+          <Person />
+        </IconButton>
+      );
+    }
+  }
 
   let featurePanel = (
-    <Grid xs item>
-      <Paper>
-        <Box id="feature" className={classes.instructor} />
-      </Paper>
-    </Grid>
+    <Grid xs item style={{height: "100%", overflow: "hidden", position: "relative"}}></Grid>
   );
+
+  if (course && session && user) {
+    featurePanel = (
+      <Grid xs item style={{height: "100%", overflow: "hidden", position: "relative"}}>
+        <Box id="feature" className={classes.instructor} />
+        <Grid style={{position: "absolute", zIndex: 999, bottom: "10px", right: "10px"}}>
+          <Emote userId={course.instructor.id} username={user.username} session={session} />
+        </Grid>
+        <Grid style={{position: "absolute", zIndex: 999, top: "10px", left: "20px"}}>
+          {fullscreenBtn}
+        </Grid>
+      </Grid>
+    );
+  }
 
   if (user && course && user.id === course.instructor.id) {
     featurePanel = null;
   }
 
-  let combined = streams.map(strm => {
-    let existing = subs.filter(s => {
-      return s.user.id === strm.user.id;
-    });
-
-    if (existing && existing[0]) {
-      strm.className = existing[0].className;
-      strm.order = existing[0].order;
-    }
-    return strm;
-  });
-
   let participantsControls = (
-    <Grid>
+    <Grid container direction="column" justify="flex-start" alignItems="flex-start">
       {subs.map(item => (
-        <Box key={item.user.id}>
+        <Grid item key={item.user.id}>
           <Checkbox disabled={loopMode} name={item.user.id} checked={item.video} onClick={toggleSubscriberVideo} />
           <Chip label={item.user.username} />
           <MuteButton name={item.user.id} checked={item.audio} onClick={toggleSubscriberAudio} />
-        </Box>
+          <Emote userId={item.user.id} username={user.username} session={session} />
+        </Grid>
       ))}
     </Grid>
   );
 
   let videoBtn = (<VideocamOffOutlined />);
+  let videoTitle = "Enable camera";
   if (publishVideo) {
     videoBtn = (<VideocamOutlined />);
+    videoTitle = "Disable camera";
   }
 
   let micBtn = (<MicOffOutlined />);
+  let micTitle = "Enable microphone";
   if (publishAudio) {
     micBtn = (<MicNone />);
+    micTitle = "Disable microphone"
   }
 
   let videoControls = (
-    <Grid item className={classes.videoControls}>
+    <Grid className={classes.videoControls}>
       <Box>
         <Grid id="publisher" className={classes.publisher}></Grid>
-        <IconButton onClick={toggleVideo}>
+        <IconButton title={videoTitle} onClick={toggleVideo}>
           {videoBtn}
         </IconButton>
-        <IconButton onClick={toggleAudio}>
+        <IconButton title={micTitle} onClick={toggleAudio}>
           {micBtn}
         </IconButton>
+        {fullscreenBtn}
       </Box>
       <Box>
         <ExpansionPanel defaultExpanded>
@@ -655,21 +713,21 @@ export default function(props) {
           </ExpansionPanelSummary>
           <ExpansionPanelDetails>
             <Grid container direction="column">
-              <Grid item container direction="row" justify="flex-end" alignItems="center" style={{width: "100%"}}>
+              <Grid item container direction="row" justify="flex-end" alignItems="center" alignContent="center" style={{width: "100%"}}>
                 <Grid item>
-                  <Switch checked={loopMode} onChange={toggleLoopMode} name="Loop" />
+                  <Loop/>
                 </Grid>
                 <Grid item>
-                  <Typography variant="subtitle1">Loop</Typography>
+                  <Switch checked={loopMode} onChange={toggleLoopMode} title="Rotate participants viewed" name="loop" />
                 </Grid>
               </Grid>
-              <Grid item container style={{width: "100%"}}>
+              <Grid item style={{width: "100%"}}>
                 {participantsControls}
               </Grid>
             </Grid>
           </ExpansionPanelDetails>
         </ExpansionPanel>
-        <ExpansionPanel>
+        <ExpansionPanel defaultExpanded>
           <ExpansionPanelSummary expandIcon={<ExpandMoreOutlined />}>
           <Typography variant="h5">Chat</Typography>
           </ExpansionPanelSummary>
@@ -681,21 +739,56 @@ export default function(props) {
     </Grid>
   );
 
-  let containerClass = classes.subscriberGrid;
+  const [drawer, setDrawer] = useState(true);
+  function toggleDrawer() {
+    if (drawer) {
+      setDrawer(false);
+    } else {
+      setDrawer(true);
+    }
+  }
 
-  if (course && user && user.id === course.instructor.id) {
-    containerClass = classes.subscriberGridAlt;
+  let drawerBtn = (
+    <IconButton title="Expand video controls" onClick={toggleDrawer} className={classes.drawerBtn}>
+      <ChevronLeft />
+    </IconButton>
+  );
+  let drawerContent = (
+    <Grid item className={classes.drawer} style={{ display: "none"}}>
+      {videoControls}
+    </Grid>
+  );
+  if (drawer) {
+    drawerContent = (
+      <Grid item xs={3} className={classes.drawer}>
+        {videoControls}
+      </Grid>
+    );
+    drawerBtn = (
+      <IconButton title="Collapse video controls" onClick={toggleDrawer} className={classes.drawerBtn}>
+        <ChevronRight />
+      </IconButton>
+    );
+  }
+
+  let participantsClass = classes.subscriberGrid;
+
+  if (user && course && user.id === course.instructor.id) {
+    participantsClass = classes.subscriberGridAlt;
   }
 
   let participantsVideo = (
-    <Grid xs item>
-      <Grid container direction="row" justify="flex-start" className={containerClass}>
-        {combined.map(item => (
-          <Grid key={item.user.id} item className={item.className} style={{order: item.order}}>
+    <Grid xs item style={{height:"100%", overflow: "hidden"}}>
+      <Grid container direction="row" justify="flex-start" className={participantsClass} style={{height:"100%", overflow: "hidden"}}>
+        {subs.map(item => (
+          <Grid key={item.user.id} item className={item.className} style={{order: item.order, position: "relative"}}>
             <Box id={item.user.id} className={classes.subscriberFeatureVid} />
             <Box className={classes.subscriberLabelBox}>
               <Typography align="center" variant="h5" className={classes.subscriberLabel}>{item.user.username}</Typography>
             </Box>
+            <Grid style={{position: "absolute", zIndex: 999, bottom: "10px", right: "10px"}}>
+              <Emote userId={item.user.id} username={user.username} session={session} />
+            </Grid>
           </Grid>
         ))}
       </Grid>
@@ -703,14 +796,14 @@ export default function(props) {
   );
 
   let participantsVideoContent = (
-    <Grid item>
+    <Grid item style={{height:"100%", overflow: "hidden"}}>
       {participantsVideo}
     </Grid>
   );
 
   if (course && user && user.id === course.instructor.id) {
     participantsVideoContent = (
-      <Grid item xs>
+      <Grid item xs style={{height:"100%", overflow: "hidden"}}>
         {participantsVideo}
       </Grid>
     );
@@ -720,12 +813,34 @@ export default function(props) {
     participantsVideo = null;
   }
 
+  let displayMsgContent = null;
+  
+  if (displayMsg) {
+    displayMsgContent = (
+      <Alert severity={displayMsg.severity}>{displayMsg.message}</Alert>
+    )
+  }
+
+  if (permissionsError) {
+    return (
+      <Grid style={{width: "100%", height: "100%", overflow: "hidden"}}>
+        <PermissionsError />      
+      </Grid>
+    );
+  }
+
   return (
-    <Grid container direction="row" justify="flex-start">
-      <Grid container direction="row" spacing={2} justify="flex-start">
-        {featurePanel}
-        {participantsVideoContent}
-        {videoControls}
+    <Grid style={{width: "100%", height: "100%", overflow: "hidden"}}>
+      {displayMsgContent}
+      <Grid container direction="row" justify="flex-start" style={{height:"100%", overflow: "hidden"}}>
+        <Grid container direction="row" spacing={0} justify="flex-start" style={{height: "100%", overflow: "hidden"}} >
+          {featurePanel}
+          {participantsVideoContent}
+          <Grid item style={{width: 0}}>
+            {drawerBtn}
+          </Grid>
+          {drawerContent}
+        </Grid>
       </Grid>
     </Grid>
   );
