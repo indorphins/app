@@ -20,8 +20,8 @@ import {
   Loop,
   ChevronLeft,
   ChevronRight,
-  Fullscreen,
-  FullscreenExit,
+  Person,
+  Group,
 } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { Alert } from '@material-ui/lab';
@@ -418,6 +418,8 @@ export default function(props) {
   async function toggleFullscreenMode() {
     if (fullscreenMode) {
       setFullscreenMode(false);
+      setLoopMode(true);
+      setupLoopMode();
     } else {
       setSubs(subs.map(item => {
         if (item.video) {
@@ -428,13 +430,13 @@ export default function(props) {
         }
         return item;
       }));
-      if (drawer) {
-        toggleDrawer();
-      }
       setFullscreenMode(true);
+      setLoopMode(false);
     }
 
-    toggleLoopMode();
+    if (drawer) {
+      toggleDrawer();
+    }
   }
 
   async function toggleSubscriberVideo(evt) {
@@ -624,14 +626,14 @@ export default function(props) {
   if (props.user.id !== props.course.instructor.id) {
     if (fullscreenMode) {
       fullscreenBtn = (
-        <IconButton onClick={toggleFullscreenMode}>
-          <FullscreenExit />
+        <IconButton title="Watch instructor and class participants" onClick={toggleFullscreenMode}>
+          <Group />
         </IconButton>
       );
     } else {
       fullscreenBtn = (
-        <IconButton onClick={toggleFullscreenMode}>
-          <Fullscreen />
+        <IconButton title="Watch instructor only" onClick={toggleFullscreenMode}>
+          <Person />
         </IconButton>
       );
     }
