@@ -243,7 +243,7 @@ export default function(props) {
       maxResolution: {width: 1280, height: 720},
     };
 
-    if (props.user.id === course.instructor.id) {
+    if (user.id === course.instructor.id) {
       settings.resolution = "1280x720";
       settings.audioBitrate = 96000;
       settings.disableAudioProcessing = true;
@@ -254,7 +254,8 @@ export default function(props) {
     if (credentials.apiKey && credentials.sessionId) {
       initializeSession(credentials.apiKey, credentials.sessionId, settings);
     }
-  }, [credentials, props.user, props.course]);
+  }, [credentials, user, course]);
+
 
   function streamDestroyed(event) {
     log.debug('OPENTOK:: stream destroyed', event);
@@ -314,10 +315,6 @@ export default function(props) {
 
     subscriber = await session.subscribe(event.stream, data.id, props, handleError);
 
-    subscriber.on('videoElementCreated', function(evt) {
-      log.debug("got video event", evt);
-    });
-
     setSubs(subs => [...subs, {
       user: data, 
       subscriber: subscriber, 
@@ -363,13 +360,14 @@ export default function(props) {
           updated[i].className = `${classes.subscriberItem} ${classes.shown}`;
         }
         updated[i].video = true;
+        updated[i].order = i;
         updated[i].subscriber.subscribeToVideo(true);
       } else {
         updated[i].className = `${classes.subscriberItem} ${classes.hidden}`;
         updated[i].video = false;
+        updated[i].order = 0;
         updated[i].subscriber.subscribeToVideo(false);
       }
-      updated[i].order = Number(i) + 1;
     }
 
     setSubs(updated.concat([]));
@@ -394,11 +392,13 @@ export default function(props) {
         }
         updated[i].video = true;
         updated[i].subscriber.subscribeToVideo(true);
+        updated[i].order = count;
         count = count + 1;
       } else {
         updated[i].video = false;
         updated[i].className = `${classes.subscriberItem} ${classes.hidden}`;
         updated[i].subscriber.subscribeToVideo(false);
+        updated[i].order = 0;
       }
     }
 
@@ -439,29 +439,49 @@ export default function(props) {
 
   async function toggleSubscriberVideo(evt) {
     let data = evt.target.name;
+    let index = 2;
+
+    let disabled = false;
+    let current = subsRef.current.filter(item => { return item.user.id === data });
+
+    if (current[0].video) {
+      current[0].video = false;
+      current[0].className = `${classes.subscriberItem} ${classes.hidden}`
+      current[0].subscriber.subscribeToVideo(false);
+      current[0].order = 0;
+      disabled = true;
+      setVideoSubsCount(videoSubsCountRef.current - 1);
+    } else {
+      if (videoSubsCountRef.current < maxStreams) {
+        if (user.id === course.instructor.id) {
+          current[0].className = `${classes.subscriberFeature} ${classes.shown}`;
+        } else {
+          current[0].className = `${classes.subscriberItem} ${classes.shown}`;
+        }
+        current[0].video = true;
+        current[0].order = 1;
+        current[0].subscriber.subscribeToVideo(true);
+        setVideoSubsCount(videoSubsCountRef.current + 1);
+      }
+    }
 
     setSubs(subs.map(item => {
       if (item.user.id === data) {
-        if (item.video) {
-          item.video = false;
-          item.className = `${classes.subscriberItem} ${classes.hidden}`
-          item.subscriber.subscribeToVideo(false);
-          setVideoSubsCount(videoSubsCountRef.current - 1);
-        } else {
-          if (videoSubsCountRef.current < maxStreams) {
-            if (videoSubsCountRef.current === 0 && props.user.id === props.course.instructor.id) {
-              item.className = `${classes.subscriberFeature} ${classes.shown}`;
-            } else if (videoSubsCountRef.current !== 0 && props.user.id === props.course.instructor.id) {
-              item.className = `${classes.subscriberItemAlt} ${classes.shown}`;
-            } else {
-              item.className = `${classes.subscriberItem} ${classes.shown}`;
-            }
-            item.video = true;
-            item.subscriber.subscribeToVideo(true);
-            setVideoSubsCount(videoSubsCountRef.current + 1);
-          }
-        }
+        return current[0];
       }
+
+      if (item.video) {
+        item.order = index;
+        if (disabled && index === 2) {
+          item.className = `${classes.subscriberFeature} ${classes.shown}`;
+        } else {
+          item.className = `${classes.subscriberItemAlt} ${classes.shown}`;
+        }
+        index++;
+      } else {
+        item.className = `${classes.subscriberItem} ${classes.hidden}`;
+      }
+
       return item;
     }));
   }
@@ -639,18 +659,6 @@ export default function(props) {
     featurePanel = null;
   }
 
-  let combined = streams.map(strm => {
-    let existing = subs.filter(s => {
-      return s.user.id === strm.user.id;
-    });
-
-    if (existing && existing[0]) {
-      strm.className = existing[0].className;
-      strm.order = existing[0].order;
-    }
-    return strm;
-  });
-
   let participantsControls = (
     <Grid container direction="column" justify="flex-start" alignItems="flex-start">
       {subs.map(item => (
@@ -755,6 +763,17 @@ export default function(props) {
     );
   }
 
+  let combined = streams.map(strm => {
+    let existing = subs.filter(s => {
+      return s.user.id === strm.user.id;
+    });
+
+    if (existing && existing[0]) {
+      strm.className = existing[0].className;
+      strm.order = existing[0].order;
+    }
+    return strm;
+  });
   let participantsClass = classes.subscriberGrid;
   let instructor = props.course.instructor;
 
