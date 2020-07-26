@@ -60,9 +60,9 @@ export default function() {
     }
   }, [currentUser])
 
-	return (
+  return (
 		<Container>
       <CourseSchedule course={courses} view="week" />
 		</Container>
-	);
+  );
 };

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { Container, Divider, Grid, CircularProgress, Fab, Typography } from '@material-ui/core';
+import { Container, Grid, CircularProgress, Fab, Typography } from '@material-ui/core';
 import { Create, Clear, AccountBalanceOutlined } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core';
 import { useSelector } from 'react-redux';
@@ -170,7 +170,7 @@ export default function () {
     return getSchedule(schedFilter);
   }
 
-  const toggleEditForm = function () {
+  const toggleEditForm = function() {
     if (editForm) {
       setEditForm(false);
     } else {
@@ -239,14 +239,33 @@ export default function () {
   }
   
   let userContent = (
-    <Grid>
-      {controlsContent}
-      <UserData header={username} email={email} photo={photo} phone={phone} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} />
-      <Divider className={classes.divider} />
-      <Typography variant="h2" className={classes.header}>Cards</Typography>
-      <Cards />
-      <Divider className={classes.divider} />
-      <CourseSchedule header="My Schedule" course={courses} view="month" />
+    <Grid container direction="column" spacing={2}>
+      <Grid item>
+        {controlsContent}
+      </Grid>
+      <Grid item>
+        <UserData header={username} email={email} photo={photo} phone={phone} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} showContactInfo={true} />
+      </Grid>
+      <Grid item>
+        <Grid container direction="column" spacing={2}>
+          <Grid item>
+            <Typography variant="h2">Cards</Typography>
+          </Grid>
+          <Grid item>
+            <Cards />
+          </Grid>
+        </Grid>
+      </Grid>
+      <Grid item>
+        <Grid container direction="column" spacing={2}>
+          <Grid item>
+            <Typography variant="h2">Schedule</Typography>
+          </Grid>
+          <Grid item>
+            <CourseSchedule course={courses} view="month" />
+          </Grid>
+        </Grid>
+      </Grid>
     </Grid>
   );
 
