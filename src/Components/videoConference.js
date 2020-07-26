@@ -1,44 +1,39 @@
 import React, {useState, useEffect, useRef} from 'react';
 import { 
   Box, 
-  Button, 
   Grid, 
+  Chip,
   IconButton, 
-  Checkbox, 
-  Paper, 
-  Chip, 
+  Checkbox,  
   Typography, 
-  TextField, 
   ExpansionPanel, 
   ExpansionPanelSummary, 
   ExpansionPanelDetails,
   Switch,
-  Menu,
-  MenuItem,
 } from '@material-ui/core';
 import { 
   VideocamOffOutlined, 
   VideocamOutlined, 
   MicNone, 
   MicOffOutlined, 
-  VolumeOff, 
-  VolumeUp, 
   ExpandMoreOutlined,
   Loop,
   ChevronLeft,
   ChevronRight,
-  InsertEmoticon,
   Fullscreen,
   FullscreenExit,
 } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { Alert } from '@material-ui/lab';
 import * as OT from '@opentok/client';
-import { format } from 'date-fns';
 import { isSafari, isMobile, fullBrowserVersion } from 'react-device-detect';
 import compareVersions from 'compare-versions';
 import { useSnackbar } from 'notistack';
 
+import Chat from './video/chat';
+import Emote from './video/emote';
+import MuteButton from './video/mute';
+import PermissionsError from './video/permissionsError';
 import log from '../log';
 
 const useStyles = makeStyles((theme) => ({
@@ -111,112 +106,13 @@ const useStyles = makeStyles((theme) => ({
     right: '50px',
     zIndex: '9999',
   },
-  chat: {
-    width: "100%",
-  },
-  chatField: {
-    width: "100%",
-  },
-  chatMsg: {
-    display: "inline",
-  },
-  chatUsername: {
-    display: "inline",
-    fontWeight: "bold",
-    color: theme.palette.secondary.main
-  },
-  chatContainer: {
-    width: '100%',
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-  },
   shown: {
     display: "block",
   },
   hidden: {
     display: "none",
-  },
-  emoteMenu: {
-    columns: 2,
-  },
+  }
 }));
-
-function MuteButton(props) {
-
-  const [isChecked, setChecked] = useState(props.checked);
-
-  useEffect(() => {
-    setChecked(props.checked);
-  }, [props.checked]);
-
-  let soundBtn = (<VolumeOff />);
-  let title = "Unmute this participant";
-
-  if (isChecked) {
-    soundBtn = (<VolumeUp />);
-    title = "Mute this participant";
-  }
-
-  return (
-    <IconButton name={props.name} title={title} onClick={() => props.onClick(props.name)}>
-      {soundBtn}
-    </IconButton>
-  );
-}
-
-function Emote(props) {
-
-  const classes = useStyles();
-  const btn = useRef(null);
-  const [anchorEl, setAnchorEl] = useState(null);
-
-  const handleClick = () => {
-    setAnchorEl(btn.current);
-  };
-
-  const handleClose = function() {
-    setAnchorEl(null);
-  }
-
-  const handleSelect = function(event) {
-    if (props.onSelect) {
-      props.onSelect({id: props.userId, value: event});
-    }
-    setAnchorEl(null);
-  }
-
-  return (
-    <Grid style={{display: "inline"}}>
-      <IconButton ref={btn} onClick={handleClick} title="Send an emote"><InsertEmoticon color="primary" /></IconButton>
-      <Menu keepMounted open={Boolean(anchorEl)} anchorEl={anchorEl} onClose={handleClose} classes={{list: classes.emoteMenu}}>
-        <MenuItem value="👍" title="Send a thumbs-up" onClick={() => handleSelect(`👍 from ${props.username}`)}>
-          <span aria-label="thumbs-up" role="img">👍</span>
-        </MenuItem>
-        <MenuItem value="✋" title="Give them a high-five" onClick={() => handleSelect(`${props.username} high-fives you ✋`)}>
-            <span aria-label="high-five" role="img">✋</span>
-        </MenuItem>
-        <MenuItem value="👋" title="Wave hello" onClick={() => handleSelect(`${props.username} says hi 👋`)}>
-          <span aria-label="hand-wave" role="img">👋</span>
-        </MenuItem>
-        <MenuItem value="✊" title="Fist bump" onClick={() => handleSelect(`fist bump ✊ from ${props.username}`)}>
-          <span aria-label="fist-bump" role="img">✊</span>
-        </MenuItem>
-        <MenuItem value="🤣" title="That was hilarious" onClick={() => handleSelect(`${props.username} thought that was hilarious 🤣`)}>
-          <span aria-label="loved-that" role="img">🤣</span>
-        </MenuItem>
-        <MenuItem value="😍" title="Let them know you loved that" onClick={() => handleSelect(`${props.username} loved that 😍`)}>
-          <span aria-label="loved-that" role="img">😍</span>
-        </MenuItem>
-        <MenuItem value="🥵" title="Let them know you are exhausted" onClick={() => handleSelect(`${props.username} is exhausted 🥵`)}>
-          <span aria-label="worn-out" role="img">🥵</span>
-        </MenuItem>
-        <MenuItem value="🔥" title="You are on fire" onClick={() => handleSelect(`${props.username} thinks you are on 🔥`)}>
-          <span aria-label="on-fire" role="img">🔥</span>
-        </MenuItem>     
-      </Menu>
-    </Grid>
-  )
-}
 
 export default function(props) {
 
@@ -235,29 +131,45 @@ export default function(props) {
   const [publisher, setPublisher] = useState(null);
   const [publishVideo, setPublishVideo] = useState(true);
   const [publishAudio, setPublishAudio] = useState(false);
-  const [chatMsg, setChatMsg] = useState('');
-  const [chatHistory, setChatHistory] = useState([]);
   const [loopMode, setLoopMode] = useState(true);
   const [fullscreenMode, setFullscreenMode] = useState(false);
   const [displayMsg, setDisplayMsg] = useState(null);
+  const [permissionsError, setPermissionsError] = useState(false);
   const userRef = useRef();
   const courseRef = useRef();
   const subsRef = useRef();
   const videoSubsCountRef = useRef();
   const maxStreamsRef = useRef();
+  const fullscreenRef = useRef();
 
   userRef.current = user;
   courseRef.current = course;
   subsRef.current = subs;
   videoSubsCountRef.current = videoSubsCount;
   maxStreamsRef.current = maxStreams;
+  fullscreenRef.current = fullscreenMode;
 
   async function handleError(err) {
     if (err) {
       log.error("OPENTOK::", err);
 
-      if (err.message.match("End-user denied permission to hardware devices")) {
-        setDisplayMsg({severity: "error", message: "We cannot access your camera or microphone. Please refresh the page, making sure to 'accept' the request for camera and microphone device access."});
+      if (err.name === 'OT_HARDWARE_UNAVAILABLE') {
+        setDisplayMsg({severity: "error", message: "We cannot access your camera or microphone, they are already in use by another application."});
+        return;
+      }
+
+      if (err.name === 'OT_MEDIA_ERR_NETWORK') {
+        setDisplayMsg({severity: "error", message: "Network conection error. Please check your internet connection and then reconnect to this session"});
+        return;
+      }
+
+      if (err.name === 'OT_NOT_SUPPORTED') {
+        setDisplayMsg({severity: "error", message: "Device not supported."});
+        return;
+      }
+
+      if (err.name === 'OT_TIMEOUT') {
+        setDisplayMsg({severity: "error", message: "Network conection error. Please check your internet connection and then reconnect to this session"});
         return;
       }
     }
@@ -266,6 +178,15 @@ export default function(props) {
   async function initializeSession(apiKey, sessionId, settings) {
 
     let session = OT.initSession(apiKey, sessionId);
+    
+
+    log.debug("session publish", session.capabilities.publish);
+
+    if (session.capabilities.publish !== 0) {
+      setDisplayMsg({severity: "error", message: "Not allowed to publish to session"});
+      return;
+    }
+
     setSession(session);
 
     settings.name = session.data;
@@ -273,6 +194,12 @@ export default function(props) {
     // Create a publisher
     let publisher = OT.initPublisher('publisher', settings, handleError);
     setPublisher(publisher);
+
+    publisher.on({
+      accessDenied: function accessDeniedHandler(event) {
+        setPermissionsError(true);
+      }
+    });
   }
 
   function validateBrowserVersion() {
@@ -306,6 +233,7 @@ export default function(props) {
       height: '100%',
       mirror: true,
       showControls: false,
+      insertDefaultUI: true,
       publishAudio: false,
       publishVideo: true,
       resolution: "1280x720",
@@ -352,6 +280,7 @@ export default function(props) {
       preferredFrameRate: 15,
       preferredResolution: {width: 320, height: 240},
       showControls: false,
+      insertDefaultUI: true,
       subscribeToAudio: true,
       subscribeToVideo: false,
       fitMode: "cover",
@@ -369,7 +298,7 @@ export default function(props) {
 
     let classname = `${classes.subscriberItem} ${classes.hidden}`;
 
-    if (event.stream.hasVideo && videoSubsCountRef.current < maxStreamsRef.current) {
+    if (event.stream.hasVideo && videoSubsCountRef.current < maxStreamsRef.current && !fullscreenRef.current) {
       if (videoSubsCountRef.current === 0 && userRef.current.id === courseRef.current.instructor.id) {
         props.preferredResolution = {width: 1280, height: 720};
         props.preferredFrameRate = 30;
@@ -384,6 +313,10 @@ export default function(props) {
     }
 
     subscriber = await session.subscribe(event.stream, data.id, props, handleError);
+
+    subscriber.on('videoElementCreated', function(evt) {
+      log.debug("got video event", evt);
+    });
 
     setSubs(subs => [...subs, {
       user: data, 
@@ -571,17 +504,10 @@ export default function(props) {
   }
 
   function handleSignal(event) {
-    log.debug('OPENTOK:: got signal from client', event);
-    
-    if (event.type === "signal:chat") {
-      let data = JSON.parse(event.data);
-      setChatHistory(chatHistory => [data, ...chatHistory]);
-    }
 
     if (event.type === "signal:emote") {
       let data = JSON.parse(event.data);
       if (data.userId === user.id) {
-        log.debug('emote for you', data.message)
         enqueueSnackbar(data.message, {
           persist: false,
           autoHideDuration: 5000,
@@ -591,38 +517,6 @@ export default function(props) {
       }
     }
   };
-
-  async function sendChat() {
-
-    if (!chatMsg || chatMsg.trim() === "") return;
-
-    session.signal(
-      {
-        type: "chat",
-        data: JSON.stringify({
-          username: user.username,
-          message: chatMsg,
-          date: new Date().toISOString(),
-        }),
-      },
-      function(error) {
-        if (error) {
-          log.error("OPENTOK:: user signal error" + error.message);
-        }
-      }
-    );
-
-    setChatMsg('');
-  }
-
-  function chatFormHandler(e) {
-    e.preventDefault();
-    sendChat();
-  }
-
-  function chatMsgHandler(evt) {
-    setChatMsg(evt.target.value);
-  }
 
   useEffect(() => {
     if (loopMode) {
@@ -698,36 +592,13 @@ export default function(props) {
     }
   }, [session, publisher]);
 
-  let chatWindow = (
-    <Grid className={classes.chat}>
-      <form onSubmit={chatFormHandler}>
-        <Grid container direction="row" justify="flex-start" alignContent="center" alignItems="flex-end">
-          <Grid item xs>
-            <TextField 
-              color="secondary" 
-              type="text" 
-              label="Message" 
-              variant="standard" 
-              onChange={chatMsgHandler} 
-              value={chatMsg} 
-              className={classes.chatField} 
-            />
-          </Grid>
-          <Grid item>
-            <Button type="submit" color="secondary">Send</Button>
-          </Grid>
-        </Grid>
-      </form>
-      <Grid container direction="column">
-        {chatHistory.map(message => (
-          <Grid item key={(Math.random() * 1000000)} className={classes.chatContainer}>
-            <Typography variant="body2" className={classes.chatUsername}>{message.username} [{format(new Date(message.date), 'h:mm aa')}]: </Typography>
-            <Typography variant="body1" className={classes.chatMsg}>{message.message}</Typography>
-          </Grid>
-        ))}
-      </Grid>
-    </Grid>
-  );
+  let chatWindow = (<Grid></Grid>);
+
+  if (session && user) {
+    chatWindow = (
+      <Chat session={session} user={user} />
+    );
+  }
 
   let fullscreenBtn = null;
   if (props.user.id !== props.course.instructor.id) {
@@ -746,19 +617,20 @@ export default function(props) {
     }
   }
 
-  let featurePanel = null
-  if (course) {
+  let featurePanel = (
+    <Grid xs item style={{height: "100%", overflow: "hidden", position: "relative"}}></Grid>
+  );
+
+  if (course && session && user) {
     featurePanel = (
       <Grid xs item style={{height: "100%", overflow: "hidden", position: "relative"}}>
-        <Paper style={{height: "100%", overflow: "hidden"}}>
-          <Box id="feature" className={classes.instructor} />
-          <Grid style={{position: "absolute", zIndex: 999, bottom: "10px", right: "10px"}}>
-            <Emote userId={course.instructor.id} username={user.username} onSelect={sendEmote} />
-          </Grid>
-          <Grid style={{position: "absolute", zIndex: 999, top: "10px", left: "20px"}}>
-            {fullscreenBtn}
-          </Grid>
-        </Paper>
+        <Box id="feature" className={classes.instructor} />
+        <Grid style={{position: "absolute", zIndex: 999, bottom: "10px", right: "10px"}}>
+          <Emote userId={course.instructor.id} username={user.username} session={session} />
+        </Grid>
+        <Grid style={{position: "absolute", zIndex: 999, top: "10px", left: "20px"}}>
+          {fullscreenBtn}
+        </Grid>
       </Grid>
     );
   }
@@ -779,26 +651,6 @@ export default function(props) {
     return strm;
   });
 
-  function sendEmote(event) {
-    log.debug('emote event', event);
-
-    session.signal(
-      {
-        type: "emote",
-        data: JSON.stringify({
-          userId: event.id,
-          message: event.value,
-          date: new Date().toISOString(),
-        }),
-      },
-      function(error) {
-        if (error) {
-          log.error("OPENTOK:: user signal error" + error.message);
-        }
-      }
-    );
-  }
-
   let participantsControls = (
     <Grid container direction="column" justify="flex-start" alignItems="flex-start">
       {subs.map(item => (
@@ -806,7 +658,7 @@ export default function(props) {
           <Checkbox disabled={loopMode} name={item.user.id} checked={item.video} onClick={toggleSubscriberVideo} />
           <Chip label={item.user.username} />
           <MuteButton name={item.user.id} checked={item.audio} onClick={toggleSubscriberAudio} />
-          <Emote userId={item.user.id} username={user.username} onSelect={sendEmote} />
+          <Emote userId={item.user.id} username={user.username} session={session} />
         </Grid>
       ))}
     </Grid>
@@ -827,7 +679,7 @@ export default function(props) {
   }
 
   let videoControls = (
-    <Grid item className={classes.videoControls}>
+    <Grid className={classes.videoControls}>
       <Box>
         <Grid id="publisher" className={classes.publisher}></Grid>
         <IconButton title={videoTitle} onClick={toggleVideo}>
@@ -920,7 +772,7 @@ export default function(props) {
               <Typography align="center" variant="h5" className={classes.subscriberLabel}>{item.user.username}</Typography>
             </Box>
             <Grid style={{position: "absolute", zIndex: 999, bottom: "10px", right: "10px"}}>
-              <Emote userId={item.user.id} username={user.username} onSelect={sendEmote} />
+              <Emote userId={item.user.id} username={user.username} session={session} />
             </Grid>
           </Grid>
         ))}
@@ -952,6 +804,14 @@ export default function(props) {
     displayMsgContent = (
       <Alert severity={displayMsg.severity}>{displayMsg.message}</Alert>
     )
+  }
+
+  if (permissionsError) {
+    return (
+      <Grid style={{width: "100%", height: "100%", overflow: "hidden"}}>
+        <PermissionsError />      
+      </Grid>
+    );
   }
 
   return (
