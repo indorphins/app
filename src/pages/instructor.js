@@ -47,7 +47,6 @@ export default function () {
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [phone, setPhone] = useState('');
   const [insta, setInsta] = useState('');
   const [bio, setBio] = useState('');
   const [loader, setLoader] = useState(true);
@@ -88,7 +87,6 @@ export default function () {
       setFirstName(instructor.data.first_name);
       setLastName(instructor.data.last_name);
       setPhoto(instructor.data.photo_url);
-      setPhone(instructor.data.phone_number)
       setBio(instructor.data.bio);
       if (instructor.data.social && instructor.data.social.instagram) setInsta(instructor.data.social.instagram);
       setLoader(false);
@@ -136,7 +134,7 @@ export default function () {
   
   let userContent = (
     <Grid>
-      <UserData header={username} email={email} photo={photo} phone={phone} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} />
+      <UserData header={username} email={email} photo={photo} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} />
       <Divider className={classes.divider} />
       <CourseSchedule header={coursesLabel} course={courses} view="month" />
     </Grid>
