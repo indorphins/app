@@ -123,11 +123,9 @@ export default function () {
   }, [paymentData.id, currentUser.id]);
 
   useEffect(() => {
-    if (paymentData && !paymentData.accountId) {
+    if (paymentData && !paymentData.accountId && (currentUser.type === 'instructor' || currentUser.type === 'admin')) {
       setCreateStripe(true);
-    }
-    
-    if (paymentData && paymentData.accountId) {
+    } else {
       setCreateStripe(false);
     }
   }, [paymentData]);
