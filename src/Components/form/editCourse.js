@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
   },
   cost: {
-    width: "100%",
+    width: 120,
   },
   btn: {
     marginTop: theme.spacing(2),
@@ -46,9 +46,9 @@ export default function (props) {
   const history = useHistory();
   const [title, setTitle] = useState('');
   const [courseType, setCourseType] = useState('');
-  const [cost, setCost] = useState("20.00");
-  const [spots, setSpots] = useState(20);
-  const [duration, setDuration] = useState(60);
+  const [cost, setCost] = useState("15.00");
+  const [spots, setSpots] = useState(15);
+  const [duration, setDuration] = useState(45);
   const [selectedDate, setSelectedDate] = useState(null);
   const [description, setDescription] = useState('');
   const [recurring, setRecurring] = useState(false);
@@ -84,8 +84,6 @@ export default function (props) {
 
     if (value) {
       setSpots(value);
-    } else {
-      setSpots(20);
     }
   }
 
@@ -242,7 +240,7 @@ export default function (props) {
   let form = (
     <Grid className={classes.root}>
       <form onSubmit={formHandler}>
-        <Grid container direction="row" spacing={2} justify="flex-start" alignItems="flex-end">
+        <Grid container direction="row" spacing={2} justify="flex-start" alignItems="flex-start">
           <Grid item>
             <Grid container direction="column" justify="flex-start" alignItems="flex-start">
               <MuiPickersUtilsProvider utils={DateFnsUtils} className={classes.slider}>
@@ -263,7 +261,7 @@ export default function (props) {
                 <Box>
                   <Typography variant="body1">{duration} minutes</Typography>
                 </Box>
-                <Slider disabled={loader} className={classes.durSlider} defaultValue={60} min={30} max={60} step={15} valueLabelDisplay="auto" onChangeCommitted={handleDurationSlider} />
+                <Slider disabled={loader} className={classes.durSlider} defaultValue={45} min={30} max={60} step={15} valueLabelDisplay="auto" onChangeCommitted={handleDurationSlider} />
               </Grid>
             </Grid>
           </Grid>

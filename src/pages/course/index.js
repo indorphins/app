@@ -99,7 +99,7 @@ export default function() {
     createContent = (
       <Grow in={showForm}>
         <Grid>
-          <CreateCourse instructorId={currentUser.id} photoUrl={currentUser.photo_url} spotsDisabled={false} costDisabled={true} />
+          <CreateCourse instructorId={currentUser.id} photoUrl={currentUser.photo_url} spotsDisabled={false} costDisabled={false} />
           <Divider className={classes.divider} />
         </Grid>
       </Grow>
