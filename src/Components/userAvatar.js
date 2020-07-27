@@ -10,11 +10,11 @@ const useStyles = makeStyles((theme) => ({
     cursor: "pointer",
   },
   avatar: {
-    width: "2rem",
-    height: "2rem",
+    width: "2.5rem",
+    height: "2.5rem",
     '@media (max-width: 600px)': {
-      width: "1.5rem",
-      height: "1.5rem",
+      width: "1.8rem",
+      height: "1.8rem",
     }
   }
 }));

@@ -94,22 +94,17 @@ export default function() {
     )
   }
 
-	let createContent = null;
-	if (showForm) {
-		createContent = (
-			<Grow in={showForm}>
-				<Grid>
-					<CreateCourse
-						instructorId={currentUser.id}
-						photoUrl={currentUser.photo_url}
-						spotsDisabled={true}
-						costDisabled={true}
-					/>
-					<Divider />
-				</Grid>
-			</Grow>
-		);
-	}
+  let createContent = null
+  if (showForm) {
+    createContent = (
+      <Grow in={showForm}>
+        <Grid>
+          <CreateCourse instructorId={currentUser.id} photoUrl={currentUser.photo_url} spotsDisabled={false} costDisabled={false} />
+          <Divider className={classes.divider} />
+        </Grid>
+      </Grow>
+    );
+  }
 
 	return (
 		<Container justify='center'>

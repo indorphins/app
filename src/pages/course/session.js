@@ -1,29 +1,37 @@
 import React, { useState, useEffect }  from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { Grid, CircularProgress } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { Grid, LinearProgress } from '@material-ui/core';
+import { makeStyles, ThemeProvider } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
+import { SnackbarProvider } from 'notistack';
 
 import * as Course from '../../api/course';
 import path from '../../routes/path';
 import log from '../../log';
 import Opentok from '../../components/videoConference';
-
+import { dark } from '../../styles/theme';
 
 const useStyles = makeStyles((theme) => ({
   '@global': {
     '#root': {
       height: '100%',
+    },
+    '.MuiSnackbarContent-message': {
+      fontSize: '2rem',
     }
   },
   root: {
     height: '100%',
+    overflow: 'hidden',
+    backgroundColor: dark.palette.background.default,
   },
   contentCol: {
-    /*flex: 1,
-    overflow: 'auto',*/
-    padding: theme.spacing(2),
+    padding: 0,
+    height: "100%",
+  },
+  emote: {
+    fontSize: "2rem",
   }
 }));
 
@@ -80,11 +88,13 @@ export default function() {
   }, [params.id, currentUser]);
 
   let chatContent = (
-    <Opentok credentials={authData} course={course} user={currentUser}></Opentok>
+    <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
+      <Opentok credentials={authData} course={course} user={currentUser}></Opentok>
+    </Grid>
   );
 
   let content = (
-    <CircularProgress color="secondary" />
+    <LinearProgress color="secondary" />
   );
 
   if (!loader) {
@@ -92,12 +102,14 @@ export default function() {
   }
 
   return (
-    <Grid className={classes.root}>
-      <Grid className={classes.contentCol}>
-        <Grid container direction="row" justify="center" alignItems="center" alignContent="center" className={classes.root}>
-          {content}
+    <SnackbarProvider classes={{root: classes.emote}} maxSnack={10}>
+      <ThemeProvider theme={dark}>
+        <Grid className={classes.root}>
+          <Grid className={classes.contentCol}>
+            {content}
+          </Grid>
         </Grid>
-      </Grid>
-    </Grid>
+      </ThemeProvider>
+    </SnackbarProvider>
   );
 };

@@ -15,6 +15,7 @@ class Firebase {
 		this.federated = {
 			google: new firebase.auth.GoogleAuthProvider(),
 		};
+		this.token = {};
 
 		this.federated.google.addScope('profile');
 		this.federated.google.addScope('email');
@@ -50,6 +51,7 @@ class Firebase {
 	};
 
 	logout = function() {
+		this.token = {};
 		this.auth.signOut();
 	};
 
@@ -101,9 +103,18 @@ class Firebase {
 			return null;
 		}
 
+		let now = new Date();
+		if (this.token && this.token.value && (now - this.token.date)/1000 < 1800) {
+			return this.token.value;
+		}
+
+		let self = this;
 		return this.auth.currentUser
-			.getIdToken(/* forceRefresh */ true)
+			.getIdToken(/* forceRefresh */ false)
 			.then(function(idToken) {
+				let now = new Date();
+				self.token.value = idToken;
+				self.token.date = now;
 				return idToken;
 			})
 			.catch(function(error) {

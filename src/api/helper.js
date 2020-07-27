@@ -25,6 +25,16 @@ export default async function callAPI(url, options, sendToken) {
 	return fetch(url, options)
 		.then((response) => {
 			log.info("API:: response status code", response.status);
+			if (response.status !== 201 && response.status !== 200) {
+				return response.json().then(result => {
+
+					if (result.message.raw && result.message.raw.message) {
+						throw Error(result.message.raw.message);
+					}
+
+					throw Error(result.message);
+				})
+			}
 			return response.json();
 		})
 		.then((data) => {

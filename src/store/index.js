@@ -5,15 +5,23 @@ const userSlice = createSlice({
   name: 'user',
   initialState: {
     data: {},
+    paymentData: {methods: []},
   },
   reducers: {
     set(state, action) {
       log.debug("STORE:: set user", action.payload);
       state.data = Object.assign({}, state.data, action.payload);
+      return state;
+    },
+    setPaymentData(state, action) {
+      log.debug("STORE:: set user payment data", action.payload);
+      state.paymentData = Object.assign(state.paymentData, action.payload);
+      return state;
     },
     clear(state) {
       log.debug("STORE:: clear user data");
       state.data = {};
+      state.paymentData = { methods: []};
       return state;
     }
   }

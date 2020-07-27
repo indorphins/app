@@ -114,12 +114,20 @@ export default function(props) {
 
   if (data) {
     let items = [];
+    let result = data.data;
 
-    data.data.forEach(function(i) {
+    for(let i = (result.length - 1); i > 0; i--) {
+      const j = Math.floor(Math.random() * i)
+      const temp = result[i]
+      result[i] = result[j]
+      result[j] = temp
+    }
+
+    result.forEach(function(i) {
       let info = {
         photo: i.photo_url,
         firstName: i.first_name,
-        url: path.profile + "/" + i.id,
+        url: path.instructor + "/" + i.id,
         id: i.id,
       };
 

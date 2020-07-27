@@ -1,94 +1,148 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { Button, Container, Divider, Grid } from '@material-ui/core';
-import { makeStyles } from '@material-ui/core/styles';
+import { Button, Checkbox, Container, Grid, Typography, Card, LinearProgress, useMediaQuery, makeStyles } from '@material-ui/core';
+import { Photo, ShoppingCartOutlined, GroupAdd, People, RecordVoiceOver, AvTimer } from '@material-ui/icons';
+import Alert from '@material-ui/lab/Alert';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { useStripe } from '@stripe/react-stripe-js';
+import { format, isTomorrow, isToday } from 'date-fns';
 
-import UserData from '../../components/userData';
-import CourseSchedule from '../../components/courseSchedule';
+import { store, actions } from '../../store';
+import CreateMessage from '../../components/form/createMessage'
 import * as Course from '../../api/course';
 import * as Stripe from '../../api/stripe';
 import log from '../../log';
 import path from '../../routes/path';
-import { getNextDate, getPrevDate } from '../../utils';
-import AddPaymentMethod from '../../components/form/addPaymentMethod';
+import Cards from '../../components/cards';
 
-const sessionWindow = 15;
+import { getNextSession } from '../../utils';
 
 const useStyles = makeStyles((theme) => ({
-  divider: {
-    margin: theme.spacing(2),
+  title: {
+    paddingBottom: theme.spacing(2),
   },
-  actionBtn: {
-    marginLeft: theme.spacing(1),
+  cost: {
+    fontWeight: "bold",
+    display: "inline-block",
+    width: "100%",
+  },
+  spotsContainer: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    cursor: "default",
+    backgroundColor: theme.palette.grey[200],
+  },
+  participantContainer: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    cursor: "default",
+    backgroundColor: theme.palette.grey[200],
+  },
+  instructorContainer: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    cursor: "default",
+    backgroundColor: theme.palette.grey[200],
+  },
+  photo: {
+    width: "100%",
+    objectFit: "cover",
+    borderRadius: "4px",
+    minHeight: 300,
+    maxHeight: 500,
+  },
+  nophoto: {
+    width: "100%",
+    background: "#e4e4e4;",
+    minHeight: 300,
+    maxHeight: 500,
+  },
+  courseTime: {
     marginBottom: theme.spacing(2),
+  },
+  alert: {
+    marginBottom: theme.spacing(1),
+  },
+  '@global': {
+    html: {
+      overflow: 'hidden',
+      height: '100%',
+    },
+    body: {
+      overflow: 'auto',
+      height: '100%',
+    },
+    '#wysiwygContent > h2': {
+      color: theme.palette.text.secondary, 
+      fontSize: "1.5rem"
+    },
+    '#wysiwygContent > p': {
+      fontSize: "1.1rem",
+      color: theme.palette.text.secondary,
+    },
+    '#wysiwygContent > ol': {
+      fontSize: "1.1rem",
+      color: theme.palette.text.secondary,
+    },
+    '#wysiwygContent > ul': {
+      fontSize: "1.1rem",
+      color: theme.palette.text.secondary,
+    },
+    '#wysiwygContent > blockquote': {
+      borderLeft: "3px solid grey",
+      paddingLeft: "2em",
+      fontStyle: "italic",
+      fontWeight: "bold",
+      color: theme.palette.text.secondary,
+    }
   }
 }));
 
-const getUserSelector = createSelector([state => state.user.data], (user) => {
-  return user;
+const getUserSelector = createSelector([state => state.user], (user) => {
+  return user.data;
 });
 
-function getNextSession(now, c) {
-  let start = new Date(c.start_date);
-  let end = new Date(c.start_date);
-  end.setMinutes(end.getMinutes() + c.duration);
-  let startWindow = new Date(start.setMinutes(start.getMinutes() - sessionWindow));
-  let endWindow = new Date(end.setMinutes(end.getMinutes() + sessionWindow));
+const paymentDataSelector = createSelector([state => state.user], (data) => {
+  return data.paymentData.methods;
+});
 
-  // if it's a recurring class and the first class is in the past
-  if (c.recurring && now > endWindow) {
-
-    // get the previous event date for the recurring class in case there is an
-    // active session right now
-    start = getPrevDate(c.recurring, 1, now);
-    end = new Date(start);
-    end.setMinutes(end.getMinutes() + c.duration);
-    startWindow = new Date(start.setMinutes(start.getMinutes() - sessionWindow));
-    endWindow = new Date(end.setMinutes(end.getMinutes() + sessionWindow));
-
-    // if the prev session is over then get the next session
-    if (now > endWindow) {
-      start = getNextDate(c.recurring, 1, now);
-      end = new Date(start);
-      end.setMinutes(end.getMinutes() + c.duration);
-      startWindow = new Date(start.setMinutes(start.getMinutes() - sessionWindow));
-      endWindow = new Date(end.setMinutes(end.getMinutes() + sessionWindow));
-    }
-  }
-
-  return {
-    eventDate: start,
-    startDate: startWindow,
-    endDate: endWindow,
-  };
-}
+const selectDefaultPaymentMethod = createSelector(
+  paymentDataSelector,
+  methods => methods.filter(item => item.default)
+);
 
 export default function () {
 
   const classes = useStyles();
   const history = useHistory();
   const params = useParams();
-  const stripe = useStripe();
   const currentUser = useSelector(state => getUserSelector(state));
-  const [photo, setPhoto] = useState('');
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('');
-  const [insta, setInsta] = useState('');
+  const paymentData = useSelector(state => paymentDataSelector);
+  const defaultPaymentMethod = useSelector(state => selectDefaultPaymentMethod(state));
+  const paymentMethod = useRef(defaultPaymentMethod);
   const [course, setCourse] = useState('');
   const [signup, setSignup] = useState(null);
+  const [notify, setNotify] = useState(null);
+  const [makeMessage, setMakeMessage] = useState(false);
   const [joinSession, setJoinSession] = useState(null);
   const [needsPaymentMethod, setNeedsPaymentMethod] = useState(false);
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
+  const [errMessage, setErrMessage] = useState(null);
+  const [cancel, setCancel] = useState(null);
+  const [cancellingClass, setCancellingClass] = useState(false);
+  const [userConsent, setUserConsent] = useState(false);
 
-  async function get() {
+  async function getCourse(id) {
     let cls;
 
     try {
-      cls = await Course.get(params.id);
+      cls = await Course.get(id);
     } catch (err) {
       log.error("COURSE INFO:: get course details", err);
       history.push(path.home);
@@ -101,17 +155,19 @@ export default function () {
     }
 
     log.debug("COURSE INFO:: got course details", cls);
-    setPhoto(cls.photo_url);
-    setTitle(cls.title);
-    setDescription(cls.description);
-    setEmail(cls.instructor.email);
-    setPhone(cls.instructor.phone_number);
+
+    if (typeof cls.instructor === String) {
+      cls.instructor = JSON.parse(cls.instructor);
+    }
     setCourse(cls);
-    if (cls.instructor.social) setInsta(cls.instructor.social.instagram);
   }
 
   useEffect(() => {
-    get();
+    document.querySelector('body').scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    getCourse(params.id);
   }, [params])
 
   useEffect(() => {
@@ -121,14 +177,26 @@ export default function () {
 
     if (!currentUser.id) {
       setSignup((
-        <Button variant="contained" color="secondary" onClick={goToLogin}>Login to Sign Up</Button>
+        <Button variant="contained" color="secondary" onClick={goToLogin} style={{width:"100%"}}>Login to Book Class</Button>
       ));
       return;
     }
 
+    let instructor = course.instructor;
+
+    if (currentUser.id === instructor.id || currentUser.type === 'admin') {
+      setCancel(
+        <Button variant="contained" disabled={cancellingClass} color="secondary" onClick={cancelClassHandler} style={{width:"100%"}}>Cancel Class</Button>
+      )
+    }
+
+    if (currentUser.id === course.instructor.id || currentUser.type === 'admin') {
+      setMakeMessage(true);
+    }
+
     if (currentUser.id === course.instructor.id) {
       setSignup((
-        <Button variant="contained" color="secondary">Edit</Button>
+        <Button variant="contained" color="secondary" style={{width:"100%"}}>Edit Class</Button>
       ));
       return;
     }
@@ -143,24 +211,46 @@ export default function () {
 
       if (enrolled) {
         setSignup((
-          <Button variant="contained" color="secondary" onClick={courseLeaveHandler}>Leave Class</Button>
+          <Button variant="contained" color="secondary" onClick={courseLeaveHandler} style={{width:"100%"}}>Leave Class</Button>
         ));
         return;
       }
     }
 
-    setSignup((
-      <Button variant="contained" color="secondary" onClick={courseSignupHandler}>Sign Up</Button>
-    ));
+    if (course.available_spots > 0) {
+      setSignup((
+        <Button variant="contained" color="secondary" onClick={showSignupForm} style={{width:"100%"}}>Book Class</Button>
+      ));
+    }
 
   }, [currentUser, course]);
+
+  useEffect(() => {
+
+    if (!currentUser.id) {
+      return;
+    }
+
+    if (paymentData.id) { 
+      return;
+    }
+
+    Stripe.getPaymentMethods().then(result => {
+      return store.dispatch(actions.user.setPaymentData(result));
+    })
+    .catch(err => {
+      log.error("PROFILE:: update user payment data", err);
+    });
+
+  }, [paymentData.id, currentUser.id]);
 
   useEffect(() => {
     if (!currentUser.id || !course.id) return;
 
     let authorized = false;
+    let instructor = course.instructor;
 
-    if (currentUser.id === course.instructor.id) {
+    if (currentUser.id === instructor.id) {
       authorized = true;
     }
 
@@ -175,9 +265,9 @@ export default function () {
     let now = new Date();
     let sessionTime = getNextSession(now, course);
 
-    if (now > sessionTime.startDate && now < sessionTime.endDate) {
+    if (sessionTime && now > sessionTime.start && now < sessionTime.end) {
       setJoinSession((
-        <Button variant="contained" color="secondary" onClick={joinHandler}>Join</Button>
+        <Button variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
       ))
     }
 
@@ -186,176 +276,489 @@ export default function () {
   const goToLogin = async function() {
     history.push(`${path.login}?redirect=${path.courses}/${course.id}`);
   }
+  const createMessageHandler = function () {
+    setMakeMessage(true)
+    setNotify(null)
+  }
 
-  const showAddPayment = () => {
+  const sendMessageHandler = function () {
+    setMakeMessage(false)
+    setNotify((
+      <Button variant='contained' color='secondary' onClick={createMessageHandler}>Message Sent</Button>
+    ))
+  }
+
+  const showSignupForm = async function() {
     setNeedsPaymentMethod(true);
+    setSignup(null);
   }
 
-  const paymentMethodAddedHandler = async (pMethod) => {
-    // return to this pages content then call pay for class helper
-    setNeedsPaymentMethod(false);
+  const cancelClassHandler = async function () {
+    setCancellingClass(true);
+    setPaymentProcessing(true);
+    
     try {
-      await payForClass(pMethod);
+      await Course.remove(params.id);
     } catch (err) {
-      return log.error("PAYMENT METHOD ADDED HANDLER: ERROR ", err);
+      setErrMessage({severity: 'error', message: 'Class failed to cancel'})
+      setPaymentProcessing(false);
+      return log.error("COURSE INFO: course cancel ", err);
     }
 
-    try {
-      await Course.addParticipant(params.id);
-    } catch (err) {
-      return log.error("COURSE INFO: course signup", err);
-    }
-
-    history.push(path.profile);
+    setCancellingClass(false);
+    setPaymentProcessing(false);
+    history.push(path.home);
   }
 
-  /**
-   * Takes in a payment method and books a class for the given user using the input pMethod
-   * Adds the user to the class after stripe confirms the one-time payment
-   * Will create a subscription if signing up for recurring class
-   * Throws error if any async calls fail
-   * @param {Object} pMethod 
-   */
-  const payForClass = async (pMethod) => {
-    if (!course.instructor.id || !pMethod) {
-      return log.error("PAY FOR CLASS: no instructor ID or payment method")
+  useEffect(() => {
+    if(defaultPaymentMethod) {
+      paymentMethod.current = defaultPaymentMethod;
     }
-    let payment, subscription, confirmed;
-    const recurring = course.recurring ? true : false;
-
-    try {
-      payment = await Stripe.createPaymentIntent(course.instructor.id, pMethod.id, course.id, recurring)
-      log.debug("PAY FOR CLASS: created payment intent: ", payment);
-    } catch (err) {
-      log.error("PAY FOR CLASS: create payment intent error: ", err);
-      throw err;
-    }
-    if (recurring) {
-      try {
-        subscription = await Stripe.createSubscription(course.id);
-        log.debug("PAY FOR CLASS: created subscription: ", subscription);
-      } catch (err) {
-        log.error("PAY FOR CLASS: create subscription error: ", err);
-        throw err;
-      }
-    }
-
-    if (!payment) {
-      log.error("PAY FOR CLASS: no payment intent created");
-      throw Error("No payment intent created");
-    }
-
-    try {
-      confirmed = await stripe.confirmCardPayment(payment.data.client_secret)
-    } catch (err) {
-      log.error("PAY FOR CLASS: confirm card payment w/ stripe error: ", err);
-      throw Error("No payment intent created");
-    }
-
-    if (confirmed && confirmed.paymentIntent.status === 'succeeded') {
-      // Once stripe confirms the payment update transaction on our back end
-      try {
-        await Stripe.confirmPayment(confirmed.paymentIntent.id)
-        log.debug("PAY FOR CLASS: update transaction success");
-      } catch (err) {
-        log.error("PAY FOR CLASS: update transaction failed: ", err);
-        throw err;
-      }
-    } else {
-      log.error("PAY FOR CLASS: Stripe couldn't confirm payment intent");
-      throw Error("Payment confirmation failed")
-    }
-
-    // and add user to class
-  }
+  }, [defaultPaymentMethod]);
 
   const courseSignupHandler = async function () {
-    // Check if user has a payment method - add one if not
-    // If so, create either a one-time payment or recurring subscription
-    // confirm the one time payment in both cases that is returned
-    // then add user to class backend (below)
-    let pMethods;
 
-    try {
-      pMethods = await Stripe.getPaymentMethods();
-    } catch (err) {
-      return log.error("PAYMENT METHODS: error fetching", err);
-    }
+    setErrMessage({severity: "info", message: "Processing..."});
+    setPaymentProcessing(true);
+    setNeedsPaymentMethod(false);
+    setSignup(null);
 
-    if (!pMethods || !Array.isArray(pMethods.data) || pMethods.data.length === 0) {
-      log.info("PAYMENT METHODS: no payment methods found add one")
-      // Show add payment method form
-      return showAddPayment();
-    } else {
-      try {
-        await payForClass(Stripe.getDefaultPaymentMethod(pMethods.data))
-      } catch (err) {
-        // Display error?
-        return log.info("COURSE INFO: error paying for class: ", err)
-      }
-    }
+    log.debug("local payment", paymentMethod);
 
+    let defaultPaymentMethod = paymentMethod.current[0];
 
-    try {
-      await Course.addParticipant(params.id);
-    } catch (err) {
-      return log.error("COURSE INFO: course signup", err);
-    }
-
-    history.push(path.profile);
+    Stripe.createPaymentIntent(defaultPaymentMethod.id, course.id)
+      .then(result => {
+        setCourse({...result.course});
+        setPaymentProcessing(false);
+        setNeedsPaymentMethod(false);
+        setErrMessage({severity: "success", message: result.message});
+      }).catch(err => {
+        setPaymentProcessing(false);
+        showSignupForm();
+        setErrMessage({severity: "error", message: err.message});
+      });
   }
 
   const courseLeaveHandler = async function () {
-    // refund the payment
-    let refund;
-
-    try {
-      refund = await Stripe.refundPayment(course.id)
-    } catch (err) {
-      return log.error("COURSE INFO: refund course ", err);
-    }
-
-    if (refund.message.statusCode >= 400) {
-      // refund unsuccessful don't remove from class
-      return log.error("COURSE INFO: refund unsuccessful");
-    }
+    let updatedCourse;
+    setPaymentProcessing(true);
+    setErrMessage({severity: "info", message: "Processing..."});
 
     // remove from the course
     try {
-      await Course.removeParticipant(params.id);
+      updatedCourse = await Stripe.refundPayment(course.id);
     } catch (err) {
-      return log.error("COURSE INFO: course leave", err);
+      log.error("COURSE INFO: course leave", err);
+      setPaymentProcessing(false);
+      return setErrMessage({severity: "error", message: err.message});
     }
 
-    history.push(path.profile);
+    setPaymentProcessing(false);
+    setErrMessage({severity: "success", message: updatedCourse.message});
+    setCourse(updatedCourse.course);
   }
 
   const joinHandler = function () {
     history.push(path.courses + "/" + course.id + path.joinPath);
   }
 
-  const content = (
-    needsPaymentMethod ?
-      <Container>
-        <Grid>
-          <AddPaymentMethod backHandler={paymentMethodAddedHandler} />
-        </Grid>
-      </Container>
-      :
-      <Container>
-        <Grid container direction="row" justify="flex-end">
-          <Grid item className={classes.actionBtn}>
-            {joinSession}
-          </Grid>
-          <Grid item className={classes.actionBtn}>
-            {signup}
-          </Grid>
-        </Grid>
-        <UserData header={title} bio={description} email={email} phone={phone} instagram={insta} photo={photo} />
-        <Divider className={classes.divider} />
-        <CourseSchedule header="Class Schedule" course={[course]} view="week" />
-      </Container>
-  );
 
-  return content;
+  let paymentProcessingContent = null;
+  if (paymentProcessing) {
+    paymentProcessingContent = ( 
+      <LinearProgress color="secondary" />
+    );
+  }
+
+  let errorContent = null;
+  if(errMessage) {
+    errorContent = (
+      <Grid className={classes.alert}>
+        <Alert severity={errMessage.severity} >{errMessage.message}</Alert>
+        {paymentProcessingContent}
+      </Grid>
+    );
+  }
+
+  let messageContent = null;
+  if (makeMessage) {
+    messageContent = (
+      <Grid>
+        <Typography variant="h5">
+          Send your class a message
+        </Typography>
+        <CreateMessage onSend={sendMessageHandler} courseId={course.id} />
+      </Grid>
+    )
+  }
+
+  let costContent = null;
+
+  if (course.cost) {
+    costContent = (
+      <Card className={classes.spotsContainer} title="Per class cost. Classes can be left up to 24 hours before the class start time">
+        <Grid container direction="column" justify="center" alignItems="center">
+          <Grid item>
+            <ShoppingCartOutlined color="primary" />
+          </Grid>
+          <Grid item>
+            <Typography className={classes.cost} variant="h2" align="center">
+              ${course.cost}
+            </Typography>
+          </Grid>
+        </Grid>
+      </Card>
+    );
+  }
+
+  let spotsCount = course.available_spots;
+  if (spotsCount < 0) spotsCount = 0;
+  let spotsContent = null;
+
+  if (course.cost) {
+    spotsContent = (
+      <Card className={classes.spotsContainer} title="Spaces remaining">
+        <Grid container direction="column" justify="center" alignItems="center">
+          <Grid item>
+            <GroupAdd color="primary" />
+          </Grid>
+          <Grid item>
+            <Typography className={classes.cost} variant="h2" align="center">
+              {spotsCount}
+            </Typography>
+          </Grid>
+        </Grid>
+      </Card>
+    );
+  }
+
+  let durationContent = null;
+  if (course.duration) {
+    durationContent = (
+      <Card className={classes.spotsContainer} title="Class duration in minutes">
+        <Grid container direction="column" justify="center" alignItems="center">
+          <Grid item>
+            <AvTimer color="primary" />
+          </Grid>
+          <Grid item>
+            <Typography className={classes.cost} variant="h2" align="center">
+              {course.duration}
+            </Typography>
+          </Grid>
+        </Grid>
+      </Card>
+    );
+  }
+
+  let instructorContent = null;
+
+  if (course.instructor) {
+    instructorContent = (
+      <Card className={classes.instructorContainer}>
+        <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={2}>
+          <Grid item>
+            <RecordVoiceOver color="primary" />
+          </Grid>
+          <Grid item>
+            <Typography variant="h5">
+              Instructor
+            </Typography>
+          </Grid>
+        </Grid>
+        <Grid container direction="row" justify="flex-start" alignItems="center" spacing={2}>
+          <Grid item>
+            <Typography variant="body1">{course.instructor.first_name} {course.instructor.last_name}</Typography>
+          </Grid>
+          <Grid item>
+            <Typography variant="body2">{course.instructor.username}</Typography>
+          </Grid>
+        </Grid>
+        <Typography variant="body1">{course.instructor.email}</Typography>
+      </Card>
+    )
+  }
+
+  let participantsContent = null
+
+  if (course.participants && course.participants.length) {
+    participantsContent = (
+      <Card className={classes.participantContainer}>
+        <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={2}>
+          <Grid item>
+            <People color="primary" />
+          </Grid>
+          <Grid item>
+            <Typography variant="h5">
+              Participants
+            </Typography>
+          </Grid>
+        </Grid>
+        <Grid container direction="row" justify="flex-start">
+        {course.participants.map(item => (
+          <Grid key={item.username} item xs={6}>
+            <Typography variant="body1">{item.username}</Typography>
+          </Grid>
+        ))}
+        </Grid>
+      </Card>
+    )
+  }
+
+  let photoContent = (
+    <Grid item xs>
+      <Grid container direction="row" justify="center" alignContent="center" className={classes.nophoto}>
+        <Grid item>
+          <Photo className={classes.nophotoIcon} />
+        </Grid>
+      </Grid>
+    </Grid>
+  )
+
+  if (course.photo_url) {
+    photoContent = (  
+      <Grid item xs>
+        <img className={classes.photo} alt={course.title} src={course.photo_url} />
+      </Grid>
+    );
+  }
+
+  const handleConsent = function() {
+    setUserConsent(!userConsent);
+  }
+
+  let paymentContent = null;
+  if (needsPaymentMethod) {
+    paymentContent = (
+      <Grid container direction="column" justify="flex-start">
+        <Grid item>
+          <Typography variant="h5">Select or enter your default payment method</Typography>
+        </Grid>
+        <Grid item>
+          <Cards />
+        </Grid>
+        <Grid item>
+          <Grid container direction="row" justify="flex-end" alignItems="center" spacing={2}>
+            <Grid item>
+              <Checkbox checked={userConsent} onChange={handleConsent} />
+            </Grid>
+            <Grid item>
+              <Typography variant="body1">You may charge my credit card</Typography>
+            </Grid>
+            <Grid item>
+              <Button disabled={!userConsent} variant="contained" color="primary" onClick={courseSignupHandler}>Submit Payment</Button>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+    );
+  }
+  let descriptionContent = null;
+
+  if (course.description) {
+    descriptionContent = (
+      <div id="wysiwygContent" className={classes.bio} dangerouslySetInnerHTML={{__html: course.description}}></div>
+    );
+  }
+
+  let courseTitle = null;
+
+  if (course.title) {
+    courseTitle = (
+      <Typography variant="h1" className={classes.title}>
+        {course.title}
+      </Typography>
+    );
+  }
+
+  let courseTimeContent = null;
+
+  if (course.start_date) {
+    let now = new Date();
+    let next = getNextSession(now, course);
+    let formatted = null;
+
+    if (next) {
+      let d = new Date(next.date);
+      let dt = format(d, "iiii");
+      let time = format(d, "h:mm a");
+
+      if (d.getDate() - now.getDate() >= 7) {
+        dt = format(d, "iiii, MMMM do");
+      }
+
+      if (isTomorrow(d)) {
+        dt = "Tomorrow";
+      }
+
+      if (isToday(d)) {
+        dt = "Today";
+      }
+
+      formatted = dt + " @ " + time;
+      if (course.recurring) {
+        formatted = formatted + " - weekly";
+      }
+    } else {
+      formatted = "Class over";
+    }
+
+    courseTimeContent = (
+      <Typography variant="h3" className={classes.courseTime}>{formatted}</Typography>
+    );
+  }
+
+
+  const sml = useMediaQuery('(max-width:600px)');
+  const med = useMediaQuery('(max-width:900px)');
+
+  let layout = null;
+  if (sml) {
+    layout = {
+      main: "column-reverse",
+      courseDetailsDirection: "column",
+      courseDetailsJustify: "flex-start",
+      courseDetailsSize: 12,
+      courseCostSize: 12,
+      costSize: 4,
+      spotsSize: 4,
+      coursePhotoDirection: "column",
+      coursePhotoSize: "auto",
+      actionBtnDirection: "column",
+      actionBtnSize: "auto",
+      instructorDetailsDirection: "column",
+      instructorDetailsSize: "auto",
+    };
+  } else if (med) {
+    layout = {
+      main: "column-reverse",
+      courseDetailsDirection: "column",
+      courseDetailsJustify: "flex-start",
+      courseDetailsSize: 12,
+      courseCostSize: 12,
+      costSize: 4,
+      spotsSize: 4,
+      coursePhotoDirection: "row",
+      coursePhotoSize: 4,
+      actionBtnDirection: "row",
+      actionBtnSize: 6,
+      instructorDetailsDirection: "row",
+      instructorDetailsSize: 6,
+    }
+  } else {
+    layout = {
+      main: "column-reverse",
+      courseDetailsDirection: "row",
+      courseDetailsJustify: "space-between",
+      courseDetailsSize: 9,
+      courseCostSize: 3,
+      costSize: "auto",
+      spotsSize: "auto",
+      coursePhotoDirection: "row",
+      coursePhotoSize: 4,
+      actionBtnDirection: "row",
+      actionBtnSize: 3,
+      instructorDetailsDirection: "column",
+      instructorDetailsSize: "auto",
+    }
+  }
+
+  let notifyBtn = null;
+  if (notify) {
+    notifyBtn = (
+      <Grid item xs={layout.actionBtnSize}>
+        {notify}
+      </Grid>
+    );
+  }
+
+  let joinBtn = null;
+  if (joinSession) {
+    joinBtn = (
+      <Grid item xs={layout.actionBtnSize}>
+        {joinSession}
+      </Grid>
+    );
+  }
+
+  let signupBtn = null;
+  if (signup) {
+    signupBtn = (
+      <Grid item xs={layout.actionBtnSize}>
+        {signup}
+      </Grid>
+    );
+  }
+
+  let cancelBtn = null;
+  if (cancel) {
+    cancelBtn = (
+      <Grid item xs={layout.actionBtnSize}>
+        {cancel}
+      </Grid>
+    )
+  }
+
+  return (
+    <Container style={{paddingTop: "2rem", paddingBottom: "2rem"}}>
+      <Grid container direction={layout.main} spacing={2}>
+        <Grid item>
+          <Grid container direction={layout.actionBtnDirection} justify="flex-end" spacing={2}>
+            {notifyBtn}
+            {joinBtn}
+            {signupBtn}
+            {cancelBtn}
+          </Grid>
+        </Grid>
+        <Grid item>
+          {errorContent}
+          {paymentContent}
+        </Grid>
+        <Grid item>
+          <Grid container direction={layout.courseDetailsDirection} justify={layout.courseDetailsJustify} spacing={2}>
+            <Grid item xs={layout.courseDetailsSize}>
+              <Grid container direction={layout.coursePhotoDirection} justify="flex-start" spacing={2}>
+                <Grid item xs={layout.coursePhotoSize}>
+                  {photoContent}
+                </Grid>
+                <Grid item xs>
+                  {courseTitle}
+                  {courseTimeContent}
+                  {descriptionContent}
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item xs={layout.courseCostSize}>
+              <Grid container direction="column" spacing={2}>
+                <Grid item>
+                  <Grid container direction="row" justify="flex-end" spacing={2}>
+                    <Grid item xs={layout.costSize}>
+                      {costContent}
+                    </Grid>
+                    <Grid item xs={layout.costSize}>
+                      {durationContent}
+                    </Grid>
+                    <Grid item xs={layout.spotsSize}>
+                      {spotsContent}
+                    </Grid>               
+                  </Grid>
+                </Grid>
+                <Grid item>
+                  <Grid container direction={layout.instructorDetailsDirection} spacing={2}>
+                    <Grid item xs={layout.instructorDetailsSize}>
+                      {instructorContent}
+                    </Grid>
+                    <Grid item xs={layout.instructorDetailsSize}>
+                      {participantsContent}
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+      {messageContent}
+    </Container>
+  )
 }

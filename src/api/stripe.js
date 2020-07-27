@@ -1,25 +1,21 @@
 import config from '../config';
+import Firebase from '../Firebase';
 import callAPI from './helper';
+import log from '../log';
 
-const urlBase = config.host + '/stripe/';
+const urlBase = config.host;
 
-/**
- * Makes call to backend to get redirect url to instructor stripe account sign up page 
- * Takes in a url to return to after account setup
- * @param {String} returnUrl 
- */
-export async function redirectToSignUp(returnUrl) {
-  const url = urlBase + 'accountRedirect';
-  const options = {
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      return_url: returnUrl
-    })
-  };
-  return callAPI(url, options, true);
+export async function getAccountLinkURL(url) {
+  let token;
+
+  try {
+    token = await Firebase.getToken();
+  } catch (err) {
+    log.error("AUTH:: error fetching firebase token", err);
+    return null;
+  }
+
+  return urlBase + '/user/account?callbackURL=' + encodeURIComponent(window.location.origin + url) + '&token=' + token;
 }
 
 /**
@@ -32,46 +28,16 @@ export async function redirectToSignUp(returnUrl) {
  * @param {String} classId
  */
 export async function createPaymentIntent(
-  instructorId,
   paymentMethodId,
   classId,
-  recurring
 ) {
-  const url = urlBase + `payment`;
+  const url = urlBase + `/class/${classId}/payment/${paymentMethodId}`;
   const options = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      instructor_id: instructorId,
-      payment_method: paymentMethodId,
-      class_id: classId,
-      recurring: recurring
-    }),
   };
-  return callAPI(url, options, true);
-}
-
-/**
- * Finds the logged in user's Transaction for input paymentId.
- * Confirms transaction was a success and updates its status to reflect.
- * Note: stripe JS SDK is used before this to confirm the payment on their end.
- * Returns payment intent's client secret upon success.
- * @param {String} paymentId
- */
-export async function confirmPayment(paymentId) {
-  const url = urlBase + `confirmPayment`;
-  const options = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      payment_id: paymentId,
-    }),
-  };
-
   return callAPI(url, options, true);
 }
 
@@ -82,34 +48,14 @@ export async function confirmPayment(paymentId) {
  * @param {String} classId
  */
 export async function refundPayment(classId) {
-  const url = urlBase + `refund`;
+  const url = urlBase + `/class/${classId}/payment/`;
   const options = {
-    method: 'POST',
+    method: 'delete',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
       class_id: classId,
-    }),
-  };
-
-  return callAPI(url, options, true);
-}
-
-/**
- * Creates a Stripe customer with the logged in user and input email
- * Returns the Stripe User upon creation in db
- * @param {String} email
- */
-export async function createCustomer(email) {
-  const url = urlBase + 'customer';
-  const options = {
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      email: email,
     }),
   };
 
@@ -121,15 +67,12 @@ export async function createCustomer(email) {
  * @param {String} classId
  */
 export async function createSubscription(classId) {
-  const url = urlBase + 'subscription';
+  const url = urlBase + `/class/${classId}/subscription`;
   const options = {
     method: 'post',
     headers: {
       'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      class_id: classId,
-    }),
+    }
   };
   return callAPI(url, options, true);
 }
@@ -139,15 +82,12 @@ export async function createSubscription(classId) {
  * @param {String} subscriptionId
  */
 export async function cancelSubscription(classId) {
-  const url = urlBase + 'subscription';
+  const url = urlBase + `/class/${classId}/subscription`;
   const options = {
     method: 'delete',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      class_id: classId,
-    }),
   };
   return callAPI(url, options, true);
 }
@@ -158,16 +98,27 @@ export async function cancelSubscription(classId) {
  * Returns the new payment method record.
  * @param {String} paymentMethodId
  */
-export async function createPaymentMethod(paymentMethodId) {
-  const url = urlBase + 'paymentMethod';
+export async function addPaymentMethod(data) {
+  const url = urlBase + '/user/paymentmethod/';
   const options = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({
-      payment_method_id: paymentMethodId,
-    }),
+    body: JSON.stringify(data),
+  };
+
+  return callAPI(url, options, true);
+}
+
+export async function updatePaymentMethod(data) {
+  const url = urlBase + '/user/paymentmethod/';
+  const options = {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
   };
 
   return callAPI(url, options, true);
@@ -178,7 +129,7 @@ export async function createPaymentMethod(paymentMethodId) {
  * Returns an array of all payment method IDs
  */
 export async function getPaymentMethods() {
-  const url = urlBase + 'paymentMethods';
+  const url = urlBase + '/user/paymentmethod/';
   const options = {
     method: 'get',
     headers: {
@@ -195,49 +146,12 @@ export async function getPaymentMethods() {
  * @param {String} paymentMethodId
  */
 export async function deletePaymentMethod(paymentMethodId) {
-  const url = urlBase + 'paymentMethod';
+  const url = urlBase + '/user/paymentmethod/' + paymentMethodId;
   const options = {
     method: 'delete',
     headers: {
       'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      payment_method_id: paymentMethodId,
-    }),
-  };
-
-  return callAPI(url, options, true);
-}
-
-/**
- * Fetches the stripe user associated with auth token
- */
-export async function getStripeUser() {
-  const url = urlBase + 'customer';
-  const options = {
-    method: 'get',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  };
-
-  return callAPI(url, options, true);
-}
-
-/**
- * Creates a stripe sku with two prices (one-time/recurring) for classId
- * @param {String} classId
- */
-export async function createClassSku(classId) {
-  const url = urlBase + 'classSku';
-  const options = {
-    method: 'post',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      class_id: classId,
-    }),
+    }
   };
 
   return callAPI(url, options, true);
