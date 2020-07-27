@@ -44,6 +44,7 @@ export default function() {
 	const [loader, setLoader] = useState(false);
 	const [loginMode, setLoginMode] = useState(true);
 	const [serverErr, setServerErr] = useState(null);
+	const [info, setInfo] = useState(null);
 	const history = useHistory();
 
   useEffect(() => {
@@ -78,29 +79,41 @@ export default function() {
 	const formHandler = async (event) => {
 		event.preventDefault();
 		setLoader(true);
-		Firebase.clearListeners();
-		Firebase.signInWithEmailPassword(userName, password)
-			.then((user) => {
-				return User.get();
-			})
-			.then((user) => {
-				return store.dispatch(actions.user.set(user.data))
-			})
-			.then(() => {
-				setLoader(false);
-				history.push(path.home);
-			})
-			.catch((error) => {
-				setLoader(false);
 
-				if (error.code === "auth/user-not-found" || error.code === "auth/wrong-password") {
-					setServerErr("Incorrect email or password")
-				} else {
-					setServerErr(error.message);
-				}
+		if (loginMode) {
+			Firebase.clearListeners();
+			Firebase.signInWithEmailPassword(userName, password)
+				.then((user) => {
+					return User.get();
+				})
+				.then((user) => {
+					return store.dispatch(actions.user.set(user.data))
+				})
+				.then(() => {
+					setLoader(false);
+					history.push(path.home);
+				})
+				.catch((error) => {
+					setLoader(false);
 
-				return log.error('Error firebase signin email pw ', error);
+					if (error.code === "auth/user-not-found" || error.code === "auth/wrong-password") {
+						setServerErr("Incorrect email or password")
+					} else {
+						setServerErr(error.message);
+					}
+
+					return log.error('Error firebase signin email pw ', error);
+				});
+		} else {
+			Firebase.sendPasswordResetEmail(userName).then(result => {
+				setLoader(false);
+				setUserName('');
+				setInfo("Password reset email sent");
+			}).catch(err => {
+				setLoader(false);
+				setServerErr(err.message);
 			});
+		}
 	};
 
 	let submitText;
@@ -123,6 +136,7 @@ export default function() {
 
 	const switchMode = function() {
 		setServerErr(null);
+		setInfo(null);
 		if (loginMode) {
 			setLoginMode(false);
 		} else {
@@ -153,8 +167,18 @@ export default function() {
 		)
 	}
 
+	let infoContent = null;
+	if (info) {
+		infoContent = (
+			<Grid>
+				<Alert severity="info">{info}</Alert>
+			</Grid>
+		)
+	}
+
 	let formcontent = (
 		<Grid>
+			{infoContent}
 			<Grid>
 				{errContent}
 			</Grid>
