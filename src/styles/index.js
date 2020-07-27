@@ -114,7 +114,7 @@ export default function(props) {
     },
     MuiSnackbarContent: {
       root: {
-        fontSize: '1.2rem',
+        minWidth: 0,
       }
     },
     MUIRichTextEditor: {

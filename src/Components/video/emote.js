@@ -54,28 +54,28 @@ export default function Emote(props) {
     <Grid style={{display: "inline"}}>
       <IconButton ref={btn} onClick={handleClick} title="Send an emote"><InsertEmoticon color="primary" /></IconButton>
       <Menu keepMounted open={Boolean(anchorEl)} anchorEl={anchorEl} onClose={handleClose} classes={{list: classes.emoteMenu}}>
-        <MenuItem value="👍" title="Send a thumbs-up" onClick={() => handleSelect(`👍 from ${props.username}`)}>
+        <MenuItem value="👍" title="Send a thumbs-up" onClick={() => handleSelect(`${props.username}: 👍`)}>
           <span aria-label="thumbs-up" role="img">👍</span>
         </MenuItem>
-        <MenuItem value="✋" title="Give them a high-five" onClick={() => handleSelect(`${props.username} high-fives you ✋`)}>
+        <MenuItem value="✋" title="Give them a high-five" onClick={() => handleSelect(`${props.username}: ✋`)}>
             <span aria-label="high-five" role="img">✋</span>
         </MenuItem>
-        <MenuItem value="👋" title="Wave hello" onClick={() => handleSelect(`${props.username} says hi 👋`)}>
+        <MenuItem value="👋" title="Wave hello" onClick={() => handleSelect(`${props.username}: 👋`)}>
           <span aria-label="hand-wave" role="img">👋</span>
         </MenuItem>
-        <MenuItem value="✊" title="Fist bump" onClick={() => handleSelect(`fist bump ✊ from ${props.username}`)}>
+        <MenuItem value="✊" title="Fist bump" onClick={() => handleSelect(`${props.username}: ✊`)}>
           <span aria-label="fist-bump" role="img">✊</span>
         </MenuItem>
-        <MenuItem value="🤣" title="That was hilarious" onClick={() => handleSelect(`${props.username} thought that was hilarious 🤣`)}>
+        <MenuItem value="🤣" title="That was hilarious" onClick={() => handleSelect(`${props.username}: 🤣`)}>
           <span aria-label="loved-that" role="img">🤣</span>
         </MenuItem>
-        <MenuItem value="😍" title="Let them know you loved that" onClick={() => handleSelect(`${props.username} loved that 😍`)}>
+        <MenuItem value="😍" title="Let them know you loved that" onClick={() => handleSelect(`${props.username}: 😍`)}>
           <span aria-label="loved-that" role="img">😍</span>
         </MenuItem>
-        <MenuItem value="🥵" title="Let them know you are exhausted" onClick={() => handleSelect(`${props.username} is exhausted 🥵`)}>
+        <MenuItem value="🥵" title="Let them know you are exhausted" onClick={() => handleSelect(`${props.username}: 🥵`)}>
           <span aria-label="worn-out" role="img">🥵</span>
         </MenuItem>
-        <MenuItem value="🔥" title="You are on fire" onClick={() => handleSelect(`${props.username} thinks you are on 🔥`)}>
+        <MenuItem value="🔥" title="You are on fire" onClick={() => handleSelect(`${props.username}: 🔥`)}>
           <span aria-label="on-fire" role="img">🔥</span>
         </MenuItem>     
       </Menu>
