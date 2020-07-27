@@ -404,7 +404,7 @@ export default function () {
           </Grid>
           <Grid item>
             <Typography className={classes.cost} variant="h2" align="center">
-              $0
+              ${course.cost}
             </Typography>
           </Grid>
         </Grid>
