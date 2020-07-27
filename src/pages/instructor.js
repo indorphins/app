@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { Container, Divider, Grid, CircularProgress } from '@material-ui/core';
+import { Container, Grid, CircularProgress, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core';
 
 import CourseSchedule from '../components/courseSchedule';
@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(2),
   },
   header: {
-    color: theme.palette.text.disabled,
+    color: theme.palette.grey[700],
   },
   loader: {
     minHeight: 300,
@@ -51,7 +51,6 @@ export default function () {
   const [bio, setBio] = useState('');
   const [loader, setLoader] = useState(true);
   const [courses, setCourses] = useState([]);
-  const [coursesLabel, setCoursesLabel] = useState("Instructor Schedule");
 
   useEffect(() => {
     
@@ -90,7 +89,6 @@ export default function () {
       setBio(instructor.data.bio);
       if (instructor.data.social && instructor.data.social.instagram) setInsta(instructor.data.social.instagram);
       setLoader(false);
-      setCoursesLabel("Instructor Schedule");
       getInstructorSchedule(instructor.data.id);
     }
   }
@@ -134,9 +132,19 @@ export default function () {
   
   let userContent = (
     <Grid>
-      <UserData header={username} email={email} photo={photo} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} />
-      <Divider className={classes.divider} />
-      <CourseSchedule header={coursesLabel} course={courses} view="month" />
+      <Grid item>
+        <UserData header={username} email={email} photo={photo} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} showContactInfo={true} />
+      </Grid>
+      <Grid item>
+        <Grid container direction="column" spacing={2}>
+          <Grid item>
+            <Typography variant="h2">Schedule</Typography>
+          </Grid>
+          <Grid item>
+            <CourseSchedule course={courses} view="month" />
+          </Grid>
+        </Grid>
+      </Grid>
     </Grid>
   );
 
