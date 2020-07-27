@@ -7,13 +7,13 @@ import Alert from '@material-ui/lab/Alert';
 import { store, actions } from '../store';
 import * as Stripe from '../api/stripe';
 import log from '../log';
-import AddPaymentMethod from '../components/form/addPaymentMethod';
-import VisaIcon from '../components/icon/visa';
-import AmexIcon from '../components/icon/amex';
-import MastercardIcon from '../components/icon/mastercard';
-import DiscoverIcon from '../components/icon/discover';
-import JCBIcon from '../components/icon/jcb';
-import CCIcon from '../components/icon/cc';
+import AddPaymentMethod from './form/addPaymentMethod';
+import VisaIcon from './icon/visa';
+import AmexIcon from './icon/amex';
+import MastercardIcon from './icon/mastercard';
+import DiscoverIcon from './icon/discover';
+import JCBIcon from './icon/jcb';
+import CCIcon from './icon/cc';
 
 const styles = theme => ({
   savedCardsContent: {
