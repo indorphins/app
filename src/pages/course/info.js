@@ -583,7 +583,7 @@ export default function () {
       let dt = format(d, "iiii");
       let time = format(d, "h:mm a");
 
-      if (d.getDate() - now.getDate() >= 7) {
+      if (now.getDate() - d.getDate() >= 7) {
         dt = format(d, "iiii, MMMM do");
       }
 

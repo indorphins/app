@@ -220,7 +220,7 @@ export default function(props) {
         let dt = format(d, "iiii");
         let time = format(d, "h:mma");
 
-        if (d.getDate() - now.getDate() >= 7) {
+        if (now.getDate() - d.getDate() >= 7) {
           dt = format(d, "M/d");
         }
 
