@@ -231,16 +231,16 @@ export default function () {
       return;
     }
 
-    if (paymentData.id) {
+    if (paymentData.id) { 
       return;
     }
 
     Stripe.getPaymentMethods().then(result => {
       return store.dispatch(actions.user.setPaymentData(result));
     })
-      .catch(err => {
-        log.error("PROFILE:: update user payment data", err);
-      });
+    .catch(err => {
+      log.error("PROFILE:: update user payment data", err);
+    });
 
   }, [paymentData.id, currentUser.id]);
 
@@ -273,7 +273,7 @@ export default function () {
 
   }, [currentUser, course]);
 
-  const goToLogin = async function () {
+  const goToLogin = async function() {
     history.push(`${path.login}?redirect=${path.courses}/${course.id}`);
   }
   const createMessageHandler = function () {
@@ -288,7 +288,7 @@ export default function () {
     ))
   }
 
-  const showSignupForm = async function () {
+  const showSignupForm = async function() {
     setNeedsPaymentMethod(true);
     setSignup(null);
   }
@@ -310,141 +310,76 @@ export default function () {
     history.push(path.home);
   }
 
-  const createMessageHandler = function () {
-    setMakeMessage(true);
-    setNotify(null)
-  }
-
-  const sendMessageHandler = function () {
-    setMakeMessage(false);
-    setNotify((
-      <Button variant='contained' color='secondary' onClick={createMessageHandler}>Message Sent</Button>
-    ))
-  }
-
-  /**
-   * Takes in a payment method and books a class for the given user using the input pMethod
-   * Adds the user to the class after stripe confirms the one-time payment
-   * Will create a subscription if signing up for recurring class
-   * Throws error if any async calls fail
-   * @param {Object} pMethod
-   * @param {Boolean} subscribe
-   */
-  const payForClass = async (pMethod, subscribe) => {
-    if (!course.instructor.id || !pMethod) {
-      return log.error("PAY FOR CLASS: no instructor ID or payment method")
+  useEffect(() => {
+    if(defaultPaymentMethod) {
+      paymentMethod.current = defaultPaymentMethod;
     }
-    let payment, subscription, confirmed;
+  }, [defaultPaymentMethod]);
 
-    try {
-      payment = await Stripe.createPaymentIntent(course.instructor.id, pMethod.id, course.id, subscribe)
-      log.debug("PAY FOR CLASS: created payment intent: ", payment);
-    } catch (err) {
-      log.error("PAY FOR CLASS: create payment intent error: ", err);
-      throw err;
-    }
-    if (subscribe) {
-      try {
-        subscription = await Stripe.createSubscription(course.id);
-        log.debug("PAY FOR CLASS: created subscription: ", subscription);
-      } catch (err) {
-        log.error("PAY FOR CLASS: create subscription error: ", err);
-        throw err;
-      }
-    }
+  const courseSignupHandler = async function () {
 
-    if (!payment) {
-      log.error("PAY FOR CLASS: no payment intent created");
-      throw Error("No payment intent created");
-    }
+    setErrMessage({severity: "info", message: "Processing..."});
+    setPaymentProcessing(true);
+    setNeedsPaymentMethod(false);
+    setSignup(null);
 
-    try {
-      confirmed = await stripe.confirmCardPayment(payment.data.client_secret)
-    } catch (err) {
-      log.error("PAY FOR CLASS: confirm card payment w/ stripe error: ", err);
-      throw Error("No payment intent created");
-    }
+    log.debug("local payment", paymentMethod);
 
-    useEffect(() => {
-      if (defaultPaymentMethod) {
-        paymentMethod.current = defaultPaymentMethod;
-      }
-    }, [defaultPaymentMethod]);
+    let defaultPaymentMethod = paymentMethod.current[0];
 
-    const courseSignupHandler = async function () {
-
-      setErrMessage({ severity: "info", message: "Processing..." });
-      setPaymentProcessing(true);
-      setNeedsPaymentMethod(false);
-      setSignup(null);
-
-      log.debug("local payment", paymentMethod);
-
-      let defaultPaymentMethod = paymentMethod.current[0];
-
-      Stripe.createPaymentIntent(defaultPaymentMethod.id, course.id)
-        .then(result => {
-          setCourse({ ...result.course });
-          setPaymentProcessing(false);
-          setNeedsPaymentMethod(false);
-          setErrMessage({ severity: "success", message: result.message });
-        }).catch(err => {
-          setPaymentProcessing(false);
-          showSignupForm();
-          setErrMessage({ severity: "error", message: err.message });
-        });
-    }
-
-    const courseLeaveHandler = async function () {
-      let updatedCourse;
-      setPaymentProcessing(true);
-      setErrMessage({ severity: "info", message: "Processing..." });
-
-      // remove from the course
-      try {
-        updatedCourse = await Stripe.refundPayment(course.id);
-      } catch (err) {
-        log.error("COURSE INFO: course leave", err);
+    Stripe.createPaymentIntent(defaultPaymentMethod.id, course.id)
+      .then(result => {
+        setCourse({...result.course});
         setPaymentProcessing(false);
-        return setErrMessage({ severity: "error", message: err.message });
-      }
+        setNeedsPaymentMethod(false);
+        setErrMessage({severity: "success", message: result.message});
+      }).catch(err => {
+        setPaymentProcessing(false);
+        showSignupForm();
+        setErrMessage({severity: "error", message: err.message});
+      });
+  }
 
+  const courseLeaveHandler = async function () {
+    let updatedCourse;
+    setPaymentProcessing(true);
+    setErrMessage({severity: "info", message: "Processing..."});
+
+    // remove from the course
+    try {
+      updatedCourse = await Stripe.refundPayment(course.id);
+    } catch (err) {
+      log.error("COURSE INFO: course leave", err);
       setPaymentProcessing(false);
-      setErrMessage({ severity: "success", message: updatedCourse.message });
-      setCourse(updatedCourse.course);
+      return setErrMessage({severity: "error", message: err.message});
     }
 
-    const joinHandler = function () {
-      history.push(path.courses + "/" + course.id + path.joinPath);
-    }
+    setPaymentProcessing(false);
+    setErrMessage({severity: "success", message: updatedCourse.message});
+    setCourse(updatedCourse.course);
+  }
+
+  const joinHandler = function () {
+    history.push(path.courses + "/" + course.id + path.joinPath);
+  }
 
 
-    let paymentProcessingContent = null;
-    if (paymentProcessing) {
-      paymentProcessingContent = (
-        <LinearProgress color="secondary" />
-      );
-    }
+  let paymentProcessingContent = null;
+  if (paymentProcessing) {
+    paymentProcessingContent = ( 
+      <LinearProgress color="secondary" />
+    );
+  }
 
-    let errorContent = null;
-    if (errMessage) {
-      errorContent = (
-        <Grid className={classes.alert}>
-          <Alert severity={errMessage.severity} >{errMessage.message}</Alert>
-          {paymentProcessingContent}
-        </Grid>
-      );
-    }
-
-    let paymentContent = null;
-    if (needsPaymentMethod) {
-      paymentContent = (
-        <Grid>
-          <Typography variant="h5">Select or enter your default payment method</Typography>
-          <Cards />
-        </Grid>
-      );
-    }
+  let errorContent = null;
+  if(errMessage) {
+    errorContent = (
+      <Grid className={classes.alert}>
+        <Alert severity={errMessage.severity} >{errMessage.message}</Alert>
+        {paymentProcessingContent}
+      </Grid>
+    );
+  }
 
   let messageContent = null;
   if (makeMessage) {
@@ -475,6 +410,7 @@ export default function () {
         </Grid>
       </Card>
     );
+  }
 
   let spotsCount = course.available_spots;
   if (spotsCount < 0) spotsCount = 0;
