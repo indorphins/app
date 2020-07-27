@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 import { loadStripe } from '@stripe/stripe-js';
@@ -99,9 +98,7 @@ export default function App() {
   return (
     <Elements stripe={stripePromise}>
       <AppTheme>
-        <BrowserRouter>
-          <Routes />
-        </BrowserRouter>
+        <Routes />
       </AppTheme>
     </Elements>
   );

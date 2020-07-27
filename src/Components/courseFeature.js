@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Grid, GridList, GridListTile, GridListTileBar, Typography, CircularProgress, IconButton, Fab, useMediaQuery} from '@material-ui/core';
 import { InfoOutlined, ArrowForward, ArrowBack } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
-import { format } from 'date-fns'
+import { format, isTomorrow, isToday } from 'date-fns'
 
 import * as Course from '../api/course';
 import log from '../log';
@@ -12,10 +12,12 @@ import { getNextDate } from '../utils';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    overflow: 'hidden'
+    overflow: 'hidden',
+    width: "100%",
   },
   container: {
     position: 'relative',
+    width: '100%,'
   },
   nextPageBtn: {
     position: 'absolute',
@@ -23,10 +25,10 @@ const useStyles = makeStyles((theme) => ({
     height: "42px",
     right: '-20px',
     bottom: '40%',
-    zIndex: '99999',
+    zIndex: '9',
     '@media (max-width: 600px)': {
-      width: "32px",
-      height: "32px",
+      width: "36px",
+      height: "36px",
       right: "-12px",
     },
     '@media (min-width:1300px)': {
@@ -41,7 +43,7 @@ const useStyles = makeStyles((theme) => ({
     height: "42px",
     left: '-20px',
     bottom: '40%',
-    zIndex: '99999',
+    zIndex: '9',
     '@media (max-width: 600px)': {
       width: "32px",
       height: "32px",
@@ -76,6 +78,28 @@ const useStyles = makeStyles((theme) => ({
   },
   anchor: {
     textDecoration: "none",
+  },
+  noWrap: {
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
+    '@media (max-width: 600px)': {
+      height: 50,
+      wordWrap: "break-word",
+      whiteSpace: "break-spaces",
+      display: "-webkit-box",
+      '-webkit-line-clamp': 2,
+      '-webkit-box-orient': "vertical",
+    },
+    '@media (max-width: 400px)': {
+      fontSize: "1.1rem",
+    }
+  },
+  textWrap: {
+    whiteSpace: "break-spaces",
+    fontSize: "1rem",
+    '@media (max-width: 400px)': {
+      height: 40,
+    }
   }
 }));
 
@@ -194,13 +218,21 @@ export default function(props) {
         }
 
         let dt = format(d, "iiii");
-        let time = format(d, "h:mm a");
+        let time = format(d, "h:mma");
 
         if (d.getDate() - now.getDate() >= 7) {
           dt = format(d, "M/d");
         }
 
-        data.label = "BOOK: " + dt + " @ " + time;
+        if (isTomorrow(d)) {
+          dt = "Tomorrow";
+        }
+  
+        if (isToday(d)) {
+          dt = "Today";
+        }
+
+        data.label = dt + " @ " + time;
 
         items.push(data);
       });
@@ -294,8 +326,18 @@ export default function(props) {
     );
   }
 
+  let infoIcon = null;
+
+  if (!small) {
+    infoIcon = (
+      <IconButton color="primary">
+        <InfoOutlined />
+      </IconButton>
+    );
+  }
+
   formContent = (
-    <Grid>
+    <Grid container style={{width: "100%"}}>
       <Grid>
         {headerContent}
       </Grid>
@@ -311,11 +353,8 @@ export default function(props) {
                   title={course.title}
                   subtitle={course.label}
                   className={classes.desc}
-                  actionIcon={
-                    <IconButton color="secondary" aria-label={`info about ${course.title}`}>
-                      <InfoOutlined />
-                    </IconButton>
-                  }
+                  classes={{title: classes.noWrap, subtitle: classes.textWrap}}
+                  actionIcon={infoIcon}
                 />
               </Grid>
             </Link>

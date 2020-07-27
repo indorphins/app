@@ -86,9 +86,8 @@ export default function (props) {
     <Grid>
       {errorContent}
       {progress}
-      <Editor label="Message" onChange={editorHandler} onSave={editorSaveHandler} />
+      <Editor onChange={editorHandler} onSave={editorSaveHandler} />
       <Button className={classes.actionBtn} variant='contained' color='secondary' onClick={editorSaveHandler}>Send Email</Button>
-      <Button className={classes.actionBtn} variant='contained' color='secondary' onClick={props.onSend}>Cancel</Button>
     </Grid>
   )
 }

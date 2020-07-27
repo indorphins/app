@@ -59,6 +59,11 @@ export async function get(id) {
   return callAPI(u, options, false);
 }
 
+/**
+ * Calls our cancel class API which cancels the class (if recurring cancels all future classes too)
+ * Refunds participants who have paid for the class 
+ * @param {String} id 
+ */
 export async function remove(id) {
   const options = {
     method: 'DELETE',

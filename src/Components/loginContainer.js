@@ -2,15 +2,25 @@ import React from "react";
 import { Grid, Paper, Typography, Zoom } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
+import Legal from './legal';
+
 const useStyles = makeStyles((theme) => ({
 	root: {
-		backgroundColor: theme.palette.primary.main,
+		backgroundColor: theme.palette.header.background,
 	},
 	paperContainer: {
 		paddingLeft: theme.spacing(4),
 		paddingRight: theme.spacing(4),
 		paddingTop: theme.spacing(6),
 		paddingBottom: theme.spacing(2),
+		width: 500,
+		'@media (max-width: 600px)': {
+			paddingLeft: theme.spacing(1),
+			paddingRight: theme.spacing(1),
+			paddingTop: theme.spacing(3),
+			width: "100%",
+			borderRadius: 0,
+    },
 	},
 	logo: {
 		fontSize: "2.2rem",
@@ -52,6 +62,9 @@ export default function(props) {
 							</Grid>
 						</Grid>
 						{props.children}
+						<Grid container style={{paddingTop: 30}}>
+							<Legal />
+						</Grid>
 					</Paper>
 				</Zoom>
 			</Grid>
