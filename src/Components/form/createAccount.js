@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Box, TextField, Button, LinearProgress } from '@material-ui/core';
+import { Box, TextField, Button, LinearProgress, Grid, Checkbox, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 import * as User from '../../api/user';
@@ -16,7 +16,15 @@ const useStyles = makeStyles((theme) => ({
 	submitBtn: {
 		marginTop: theme.spacing(2),
 		marginBottom: theme.spacing(2),
-	},
+  },
+  consentContainer: {
+    flexWrap: "nowrap",
+    paddingTop: theme.spacing(2),
+  },
+  consentCheck: {
+    paddingRight: theme.spacing(1),
+    paddingLeft: theme.spacing(0)
+  }
 }));
 
 export default function(props) {
@@ -31,7 +39,8 @@ export default function(props) {
 	const [passwordConfirmErr, setConfirmErr] = useState(null);
 	const [phone, setPhone] = useState(null);
 	const [phoneErr, setPhoneErr] = useState(null);
-	const [loader, setLoader] = useState(false);
+  const [loader, setLoader] = useState(false);
+  const [userConsent, setUserConsent] = useState(false)
 	const history = useHistory();
 	const rx = /^1?[-|\s]?\(?(\d{3})?\)?[-|\s]?(\d{3})[-|\s]?(\d{4})/gm;
 
@@ -65,7 +74,11 @@ export default function(props) {
 	const phoneHandler = (event) => {
 		setPhoneErr(null);
 		setPhone(event.target.value);
-	};
+  };
+  
+  const consentHandler = () => {
+    setUserConsent(!userConsent);
+  }
 
 	const validatePhone = function() {
 	
@@ -312,9 +325,13 @@ export default function(props) {
 				<Box>
 					{phoneField}
 				</Box>
+        <Grid container direction='row' alignItems='center' className={classes.consentContainer}>
+          <Checkbox checked={userConsent} onChange={consentHandler} className={classes.consentCheck} />
+          <Typography variant='body2'>By signing in or signing up, I agree to Indoorphins.fit's <a className={classes.link} href="/TOS.html" target="_blank">Terms of Service</a> and <a className={classes.link} href="/PP.html" target="_blank">Privacy Policy</a>, confirm that I am 18 years of age or older, and consent to receiving email and sms communication.</Typography>
+        </Grid>
 				{progress}
 				<Box>
-					<Button variant="contained" type="submit" color="primary" className={classes.submitBtn}>Create</Button>
+					<Button disabled={!userConsent} variant="contained" type="submit" color="primary" className={classes.submitBtn}>Create</Button>
 				</Box>
 			</form>
 		</Box>

@@ -2,8 +2,6 @@ import React from "react";
 import { Grid, Paper, Typography, Zoom } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
-import Legal from './legal';
-
 const useStyles = makeStyles((theme) => ({
 	root: {
 		backgroundColor: theme.palette.header.background,
@@ -62,9 +60,6 @@ export default function(props) {
 							</Grid>
 						</Grid>
 						{props.children}
-						<Grid container style={{paddingTop: 30}}>
-							<Legal />
-						</Grid>
 					</Paper>
 				</Zoom>
 			</Grid>
