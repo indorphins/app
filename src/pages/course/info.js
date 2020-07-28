@@ -66,6 +66,12 @@ const useStyles = makeStyles((theme) => ({
   courseTime: {
     marginBottom: theme.spacing(2),
   },
+  consentContainer: {
+    flexWrap: "nowrap",
+    paddingTop: theme.spacing(3),
+    paddingRight: theme.spacing(1),
+    marginLeft: theme.spacing(1)
+  },
   alert: {
     marginBottom: theme.spacing(1),
   },
@@ -538,12 +544,14 @@ export default function () {
           <Cards />
         </Grid>
         <Grid item>
-          <Grid container direction="row" justify="flex-end" alignItems="center" spacing={2}>
-            <Grid item>
-              <Checkbox checked={userConsent} onChange={handleConsent} />
-            </Grid>
-            <Grid item>
-              <Typography variant="body1">You may charge my credit card</Typography>
+          <Grid container direction="column" alignItems="flex-end" spacing={2}>
+            <Grid container direction="row" alignItems="center" className={classes.consentContainer}>
+              <Grid item>
+                <Checkbox checked={userConsent} onChange={handleConsent} />
+              </Grid>
+              <Grid item>
+                <Typography variant="body1">I understand that any fitness class can put my health at risk, I attest that I am physically fit to take this class and I take full responsibility for my physical well being. I continue to agree to the Terms of Service and give permission for my payment method to be charged.</Typography>
+              </Grid>
             </Grid>
             <Grid item>
               <Button disabled={!userConsent} variant="contained" color="primary" onClick={courseSignupHandler}>Submit Payment</Button>
