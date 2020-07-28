@@ -140,9 +140,11 @@ export default function () {
       userData.bio = currentUser.bio;
     }
 
-    if (instaHandler) {
+    if (instagram) {
       if (!userData.social) userData.social = {};
-      userData.social.instagram = instagram;
+      let insta = instagram;
+      if (instagram.charAt(0) === '@') { insta = instagram.slice(1); }
+      userData.social.instagram = insta;
     }
 
     try {
