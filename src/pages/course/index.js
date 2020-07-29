@@ -37,12 +37,12 @@ export default function() {
 		],
 		recurring: { $exists: false },
 		start_date: { $exists: true },
-		available_spots: { $gt: 0 },
+		//available_spots: { $gt: 0 },
 	};
 
 	let recurringFilter = {
 		recurring: { $exists: true },
-		available_spots: { $gt: 0 },
+		//available_spots: { $gt: 0 },
 	};
 
 	let order = {
