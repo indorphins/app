@@ -143,6 +143,7 @@ export default function () {
   const [cancel, setCancel] = useState(null);
   const [cancellingClass, setCancellingClass] = useState(false);
   const [userConsent, setUserConsent] = useState(false);
+  const [hideAddCard, setHideAddCard] = useState(false);
 
   async function getCourse(id) {
     let cls;
@@ -167,6 +168,12 @@ export default function () {
     }
     setCourse(cls);
   }
+
+  useEffect(() => {
+    if (defaultPaymentMethod[0]) {
+      setHideAddCard(true);
+    }
+  }, [defaultPaymentMethod])
 
   useEffect(() => {
     document.querySelector('body').scrollTo(0, 0);
@@ -333,6 +340,13 @@ export default function () {
 
     let defaultPaymentMethod = paymentMethod.current[0];
 
+    if (!defaultPaymentMethod) {
+      setPaymentProcessing(false);
+      setNeedsPaymentMethod(true);
+      setErrMessage({severity: "error", message: "No default payment method"});
+      return;
+    }
+
     Stripe.createPaymentIntent(defaultPaymentMethod.id, course.id)
       .then(result => {
         setCourse({...result.course});
@@ -419,10 +433,10 @@ export default function () {
   }
 
   let spotsCount = course.available_spots;
-  if (spotsCount < 0) spotsCount = 0;
+  if (spotsCount < 0) spotsCount = "FULL";
   let spotsContent = null;
 
-  if (course.cost) {
+  if (spotsCount) {
     spotsContent = (
       <Card className={classes.spotsContainer} title="Spaces remaining">
         <Grid container direction="column" justify="center" alignItems="center">
@@ -541,7 +555,7 @@ export default function () {
           <Typography variant="h5">Select or enter your default payment method</Typography>
         </Grid>
         <Grid item>
-          <Cards />
+          <Cards collapseAdd={hideAddCard} />
         </Grid>
         <Grid item>
           <Grid container direction="column" alignItems="flex-end" spacing={2}>

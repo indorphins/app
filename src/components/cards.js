@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux'
-import { IconButton, RadioGroup, Radio, Grid, Typography, withStyles } from '@material-ui/core';
-import { Lens, Delete } from '@material-ui/icons';
+import { IconButton, RadioGroup, Card, Radio, Grid, Typography, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, withStyles } from '@material-ui/core';
+import { Lens, Delete, ExpandMoreOutlined } from '@material-ui/icons';
 import Alert from '@material-ui/lab/Alert';
 
 import { store, actions } from '../store';
@@ -17,11 +17,55 @@ import CCIcon from './icon/cc';
 
 const styles = theme => ({
   savedCardsContent: {
-    marginTop: theme.spacing(2),
+    width: "100%",
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+    '@media (max-width: 900px)': {
+      paddingTop: theme.spacing(2),
+      paddingBottom: theme.spacing(2),
+    },
+  },
+  cardsContainer: {
+    '@media (max-width: 900px)': {
+      flexDirection: "column",
+    }
+  },
+  cardData: {
+    paddingTop: theme.spacing(3),
+    paddingBottom: theme.spacing(3),
+    paddingLeft: theme.spacing(4),
+    paddingRight: theme.spacing(4),
+    backgroundColor: theme.palette.grey[500],
+    color: theme.palette.grey[100],
+    borderRadius: 12,
+    '@media (max-width: 600px)': {
+      paddingTop: theme.spacing(2),
+      paddingBottom: theme.spacing(2),
+      paddingLeft: theme.spacing(1),
+      paddingRight: theme.spacing(1),
+    }
+  },
+  cardItem: {
+    width: "50%",
+    '@media (max-width: 900px)': {
+      width: "100%",
+      paddingTop: theme.spacing(1),
+      paddingBottom: theme.spacing(1),
+    }
+  },
+  radioGroup: {
+    width: "100%", 
+    flexDirection: "row",
+    '@media (max-width: 900px)': {
+      flexDirection: "column",
+    }
   },
   masked: {
     fontSize: "0.6rem",
     display: "inline",
+    '@media (max-width: 600px)': {
+      fontSize: "0.5rem",
+    }
   },
 });
 
@@ -55,6 +99,7 @@ class Cards extends React.Component {
     super(props);
     this.state = {
       paymentData: this.props.paymentData,
+      collapseAdd: !this.props.collapseAdd,
       error: null,
     };
 
@@ -65,6 +110,7 @@ class Cards extends React.Component {
   componentWillReceiveProps(nextProps) {
     this.setState({
       paymentData: nextProps.paymentData,
+      collapseAdd: !nextProps.collapseAdd,
     });
   }
 
@@ -167,53 +213,59 @@ class Cards extends React.Component {
       paymentMethodsContent = (
         <Grid className={classes.savedCardsContent}>
           {errorContent}
-          <Grid container direction="column">
-            <RadioGroup onChange={this.changeDefaultPaymentMethod}>
+          <Grid container direction="row" justify="flex-start" alignItems="center" spacing={2} className={classes.cardsContainer}>
+            <RadioGroup onChange={this.changeDefaultPaymentMethod} className={classes.radioGroup}>
               {this.state.paymentData.methods.map(item => (
-                <Grid key={item.id} item>
-                  <Grid container direction="row" justify="flex-start" alignItems="center">
+                <Grid key={item.id} item className={classes.cardItem}>
+                  <Grid container direction="row" justify="center" alignItems="center" spacing={2}>
                     <Grid item>
                       <Radio checked={item.default} name={item.id} />
                     </Grid>
-                      <Grid item style={{marginRight: "5px"}}>
-                        <Grid container direction="column" justify="center" alignItems="center">
+                    <Grid item>
+                      <Card className={classes.cardData}>
+                        <Grid container direction="column" spacing={2}>
                           <Grid item>
-                            <CardLogo brand={item.brand} />
+                            <Grid container direction="row" spacing={1} justify="center" alignItems="center">
+                              <Grid item>
+                                <Lens className={classes.masked}/>
+                                <Lens className={classes.masked}/>
+                                <Lens className={classes.masked}/>
+                                <Lens className={classes.masked}/>
+                              </Grid>
+                              <Grid item>
+                                <Lens className={classes.masked}/>
+                                <Lens className={classes.masked}/>
+                                <Lens className={classes.masked}/>
+                                <Lens className={classes.masked}/>
+                              </Grid>
+                              <Grid item>
+                                <Lens className={classes.masked}/>
+                                <Lens className={classes.masked}/>
+                                <Lens className={classes.masked}/>
+                                <Lens className={classes.masked}/>
+                              </Grid>
+                              <Grid item>
+                                <Typography>{item.last4}</Typography>
+                              </Grid>
+                            </Grid>
+                          </Grid>
+                          <Grid item>
+                            <Grid container direciton="row" justify="space-between">
+                              <Grid item>
+                                <CardLogo brand={item.brand} />
+                              </Grid>
+                              <Grid item>
+                                <Typography variant="subtitle2">exp: {item.exp_month}/{item.exp_year}</Typography>
+                              </Grid>
+                            </Grid>
                           </Grid>
                         </Grid>
-                      </Grid>
+                      </Card>
+                    </Grid>
                     <Grid item>
-                      <Grid container direction="row" spacing={1} justify="center" alignItems="center">
-                        <Grid item>
-                          <Lens className={classes.masked}/>
-                          <Lens className={classes.masked}/>
-                          <Lens className={classes.masked}/>
-                          <Lens className={classes.masked}/>
-                        </Grid>
-                        <Grid item>
-                          <Lens className={classes.masked}/>
-                          <Lens className={classes.masked}/>
-                          <Lens className={classes.masked}/>
-                          <Lens className={classes.masked}/>
-                        </Grid>
-                        <Grid item>
-                          <Lens className={classes.masked}/>
-                          <Lens className={classes.masked}/>
-                          <Lens className={classes.masked}/>
-                          <Lens className={classes.masked}/>
-                        </Grid>
-                        <Grid item>
-                          <Typography>{item.last4}</Typography>
-                        </Grid>
-                        <Grid item>
-                          <Typography variant="subtitle2">exp: {item.exp_month}/{item.exp_year}</Typography>
-                        </Grid>
-                        <Grid item>
-                          <IconButton onClick={() => {this.removePaymentMethod(item.id)}}>
-                            <Delete />
-                          </IconButton>
-                        </Grid>
-                      </Grid>
+                      <IconButton onClick={() => {this.removePaymentMethod(item.id)}}>
+                        <Delete />
+                      </IconButton>
                     </Grid>
                   </Grid>
                 </Grid>
@@ -223,11 +275,26 @@ class Cards extends React.Component {
         </Grid>
       );
     }
+
+    let addPayment = (
+      <ExpansionPanel defaultExpanded={this.state.collapseAdd}>
+        <ExpansionPanelSummary expandIcon={<ExpandMoreOutlined />}>
+          <Typography variant="h5">Add a new card</Typography>
+        </ExpansionPanelSummary>
+        <ExpansionPanelDetails>
+          <AddPaymentMethod />
+        </ExpansionPanelDetails>
+      </ExpansionPanel>
+    );
   
     return (
-      <Grid>
-        <AddPaymentMethod />
-        {paymentMethodsContent}
+      <Grid container direction="column" spacing={2}>
+        <Grid item>
+          {addPayment}
+        </Grid>
+        <Grid item>
+          {paymentMethodsContent}
+        </Grid>
       </Grid>
     );
   }
