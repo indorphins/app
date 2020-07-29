@@ -537,7 +537,7 @@ export default function(props) {
       let data = JSON.parse(event.data);
       if (data.userId === user.id) {
         enqueueSnackbar(data.message, {
-          persist: true,
+          persist: false,
           autoHideDuration: 5000,
           anchorOrigin: { horizontal: "left", vertical: "top" }
         });
