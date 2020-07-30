@@ -52,6 +52,18 @@ let useStyles = makeStyles((theme) => ({
     '@media (max-width: 900px)': {
       padding: 0,
     },
+  },
+  beta: {
+    display: 'inline',
+    position: 'absolute',
+    border: "solid 1px",
+    borderColor: theme.palette.secondary.main,
+    color: theme.palette.secondary.main,
+    padding: theme.spacing(.5),
+    fontWeight: "bold",
+    borderRadius: '10px',
+    marginLeft: theme.spacing(1),
+    fontSize: '14px'
   }
 }));
 
@@ -110,6 +122,7 @@ export default function(props) {
               <Grid item>
                 <Typography variant="h2" color="secondary" className={classes.logo}>indoor</Typography>
                 <Typography variant="h2" className={classes.logo2}>phins</Typography>
+                <Typography variant="h2" className={classes.beta}>BETA</Typography>
               </Grid>
             </Grid>
             <Grid container direction="row" justify="space-between" alignItems="flex-end">
