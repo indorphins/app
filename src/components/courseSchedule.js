@@ -30,9 +30,7 @@ const extrapolateRecurringEvents = function(course) {
   let first = getNextSession(now, course);
   dates.push(first.date);
   let next = getNextDate(course.recurring, 49, first.end);
-  dates.concat(next);
-
-  console.log("dates array", dates);
+  dates = dates.concat(next);
 
   let start = first.date;
 
