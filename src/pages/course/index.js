@@ -115,7 +115,7 @@ export default function() {
 					filter={courseFilter}
 					order={order}
 					limit={500}
-					header='Upcoming &amp; available classes'
+					header='Upcoming classes'
 				/>
 			</Grid>
 			<Grid container className={classes.content}>
