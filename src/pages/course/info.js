@@ -441,8 +441,9 @@ export default function () {
     );
   }
 
-  let spotsCount = course.available_spots;
-  if (spotsCount < 0) spotsCount = "FULL";
+  let spotsCount = `${course.available_spots}/${course.total_spots}`;
+  if (course.available_spots <= 0) spotsCount = "FULL";
+  if (course.available_spots === course.total_spots) spotsCount = "0";
   let spotsContent = null;
 
   if (spotsCount) {

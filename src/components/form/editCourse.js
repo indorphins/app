@@ -46,8 +46,8 @@ export default function (props) {
   const history = useHistory();
   const [title, setTitle] = useState('');
   const [courseType, setCourseType] = useState('');
-  const [cost, setCost] = useState("15.00");
-  const [spots, setSpots] = useState(15);
+  const [cost, setCost] = useState("10.00");
+  const [spots, setSpots] = useState(20);
   const [duration, setDuration] = useState(45);
   const [selectedDate, setSelectedDate] = useState(null);
   const [description, setDescription] = useState('');
@@ -219,7 +219,7 @@ export default function (props) {
       <Box>
         <Typography variant="body1">{spots} spots</Typography>
       </Box>
-      <Slider disabled={loader} className={classes.slider} defaultValue={15} min={10} max={20} step={5} valueLabelDisplay="auto" onChangeCommitted={handleSpotsSlider} />
+      <Slider disabled={loader} className={classes.slider} defaultValue={20} min={10} max={20} step={5} valueLabelDisplay="auto" onChangeCommitted={handleSpotsSlider} />
     </Grid>
   );
 
