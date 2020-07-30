@@ -26,6 +26,7 @@ const styles = theme => ({
     },
   },
   cardsContainer: {
+    flexDirection: "row",
     '@media (max-width: 900px)': {
       flexDirection: "column",
     }
@@ -35,8 +36,8 @@ const styles = theme => ({
     paddingBottom: theme.spacing(3),
     paddingLeft: theme.spacing(4),
     paddingRight: theme.spacing(4),
-    backgroundColor: theme.palette.grey[500],
-    color: theme.palette.grey[100],
+    backgroundColor: theme.palette.grey[200],
+    color: theme.palette.grey[700],
     borderRadius: 12,
     '@media (max-width: 600px)': {
       paddingTop: theme.spacing(2),
@@ -47,18 +48,22 @@ const styles = theme => ({
   },
   cardItem: {
     width: "50%",
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
     '@media (max-width: 900px)': {
       width: "100%",
-      paddingTop: theme.spacing(1),
-      paddingBottom: theme.spacing(1),
     }
   },
   radioGroup: {
-    width: "100%", 
+    width: "100%",
+    display: "flex",
     flexDirection: "row",
     '@media (max-width: 900px)': {
       flexDirection: "column",
     }
+  },
+  last4: {
+    fontSize: "1rem",
   },
   masked: {
     fontSize: "0.6rem",
@@ -211,9 +216,9 @@ class Cards extends React.Component {
     let paymentMethodsContent = null;
     if (this.state.paymentData && this.state.paymentData.methods) {
       paymentMethodsContent = (
-        <Grid className={classes.savedCardsContent}>
+        <Grid container className={classes.savedCardsContent}>
           {errorContent}
-          <Grid container direction="row" justify="flex-start" alignItems="center" spacing={2} className={classes.cardsContainer}>
+          
             <RadioGroup onChange={this.changeDefaultPaymentMethod} className={classes.radioGroup}>
               {this.state.paymentData.methods.map(item => (
                 <Grid key={item.id} item className={classes.cardItem}>
@@ -245,7 +250,7 @@ class Cards extends React.Component {
                                 <Lens className={classes.masked}/>
                               </Grid>
                               <Grid item>
-                                <Typography>{item.last4}</Typography>
+                                <Typography className={classes.last4}>{item.last4}</Typography>
                               </Grid>
                             </Grid>
                           </Grid>
@@ -271,7 +276,7 @@ class Cards extends React.Component {
                 </Grid>
               ))}
             </RadioGroup>
-          </Grid>
+
         </Grid>
       );
     }
@@ -288,14 +293,10 @@ class Cards extends React.Component {
     );
   
     return (
-      <Grid container direction="column" spacing={2}>
-        <Grid item>
-          {addPayment}
-        </Grid>
-        <Grid item>
-          {paymentMethodsContent}
-        </Grid>
-      </Grid>
+      <React.Fragment>
+        {addPayment}
+        {paymentMethodsContent}
+      </React.Fragment>
     );
   }
 }

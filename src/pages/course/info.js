@@ -75,6 +75,10 @@ const useStyles = makeStyles((theme) => ({
   alert: {
     marginBottom: theme.spacing(1),
   },
+  userAccept: {
+    fontStyle: "italic",
+    fontSize: "0.9rem",
+  },
   '@global': {
     html: {
       overflow: 'hidden',
@@ -343,7 +347,7 @@ export default function () {
     if (!defaultPaymentMethod) {
       setPaymentProcessing(false);
       setNeedsPaymentMethod(true);
-      setErrMessage({severity: "error", message: "No default payment method"});
+      setErrMessage({severity: "error", message: "No default payment method. Please add one below."});
       return;
     }
 
@@ -550,7 +554,7 @@ export default function () {
   let paymentContent = null;
   if (needsPaymentMethod) {
     paymentContent = (
-      <Grid container direction="column" justify="flex-start">
+      <Grid container direction="column" justify="flex-start" spacing={2} style={{flexWrap: "nowrap"}}>
         <Grid item>
           <Typography variant="h5">Select or enter your default payment method</Typography>
         </Grid>
@@ -564,7 +568,7 @@ export default function () {
                 <Checkbox checked={userConsent} onChange={handleConsent} />
               </Grid>
               <Grid item>
-                <Typography variant="body1">I understand that any fitness class can put my health at risk, I attest that I am physically fit to take this class and I take full responsibility for my physical well being. I continue to agree to the Terms of Service and give permission for my payment method to be charged.</Typography>
+                <Typography variant="body1" className={classes.userAccept}>I understand that any fitness class can put my health at risk, I attest that I am physically fit to take this class and I take full responsibility for my physical well being. I continue to agree to the Terms of Service and give permission for my payment method to be charged.</Typography>
               </Grid>
             </Grid>
             <Grid item>

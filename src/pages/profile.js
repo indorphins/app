@@ -237,7 +237,7 @@ export default function () {
   }
   
   let userContent = (
-    <Grid container direction="column" spacing={2}>
+    <Grid container direction="column" spacing={2} style={{flexWrap: "nowrap"}}>
       <Grid item>
         {controlsContent}
       </Grid>
@@ -245,7 +245,7 @@ export default function () {
         <UserData header={username} email={email} photo={photo} phone={phone} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} showContactInfo={true} />
       </Grid>
       <Grid item>
-        <Grid container direction="column" spacing={2}>
+        <Grid container direction="column" spacing={2} style={{flexWrap: "nowrap"}}>
           <Grid item>
             <Typography variant="h2">Cards</Typography>
           </Grid>
