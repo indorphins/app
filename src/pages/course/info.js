@@ -441,7 +441,8 @@ export default function () {
     );
   }
 
-  let spotsCount = `${course.available_spots}/${course.total_spots}`;
+  const takenSpots = course.participants ? course.participants.length : 0;
+  let spotsCount = `${takenSpots}/${course.total_spots}`;
   if (course.available_spots <= 0) spotsCount = "FULL";
   if (course.available_spots === course.total_spots) spotsCount = "0";
   let spotsContent = null;
@@ -682,8 +683,8 @@ export default function () {
       main: "column-reverse",
       courseDetailsDirection: "row",
       courseDetailsJustify: "space-between",
-      courseDetailsSize: 9,
-      courseCostSize: 3,
+      courseDetailsSize: 8,
+      courseCostSize: 4,
       costSize: "auto",
       spotsSize: "auto",
       coursePhotoDirection: "row",
