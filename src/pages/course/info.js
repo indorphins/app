@@ -124,12 +124,12 @@ const getUserSelector = createSelector([state => state.user], (user) => {
 });
 
 const paymentDataSelector = createSelector([state => state.user], (data) => {
-  return data.paymentData.methods;
+  return data.paymentData;
 });
 
 const selectDefaultPaymentMethod = createSelector(
   paymentDataSelector,
-  methods => methods.filter(item => item.default)
+  pd => pd.methods.filter(item => item.default)
 );
 
 export default function () {
@@ -138,7 +138,7 @@ export default function () {
   const history = useHistory();
   const params = useParams();
   const currentUser = useSelector(state => getUserSelector(state));
-  const paymentData = useSelector(state => paymentDataSelector);
+  const paymentData = useSelector(state => paymentDataSelector(state));
   const defaultPaymentMethod = useSelector(state => selectDefaultPaymentMethod(state));
   const paymentMethod = useRef(defaultPaymentMethod);
   const [course, setCourse] = useState('');
@@ -359,6 +359,7 @@ export default function () {
     Stripe.createPaymentIntent(defaultPaymentMethod.id, course.id)
       .then(result => {
         setCourse({...result.course});
+        store.dispatch(actions.user.addScheduleItem(result.course));
         setPaymentProcessing(false);
         setNeedsPaymentMethod(false);
         setErrMessage({severity: "success", message: result.message});
@@ -386,6 +387,7 @@ export default function () {
     setPaymentProcessing(false);
     setErrMessage({severity: "success", message: updatedCourse.message});
     setCourse(updatedCourse.course);
+    store.dispatch(actions.user.removeScheduleItem(updatedCourse.course));
   }
 
   const joinHandler = function () {
@@ -441,8 +443,10 @@ export default function () {
     );
   }
 
-  let spotsCount = course.available_spots;
-  if (spotsCount < 0) spotsCount = "FULL";
+  const takenSpots = course.participants ? course.participants.length : 0;
+  let spotsCount = `${takenSpots}/${course.total_spots}`;
+  if (course.available_spots <= 0) spotsCount = "FULL";
+  if (course.available_spots === course.total_spots) spotsCount = "0";
   let spotsContent = null;
 
   if (spotsCount) {
@@ -681,8 +685,8 @@ export default function () {
       main: "column-reverse",
       courseDetailsDirection: "row",
       courseDetailsJustify: "space-between",
-      courseDetailsSize: 9,
-      courseCostSize: 3,
+      courseDetailsSize: 8,
+      courseCostSize: 4,
       costSize: "auto",
       spotsSize: "auto",
       coursePhotoDirection: "row",

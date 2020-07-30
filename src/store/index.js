@@ -6,6 +6,7 @@ const userSlice = createSlice({
   initialState: {
     data: {},
     paymentData: {methods: []},
+    schedule: [],
   },
   reducers: {
     set(state, action) {
@@ -18,10 +19,28 @@ const userSlice = createSlice({
       state.paymentData = Object.assign(state.paymentData, action.payload);
       return state;
     },
+    setSchedule(state, action) {
+      log.debug("STORE:: set user schedule", action.payload);
+      state.schedule = state.schedule.concat(action.payload);
+      return state;
+    },
+    addScheduleItem(state, action) {
+      log.debug("STORE:: add schedule item", action.payload);
+      state.schedule = [action.payload, ...state.schedule];
+      return state;
+    },
+    removeScheduleItem(state, action) {
+      log.debug("STORE:: remove schedule item", action.payload);
+      state.schedule = state.schedule.filter(item => {
+        return item.id !== action.payload.id;
+      });
+      return state;
+    },
     clear(state) {
       log.debug("STORE:: clear user data");
       state.data = {};
       state.paymentData = { methods: []};
+      state.schedule = [];
       return state;
     }
   }
