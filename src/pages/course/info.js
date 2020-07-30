@@ -66,8 +66,23 @@ const useStyles = makeStyles((theme) => ({
   courseTime: {
     marginBottom: theme.spacing(2),
   },
+  consentContainer: {
+    flexWrap: "nowrap",
+    paddingTop: theme.spacing(3),
+    paddingRight: theme.spacing(1),
+    marginLeft: theme.spacing(1)
+  },
   alert: {
     marginBottom: theme.spacing(1),
+  },
+  userAccept: {
+    fontStyle: "italic",
+    fontSize: "0.9rem",
+  },
+  link: {
+    cursor: "pointer",
+    textDecoration: "none",
+    color: theme.palette.primary.main,
   },
   '@global': {
     html: {
@@ -137,6 +152,7 @@ export default function () {
   const [cancel, setCancel] = useState(null);
   const [cancellingClass, setCancellingClass] = useState(false);
   const [userConsent, setUserConsent] = useState(false);
+  const [hideAddCard, setHideAddCard] = useState(false);
 
   async function getCourse(id) {
     let cls;
@@ -161,6 +177,12 @@ export default function () {
     }
     setCourse(cls);
   }
+
+  useEffect(() => {
+    if (defaultPaymentMethod[0]) {
+      setHideAddCard(true);
+    }
+  }, [defaultPaymentMethod])
 
   useEffect(() => {
     document.querySelector('body').scrollTo(0, 0);
@@ -327,6 +349,13 @@ export default function () {
 
     let defaultPaymentMethod = paymentMethod.current[0];
 
+    if (!defaultPaymentMethod) {
+      setPaymentProcessing(false);
+      setNeedsPaymentMethod(true);
+      setErrMessage({severity: "error", message: "No default payment method. Please add one below."});
+      return;
+    }
+
     Stripe.createPaymentIntent(defaultPaymentMethod.id, course.id)
       .then(result => {
         setCourse({...result.course});
@@ -413,10 +442,10 @@ export default function () {
   }
 
   let spotsCount = course.available_spots;
-  if (spotsCount < 0) spotsCount = 0;
+  if (spotsCount < 0) spotsCount = "FULL";
   let spotsContent = null;
 
-  if (course.cost) {
+  if (spotsCount) {
     spotsContent = (
       <Card className={classes.spotsContainer} title="Spaces remaining">
         <Grid container direction="column" justify="center" alignItems="center">
@@ -530,20 +559,22 @@ export default function () {
   let paymentContent = null;
   if (needsPaymentMethod) {
     paymentContent = (
-      <Grid container direction="column" justify="flex-start">
+      <Grid container direction="column" justify="flex-start" spacing={2} style={{flexWrap: "nowrap"}}>
         <Grid item>
           <Typography variant="h5">Select or enter your default payment method</Typography>
         </Grid>
         <Grid item>
-          <Cards />
+          <Cards collapseAdd={hideAddCard} />
         </Grid>
         <Grid item>
-          <Grid container direction="row" justify="flex-end" alignItems="center" spacing={2}>
-            <Grid item>
-              <Checkbox checked={userConsent} onChange={handleConsent} />
-            </Grid>
-            <Grid item>
-              <Typography variant="body1">You may charge my credit card</Typography>
+          <Grid container direction="column" alignItems="flex-end" spacing={2}>
+            <Grid container direction="row" alignItems="center" className={classes.consentContainer}>
+              <Grid item>
+                <Checkbox checked={userConsent} onChange={handleConsent} />
+              </Grid>
+              <Grid item>
+                <Typography variant="body1" className={classes.userAccept}>I understand that any fitness class can put my health at risk, I attest that I am physically fit to take this class and I take full responsibility for my physical well being. I continue to agree to the <a className={classes.link} href="/TOS.html" target="_blank">Terms of Service</a> and give permission for my payment method to be charged.</Typography>
+              </Grid>
             </Grid>
             <Grid item>
               <Button disabled={!userConsent} variant="contained" color="primary" onClick={courseSignupHandler}>Submit Payment</Button>

@@ -118,7 +118,7 @@ export default function (props) {
   }
 
   let formContent = (
-    <form onSubmit={formHandler} >
+    <form onSubmit={formHandler} style={{width: "100%"}} >
       <Grid container direction='column' spacing={2}>
         <Grid item>
           {errContent}

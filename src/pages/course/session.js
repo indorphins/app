@@ -17,9 +17,15 @@ const useStyles = makeStyles((theme) => ({
     '#root': {
       height: '100%',
     },
+    '.MuiSnackbarContent-root': {
+      minWidth: 0,
+      '@media (min-width: 600px)': {
+        minWidth: 0,
+      },
+    },
     '.MuiSnackbarContent-message': {
-      fontSize: '2rem',
-    }
+      fontSize: "2.5rem",
+    },
   },
   root: {
     height: '100%',
@@ -31,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
     height: "100%",
   },
   emote: {
-    fontSize: "2rem",
+    opacity: 0.7,
   }
 }));
 

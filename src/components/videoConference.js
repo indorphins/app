@@ -112,9 +112,6 @@ const useStyles = makeStyles((theme) => ({
   hidden: {
     display: "none",
   },
-  emote: {
-    minWidth: 0,
-  }
 }));
 
 export default function(props) {
@@ -540,9 +537,8 @@ export default function(props) {
       let data = JSON.parse(event.data);
       if (data.userId === user.id) {
         enqueueSnackbar(data.message, {
-          persist: true,
+          persist: false,
           autoHideDuration: 5000,
-          classes: {root: classes.emote},
           anchorOrigin: { horizontal: "left", vertical: "top" }
         });
       }

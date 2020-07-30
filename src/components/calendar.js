@@ -47,6 +47,7 @@ const styles = (theme) => ({
     background: theme.palette.grey[300],
   },
   button: {
+    backgroundImage: "none",
     '@media (max-width: 600px)': {
       padding: theme.spacing(1),
     },

@@ -16,6 +16,9 @@ const useStyles = makeStyles((theme) => ({
       width: "1.8rem",
       height: "1.8rem",
     }
+  },
+  loginBtn: {
+    backgroundImage: "none",
   }
 }));
 
@@ -58,7 +61,7 @@ export default function(props) {
 
   let noUserContent = (
     <Box className={classes.root}>
-      <Button color="secondary" onClick={goToLogin}>Log in</Button>
+      <Button color="secondary" className={classes.loginBtn} onClick={goToLogin}>Log in</Button>
     </Box>
   )
 

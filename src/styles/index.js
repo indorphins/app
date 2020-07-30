@@ -112,11 +112,15 @@ export default function(props) {
         paddingBottom: theme.spacing(0.5),
       }
     },
-    MuiSnackbarContent: {
+    /*MuiSnackbarContent: {
       root: {
+        opacity: 0.7,
         minWidth: 0,
+        '@media (min-width: 600px)': {
+          minWidth: 0,
+        },
       }
-    },
+    },*/
     MUIRichTextEditor: {
       root: {
         width: "100%",
