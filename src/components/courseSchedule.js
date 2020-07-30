@@ -5,7 +5,7 @@ import { format } from 'date-fns';
 
 import Calendar from './calendar';
 import path from '../routes/path';
-import { getNextDate } from '../utils';
+import { getNextDate, getNextSession } from '../utils';
 
 const useStyles = makeStyles((theme) => ({
   calContainer: {
@@ -24,11 +24,19 @@ const useStyles = makeStyles((theme) => ({
 
 const extrapolateRecurringEvents = function(course) {
   let data = [];
+  let dates = [];
 
-  let sched = getNextDate(course.recurring, 50);
-  let start = new Date(course.start_date);
-  
-  sched.forEach(function(d) {
+  let now = new Date();
+  let first = getNextSession(now, course);
+  dates.push(first.date);
+  let next = getNextDate(course.recurring, 49, first.end);
+  dates.concat(next);
+
+  console.log("dates array", dates);
+
+  let start = first.date;
+
+  dates.forEach(function(d) {
 
     let end = new Date(d);
     end.setMinutes(end.getMinutes() + course.duration);

@@ -11,7 +11,6 @@ import CourseSchedule from '../components/courseSchedule';
 import ProfileEdit from '../components/form/editProfile';
 import UserData from '../components/userData';
 import Cards from '../components/cards';
-import * as Course from '../api/course';
 import * as Stripe from '../api/stripe';
 import log from '../log';
 import path from '../routes/path';
@@ -51,12 +50,17 @@ const getPaymentDataSelector = createSelector([state => state.user.paymentData],
   return data;
 });
 
+const userSchedSelector = createSelector([state => state.user.schedule], (items) => {
+  return items;
+});
+
 export default function () {
 
   const history = useHistory();
   const classes = useStyles();
   const currentUser = useSelector(state => getUserSelector(state));
   const paymentData = useSelector(state => getPaymentDataSelector(state));
+  const schedule = useSelector(state => userSchedSelector(state));
   const params = useParams();
   const [photo, setPhoto] = useState('');
   const [username, setUsername] = useState('');
@@ -67,14 +71,11 @@ export default function () {
   const [insta, setInsta] = useState('');
   const [bio, setBio] = useState('');
   const [loader, setLoader] = useState(true);
-  const [courses, setCourses] = useState([]);
   const [editButton, setEditButton] = useState(false);
   const [editForm, setEditForm] = useState(false);
   const [createStripe, setCreateStripe] = useState(false);
 
   useEffect(() => {
-
-    setCourses([]);
 
     if (currentUser.id) {
       setUsername(currentUser.username);
@@ -86,7 +87,6 @@ export default function () {
       setBio(currentUser.bio);
       if (currentUser.social && currentUser.social.instagram) setInsta('@' + currentUser.social.instagram);
       setLoader(false);
-      getUserSchedule(currentUser.id);
     } else {
 
       history.push(path.login);
@@ -130,43 +130,6 @@ export default function () {
     }
   }, [paymentData]);
 
-  async function getSchedule(filter) {
-    let result;
-
-    try {
-      result = await Course.query(filter, {}, 500);
-    } catch(err) {
-      throw err;
-    }
-
-    log.debug("PROFILE:: course schedule result", result);
-
-    if (result && result.data) {
-      setCourses(result.data);
-    }
-  }
-
-  async function getUserSchedule(userId) {
-    let now = new Date();
-    now.setHours(now.getHours() - 24);
-    let schedFilter = {
-      '$and': [
-        {'$or': [
-          {instructor: userId},
-          {participants: { $elemMatch: { id: userId }}},
-        ]},
-        {'$or': [ 
-          { start_date: {"$gte" : now.toISOString() }},
-          { recurring: { '$exists': true }}
-        ]},
-      ],
-      start_date: { '$exists': true },
-    };
-
-    log.debug("PROFILE:: user schedule filter", schedFilter);
-
-    return getSchedule(schedFilter);
-  }
 
   const toggleEditForm = function() {
     if (editForm) {
@@ -260,7 +223,7 @@ export default function () {
             <Typography variant="h2">Schedule</Typography>
           </Grid>
           <Grid item>
-            <CourseSchedule course={courses} view="month" />
+            <CourseSchedule course={schedule} />
           </Grid>
         </Grid>
       </Grid>
