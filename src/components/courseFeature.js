@@ -206,6 +206,10 @@ export default function(props) {
           id: course.id,
         };
 
+        if (course.available_spots === 0) {
+          data.title = 'SOLD OUT: ' + data.title;
+        }
+
         if (course.photo_url) {
           data.photo_url = course.photo_url;
         }
