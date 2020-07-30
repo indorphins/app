@@ -2,7 +2,6 @@ import React from "react";
 import { Grid, Paper, Typography, Zoom } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
-import Legal from './legal';
 
 const useStyles = makeStyles((theme) => ({
 	root: {
@@ -36,8 +35,27 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(3),
 		marginRight: theme.spacing(5),
 		color: theme.palette.primary.main
-  },
+	},
+	link: {
+    color: theme.palette.primary.main,
+    textDecoration: "none",
+  }
 }));
+
+export function Legal() {
+  const classes = useStyles();
+
+  return (
+    <Grid container direction="row" justify="space-between">
+      <Grid item>
+        <a className={classes.link} href="/PP.html" target="_blank">Privacy Policy</a>
+      </Grid>
+      <Grid item>
+        <a className={classes.link} href="/TOS.html" target="_blank">Terms of Service</a>
+      </Grid>
+    </Grid>
+  )
+}
 
 export default function(props) {
 
