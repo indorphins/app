@@ -58,9 +58,8 @@ let useStyles = makeStyles((theme) => ({
     position: 'absolute',
     border: "solid 1px",
     borderColor: theme.palette.secondary.main,
-    color: theme.palette.secondary.main,
+    color: theme.palette.primary.main,
     padding: theme.spacing(.5),
-    fontWeight: "bold",
     borderRadius: '10px',
     marginLeft: theme.spacing(1),
     fontSize: '14px'
