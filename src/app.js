@@ -107,7 +107,7 @@ export default function App() {
 
   async function getUserSchedule(userId) {
     let now = new Date();
-    now.setHours(now.getHours() - 24);
+    now.setHours(now.getHours() - 48);
     let schedFilter = {
       '$and': [
         {'$or': [
