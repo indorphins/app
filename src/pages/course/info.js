@@ -79,6 +79,11 @@ const useStyles = makeStyles((theme) => ({
     fontStyle: "italic",
     fontSize: "0.9rem",
   },
+  link: {
+    cursor: "pointer",
+    textDecoration: "none",
+    color: theme.palette.primary.main,
+  },
   '@global': {
     html: {
       overflow: 'hidden',
@@ -568,7 +573,7 @@ export default function () {
                 <Checkbox checked={userConsent} onChange={handleConsent} />
               </Grid>
               <Grid item>
-                <Typography variant="body1" className={classes.userAccept}>I understand that any fitness class can put my health at risk, I attest that I am physically fit to take this class and I take full responsibility for my physical well being. I continue to agree to the Terms of Service and give permission for my payment method to be charged.</Typography>
+                <Typography variant="body1" className={classes.userAccept}>I understand that any fitness class can put my health at risk, I attest that I am physically fit to take this class and I take full responsibility for my physical well being. I continue to agree to the <a className={classes.link} href="/TOS.html" target="_blank">Terms of Service</a> and give permission for my payment method to be charged.</Typography>
               </Grid>
             </Grid>
             <Grid item>
