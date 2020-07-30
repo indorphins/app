@@ -9,6 +9,7 @@ import log from './log';
 import Firebase from './Firebase';
 import Routes from './routes/index';
 import * as User from './api/user';
+import * as Course from './api/course';
 import { store, actions } from './store';
 import config from './config'
 
@@ -90,10 +91,50 @@ export default function App() {
     }
   }
 
+  async function getSchedule(filter) {
+    let result;
+
+    try {
+      result = await Course.query(filter, {}, 500);
+    } catch(err) {
+      throw err;
+    }
+
+    if (result && result.data) {
+      await store.dispatch(actions.user.setSchedule(result.data));
+    }
+  }
+
+  async function getUserSchedule(userId) {
+    let now = new Date();
+    now.setHours(now.getHours() - 24);
+    let schedFilter = {
+      '$and': [
+        {'$or': [
+          {instructor: userId},
+          {participants: { $elemMatch: { id: userId }}},
+        ]},
+        {'$or': [ 
+          { start_date: {"$gte" : now.toISOString() }},
+          { recurring: { '$exists': true }}
+        ]},
+      ],
+      start_date: { '$exists': true },
+    };
+
+    return getSchedule(schedFilter);
+  }
+
   useEffect(() => {
     Firebase.clearListeners();
     Firebase.addListener(listener);
   });
+
+  useEffect(() => {
+    if (currentUser.id) {
+      getUserSchedule(currentUser.id);
+    }
+  }, [currentUser]);
 
   return (
     <Elements stripe={stripePromise}>

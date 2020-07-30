@@ -7,7 +7,7 @@ export default async function callAPI(url, options, sendToken) {
 	  let token;
 
     try {
-      log.debug("API:: fetch firbase token")
+      //log.debug("API:: fetch firbase token")
       token = await Firebase.getToken();
     } catch(err) {
       return log.error("AUTH:: error fetching firebase token", err);
