@@ -5,7 +5,7 @@ import { Photo, ShoppingCartOutlined, GroupAdd, People, RecordVoiceOver, AvTimer
 import Alert from '@material-ui/lab/Alert';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { format, isTomorrow, isToday } from 'date-fns';
+import { format, isTomorrow, isToday, differenceInDays } from 'date-fns';
 
 import { store, actions } from '../../store';
 import CreateMessage from '../../components/form/createMessage'
@@ -618,7 +618,7 @@ export default function () {
       let dt = format(d, "iiii");
       let time = format(d, "h:mm a");
 
-      if (now.getDate() - d.getDate() >= 7) {
+      if (differenceInDays(now, d) >= 7) {
         dt = format(d, "iiii, MMMM do");
       }
 
