@@ -157,7 +157,7 @@ export default function(props) {
       }
 
       if (err.name === 'OT_TIMEOUT' || err.name === 'OT_MEDIA_ERR_NETWORK') {
-        setDisplayMsg({severity: "error", message: "Network conection error. Disabling participants video. Please check your internet connection and then reconnect to this session."});
+        setDisplayMsg({severity: "warning", message: "Network connection slow. Disabling participant video. Try moving closer to your router if possible, or check your internet speed, and then refresh this page."});
         setSubs(subs.map(item => {
           if (item.video) {
             item.video = false;
