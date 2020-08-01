@@ -618,7 +618,7 @@ export default function () {
       let dt = format(d, "iiii");
       let time = format(d, "h:mm a");
 
-      if (differenceInDays(now, d) >= 7) {
+      if (differenceInDays(d, now) >= 7) {
         dt = format(d, "iiii, MMMM do");
       }
 

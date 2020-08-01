@@ -10,6 +10,7 @@ import Firebase from './Firebase';
 import Routes from './routes/index';
 import * as User from './api/user';
 import * as Course from './api/course';
+import Notification from './components/notification';
 import { store, actions } from './store';
 import config from './config'
 
@@ -139,6 +140,7 @@ export default function App() {
   return (
     <Elements stripe={stripePromise}>
       <AppTheme>
+        <Notification />
         <Routes />
       </AppTheme>
     </Elements>

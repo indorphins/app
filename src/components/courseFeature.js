@@ -224,7 +224,7 @@ export default function(props) {
         let dt = format(d, "iiii");
         let time = format(d, "h:mma");
 
-        if (differenceInDays(now, d) >= 7) {
+        if (differenceInDays(d, now) >= 7) {
           dt = format(d, "M/d");
         }
 
