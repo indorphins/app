@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { Grid, GridList, GridListTile, GridListTileBar, Typography, CircularProgress, IconButton, Fab, useMediaQuery} from '@material-ui/core';
 import { InfoOutlined, ArrowForward, ArrowBack } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
-import { format, isTomorrow, isToday } from 'date-fns'
+import { format, isTomorrow, isToday, differenceInDays } from 'date-fns'
 
 import * as Course from '../api/course';
 import log from '../log';
@@ -224,7 +224,7 @@ export default function(props) {
         let dt = format(d, "iiii");
         let time = format(d, "h:mma");
 
-        if (now.getDate() - d.getDate() >= 7) {
+        if (differenceInDays(d, now) >= 7) {
           dt = format(d, "M/d");
         }
 

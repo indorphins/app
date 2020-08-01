@@ -151,18 +151,24 @@ export default function(props) {
         return;
       }
 
-      if (err.name === 'OT_MEDIA_ERR_NETWORK') {
-        setDisplayMsg({severity: "error", message: "Network conection error. Please check your internet connection and then reconnect to this session"});
-        return;
-      }
-
       if (err.name === 'OT_NOT_SUPPORTED') {
         setDisplayMsg({severity: "error", message: "Device not supported."});
         return;
       }
 
-      if (err.name === 'OT_TIMEOUT') {
-        setDisplayMsg({severity: "error", message: "Network conection error. Please check your internet connection and then reconnect to this session"});
+      if (err.name === 'OT_TIMEOUT' || err.name === 'OT_MEDIA_ERR_NETWORK') {
+        setDisplayMsg({severity: "warning", message: "Network connection slow. Disabling participant video. Try moving closer to your router if possible, or check your internet speed, and then refresh this page."});
+        setSubs(subs.map(item => {
+          if (item.video) {
+            item.video = false;
+            item.className = `${classes.subscriberItem} ${classes.hidden}`
+            item.subscriber.subscribeToVideo(false);
+            setVideoSubsCount(videoSubsCountRef.current - 1);
+          }
+          return item;
+        }));
+        setFullscreenMode(true);
+        setLoopMode(false);
         return;
       }
     }
