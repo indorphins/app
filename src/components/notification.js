@@ -57,7 +57,6 @@ export default function() {
     if (schedule && schedule.length > 0) {
       checkUpcomingClass(schedule);
       const interval = setInterval(() => {
-        console.log("running interval");
         checkUpcomingClass(schedule);
       }, 10000);
       return () => clearInterval(interval);
@@ -69,8 +68,6 @@ export default function() {
     let exists = messagesRef.current.filter(item => {
       return item.message === msg.message;
     });
-
-    console.log(exists);
 
     if (!exists[0]) {
       setMessages(messages => [msg, ...messages]);
@@ -86,7 +83,6 @@ export default function() {
       if (next) {
 
         if (now > next.start && now < next.end) {
-          console.log("Current class session", item.title);
           sendClassMessage({
             id: item.id,
             url: path.courses + "/" + item.id + "/join",
@@ -97,9 +93,7 @@ export default function() {
         }
 
         let diff = differenceInMinutes(next.date, now)
-        console.log("date diff", diff);
         if (diff < 20 && diff > 0) {
-          console.log("upcoming class", item.title);
           sendClassMessage({
             id: item.id,
             url: path.courses + "/" + item.id,
@@ -146,10 +140,10 @@ export default function() {
 
   return (
     <Grid className={classes.root}>
-      <Grid xs={layout.containerWidth} container direction="column" spacing={2}>
+      <Grid xs={layout.containerWidth} item container direction="column" spacing={2}>
         {displayMsg.map(item => (
-          <Slide direction="right" in={true} mountOnEnter unmountOnExit>
-            <Grid item key={item.message + item.id}>
+          <Slide key={item.message + item.id} direction="right" in={true} mountOnEnter unmountOnExit>
+            <Grid item>
               <Paper elevation={4} className={classes.card}>
                 <Grid container direction="row" justify="space-between" spacing={1}>
                   <Grid item xs={1}>
