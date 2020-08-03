@@ -453,8 +453,7 @@ export default function(props) {
 
   async function toggleSubscriberVideo(evt) {
     let data = evt.target.name;
-    let index = 2;
-
+    
     let disabled = false;
     let current = subsRef.current.filter(item => { return item.user.id === data });
 
@@ -479,25 +478,29 @@ export default function(props) {
       }
     }
 
-    setSubs(subs.map(item => {
-      if (item.user.id === data) {
-        return current[0];
-      }
+    if (user.id === course.instructor.id) {
+      let index = 2;
 
-      if (item.video) {
-        item.order = index;
-        if (disabled && index === 2) {
-          item.className = `${classes.subscriberFeature} ${classes.shown}`;
-        } else {
-          item.className = `${classes.subscriberItemAlt} ${classes.shown}`;
+      setSubs(subs.map(item => {
+        if (item.user.id === data) {
+          return current[0];
         }
-        index++;
-      } else {
-        item.className = `${classes.subscriberItem} ${classes.hidden}`;
-      }
 
-      return item;
-    }));
+        if (item.video) {
+          item.order = index;
+          if (disabled && index === 2) {
+            item.className = `${classes.subscriberFeature} ${classes.shown}`;
+          } else {
+            item.className = `${classes.subscriberItemAlt} ${classes.shown}`;
+          }
+          index++;
+        } else {
+          item.className = `${classes.subscriberItemAlt} ${classes.hidden}`;
+        }
+
+        return item;
+      }));
+    }
   }
 
   function toggleSubscriberAudio(evt) {
