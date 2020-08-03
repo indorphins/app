@@ -495,7 +495,7 @@ export default function(props) {
           }
           index++;
         } else {
-          item.className = `${classes.subscriberItem} ${classes.hidden}`;
+          item.className = `${classes.subscriberItemAlt} ${classes.hidden}`;
         }
 
         return item;
