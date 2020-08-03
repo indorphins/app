@@ -304,7 +304,6 @@ export default function () {
     }
 
     const interval = setInterval(() => {
-      console.log("running interval");
       let now = new Date();
       let sessionTime = getNextSession(now, course);
 
