@@ -5,7 +5,7 @@ import { Photo, ShoppingCartOutlined, GroupAdd, People, RecordVoiceOver, AvTimer
 import Alert from '@material-ui/lab/Alert';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { format, isTomorrow, isToday } from 'date-fns';
+import { format, isTomorrow, isToday, differenceInDays, differenceInMinutes } from 'date-fns';
 
 import { store, actions } from '../../store';
 import CreateMessage from '../../components/form/createMessage'
@@ -266,6 +266,7 @@ export default function () {
 
   }, [paymentData.id, currentUser.id]);
 
+
   useEffect(() => {
     if (!currentUser.id || !course.id) return;
 
@@ -287,11 +288,43 @@ export default function () {
     let now = new Date();
     let sessionTime = getNextSession(now, course);
 
-    if (sessionTime && now > sessionTime.start && now < sessionTime.end) {
+    if (!sessionTime) return;
+
+    let diff = differenceInMinutes(sessionTime.date, now);
+    if (diff < 20 && diff > 0) {
       setJoinSession((
-        <Button variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
-      ))
+        <Button title="Class is starting soon" disabled={true} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
+      ));
     }
+
+    if (now > sessionTime.start && now < sessionTime.end) {
+      setJoinSession((
+        <Button disabled={false} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
+      ));
+    }
+
+    const interval = setInterval(() => {
+      let now = new Date();
+      let sessionTime = getNextSession(now, course);
+
+      if (sessionTime) {
+        let diff = differenceInMinutes(sessionTime.date, now);
+        if (diff < 20 && diff > 0) {
+          setJoinSession((
+            <Button title="Class is starting soon"  disabled={true} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
+          ));
+        }
+
+        if (now > sessionTime.start && now < sessionTime.end) {
+          console.log("set class active");
+          setJoinSession((
+            <Button disabled={false} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
+          ));
+        }
+      }
+    }, 10000);
+
+    return () => clearInterval(interval);
 
   }, [currentUser, course]);
 
@@ -618,7 +651,7 @@ export default function () {
       let dt = format(d, "iiii");
       let time = format(d, "h:mm a");
 
-      if (now.getDate() - d.getDate() >= 7) {
+      if (differenceInDays(d, now) >= 7) {
         dt = format(d, "iiii, MMMM do");
       }
 

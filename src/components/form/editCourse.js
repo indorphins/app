@@ -16,6 +16,7 @@ import log from '../../log';
 import * as Course from '../../api/course';
 import * as utils from '../../utils';
 import path from '../../routes/path';
+import { store, actions } from '../../store';
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -181,6 +182,8 @@ export default function (props) {
         return log.error("COURSE EDIT:: course creation", e);
       }
 
+
+      store.dispatch(actions.user.addScheduleItem(created.data));
       setLoader(false);
       history.push(path.courses + "/" + created.data.id);
     }
