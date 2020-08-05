@@ -7,7 +7,9 @@ import * as User from '../../api/user';
 import Firebase from '../../Firebase';
 import log from '../../log';
 import path from '../../routes/path';
+import DateFnsUtils from '@date-io/date-fns';
 import { store, actions } from '../../store';
+import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
 
 const useStyles = makeStyles((theme) => ({
 	txtField: {
@@ -24,6 +26,13 @@ const useStyles = makeStyles((theme) => ({
   consentCheck: {
     paddingRight: theme.spacing(1),
     paddingLeft: theme.spacing(0)
+  },
+  box: {
+    marginTop: theme.spacing(2),
+    width: "100%",
+    border: "1px solid",
+    borderColor: theme.palette.secondary.main,
+    borderRadius: '4px'
   }
 }));
 
@@ -41,6 +50,7 @@ export default function(props) {
 	const [phoneErr, setPhoneErr] = useState(null);
   const [loader, setLoader] = useState(false);
   const [userConsent, setUserConsent] = useState(false)
+  const [birthday, setBirthday] = useState(null);
 	const history = useHistory();
 	const rx = /^1?[-|\s]?\(?(\d{3})?\)?[-|\s]?(\d{3})[-|\s]?(\d{4})/gm;
 
@@ -78,6 +88,10 @@ export default function(props) {
   
   const consentHandler = () => {
     setUserConsent(!userConsent);
+  }
+
+  const birthdayHandler = (date) => {
+    setBirthday(date);
   }
 
 	const validatePhone = function() {
@@ -325,6 +339,24 @@ export default function(props) {
 				<Box>
 					{phoneField}
 				</Box>
+        <Box >
+          <MuiPickersUtilsProvider utils={DateFnsUtils} >
+            <KeyboardDatePicker
+              disableToolbar
+              className={classes.box}
+              variant="inline"
+              format="MM/dd/yyyy"
+              margin="normal"
+              id="birthday-input"
+              label="Birthday"
+              value={birthday}
+              onChange={birthdayHandler}
+              KeyboardButtonProps={{
+                'aria-label': 'change date',
+              }}
+            />
+          </MuiPickersUtilsProvider>
+        </Box>
         <Grid container direction='row' alignItems='center' className={classes.consentContainer}>
           <Checkbox checked={userConsent} onChange={consentHandler} className={classes.consentCheck} />
           <Typography variant='body2'>By signing in or signing up, I agree to Indoorphins.fit's <a className={classes.link} href="/TOS.html" target="_blank">Terms of Service</a> and <a className={classes.link} href="/PP.html" target="_blank">Privacy Policy</a>, confirm that I am 18 years of age or older, and consent to receiving email and sms communication.</Typography>
