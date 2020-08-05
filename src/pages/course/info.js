@@ -240,9 +240,15 @@ export default function () {
     }
 
     if (course.available_spots > 0) {
-      setSignup((
-        <Button variant="contained" color="secondary" onClick={showSignupForm} style={{width:"100%"}}>Book Class</Button>
-      ));
+      if (course.cost && course.cost > 0) {
+        setSignup((
+          <Button variant="contained" color="secondary" onClick={showSignupForm} style={{width:"100%"}}>Book Class</Button>
+        ));
+      } else {
+        setSignup((
+          <Button variant="contained" color="secondary" onClick={courseSignupHandler} style={{width:"100%"}}>Book Class</Button>
+        ));
+      }
     }
 
   }, [currentUser, course]);
