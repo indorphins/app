@@ -53,8 +53,9 @@ export default function App() {
           lastname = firebaseUserData.displayName.split(' ')[1];
           username = firebaseUserData.displayName;
         } else {
-          let match = firebaseUserData.email.match(/(.*)@/gm);
-          log.debug("re match", match);
+          let re = /(.*)@/gm;
+          let match = re.exec(firebaseUserData.email);
+          username = match[1];
         }
 
         if (firebaseUserData.phoneNumber) {
