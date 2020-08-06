@@ -8,7 +8,7 @@ import * as User from '../../api/user';
 import log from '../../log';
 import { store, actions } from '../../store';
 import Editor from '../editor';
-
+import { Birthday } from '../birthday';
 
 const useStyles = makeStyles((theme) => ({
   btn: {
@@ -36,6 +36,8 @@ export default function () {
   const [instagram, setInstagram] = useState('');
   const [bio, setBio] = useState('');
   const [bioContent, setBioContent] = useState('<p></p>');
+  const [bday, setBday] = useState(null);
+  const [bdayErr, setBdayErr] = useState('');
   const [loader, setLoader] = useState(false);
 
   let content;
@@ -61,6 +63,10 @@ export default function () {
 
       if (currentUser.social && currentUser.social.instagram) {
         setInstagram(currentUser.social.instagram);
+      }
+
+      if (currentUser.birthday) {
+        setBday(currentUser.birthday)
       }
     }
 
@@ -88,6 +94,14 @@ export default function () {
 
   const instaHandler = function (e) {
     setInstagram(e.target.value);
+  }
+
+  const birthdayHandler = function (date) {
+    setBday(date);
+  }
+
+  const bdayFocusHandler = function() {
+    setBdayErr(null);
   }
 
   const editorHandler = function (e) {
@@ -120,8 +134,20 @@ export default function () {
 
   const formHandler = async function (e) {
     e.preventDefault();
-    setLoader(true);
 
+    if (bday.toString() === 'Invalid Date') {
+      setBdayErr("Invalid Birthday")
+      return
+    }
+    const now = new Date();
+    let birthday = new Date(bday);
+    if (now.getFullYear() - bday.getFullYear() < 18) {
+      setBdayErr("Must be 18 or older")
+      return
+    }
+    birthday = bday.toISOString();
+
+    setLoader(true);
 
     let userData = {
       username: username,
@@ -130,6 +156,7 @@ export default function () {
       phone_number: phone,
       photo_url: photoUrl,
       bio: bio,
+      birthday: birthday
     };
 
     if (bio) {
@@ -193,6 +220,9 @@ export default function () {
       </Grid>
       <Grid>
         <TextField className={classes.input} disabled={loader} color="secondary" variant="outlined" type="text" id="photo" label="Profile Photo URL" value={photoUrl} onChange={photoHandler} />
+      </Grid>
+      <Grid>
+        <Birthday classStyle={classes.input} loader={loader} val={bday} focus={bdayFocusHandler} change={birthdayHandler} err={bdayErr} />
       </Grid>
       <Grid>
         <Editor label="Bio" value={bioContent} onChange={editorHandler} onSave={editorSaveHandler} />

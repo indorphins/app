@@ -7,9 +7,8 @@ import * as User from '../../api/user';
 import Firebase from '../../Firebase';
 import log from '../../log';
 import path from '../../routes/path';
-import DateFnsUtils from '@date-io/date-fns';
 import { store, actions } from '../../store';
-import { KeyboardDatePicker, MuiPickersUtilsProvider } from '@material-ui/pickers';
+import { Birthday } from '../birthday';
 
 const useStyles = makeStyles((theme) => ({
 	txtField: {
@@ -22,6 +21,8 @@ const useStyles = makeStyles((theme) => ({
   consentContainer: {
     flexWrap: "nowrap",
     paddingTop: theme.spacing(2),
+    fontStyle: "italic",
+    fontSize: "0.9rem"
   },
   consentCheck: {
     paddingRight: theme.spacing(1),
@@ -33,6 +34,9 @@ const useStyles = makeStyles((theme) => ({
     border: "1px solid",
     borderColor: theme.palette.secondary.main,
     borderRadius: '4px'
+  },
+  bdayInput: {
+    width: '100%'
   }
 }));
 
@@ -51,6 +55,7 @@ export default function(props) {
   const [loader, setLoader] = useState(false);
   const [userConsent, setUserConsent] = useState(false)
   const [birthday, setBirthday] = useState(null);
+  const [bdayErr, setBdayErr] = useState(null);
 	const history = useHistory();
 	const rx = /^1?[-|\s]?\(?(\d{3})?\)?[-|\s]?(\d{3})[-|\s]?(\d{4})/gm;
 
@@ -90,8 +95,12 @@ export default function(props) {
     setUserConsent(!userConsent);
   }
 
-  const birthdayHandler = (date) => {
-    setBirthday(date);
+  const birthdayHandler = (date) =>{
+    setBirthday(date)
+  }
+
+  const bdayFocusHandler = () => {
+    setBdayErr(null);
   }
 
 	const validatePhone = function() {
@@ -103,7 +112,7 @@ export default function(props) {
 		rx.lastIndex = 0;
 		let match = rx.exec(phone);
 
-		console.log("CREATE ACCOUNT:: phone validation regex result", match);
+		log.debug("CREATE ACCOUNT:: phone validation regex result", match);
 
 		if (!match) {
 			setPhoneErr("Invalid phone number");
@@ -169,7 +178,20 @@ export default function(props) {
 		if (phoneParts) {
 			log.debug("CREATE ACCOUNT:: got phone number match", phoneParts);
 			pn = phoneParts[1] + phoneParts[2] + phoneParts[3];
-		}
+    }
+    
+    if (birthday.toString() === 'Invalid Date') {
+      setBdayErr("Invalid Birthday")
+      return
+    }
+
+    const now = new Date();
+    let bday = new Date(birthday);
+    if (now.getFullYear() - bday.getFullYear() < 18) {
+      setBdayErr("Must be 18 or older")
+      return
+    }
+    bday = bday.toISOString();
 
 		setLoader(true);
 		Firebase.clearListeners();
@@ -191,7 +213,8 @@ export default function(props) {
         firstName, 
         lastName,
         email,
-        pn
+        pn,
+        bday
       )
     } catch(err) {
 			// TODO: display this error the user?
@@ -339,27 +362,12 @@ export default function(props) {
 				<Box>
 					{phoneField}
 				</Box>
-        <Box >
-          <MuiPickersUtilsProvider utils={DateFnsUtils} >
-            <KeyboardDatePicker
-              disableToolbar
-              className={classes.box}
-              variant="inline"
-              format="MM/dd/yyyy"
-              margin="normal"
-              id="birthday-input"
-              label="Birthday"
-              value={birthday}
-              onChange={birthdayHandler}
-              KeyboardButtonProps={{
-                'aria-label': 'change date',
-              }}
-            />
-          </MuiPickersUtilsProvider>
+        <Box>
+          <Birthday classStyle={classes.txtField} loader={loader} val={birthday} focus={bdayFocusHandler} change={birthdayHandler} err={bdayErr} />
         </Box>
         <Grid container direction='row' alignItems='center' className={classes.consentContainer}>
           <Checkbox checked={userConsent} onChange={consentHandler} className={classes.consentCheck} />
-          <Typography variant='body2'>By signing in or signing up, I agree to Indoorphins.fit's <a className={classes.link} href="/TOS.html" target="_blank">Terms of Service</a> and <a className={classes.link} href="/PP.html" target="_blank">Privacy Policy</a>, confirm that I am 18 years of age or older, and consent to receiving email and sms communication.</Typography>
+          <Typography variant='body2' >By signing in or signing up, I agree to Indoorphins.fit's <a className={classes.link} href="/TOS.html" target="_blank">Terms of Service</a> and <a className={classes.link} href="/PP.html" target="_blank">Privacy Policy</a>, confirm that I am 18 years of age or older, and consent to receiving email and sms communication.</Typography>
         </Grid>
 				{progress}
 				<Box>
