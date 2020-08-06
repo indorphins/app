@@ -235,7 +235,7 @@ export default function(props) {
       insertDefaultUI: true,
       publishAudio: false,
       publishVideo: true,
-      resolution: "1280x720",
+      resolution: "640x480",
       frameRate: 30,
       audioBitrate: 20000,
       enableStereo: false,
@@ -276,7 +276,7 @@ export default function(props) {
       insertMode: 'append',
       width: '100%',
       height: '100%',
-      preferredFrameRate: 15,
+      preferredFrameRate: 30,
       preferredResolution: {width: 320, height: 240},
       showControls: false,
       insertDefaultUI: true,
@@ -361,7 +361,7 @@ export default function(props) {
     for (var i = 0; i < updated.length; i++) {
       if (i < maxStreams) {
         if (i === 0 && props.user.id === props.course.instructor.id) {
-          updated[i].subscriber.preferredResolution = {width: 1280, height: 720};
+          updated[i].subscriber.preferredResolution = {width: 640, height: 480};
           updated[i].subscriber.preferredFrameRate = 30;
           updated[i].className = `${classes.subscriberFeature} ${classes.shown}`;
         } else if (i !== 0 && props.user.id === props.course.instructor.id) {
@@ -392,7 +392,7 @@ export default function(props) {
     for (var i = 0; i < updated.length; i++) {
       if (i < maxStreams) {
         if (i === 0 && props.user.id === props.course.instructor.id) {
-          updated[i].subscriber.preferredResolution = {width: 1280, height: 720};
+          updated[i].subscriber.preferredResolution = {width: 640, height: 480};
           updated[i].subscriber.preferredFrameRate = 30;
           updated[i].className = `${classes.subscriberFeature} ${classes.shown}`;
         } else if (i !== 0 && props.user.id === props.course.instructor.id) {
