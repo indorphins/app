@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { Button, Checkbox, Container, Grid, Typography, Card, LinearProgress, useMediaQuery, makeStyles, Modal } from '@material-ui/core';
+import { Button, Checkbox, Container, Grid, Typography, Card, LinearProgress, useMediaQuery, makeStyles, Modal, Fade } from '@material-ui/core';
 import { Photo, ShoppingCartOutlined, GroupAdd, People, RecordVoiceOver, AvTimer } from '@material-ui/icons';
 import Alert from '@material-ui/lab/Alert';
 import { useSelector } from 'react-redux';
@@ -88,12 +88,14 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     padding: theme.spacing(1),
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   modalContent: {
     background: 'white',
+    borderRadius: '4px',
     padding: theme.spacing(1),
     padding: theme.spacing(2),
+    outline: 0
   },
   modalBtn: {
     width: '40%',
@@ -818,13 +820,15 @@ export default function () {
           aria-labelledby="modal-title"
           aria-describedby="modal-description"
         >
-          <div className={classes.modalContent}>
-            <span id='modal-title'>Are you sure you want to cancel?</span>
-            <Grid container id='modal-description' justify='center'>
-              <Button onClick={closeModalHandler} variant="contained" color="secondary" className={classes.modalBtn}>No</Button>
-              <Button onClick={cancelClassHandler} variant="contained" className={classes.modalBtn}>Yes</Button>
-            </Grid>
-          </div>
+          <Fade in={confirmCancel}>
+            <div className={classes.modalContent}>
+              <span id='modal-title'>Are you sure you want to cancel?</span>
+              <Grid container id='modal-description' justify='center'>
+                <Button onClick={closeModalHandler} variant="contained" color="secondary" className={classes.modalBtn}>No</Button>
+                <Button onClick={cancelClassHandler} variant="contained" className={classes.modalBtn}>Yes</Button>
+              </Grid>
+            </div>
+          </Fade>
         </Modal>
         <Grid item>
           {errorContent}
