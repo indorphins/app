@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { Button, Checkbox, Container, Grid, Typography, Card, LinearProgress, useMediaQuery, makeStyles } from '@material-ui/core';
+import { Button, Checkbox, Container, Grid, Typography, Card, LinearProgress, useMediaQuery, makeStyles, Modal } from '@material-ui/core';
 import { Photo, ShoppingCartOutlined, GroupAdd, People, RecordVoiceOver, AvTimer } from '@material-ui/icons';
 import Alert from '@material-ui/lab/Alert';
 import { useSelector } from 'react-redux';
@@ -84,6 +84,23 @@ const useStyles = makeStyles((theme) => ({
     textDecoration: "none",
     color: theme.palette.primary.main,
   },
+  modal: {
+    display: 'flex',
+    padding: theme.spacing(1),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalContent: {
+    background: 'white',
+    padding: theme.spacing(1),
+    padding: theme.spacing(2),
+  },
+  modalBtn: {
+    width: '40%',
+    marginLeft: theme.spacing(1),
+    marginRight: theme.spacing(1),
+    marginTop: theme.spacing(1)
+  },
   '@global': {
     html: {
       overflow: 'hidden',
@@ -153,6 +170,7 @@ export default function () {
   const [cancellingClass, setCancellingClass] = useState(false);
   const [userConsent, setUserConsent] = useState(false);
   const [hideAddCard, setHideAddCard] = useState(false);
+  const [confirmCancel, setConfirmCancel] = useState(false);
 
   async function getCourse(id) {
     let cls;
@@ -208,7 +226,7 @@ export default function () {
 
     if (currentUser.id === instructor.id || currentUser.type === 'admin') {
       setCancel(
-        <Button variant="contained" disabled={cancellingClass} color="secondary" onClick={cancelClassHandler} style={{width:"100%"}}>Cancel Class</Button>
+        <Button variant="contained" disabled={cancellingClass} color="secondary" onClick={confirmCancelHandler} style={{width:"100%"}}>Cancel Class</Button>
       )
     }
 
@@ -354,8 +372,17 @@ export default function () {
     setSignup(null);
   }
 
+  const confirmCancelHandler = () => {
+    setConfirmCancel(true)
+  }
+
+  const closeModalHandler = () => {
+    setConfirmCancel(false);
+  }
+
   const cancelClassHandler = async function () {
     setCancellingClass(true);
+    setConfirmCancel(false);
     setPaymentProcessing(true);
     
     try {
@@ -784,6 +811,21 @@ export default function () {
             {cancelBtn}
           </Grid>
         </Grid>
+        <Modal
+          open={confirmCancel}
+          onClose={closeModalHandler}
+          className={classes.modal}
+          aria-labelledby="modal-title"
+          aria-describedby="modal-description"
+        >
+          <div className={classes.modalContent}>
+            <span id='modal-title'>Are you sure you want to cancel?</span>
+            <Grid container id='modal-description' justify='center'>
+              <Button onClick={closeModalHandler} variant="contained" color="secondary" className={classes.modalBtn}>No</Button>
+              <Button onClick={cancelClassHandler} variant="contained" className={classes.modalBtn}>Yes</Button>
+            </Grid>
+          </div>
+        </Modal>
         <Grid item>
           {errorContent}
           {paymentContent}
