@@ -368,7 +368,7 @@ export default function () {
 
     if (course.instructor.id === currentUser.id || currentUser.type === 'admin') {
       Course.getParticipants(course.id).then(list => {
-        setParticipantList(list.participants);
+        setParticipantList(list);
       }).catch (err => {
         log.warn("COURSE INFO:: unable to fetch list of participants");
       })
