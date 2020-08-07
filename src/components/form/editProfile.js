@@ -141,11 +141,11 @@ export default function () {
     }
     const now = new Date();
     let birthday = new Date(bday);
-    if (now.getFullYear() - bday.getFullYear() < 18) {
+    if (now.getFullYear() - birthday.getFullYear() < 18) {
       setBdayErr("Must be 18 or older")
       return
     }
-    birthday = bday.toISOString();
+    birthday = birthday.toISOString();
 
     setLoader(true);
 

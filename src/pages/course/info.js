@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { Button, Checkbox, Container, Grid, Typography, Card, LinearProgress, useMediaQuery, makeStyles, Modal, Fade } from '@material-ui/core';
+import { Button, Checkbox, Container, Grid, Typography, Card, LinearProgress, useMediaQuery, makeStyles, Modal, Fade, useRadioGroup } from '@material-ui/core';
 import { Photo, ShoppingCartOutlined, GroupAdd, People, RecordVoiceOver, AvTimer } from '@material-ui/icons';
 import Alert from '@material-ui/lab/Alert';
 import { useSelector } from 'react-redux';
@@ -14,6 +14,7 @@ import * as Stripe from '../../api/stripe';
 import log from '../../log';
 import path from '../../routes/path';
 import Cards from '../../components/cards';
+import { BdayIcon } from '../../components/icon/bday';
 
 import { getNextSession } from '../../utils';
 
@@ -173,6 +174,7 @@ export default function () {
   const [userConsent, setUserConsent] = useState(false);
   const [hideAddCard, setHideAddCard] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
+  const [participantList, setParticipantList] = useState(null);
 
   async function getCourse(id) {
     let cls;
@@ -195,6 +197,7 @@ export default function () {
     if (typeof cls.instructor === String) {
       cls.instructor = JSON.parse(cls.instructor);
     }
+    log.info("SET COURSE ", cls);
     setCourse(cls);
   }
 
@@ -230,10 +233,10 @@ export default function () {
       setCancel(
         <Button variant="contained" disabled={cancellingClass} color="secondary" onClick={confirmCancelHandler} style={{width:"100%"}}>Cancel Class</Button>
       )
+      setMakeMessage(true);
     }
 
-    if (currentUser.id === course.instructor.id || currentUser.type === 'admin') {
-      setMakeMessage(true);
+    if (currentUser.id === instructor.id || currentUser.type === 'admin') {
     }
 
     if (currentUser.id === course.instructor.id) {
@@ -342,7 +345,6 @@ export default function () {
         }
 
         if (now > sessionTime.start && now < sessionTime.end) {
-          console.log("set class active");
           setJoinSession((
             <Button disabled={false} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
           ));
@@ -353,6 +355,27 @@ export default function () {
     return () => clearInterval(interval);
 
   }, [currentUser, course]);
+
+  useEffect(() => {
+    if (!course.participants) {
+      return;
+    }
+
+    if (!course.instructor || !course.instructor.id || !currentUser.id || !currentUser.type) {
+      setParticipantList(course.participants);
+      return;
+    }
+
+    if (course.instructor.id === currentUser.id || currentUser.type === 'admin') {
+      Course.getParticipants(course.id).then(list => {
+        setParticipantList(list.data);
+      }).catch (err => {
+        log.warn("COURSE INFO:: unable to fetch list of participants");
+      })
+    } else {
+      setParticipantList(course.participants);
+    }
+  }, [course, currentUser])
 
   const goToLogin = async function() {
     history.push(`${path.login}?redirect=${path.courses}/${course.id}`);
@@ -462,6 +485,20 @@ export default function () {
     history.push(path.courses + "/" + course.id + path.joinPath);
   }
 
+  const hasValidBirthday = function(user) {
+    if (user.birthday) {
+
+      const bday = new Date(user.birthday);
+      const start = new Date(course.start_date);
+      bday.setFullYear(start.getFullYear());
+      const oneDay = 24 * 60 * 60 * 1000;
+
+      if ((bday - start) / oneDay <= 7) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   let paymentProcessingContent = null;
   if (paymentProcessing) {
@@ -582,7 +619,7 @@ export default function () {
 
   let participantsContent = null
 
-  if (course.participants && course.participants.length) {
+  if (participantList && participantList.length) { // course.participants && course.participants.length) {
     participantsContent = (
       <Card className={classes.participantContainer}>
         <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={2}>
@@ -596,9 +633,15 @@ export default function () {
           </Grid>
         </Grid>
         <Grid container direction="row" justify="flex-start">
-        {course.participants.map(item => (
+        {participantList.map(item => (
           <Grid key={item.username} item xs={6}>
-            <Typography variant="body1">{item.username}</Typography>
+            <Grid container display='inline' direction='row' alignItems='center'>
+              <Typography variant="body1">{item.username}</Typography>
+              {(currentUser.id === course.instructor.id || currentUser.type === 'admin') && hasValidBirthday(item) ? 
+                <BdayIcon bday={item.birthday} /> :
+                null
+              }
+            </Grid>
           </Grid>
         ))}
         </Grid>
