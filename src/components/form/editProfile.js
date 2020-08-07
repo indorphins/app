@@ -149,7 +149,6 @@ export default function () {
     };
 
     if (bday) {
-      bday.setUTCHours(0,0,0,0);
       userData.birthday = bday.toISOString();
     } else {
       setLoader(false);
