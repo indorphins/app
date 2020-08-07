@@ -99,10 +99,6 @@ export default function(props) {
     setBirthday(date)
   }
 
-  const bdayFocusHandler = () => {
-    setBdayErr(null);
-  }
-
 	const validatePhone = function() {
 	
 		if (!phone) {
@@ -180,18 +176,11 @@ export default function(props) {
 			pn = phoneParts[1] + phoneParts[2] + phoneParts[3];
     }
     
-    if (birthday.toString() === 'Invalid Date') {
-      setBdayErr("Invalid Birthday")
-      return
-    }
 
-    const now = new Date();
-    let bday = new Date(birthday);
-    if (now.getFullYear() - bday.getFullYear() < 18) {
-      setBdayErr("Must be 18 or older")
-      return
-    }
-    bday = bday.toISOString();
+		let bday = null;
+		if (birthday) {
+			bday = birthday.toISOString();
+		}
 
 		setLoader(true);
 		Firebase.clearListeners();
@@ -332,49 +321,47 @@ export default function(props) {
 
 	if (loader) {
 		progress = (
-			<Box>
-				<LinearProgress color="secondary" />
-			</Box>
+			<LinearProgress color="secondary" />
 		);
 	}
 
 	let formcontent = (
-		<Box>
-			<form onSubmit={formHandler}>
-				<Box>
+		<form onSubmit={formHandler}>
+			<Grid container direction="column" spacing={2}>
+				<Grid item>
 					<TextField disabled={loader} autoFocus={true} color="secondary" autoComplete="nickname"  className={classes.txtField} title={tooltips.username} required id="username" type="text" label="Nickname" variant="outlined" onChange={usernameHandler}/>
-				</Box>
-				<Box>
+				</Grid>
+				<Grid item>
 					<TextField disabled={loader} color="secondary" autoComplete="username"  className={classes.txtField} required id="email" type="email" label="Email" variant="outlined" onChange={emailHandler}/>
-				</Box>
-				<Box>
+				</Grid>
+				<Grid item>
 					{passwordField}
-				</Box>
-				<Box>
+				</Grid>
+				<Grid item>
 					{passwordConfirmField}
-				</Box>
-				<Box>
+				</Grid>
+				<Grid item>
 					<TextField disabled={loader} color="secondary" autoComplete="given-name" className={classes.txtField} id="firstName" type="text" label="First Name" variant="outlined" onChange={firstNameHandler}/>
-				</Box>
-				<Box>
+				</Grid>
+				<Grid item>
 					<TextField disabled={loader} color="secondary" autoComplete="family-name" className={classes.txtField} id="lastName" type="text" label="Last Name" variant="outlined" onChange={lastNameHandler}/>
-				</Box>
-				<Box>
+				</Grid>
+				<Grid item>
 					{phoneField}
-				</Box>
-        <Box>
-          <Birthday classStyle={classes.txtField} loader={loader} val={birthday} focus={bdayFocusHandler} change={birthdayHandler} err={bdayErr} />
-        </Box>
-        <Grid container direction='row' alignItems='center' className={classes.consentContainer}>
-          <Checkbox checked={userConsent} onChange={consentHandler} className={classes.consentCheck} />
-          <Typography variant='body2' >By signing in or signing up, I agree to Indoorphins.fit's <a className={classes.link} href="/TOS.html" target="_blank">Terms of Service</a> and <a className={classes.link} href="/PP.html" target="_blank">Privacy Policy</a>, confirm that I am 18 years of age or older, and consent to receiving email and sms communication.</Typography>
-        </Grid>
+				</Grid>
+				<Grid item>
+					<Birthday required={true} loader={loader} val={birthday} onChange={birthdayHandler} err={bdayErr} />
+				</Grid>
+				<Grid container direction='row' alignItems='center' className={classes.consentContainer}>
+					<Checkbox checked={userConsent} onChange={consentHandler} className={classes.consentCheck} />
+					<Typography variant='body2' >By signing in or signing up, I agree to Indoorphins.fit's <a className={classes.link} href="/TOS.html" target="_blank">Terms of Service</a> and <a className={classes.link} href="/PP.html" target="_blank">Privacy Policy</a>, confirm that I am 18 years of age or older, and consent to receiving email and sms communication.</Typography>
+				</Grid>
 				{progress}
-				<Box>
+				<Grid item>
 					<Button disabled={!userConsent} variant="contained" type="submit" color="primary" className={classes.submitBtn}>Create</Button>
-				</Box>
-			</form>
-		</Box>
+				</Grid>
+			</Grid>
+		</form>
 	);
 
 	return formcontent

@@ -70,72 +70,69 @@ export const Birthday = (props) => {
 
   return (
     <ThemeProvider theme={themeMerge}>
-    <Grid container direction="column" spacing={1}>
-      <Grid item>
-        <Typography variant="subtitle2">Date of birth</Typography>
-      </Grid>
-      <Grid item>
-        <MuiPickersUtilsProvider utils={DateFnsUtils} >
-          <Grid container direction="row" spacing={2}>
-            <Grid item>
+      <Grid container direction="column" spacing={1}>
+        <Grid item>
+          <Typography variant="subtitle2">Date of birth</Typography>
+        </Grid>
+        <Grid item>
+          <MuiPickersUtilsProvider utils={DateFnsUtils} >
+            <Grid container direction="row" spacing={2}>
+              <Grid item xs={4}>
+                <DatePicker
+                  disabled={props.loader}
+                  required={props.required}
+                  views={["year"]}
+                  variant="inline"
+                  format="yyyy"
+                  label="Year"
+                  value={date}
+                  initialFocusedDate={focusYear}
+                  onChange={handleChange}
+                  inputVariant="outlined"
+                  minDate={minDate}
+                  maxDate={maxDate}
+                  allowKeyboardControl={false}
+                  disableToolbar={true}
+                />
+              </Grid>
+              <Grid item xs={4}>
               <DatePicker
-                className={props.classStyle}
-                disabled={props.loader}
-                required={props.required}
-                views={["year"]}
-                variant="inline"
-                format="yyyy"
-                label="Year"
-                value={date}
-                initialFocusedDate={focusYear}
-                onChange={handleChange}
-                inputVariant="outlined"
-                minDate={minDate}
-                maxDate={maxDate}
-                allowKeyboardControl={false}
-                disableToolbar={true}
-              />
+                  disabled={props.loader}
+                  required={props.required}
+                  views={["month"]}
+                  variant="inline"
+                  format="MMMM"
+                  label="Month"
+                  value={date}
+                  onChange={handleChange}
+                  inputVariant="outlined"
+                  minDate={minDate}
+                  maxDate={maxDate}
+                  allowKeyboardControl={false}
+                  disableToolbar={true}
+                />
+              </Grid>
+              <Grid item xs={4}>
+              <DatePicker
+                  disabled={props.loader}
+                  required={props.required}
+                  views={["date"]}
+                  variant="inline"
+                  format="d"
+                  label="Day"
+                  value={date}
+                  onChange={handleChange}
+                  inputVariant="outlined"
+                  minDate={minDate}
+                  maxDate={maxDate}
+                  allowKeyboardControl={false}
+                  disableToolbar={true}
+                />
+              </Grid>
             </Grid>
-            <Grid item>
-            <DatePicker
-                className={props.classStyle}
-                disabled={props.loader}
-                required={props.required}
-                views={["month"]}
-                variant="inline"
-                format="MMMM"
-                label="Month"
-                value={date}
-                onChange={handleChange}
-                inputVariant="outlined"
-                minDate={minDate}
-                maxDate={maxDate}
-                allowKeyboardControl={false}
-                disableToolbar={true}
-              />
-            </Grid>
-            <Grid item>
-            <DatePicker
-                className={props.classStyle}
-                disabled={props.loader}
-                required={props.required}
-                views={["date"]}
-                variant="inline"
-                format="d"
-                label="Day"
-                value={date}
-                onChange={handleChange}
-                inputVariant="outlined"
-                minDate={minDate}
-                maxDate={maxDate}
-                allowKeyboardControl={false}
-                disableToolbar={true}
-              />
-            </Grid>
-          </Grid>
-        </MuiPickersUtilsProvider>
+          </MuiPickersUtilsProvider>
+        </Grid>
       </Grid>
-    </Grid>
     </ThemeProvider>
   )
 };
