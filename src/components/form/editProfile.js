@@ -137,18 +137,6 @@ export default function () {
   const formHandler = async function (e) {
     e.preventDefault();
 
-    if (bday.toString() === 'Invalid Date') {
-      setBdayErr("Invalid Birthday")
-      return
-    }
-    const now = new Date();
-    let birthday = new Date(bday);
-    if (now.getFullYear() - birthday.getFullYear() < 18) {
-      setBdayErr("Must be 18 or older")
-      return
-    }
-    birthday = birthday.toISOString();
-
     setLoader(true);
 
     let userData = {

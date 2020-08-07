@@ -485,21 +485,6 @@ export default function () {
     history.push(path.courses + "/" + course.id + path.joinPath);
   }
 
-  const hasValidBirthday = function(user) {
-    if (user.birthday) {
-
-      const bday = new Date(user.birthday);
-      const start = new Date(course.start_date);
-      bday.setFullYear(start.getFullYear());
-      const oneDay = 24 * 60 * 60 * 1000;
-
-      if ((bday - start) / oneDay <= 7) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   let paymentProcessingContent = null;
   if (paymentProcessing) {
     paymentProcessingContent = ( 
@@ -637,7 +622,7 @@ export default function () {
           <Grid key={item.username} item xs={6}>
             <Grid container display='inline' direction='row' alignItems='center'>
               <Typography variant="body1">{item.username}</Typography>
-              {(currentUser.id === course.instructor.id || currentUser.type === 'admin') && hasValidBirthday(item) ? 
+              {(currentUser.id === course.instructor.id || currentUser.type === 'admin') && item.birthday ? 
                 <BdayIcon bday={item.birthday} /> :
                 null
               }
