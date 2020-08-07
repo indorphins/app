@@ -368,7 +368,7 @@ export default function () {
 
     if (course.instructor.id === currentUser.id || currentUser.type === 'admin') {
       Course.getParticipants(course.id).then(list => {
-        setParticipantList(list.data);
+        setParticipantList(list.participants);
       }).catch (err => {
         log.warn("COURSE INFO:: unable to fetch list of participants");
       })
@@ -605,6 +605,18 @@ export default function () {
   let participantsContent = null
 
   if (participantList && participantList.length) { // course.participants && course.participants.length) {
+    let participants = participantList.map(item => (
+      <Grid key={item.username} item xs={6}>
+        <Grid container display='inline' direction='row' alignItems='center'>
+          <Typography variant="body1">{item.username}</Typography>
+          {(currentUser.id === course.instructor.id || currentUser.type === 'admin') && item.birthday ? 
+            <BdayIcon bday={item.birthday} /> :
+            null
+          }
+        </Grid>
+      </Grid>
+    ))
+
     participantsContent = (
       <Card className={classes.participantContainer}>
         <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={2}>
@@ -618,17 +630,7 @@ export default function () {
           </Grid>
         </Grid>
         <Grid container direction="row" justify="flex-start">
-        {participantList.map(item => (
-          <Grid key={item.username} item xs={6}>
-            <Grid container display='inline' direction='row' alignItems='center'>
-              <Typography variant="body1">{item.username}</Typography>
-              {(currentUser.id === course.instructor.id || currentUser.type === 'admin') && item.birthday ? 
-                <BdayIcon bday={item.birthday} /> :
-                null
-              }
-            </Grid>
-          </Grid>
-        ))}
+          {participants}
         </Grid>
       </Card>
     )
