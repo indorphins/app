@@ -57,11 +57,6 @@ export default function(props) {
   const [theme, setTheme] = useState(responsiveFontSizes(lightTheme));
   const classes = useStyles();
   const overrides = {
-    MuiTextField: {
-      root: {
-        marginTop: theme.spacing(2),
-      }
-    },
     MuiLink: {
       root: {
         marginTop: theme.spacing(2),

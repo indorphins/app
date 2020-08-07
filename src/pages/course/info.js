@@ -92,7 +92,6 @@ const useStyles = makeStyles((theme) => ({
   },
   modalContent: {
     background: 'white',
-    padding: theme.spacing(1),
     padding: theme.spacing(2),
   },
   modalBtn: {
