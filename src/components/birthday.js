@@ -34,6 +34,11 @@ export const Birthday = (props) => {
   const [ err, setErr ] = useState(null);
 
   function handleChange(evt) {
+    evt.setMinutes(0);
+    evt.setHours(0);
+    evt.setSeconds(0);
+    evt.setMilliseconds(0);
+    
     setDate(evt);
     setErr(null);
     if (props.onChange) {
@@ -73,6 +78,10 @@ export const Birthday = (props) => {
     min.setMilliseconds(0);
 
     max = subYears(max, 18);
+    max.setMinutes(0);
+    max.setHours(0);
+    max.setSeconds(0);
+    max.setMilliseconds(0);
 
     setMinDate(min);
     setMaxDate(max);
