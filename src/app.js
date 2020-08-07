@@ -43,16 +43,32 @@ export default function App() {
       if (err.message === 'user does not exist') {
         // TODO: if we don't have a user then we should redirect to the signup flow to get a username
         // before creating the user but for now we will just auto populate the username
-        let firstname = firebaseUserData.displayName.split(' ')[0];
-        let lastname = firebaseUserData.displayName.split(' ')[1];
+        let firstname = null;
+        let lastname = null;
+        let username = null;
+        let phone = null;
+        
+        if (firebaseUserData.displayName) {
+          firstname = firebaseUserData.displayName.split(' ')[0];
+          lastname = firebaseUserData.displayName.split(' ')[1];
+          username = firebaseUserData.displayName;
+        } else {
+          let re = /(.*)@/gm;
+          let match = re.exec(firebaseUserData.email);
+          username = match[1];
+        }
+
+        if (firebaseUserData.phoneNumber) {
+          phone = firebaseUserData.phoneNumber;
+        }
 
         try {
           user = await User.create(
-            firebaseUserData.displayName,
+            username,
             firstname,
             lastname,
             firebaseUserData.email,
-            firebaseUserData.phoneNumber
+            phone,
           );
         } catch (err) {
           return log.warn(

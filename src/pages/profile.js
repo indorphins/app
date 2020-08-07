@@ -164,7 +164,7 @@ export default function () {
 
     if (editForm) {
       editButtonContent = (
-        <Fab color="primary" aria-label="cancel" onClick={toggleEditForm}>
+        <Fab color="primary" aria-label="cancel" className={classes.fab} onClick={toggleEditForm}>
           <Clear />
         </Fab>
       )
@@ -192,9 +192,13 @@ export default function () {
 
   if (editForm) {
     editContent = (
-      <Grid>
-        {controlsContent}
-        <ProfileEdit />
+      <Grid container direction="column" spacing={1}>
+        <Grid item>
+          {controlsContent}
+        </Grid>
+        <Grid item>
+          <ProfileEdit />
+        </Grid>
       </Grid>
     );
   }
