@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Box, TextField, Button, LinearProgress, Grid, Checkbox, Typography } from '@material-ui/core';
+import { TextField, Button, LinearProgress, Grid, Checkbox, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 import * as User from '../../api/user';
@@ -96,6 +96,7 @@ export default function(props) {
   }
 
   const birthdayHandler = (date) =>{
+		setBdayErr(null);
     setBirthday(date)
   }
 
@@ -180,6 +181,8 @@ export default function(props) {
 		let bday = null;
 		if (birthday) {
 			bday = birthday.toISOString();
+		} else {
+			return setBdayErr("missing");
 		}
 
 		setLoader(true);
@@ -350,7 +353,7 @@ export default function(props) {
 					{phoneField}
 				</Grid>
 				<Grid item>
-					<Birthday required={true} loader={loader} val={birthday} onChange={birthdayHandler} err={bdayErr} />
+					<Birthday required={true} loader={loader} val={birthday} onChange={birthdayHandler} error={bdayErr} />
 				</Grid>
 				<Grid container direction='row' alignItems='center' className={classes.consentContainer}>
 					<Checkbox checked={userConsent} onChange={consentHandler} className={classes.consentCheck} />

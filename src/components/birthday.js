@@ -31,9 +31,11 @@ export const Birthday = (props) => {
   const [ minDate, setMinDate ] = useState(null);
   const [ maxDate, setMaxDate ] = useState(null);
   const [ focusYear, setFocusYear ] = useState(null);
+  const [ err, setErr ] = useState(null);
 
   function handleChange(evt) {
     setDate(evt);
+    setErr(null);
     if (props.onChange) {
       props.onChange(evt);
     }
@@ -41,10 +43,20 @@ export const Birthday = (props) => {
 
   useEffect(() => {
     if (props.date) {
-      setDate(props.date);
-      setFocusYear(props.date);
+      let valid;
+      try {
+        valid = new Date(props.date);
+      } catch(e) {
+        return;
+      }
+      setDate(valid);
+      setFocusYear(valid);
     }
-  }, [props.date]);
+
+    if (props.error) {
+      setErr(props.error);
+    }
+  }, [props]);
 
   useEffect(() => {
 
@@ -68,6 +80,12 @@ export const Birthday = (props) => {
     
   }, []);
 
+  let showErr = false;
+
+  if (err) {
+    showErr = true;
+  }
+
   return (
     <ThemeProvider theme={themeMerge}>
       <Grid container direction="column" spacing={1}>
@@ -79,6 +97,7 @@ export const Birthday = (props) => {
             <Grid container direction="row" spacing={2}>
               <Grid item xs={4}>
                 <DatePicker
+                  error={showErr}
                   disabled={props.loader}
                   required={props.required}
                   views={["year"]}
@@ -93,10 +112,12 @@ export const Birthday = (props) => {
                   maxDate={maxDate}
                   allowKeyboardControl={false}
                   disableToolbar={true}
+                  helperText={err}
                 />
               </Grid>
               <Grid item xs={4}>
               <DatePicker
+                  error={showErr}
                   disabled={props.loader}
                   required={props.required}
                   views={["month"]}
@@ -110,10 +131,12 @@ export const Birthday = (props) => {
                   maxDate={maxDate}
                   allowKeyboardControl={false}
                   disableToolbar={true}
+                  helperText={err}
                 />
               </Grid>
               <Grid item xs={4}>
               <DatePicker
+                  error={showErr}
                   disabled={props.loader}
                   required={props.required}
                   views={["date"]}
@@ -127,6 +150,7 @@ export const Birthday = (props) => {
                   maxDate={maxDate}
                   allowKeyboardControl={false}
                   disableToolbar={true}
+                  helperText={err}
                 />
               </Grid>
             </Grid>

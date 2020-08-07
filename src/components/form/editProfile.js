@@ -36,8 +36,8 @@ export default function () {
   const [instagram, setInstagram] = useState('');
   const [bio, setBio] = useState('');
   const [bioContent, setBioContent] = useState('<p></p>');
-  const [bday, setBday] = useState('');
-  const [bdayErr, setBdayErr] = useState('');
+  const [bday, setBday] = useState(null);
+  const [bdayErr, setBdayErr] = useState(null);
   const [loader, setLoader] = useState(false);
 
   const sm = useMediaQuery('(max-width:600px)');
@@ -49,8 +49,10 @@ export default function () {
 
     if (currentUser.id) {
       setUsername(currentUser.username);
-      setFirst(currentUser.first_name);
-      setLast(currentUser.last_name);
+
+      if (currentUser.first_name) setFirst(currentUser.first_name);
+      
+      if (currentUser.last_name) setLast(currentUser.last_name);
 
       if (currentUser.phone_number) {
         setPhone(currentUser.phone_number);
@@ -101,7 +103,7 @@ export default function () {
 
   const birthdayHandler = function (date) {
     setBdayErr(null);
-    setBday(new Date(date));
+    setBday(date);
   }
 
   const editorHandler = function (e) {
@@ -148,6 +150,9 @@ export default function () {
 
     if (bday) {
       userData.birthday = bday.toISOString();
+    } else {
+      setLoader(false);
+      return setBdayErr("missing");
     }
 
     if (bio) {
@@ -237,7 +242,7 @@ export default function () {
           <TextField className={classes.input} disabled={loader} color="secondary" variant="outlined" type="text" id="photo" label="Profile Photo URL" value={photoUrl} onChange={photoHandler} />
         </Grid>
         <Grid item xs={layout.quarter}>
-          <Birthday required={true} loader={loader} date={bday} onChange={birthdayHandler} err={bdayErr} />
+          <Birthday required={true} loader={loader} date={bday} onChange={birthdayHandler} error={bdayErr} />
         </Grid>
         <Grid item xs={layout.full}>
           <Editor label="Bio" value={bioContent} onChange={editorHandler} onSave={editorSaveHandler} />
