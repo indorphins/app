@@ -203,33 +203,35 @@ export default function () {
 
   const formContent = (
     <form onSubmit={formHandler}>
-      <Grid>
-        <TextField className={classes.input} disabled={loader} required autoComplete="username" color="secondary" variant="outlined" type="text" id="username" label="Nickname" value={username} onChange={usernameHandler} />
-      </Grid>
-      <Grid>
-        <TextField className={classes.input} disabled={loader} required autoComplete="given_name" color="secondary" variant="outlined" type="text" id="first" label="First Name" value={firstname} onChange={firstHandler} />
-      </Grid>
-      <Grid>
-        <TextField className={classes.input} disabled={loader} required autoComplete="family_name" color="secondary" variant="outlined" type="text" id="last" label="Last Name" value={lastname} onChange={lastHandler} />
-      </Grid>
-      <Grid>
-        <TextField className={classes.input} disabled={loader} autoComplete="tel" color="secondary" variant="outlined" type="tel" id="phone" label="Phone Number" value={phone} onChange={phoneHandler} />
-      </Grid>
-      <Grid>
-        <TextField className={classes.input} disabled={loader} autoComplete="tel" color="secondary" variant="outlined" type="text" id="instagram" label="Instagram Handle" value={instagram} onChange={instaHandler} />
-      </Grid>
-      <Grid>
-        <TextField className={classes.input} disabled={loader} color="secondary" variant="outlined" type="text" id="photo" label="Profile Photo URL" value={photoUrl} onChange={photoHandler} />
-      </Grid>
-      <Grid>
-        <Birthday classStyle={classes.input} loader={loader} val={bday} focus={bdayFocusHandler} change={birthdayHandler} err={bdayErr} />
-      </Grid>
-      <Grid>
-        <Editor label="Bio" value={bioContent} onChange={editorHandler} onSave={editorSaveHandler} />
-      </Grid>
-      {progress}
-      <Grid>
-        <Button className={classes.btn} disabled={loader} variant="contained" color="primary" type="submit">Update</Button>
+      <Grid container direction="column" spacing={2}>
+        <Grid item>
+          <TextField className={classes.input} disabled={loader} required autoComplete="username" color="secondary" variant="outlined" type="text" id="username" label="Nickname" value={username} onChange={usernameHandler} />
+        </Grid>
+        <Grid item>
+          <TextField className={classes.input} disabled={loader} required autoComplete="given_name" color="secondary" variant="outlined" type="text" id="first" label="First Name" value={firstname} onChange={firstHandler} />
+        </Grid>
+        <Grid item>
+          <TextField className={classes.input} disabled={loader} required autoComplete="family_name" color="secondary" variant="outlined" type="text" id="last" label="Last Name" value={lastname} onChange={lastHandler} />
+        </Grid>
+        <Grid item>
+          <TextField className={classes.input} disabled={loader} autoComplete="tel" color="secondary" variant="outlined" type="tel" id="phone" label="Phone Number" value={phone} onChange={phoneHandler} />
+        </Grid>
+        <Grid item>
+          <TextField className={classes.input} disabled={loader} autoComplete="tel" color="secondary" variant="outlined" type="text" id="instagram" label="Instagram Handle" value={instagram} onChange={instaHandler} />
+        </Grid>
+        <Grid item>
+          <TextField className={classes.input} disabled={loader} color="secondary" variant="outlined" type="text" id="photo" label="Profile Photo URL" value={photoUrl} onChange={photoHandler} />
+        </Grid>
+        <Grid item>
+          <Birthday classStyle={classes.input} loader={loader} val={bday} focus={bdayFocusHandler} change={birthdayHandler} err={bdayErr} />
+        </Grid>
+        <Grid item>
+          <Editor label="Bio" value={bioContent} onChange={editorHandler} onSave={editorSaveHandler} />
+        </Grid>
+        {progress}
+        <Grid item>
+          <Button className={classes.btn} disabled={loader} variant="contained" color="primary" type="submit">Update</Button>
+        </Grid>
       </Grid>
     </form>
   )
