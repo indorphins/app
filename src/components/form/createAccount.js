@@ -180,6 +180,7 @@ export default function(props) {
 
 		let bday = null;
 		if (birthday) {
+      birthday.setUTCHours(0,0,0,0);
 			bday = birthday.toISOString();
 		} else {
 			return setBdayErr("missing");
