@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { Button, Checkbox, Container, Grid, Typography, Card, LinearProgress, useMediaQuery, makeStyles, Modal, Fade, useRadioGroup } from '@material-ui/core';
+import { Button, Checkbox, Container, Grid, Typography, Card, LinearProgress, useMediaQuery, makeStyles, Modal, Fade } from '@material-ui/core';
 import { Photo, ShoppingCartOutlined, GroupAdd, People, RecordVoiceOver, AvTimer } from '@material-ui/icons';
 import Alert from '@material-ui/lab/Alert';
 import { useSelector } from 'react-redux';
@@ -94,7 +94,6 @@ const useStyles = makeStyles((theme) => ({
   modalContent: {
     background: 'white',
     borderRadius: '4px',
-    padding: theme.spacing(1),
     padding: theme.spacing(2),
     outline: 0
   },
