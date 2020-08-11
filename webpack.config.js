@@ -43,6 +43,9 @@ module.exports = {
     })],
   },
   plugins: [
+    new CompressionPlugin({
+      filename: '[path]',
+    }),
     new CopyPlugin({
       patterns: [
         { from: 'public/img/', to: 'static/img/' },
@@ -50,9 +53,6 @@ module.exports = {
         { from: 'public/TOS.html', to: 'TOS.html' },
         { from: 'public/robots.txt', to: 'robots.txt' },
       ],
-    }),
-    new CompressionPlugin({
-      filename: '[path]',
     }),
     new HtmlWebpackPlugin({
       title: "Indoorphins",
