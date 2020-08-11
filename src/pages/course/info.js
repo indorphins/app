@@ -5,7 +5,7 @@ import { Photo, ShoppingCartOutlined, GroupAdd, People, RecordVoiceOver, AvTimer
 import Alert from '@material-ui/lab/Alert';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { format, isTomorrow, isToday, differenceInDays } from 'date-fns';
+import { format, isTomorrow, isToday, isSameDay, differenceInDays, isWithinInterval } from 'date-fns';
 
 import { store, actions } from '../../store';
 import CreateMessage from '../../components/form/createMessage'
@@ -480,6 +480,21 @@ export default function () {
     history.push(path.courses + "/" + course.id + path.joinPath);
   }
 
+  const birthdayHelper = function (user) {
+    if (user.birthday) {
+      const bday = new Date(user.birthday);
+      const start = new Date(course.start_date);
+      const end = new Date(course.start_date);
+      end.setDate(end.getDate() + 7);
+      bday.setFullYear(start.getFullYear());
+  
+      if (isSameDay(bday, start) || isWithinInterval(bday, {start: start, end: end})) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   let paymentProcessingContent = null;
   if (paymentProcessing) {
     paymentProcessingContent = ( 
@@ -601,12 +616,12 @@ export default function () {
 
   let participantsContent = null
 
-  if (participantList && participantList.length) { // course.participants && course.participants.length) {
+  if (participantList && participantList.length) { 
     let participants = participantList.map(item => (
       <Grid key={item.username} item xs={6}>
         <Grid container display='inline' direction='row' alignItems='center'>
           <Typography variant="body1">{item.username}</Typography>
-          {(currentUser.id === course.instructor.id || currentUser.type === 'admin') && item.birthday ? 
+          {(currentUser.id === course.instructor.id || currentUser.type === 'admin') && birthdayHelper(item) ? 
             <BdayIcon bday={item.birthday} /> :
             null
           }
