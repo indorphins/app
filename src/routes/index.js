@@ -1,41 +1,44 @@
 import React from 'react';
 import { Switch, Route } from 'react-router-dom';
 import path from './path';
-import ClassRouter from './course';
-import Profile from '../pages/profile';
-import Instructor from '../pages/instructor';
-import LoginView from '../pages/login';
-import Register from '../pages/signup';
-import Schedule from '../pages/schedule';
 import Header from '../components/header';
-import CourseSession from '../pages/course/session';
+import loadable from '@loadable/component'
+
+const AsyncPage = loadable(props => import(`../pages/${props.page}`), {
+  cacheKey: props => props.page,
+})
+
+const ClassRouter = loadable(/* webpackChunkName: "course" */ () => import(`./course`), {
+  cacheKey: () => 'ClassRouter',
+});
 
 export default function() {
 
   return (
     <Switch>
-      <Route exact path={path.signup} component={Register} />
+      <Route exact path={path.signup}>
+        <AsyncPage page="signup" />
+      </Route>
       <Route exact path={path.login}>
-        <LoginView />
+        <AsyncPage page="login" />
       </Route>
       <Route exact path={path.courseJoinSession}>
-        <CourseSession />
+        <AsyncPage page="course/session" />
       </Route>
       <Header>
         <Route exact path={path.profile}>
-          <Profile />
+          <AsyncPage page="profile" />
         </Route>
         <Route exact path={path.schedule}>
-          <Schedule />
+          <AsyncPage page="schedule" />
         </Route>
         <Route exact path={path.instructorProfile}>
-          <Instructor />
+          <AsyncPage page="instructor" />
         </Route>
         <Route path={path.home}>
           <ClassRouter />
         </Route>
       </Header>
-
     </Switch>
   );
 };

@@ -1,4 +1,4 @@
-{
+const appConfig = {
   "host": "http://localhost:3001",
   "log_level": "DEBUG",
   "log_type": "",
@@ -13,3 +13,5 @@
   },
   "stripe_public_key": "pk_test_51H2NeZHzihS8qPjDKwePiT0VjnatoR5LUTiqaseMcO2a9Pl40caQlEQGVJfg47adBGSltFKjtZBCbvkTtHmKsVn300wJRnD5lF"
 }
+
+window.appConfig = appConfig;
