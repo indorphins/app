@@ -18,6 +18,7 @@ import { BdayIcon } from '../../components/icon/bday';
 
 import { getNextSession } from '../../utils';
 import { OtherCourseInfo } from '../../components/otherCourseInfo';
+import { Instagram } from '../../components/instagram';
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -571,6 +572,14 @@ export default function () {
   let instructorContent = null;
 
   if (course.instructor) {
+    let insta = null;
+
+    if (course.instructor.social && course.instructor.social.instagram) {
+      insta = (
+        <Instagram instagram={course.instructor.social.instagram} />
+      );
+    }
+
     instructorContent = (
       <Card className={classes.instructorContainer}>
         <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={2}>
@@ -579,19 +588,13 @@ export default function () {
           </Grid>
           <Grid item>
             <Typography variant="h5">
-              Instructor
+              {course.instructor.username}
             </Typography>
           </Grid>
         </Grid>
-        <Grid container direction="row" justify="flex-start" alignItems="center" spacing={2}>
-          <Grid item>
-            <Typography variant="body1">{course.instructor.first_name} {course.instructor.last_name}</Typography>
-          </Grid>
-          <Grid item>
-            <Typography variant="body2">{course.instructor.username}</Typography>
-          </Grid>
+        <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={2}>
+          {insta}
         </Grid>
-        <Typography variant="body1">{course.instructor.email}</Typography>
       </Card>
     )
   }

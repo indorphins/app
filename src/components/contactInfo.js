@@ -4,6 +4,7 @@ import { makeStyles, useTheme } from '@material-ui/core';
 import { EmailOutlined, PhoneOutlined } from '@material-ui/icons';
 
 import InstagramIcon from './icon/instagram';
+import { Instagram } from './instagram';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -93,18 +94,7 @@ export default function(props) {
     instaContent = (
       <React.Fragment>
         <Divider style={{width:"100%"}} />
-        <a title="View Instagram profile" className={classes.link} target="_blank" rel="noopener noreferrer" href={url}>
-          <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={1} className={classes.container}>
-            <Grid item className={classes.iconCnt}>
-              <InstagramIcon color={iconColor} width="28px" height="28px" className={classes.icon} />
-            </Grid>
-            <Grid item>
-              <Typography className={classes.contactLabel}>
-                {props.instagram}
-              </Typography>
-            </Grid>
-          </Grid>
-        </a>
+        <Instagram instagram={props.instagram} />
       </React.Fragment>
     );    
   }

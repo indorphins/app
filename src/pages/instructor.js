@@ -87,7 +87,7 @@ export default function () {
       setLastName(instructor.data.last_name);
       setPhoto(instructor.data.photo_url);
       setBio(instructor.data.bio);
-      if (instructor.data.social && instructor.data.social.instagram) setInsta('@' + instructor.data.social.instagram);
+      if (instructor.data.social && instructor.data.social.instagram) setInsta(instructor.data.social.instagram);
       setLoader(false);
       getInstructorSchedule(instructor.data.id);
     }
