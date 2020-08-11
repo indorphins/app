@@ -55,7 +55,6 @@ workflows:
             branches:
               only:
                 - develop
-                - cicd
   deploy_prod:
     jobs:
       - Deploy production:
