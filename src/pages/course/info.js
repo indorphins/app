@@ -434,15 +434,16 @@ export default function () {
     log.debug("local payment", paymentMethod);
 
     let defaultPaymentMethod = paymentMethod.current[0];
+    let paymentMethodId = defaultPaymentMethod ? defaultPaymentMethod.id : "none";
 
-    if (!defaultPaymentMethod) {
+    if (course.cost && course.cost > 0 && !defaultPaymentMethod) {
       setPaymentProcessing(false);
       setNeedsPaymentMethod(true);
       setErrMessage({severity: "error", message: "No default payment method. Please add one below."});
       return;
     }
 
-    Stripe.createPaymentIntent(defaultPaymentMethod.id, course.id)
+    Stripe.createPaymentIntent(paymentMethodId, course.id)
       .then(result => {
         setCourse({...result.course});
         store.dispatch(actions.user.addScheduleItem(result.course));
