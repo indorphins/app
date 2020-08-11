@@ -318,16 +318,13 @@ export default function () {
 
     if (!sessionTime) return;
 
-    let diff = differenceInMinutes(sessionTime.date, now);
-    if (diff < 20 && diff > 0) {
-      setJoinSession((
-        <Button title="Class is starting soon" disabled={true} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
-      ));
-    }
-
     if (now > sessionTime.start && now < sessionTime.end) {
       setJoinSession((
         <Button disabled={false} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
+      ));
+    } else if (now < sessionTime.end) {
+      setJoinSession((
+        <Button title="Class is not open yet" disabled={true} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
       ));
     }
 
@@ -336,16 +333,13 @@ export default function () {
       let sessionTime = getNextSession(now, course);
 
       if (sessionTime) {
-        let diff = differenceInMinutes(sessionTime.date, now);
-        if (diff < 20 && diff > 0) {
-          setJoinSession((
-            <Button title="Class is starting soon"  disabled={true} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
-          ));
-        }
-
         if (now > sessionTime.start && now < sessionTime.end) {
           setJoinSession((
             <Button disabled={false} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
+          ));
+        } else if (now < sessionTime.end) {
+          setJoinSession((
+            <Button title="Class is not open yet"  disabled={true} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
           ));
         }
       }
