@@ -5,7 +5,7 @@ import { Photo, ShoppingCartOutlined, GroupAdd, People, RecordVoiceOver, AvTimer
 import Alert from '@material-ui/lab/Alert';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { format, isTomorrow, isToday, differenceInDays, differenceInMinutes } from 'date-fns';
+import { format, isTomorrow, isToday, differenceInDays } from 'date-fns';
 
 import { store, actions } from '../../store';
 import CreateMessage from '../../components/form/createMessage'
@@ -17,6 +17,8 @@ import Cards from '../../components/cards';
 import { BdayIcon } from '../../components/icon/bday';
 
 import { getNextSession } from '../../utils';
+import { OtherCourseInfo } from '../../components/otherCourseInfo';
+import { Instagram } from '../../components/instagram';
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -318,16 +320,13 @@ export default function () {
 
     if (!sessionTime) return;
 
-    let diff = differenceInMinutes(sessionTime.date, now);
-    if (diff < 20 && diff > 0) {
-      setJoinSession((
-        <Button title="Class is starting soon" disabled={true} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
-      ));
-    }
-
     if (now > sessionTime.start && now < sessionTime.end) {
       setJoinSession((
         <Button disabled={false} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
+      ));
+    } else if (now < sessionTime.end) {
+      setJoinSession((
+        <Button title="Class is not open yet" disabled={true} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
       ));
     }
 
@@ -336,16 +335,13 @@ export default function () {
       let sessionTime = getNextSession(now, course);
 
       if (sessionTime) {
-        let diff = differenceInMinutes(sessionTime.date, now);
-        if (diff < 20 && diff > 0) {
-          setJoinSession((
-            <Button title="Class is starting soon"  disabled={true} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
-          ));
-        }
-
         if (now > sessionTime.start && now < sessionTime.end) {
           setJoinSession((
             <Button disabled={false} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
+          ));
+        } else if (now < sessionTime.end) {
+          setJoinSession((
+            <Button title="Class is not open yet"  disabled={true} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
           ));
         }
       }
@@ -576,6 +572,14 @@ export default function () {
   let instructorContent = null;
 
   if (course.instructor) {
+    let insta = null;
+
+    if (course.instructor.social && course.instructor.social.instagram) {
+      insta = (
+        <Instagram instagram={course.instructor.social.instagram} />
+      );
+    }
+
     instructorContent = (
       <Card className={classes.instructorContainer}>
         <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={2}>
@@ -584,19 +588,13 @@ export default function () {
           </Grid>
           <Grid item>
             <Typography variant="h5">
-              Instructor
+              {course.instructor.username}
             </Typography>
           </Grid>
         </Grid>
-        <Grid container direction="row" justify="flex-start" alignItems="center" spacing={2}>
-          <Grid item>
-            <Typography variant="body1">{course.instructor.first_name} {course.instructor.last_name}</Typography>
-          </Grid>
-          <Grid item>
-            <Typography variant="body2">{course.instructor.username}</Typography>
-          </Grid>
+        <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={2}>
+          {insta}
         </Grid>
-        <Typography variant="body1">{course.instructor.email}</Typography>
       </Card>
     )
   }
@@ -874,6 +872,7 @@ export default function () {
                   {courseTitle}
                   {courseTimeContent}
                   {descriptionContent}
+                  <OtherCourseInfo />
                 </Grid>
               </Grid>
             </Grid>

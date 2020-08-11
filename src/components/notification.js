@@ -86,7 +86,7 @@ export default function() {
           sendClassMessage({
             id: item.id,
             url: path.courses + "/" + item.id + "/join",
-            message: item.title + " is active now. Click here to join your class.",
+            message: "Class is in session! Click here to join " + item.title,
             open: true,
           });
           continue;

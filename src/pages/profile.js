@@ -85,7 +85,7 @@ export default function () {
       setPhoto(currentUser.photo_url);
       setPhone(currentUser.phone_number)
       setBio(currentUser.bio);
-      if (currentUser.social && currentUser.social.instagram) setInsta('@' + currentUser.social.instagram);
+      if (currentUser.social && currentUser.social.instagram) setInsta(currentUser.social.instagram);
       setLoader(false);
     } else {
 
