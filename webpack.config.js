@@ -48,7 +48,7 @@ module.exports = {
     }),
     new CopyPlugin({
       patterns: [
-        { from: 'public/img/', to: 'static/img/' },
+        { from: 'public/img/', to: 'img/' },
         { from: 'public/PP.html', to: 'PP.html' },
         { from: 'public/TOS.html', to: 'TOS.html' },
         { from: 'public/robots.txt', to: 'robots.txt' },
