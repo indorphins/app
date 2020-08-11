@@ -17,6 +17,7 @@ import Cards from '../../components/cards';
 import { BdayIcon } from '../../components/icon/bday';
 
 import { getNextSession } from '../../utils';
+import { OtherCourseInfo } from '../../components/otherCourseInfo';
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -868,6 +869,7 @@ export default function () {
                   {courseTitle}
                   {courseTimeContent}
                   {descriptionContent}
+                  <OtherCourseInfo />
                 </Grid>
               </Grid>
             </Grid>

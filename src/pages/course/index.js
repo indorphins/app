@@ -129,7 +129,7 @@ export default function() {
 			<Grid container className={classes.content}>
 				<InstructorFeature
 					limit={500}
-					header='Find instructors &amp; community'
+					header='Instructors'
 				/>
 			</Grid>
 		</Container>
