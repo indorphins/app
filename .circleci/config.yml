@@ -41,8 +41,8 @@ jobs:
             apt-cache policy docker-ce
             sudo apt-get install -y docker-ce
       - run:
-        name: Sync build to develop bucket
-        command: docker run -it -v $(pwd)/build:/var/build -e AWS_ACCESS_KEY_ID=$ACCESS_KEY -e AWS_SECRET_ACCESS_KEY=$SECRET_KEY organs/awscli aws s3 sync s3://indorphins-fe-dev s3://indorphins-fe
+          name: Sync build to prod bucket
+          command: docker run -it -v $(pwd)/build:/var/build -e AWS_ACCESS_KEY_ID=$ACCESS_KEY -e AWS_SECRET_ACCESS_KEY=$SECRET_KEY organs/awscli aws s3 sync s3://indorphins-fe-dev s3://indorphins-fe
       - run:
           name: Invalidate cloudfront cache
           command: docker run -it -v $(pwd)/build:/var/build -e AWS_ACCESS_KEY_ID=$ACCESS_KEY -e AWS_SECRET_ACCESS_KEY=$SECRET_KEY organs/awscli aws cloudfront create-invalidation --distribution-id E18SUVZV0HV34H --paths "/*"   
