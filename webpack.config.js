@@ -74,6 +74,7 @@ module.exports = {
         <!DOCTYPE html>
         <html>
           <head>
+            <script src="/config.js"></script>
             <meta charset="utf-8"/>
             <title>${htmlWebpackPlugin.options.title}</title>
             ${htmlWebpackPlugin.tags.headTags}
