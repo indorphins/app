@@ -13,7 +13,7 @@ import {
   Modal, 
   Fade 
 } from '@material-ui/core';
-import { Photo, ShoppingCartOutlined, GroupAdd, People, RecordVoiceOver, AvTimer } from '@material-ui/icons';
+import { Photo, People, RecordVoiceOver } from '@material-ui/icons';
 import Alert from '@material-ui/lab/Alert';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
@@ -27,6 +27,7 @@ import log from '../../log';
 import path from '../../routes/path';
 import Cards from '../../components/cards';
 import { BdayIcon } from '../../components/icon/bday';
+import { AvailableSpots, Cost, Duration } from '../../components/courseInfo/index';
 
 import { getNextSession } from '../../utils';
 import { OtherCourseInfo } from '../../components/otherCourseInfo';
@@ -226,26 +227,11 @@ export default function () {
 
   useEffect(() => {
     getCourse(params.id);
-  }, [params])
+  }, [params]);
 
   useEffect(() => {
-    if (!course.id) {
-      return;
-    }
 
-    if (!currentUser.id) {
-      setSignup((
-        <Button 
-          variant="contained"
-          color="secondary"
-          onClick={goToLogin}
-          style={{width:"100%"}}
-        >
-          Login to Book Class
-        </Button>
-      ));
-      return;
-    }
+    if (!course.id) return;
 
     let instructor = course.instructor;
 
@@ -262,6 +248,26 @@ export default function () {
         </Button>
       )
       setMakeMessage(true);
+    }
+
+  }, [currentUser, course]);
+
+  useEffect(() => {
+
+    if (!course.id) return;
+
+    if (!currentUser.id) {
+      setSignup((
+        <Button 
+          variant="contained"
+          color="secondary"
+          onClick={goToLogin}
+          style={{width:"100%"}}
+        >
+          Login to Book Class
+        </Button>
+      ));
+      return;
     }
 
     if (currentUser.id === course.instructor.id) {
@@ -604,69 +610,6 @@ export default function () {
     )
   }
 
-  let costContent = null;
-
-  if (course.cost) {
-    costContent = (
-      <Card
-        className={classes.spotsContainer}
-        title="Per class cost. Classes can be left up to 24 hours before the class start time"
-      >
-        <Grid container direction="column" justify="center" alignItems="center">
-          <Grid item>
-            <ShoppingCartOutlined color="primary" />
-          </Grid>
-          <Grid item>
-            <Typography className={classes.cost} variant="h2" align="center">
-              ${course.cost}
-            </Typography>
-          </Grid>
-        </Grid>
-      </Card>
-    );
-  }
-
-  const takenSpots = course.participants ? course.participants.length : 0;
-  let spotsCount = `${takenSpots}/${course.total_spots}`;
-  if (course.available_spots <= 0) spotsCount = "FULL";
-  if (course.available_spots === course.total_spots) spotsCount = "0";
-  let spotsContent = null;
-
-  if (spotsCount) {
-    spotsContent = (
-      <Card className={classes.spotsContainer} title="Spaces remaining">
-        <Grid container direction="column" justify="center" alignItems="center">
-          <Grid item>
-            <GroupAdd color="primary" />
-          </Grid>
-          <Grid item>
-            <Typography className={classes.cost} variant="h2" align="center">
-              {spotsCount}
-            </Typography>
-          </Grid>
-        </Grid>
-      </Card>
-    );
-  }
-
-  let durationContent = null;
-  if (course.duration) {
-    durationContent = (
-      <Card className={classes.spotsContainer} title="Class duration in minutes">
-        <Grid container direction="column" justify="center" alignItems="center">
-          <Grid item>
-            <AvTimer color="primary" />
-          </Grid>
-          <Grid item>
-            <Typography className={classes.cost} variant="h2" align="center">
-              {course.duration}
-            </Typography>
-          </Grid>
-        </Grid>
-      </Card>
-    );
-  }
-
   let instructorContent = null;
 
   if (course.instructor) {
@@ -952,13 +895,13 @@ export default function () {
       <Grid item>
         <Grid container direction="row" justify="flex-end" spacing={2}>
           <Grid item xs={layout.costSize}>
-            {costContent}
+            <Cost course={course} classes={classes} />
           </Grid>
           <Grid item xs={layout.costSize}>
-            {durationContent}
+            <Duration course={course} classes={classes} />
           </Grid>
           <Grid item xs={layout.spotsSize}>
-            {spotsContent}
+            <AvailableSpots course={course} classes={classes} />
           </Grid>               
         </Grid>
       </Grid>
