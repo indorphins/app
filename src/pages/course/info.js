@@ -753,6 +753,26 @@ export default function () {
     setUserConsent(!userConsent);
   }
 
+  let userConsentContent = (
+    <Grid container direction="row" alignItems="center" className={classes.consentContainer}>
+      <Grid item>
+        <Checkbox checked={userConsent} onChange={handleConsent} />
+      </Grid>
+      <Grid item>
+        <Typography
+          variant="body1"
+          className={classes.userAccept}
+        >
+          <span>I understand that any fitness class can put my health at risk, I attest that I am </span>
+          <span>physically fit to take this class and I take full responsibility for my physical </span>
+          <span>well being. I continue to agree to the </span>
+          <span><a className={classes.link} href="/TOS.html" target="_blank">Terms of Service</a> </span>
+          <span>and give permission for my payment method to be charged.</span>
+        </Typography>
+      </Grid>
+    </Grid>
+  );
+
   let paymentContent = null;
   if (needsPaymentMethod) {
     paymentContent = (
@@ -765,23 +785,7 @@ export default function () {
         </Grid>
         <Grid item>
           <Grid container direction="column" alignItems="flex-end" spacing={2}>
-            <Grid container direction="row" alignItems="center" className={classes.consentContainer}>
-              <Grid item>
-                <Checkbox checked={userConsent} onChange={handleConsent} />
-              </Grid>
-              <Grid item>
-                <Typography
-                  variant="body1"
-                  className={classes.userAccept}
-                >
-                  <span>I understand that any fitness class can put my health at risk, I attest that I am </span>
-                  <span>physically fit to take this class and I take full responsibility for my physical </span>
-                  <span>well being. I continue to agree to the </span>
-                  <span><a className={classes.link} href="/TOS.html" target="_blank">Terms of Service</a> </span>
-                  <span>and give permission for my payment method to be charged.</span>
-                </Typography>
-              </Grid>
-            </Grid>
+            {userConsentContent}
             <Grid item>
               <Button 
                 disabled={!userConsent}
@@ -943,6 +947,55 @@ export default function () {
     )
   }
 
+  let courseCostContainer = (
+    <Grid container direction="column" spacing={2}>
+      <Grid item>
+        <Grid container direction="row" justify="flex-end" spacing={2}>
+          <Grid item xs={layout.costSize}>
+            {costContent}
+          </Grid>
+          <Grid item xs={layout.costSize}>
+            {durationContent}
+          </Grid>
+          <Grid item xs={layout.spotsSize}>
+            {spotsContent}
+          </Grid>               
+        </Grid>
+      </Grid>
+      <Grid item>
+        <Grid container direction={layout.instructorDetailsDirection} spacing={2}>
+          <Grid item xs={layout.instructorDetailsSize}>
+            {instructorContent}
+          </Grid>
+          <Grid item xs={layout.instructorDetailsSize}>
+            {participantsContent}
+          </Grid>
+        </Grid>
+      </Grid>
+    </Grid>
+  );
+
+  let courseDetails = (
+    <Grid container direction={layout.courseDetailsDirection} justify={layout.courseDetailsJustify} spacing={2}>
+      <Grid item xs={layout.courseDetailsSize}>
+        <Grid container direction={layout.coursePhotoDirection} justify="flex-start" spacing={2}>
+          <Grid item xs={layout.coursePhotoSize}>
+            {photoContent}
+          </Grid>
+          <Grid item xs>
+            {courseTitle}
+            {courseTimeContent}
+            {descriptionContent}
+            <OtherCourseInfo />
+          </Grid>
+        </Grid>
+      </Grid>
+      <Grid item xs={layout.courseCostSize}>
+        {courseCostContainer}
+      </Grid>
+    </Grid>
+  );
+
   return (
     <Container style={{paddingTop: "2rem", paddingBottom: "2rem"}}>
       <Grid container direction={layout.main} spacing={2}>
@@ -983,48 +1036,7 @@ export default function () {
           {paymentContent}
         </Grid>
         <Grid item>
-          <Grid container direction={layout.courseDetailsDirection} justify={layout.courseDetailsJustify} spacing={2}>
-            <Grid item xs={layout.courseDetailsSize}>
-              <Grid container direction={layout.coursePhotoDirection} justify="flex-start" spacing={2}>
-                <Grid item xs={layout.coursePhotoSize}>
-                  {photoContent}
-                </Grid>
-                <Grid item xs>
-                  {courseTitle}
-                  {courseTimeContent}
-                  {descriptionContent}
-                  <OtherCourseInfo />
-                </Grid>
-              </Grid>
-            </Grid>
-            <Grid item xs={layout.courseCostSize}>
-              <Grid container direction="column" spacing={2}>
-                <Grid item>
-                  <Grid container direction="row" justify="flex-end" spacing={2}>
-                    <Grid item xs={layout.costSize}>
-                      {costContent}
-                    </Grid>
-                    <Grid item xs={layout.costSize}>
-                      {durationContent}
-                    </Grid>
-                    <Grid item xs={layout.spotsSize}>
-                      {spotsContent}
-                    </Grid>               
-                  </Grid>
-                </Grid>
-                <Grid item>
-                  <Grid container direction={layout.instructorDetailsDirection} spacing={2}>
-                    <Grid item xs={layout.instructorDetailsSize}>
-                      {instructorContent}
-                    </Grid>
-                    <Grid item xs={layout.instructorDetailsSize}>
-                      {participantsContent}
-                    </Grid>
-                  </Grid>
-                </Grid>
-              </Grid>
-            </Grid>
-          </Grid>
+          {courseDetails}
         </Grid>
       </Grid>
       {messageContent}
