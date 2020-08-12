@@ -5,7 +5,7 @@ import { Photo, ShoppingCartOutlined, GroupAdd, People, RecordVoiceOver, AvTimer
 import Alert from '@material-ui/lab/Alert';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { format, isTomorrow, isToday, isSameDay, differenceInDays, isWithinInterval } from 'date-fns';
+import { format, isTomorrow, isToday, isSameDay, differenceInDays, isWithinInterval, sub, add } from 'date-fns';
 
 import { store, actions } from '../../store';
 import CreateMessage from '../../components/form/createMessage'
@@ -483,13 +483,13 @@ export default function () {
 
   const birthdayHelper = function (user) {
     if (user.birthday) {
+      // Check range extending to 8 days on either side of today to ensure time differences don't miss a valid birthday
       const bday = new Date(user.birthday);
-      const start = new Date(course.start_date);
-      const end = new Date(course.start_date);
-      end.setDate(end.getDate() + 7);
+      const start = sub(new Date(course.start_date), {days: 8});
+      const end = add(new Date(course.start_date), {days: 8});
       bday.setFullYear(start.getFullYear());
-  
-      if (isSameDay(bday, start) || isWithinInterval(bday, {start: start, end: end})) {
+
+      if (isSameDay(bday, new Date(course.start_date)) || isWithinInterval(bday, {start: start, end: end})) {
         return true;
       }
     }
