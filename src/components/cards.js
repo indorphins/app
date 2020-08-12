@@ -123,11 +123,11 @@ class Cards extends React.Component {
     this.changeDefaultPaymentMethod = this.changeDefaultPaymentMethod.bind(this);
   }
 
-  componentWillReceiveProps(nextProps) {
-    this.setState({
+  static getDerivedStateFromProps(nextProps) {
+    return {
       paymentData: nextProps.paymentData,
       collapseAdd: !nextProps.collapseAdd,
-    });
+    };
   }
 
   changeDefaultPaymentMethod = async function(event) {
