@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { Grid, TextField, Button, LinearProgress } from '@material-ui/core';
+import { Grid, TextField, Button, LinearProgress, useMediaQuery } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 import * as User from '../../api/user';
@@ -16,7 +16,7 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(2),
   },
   input: {
-    width: 400,
+    width: "100%",
   }
 }));
 
@@ -37,8 +37,11 @@ export default function () {
   const [bio, setBio] = useState('');
   const [bioContent, setBioContent] = useState('<p></p>');
   const [bday, setBday] = useState(null);
-  const [bdayErr, setBdayErr] = useState('');
+  const [bdayErr, setBdayErr] = useState(null);
   const [loader, setLoader] = useState(false);
+
+  const sm = useMediaQuery('(max-width:600px)');
+  const med = useMediaQuery('(max-width:900px)');
 
   let content;
 
@@ -46,8 +49,10 @@ export default function () {
 
     if (currentUser.id) {
       setUsername(currentUser.username);
-      setFirst(currentUser.first_name);
-      setLast(currentUser.last_name);
+
+      if (currentUser.first_name) setFirst(currentUser.first_name);
+      
+      if (currentUser.last_name) setLast(currentUser.last_name);
 
       if (currentUser.phone_number) {
         setPhone(currentUser.phone_number);
@@ -66,7 +71,7 @@ export default function () {
       }
 
       if (currentUser.birthday) {
-        setBday(currentUser.birthday)
+        setBday(new Date(currentUser.birthday))
       }
     }
 
@@ -97,11 +102,8 @@ export default function () {
   }
 
   const birthdayHandler = function (date) {
-    setBday(date);
-  }
-
-  const bdayFocusHandler = function() {
     setBdayErr(null);
+    setBday(date);
   }
 
   const editorHandler = function (e) {
@@ -135,18 +137,6 @@ export default function () {
   const formHandler = async function (e) {
     e.preventDefault();
 
-    if (bday.toString() === 'Invalid Date') {
-      setBdayErr("Invalid Birthday")
-      return
-    }
-    const now = new Date();
-    let birthday = new Date(bday);
-    if (now.getFullYear() - bday.getFullYear() < 18) {
-      setBdayErr("Must be 18 or older")
-      return
-    }
-    birthday = bday.toISOString();
-
     setLoader(true);
 
     let userData = {
@@ -156,8 +146,14 @@ export default function () {
       phone_number: phone,
       photo_url: photoUrl,
       bio: bio,
-      birthday: birthday
     };
+
+    if (bday) {
+      userData.birthday = bday.toISOString();
+    } else {
+      setLoader(false);
+      return setBdayErr("missing");
+    }
 
     if (bio) {
       userData.bio = bio;
@@ -201,35 +197,60 @@ export default function () {
     );
   }
 
+  let layout = null;
+
+  if (sm) {
+    layout = {
+      full: 12,
+      half: 12,
+      quarter: 12,
+    }
+  } else if (med) {
+    layout = {
+      full: 12,
+      half: 6,
+      quarter: 6,
+    }
+  } else {
+    layout = {
+      full: 12,
+      half: 6,
+      quarter: 4,
+    }
+  }
+
   const formContent = (
     <form onSubmit={formHandler}>
-      <Grid>
-        <TextField className={classes.input} disabled={loader} required autoComplete="username" color="secondary" variant="outlined" type="text" id="username" label="Nickname" value={username} onChange={usernameHandler} />
-      </Grid>
-      <Grid>
-        <TextField className={classes.input} disabled={loader} required autoComplete="given_name" color="secondary" variant="outlined" type="text" id="first" label="First Name" value={firstname} onChange={firstHandler} />
-      </Grid>
-      <Grid>
-        <TextField className={classes.input} disabled={loader} required autoComplete="family_name" color="secondary" variant="outlined" type="text" id="last" label="Last Name" value={lastname} onChange={lastHandler} />
-      </Grid>
-      <Grid>
-        <TextField className={classes.input} disabled={loader} autoComplete="tel" color="secondary" variant="outlined" type="tel" id="phone" label="Phone Number" value={phone} onChange={phoneHandler} />
-      </Grid>
-      <Grid>
-        <TextField className={classes.input} disabled={loader} autoComplete="tel" color="secondary" variant="outlined" type="text" id="instagram" label="Instagram Handle" value={instagram} onChange={instaHandler} />
-      </Grid>
-      <Grid>
-        <TextField className={classes.input} disabled={loader} color="secondary" variant="outlined" type="text" id="photo" label="Profile Photo URL" value={photoUrl} onChange={photoHandler} />
-      </Grid>
-      <Grid>
-        <Birthday classStyle={classes.input} loader={loader} val={bday} focus={bdayFocusHandler} change={birthdayHandler} err={bdayErr} />
-      </Grid>
-      <Grid>
-        <Editor label="Bio" value={bioContent} onChange={editorHandler} onSave={editorSaveHandler} />
-      </Grid>
-      {progress}
-      <Grid>
-        <Button className={classes.btn} disabled={loader} variant="contained" color="primary" type="submit">Update</Button>
+      <Grid container direction="row" spacing={2}>
+        <Grid item xs={layout.half}>
+          <TextField className={classes.input} disabled={loader} required autoComplete="username" color="secondary" variant="outlined" type="text" id="username" label="Nickname" value={username} onChange={usernameHandler} />
+        </Grid>
+        <Grid item xs={layout.half} style={{padding: 0}}></Grid>
+        <Grid item xs={layout.half}>
+          <TextField className={classes.input} disabled={loader} autoComplete="given_name" color="secondary" variant="outlined" type="text" id="first" label="First Name" value={firstname} onChange={firstHandler} />
+        </Grid>
+        <Grid item xs={layout.half}>
+          <TextField className={classes.input} disabled={loader} autoComplete="family_name" color="secondary" variant="outlined" type="text" id="last" label="Last Name" value={lastname} onChange={lastHandler} />
+        </Grid>
+        <Grid item xs={layout.half}>
+          <TextField className={classes.input} disabled={loader} required autoComplete="tel" color="secondary" variant="outlined" type="tel" id="phone" label="Phone Number" value={phone} onChange={phoneHandler} />
+        </Grid>
+        <Grid item xs={layout.half}>
+          <TextField className={classes.input} disabled={loader} autoComplete="tel" color="secondary" variant="outlined" type="text" id="instagram" label="Instagram Handle" value={instagram} onChange={instaHandler} />
+        </Grid>
+        <Grid item xs={layout.full}>
+          <TextField className={classes.input} disabled={loader} color="secondary" variant="outlined" type="text" id="photo" label="Profile Photo URL" value={photoUrl} onChange={photoHandler} />
+        </Grid>
+        <Grid item xs={layout.quarter}>
+          <Birthday required={true} loader={loader} date={bday} onChange={birthdayHandler} error={bdayErr} />
+        </Grid>
+        <Grid item xs={layout.full}>
+          <Editor label="Bio" value={bioContent} onChange={editorHandler} onSave={editorSaveHandler} />
+          {progress}
+        </Grid>
+        <Grid item xs={layout.full}>
+          <Button className={classes.btn} disabled={loader} variant="contained" color="primary" type="submit">Update</Button>
+        </Grid>
       </Grid>
     </form>
   )

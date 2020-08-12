@@ -150,3 +150,20 @@ export function sendClassEmail(html, id) {
 
   return callAPI(u, options, true);
 }
+
+/**
+ * Fetches list of all participants in the class with necessary additional info
+ * @param {String} id 
+ */
+export function getParticipants(id) {
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+  
+  let u = url + id + '/participants';
+  
+  return callAPI(u, options, true);  
+}

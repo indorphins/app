@@ -73,15 +73,23 @@ export default function(props) {
 			>
 				<Zoom in={true}>
 					<Paper elevation={2} className={classes.paperContainer}>
-						<Grid container direction="row" justify="center">
+						<Grid container direction="column" spacing={2}>
 							<Grid item>
-								<Typography variant="h2" className={classes.logo}>indoor</Typography>
-								<Typography variant="h2" className={classes.logo2}>phins</Typography>
+								<Grid container direction="row" justify="center">
+									<Grid item>
+										<Typography variant="h2" className={classes.logo}>indoor</Typography>
+										<Typography variant="h2" className={classes.logo2}>phins</Typography>
+									</Grid>
+								</Grid>
 							</Grid>
-						</Grid>
-						{props.children}
-						<Grid container style={{paddingTop: 30}}>
-							<Legal />
+							<Grid item>
+								{props.children}
+							</Grid>
+							<Grid item>
+								<Grid container style={{paddingTop: 30}}>
+									<Legal />
+								</Grid>
+							</Grid>
 						</Grid>
 					</Paper>
 				</Zoom>

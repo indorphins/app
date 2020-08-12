@@ -1,0 +1,64 @@
+version: 2
+jobs:
+  Deploy develop:
+    machine:
+      image: 'ubuntu-1604:201903-01'
+    steps:
+      - checkout
+      - run: 
+          name: Install Docker
+          command: |
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+            sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+            sudo apt-get update
+            apt-cache policy docker-ce
+            sudo apt-get install -y docker-ce
+      - run:
+          name: Build source
+          command: docker run --rm -it -v $(pwd):/var/app -w /var/app node:14.1 /bin/bash -c "npm i && npm i -g webpack webpack-cli && webpack --config webpack.config.js"
+      - run:
+          name: Upload static files to build bucket
+          command: docker run -it -v $(pwd)/build:/var/build -e AWS_ACCESS_KEY_ID=$ACCESS_KEY -e AWS_SECRET_ACCESS_KEY=$SECRET_KEY organs/awscli aws s3 sync /var/build/ s3://indorphins-fe-build/ --exclude="*.js" 
+      - run:
+          name: Upload js to build bucket
+          command: docker run -it -v $(pwd)/build:/var/build -e AWS_ACCESS_KEY_ID=$ACCESS_KEY -e AWS_SECRET_ACCESS_KEY=$SECRET_KEY organs/awscli aws s3 sync --content-encoding gzip /var/build/static/js/ s3://indorphins-fe-build/static/js/
+      - run:
+          name: Sync build to develop bucket
+          command: docker run -it -v $(pwd)/build:/var/build -e AWS_ACCESS_KEY_ID=$ACCESS_KEY -e AWS_SECRET_ACCESS_KEY=$SECRET_KEY organs/awscli aws s3 sync s3://indorphins-fe-build s3://indorphins-fe-dev
+      - run:
+          name: Invalidate cloudfront cache
+          command: docker run -it -v $(pwd)/build:/var/build -e AWS_ACCESS_KEY_ID=$ACCESS_KEY -e AWS_SECRET_ACCESS_KEY=$SECRET_KEY organs/awscli aws cloudfront create-invalidation --distribution-id EHE7P84EJM3LV --paths "/*"
+  Deploy production:
+    machine:
+      image: 'ubuntu-1604:201903-01'
+    steps:
+      - run: 
+          name: Install Docker
+          command: |
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+            sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+            sudo apt-get update
+            apt-cache policy docker-ce
+            sudo apt-get install -y docker-ce
+      - run:
+          name: Sync build to prod bucket
+          command: docker run -it -v $(pwd)/build:/var/build -e AWS_ACCESS_KEY_ID=$ACCESS_KEY -e AWS_SECRET_ACCESS_KEY=$SECRET_KEY organs/awscli aws s3 sync s3://indorphins-fe-dev s3://indorphins-fe
+      - run:
+          name: Invalidate cloudfront cache
+          command: docker run -it -v $(pwd)/build:/var/build -e AWS_ACCESS_KEY_ID=$ACCESS_KEY -e AWS_SECRET_ACCESS_KEY=$SECRET_KEY organs/awscli aws cloudfront create-invalidation --distribution-id E18SUVZV0HV34H --paths "/*"   
+workflows:
+  version: 2
+  build_release:
+    jobs:
+      - Deploy develop:
+          filters:
+            branches:
+              only:
+                - develop
+  deploy_prod:
+    jobs:
+      - Deploy production:
+          filters:
+            branches:
+              only:
+                - master

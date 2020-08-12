@@ -1,4 +1,4 @@
-{
+const appConfig = {
   "host": "https://api.indorphins.com",
   "firebase": {
     "apiKey": "AIzaSyDvzc4jsC0j3jTnJQOucgtzwJbDUbWM7pE",
@@ -12,3 +12,5 @@
   },
   "stripe_public_key": "pk_live_3C7lhYxV5IMIUDOoCNceChIU00BTRQ5kPn"
 }
+
+window.appConfig = appConfig;

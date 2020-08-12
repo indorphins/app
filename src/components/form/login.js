@@ -161,9 +161,7 @@ export default function() {
 
 	if (loader) {
 		progress = (
-			<Grid>
-				<LinearProgress color="secondary" />
-			</Grid>
+			<LinearProgress color="secondary" />
 		)
 	}
 
@@ -185,13 +183,17 @@ export default function() {
 			<form id='login-form' onSubmit={formHandler}>
 				<input autoComplete="username" id="_email" type="hidden" value={userName} />
 				<input autoComplete="current-password" id="_password" type="hidden" value={password} />
-				<Grid>
-					<TextField disabled={loader} autoFocus={true} color="secondary" value={userName} autoComplete="username" className={classes.txtField} required id="email" type="email" label="Email" variant="outlined" onChange={usernameHandler}/>
-				</Grid>
-				{fields}
-				{progress}
-				<Grid className={classes.btnContainer}>
-					<Button disabled={loader} className={classes.lgnBtn} color="primary" type="submit" variant="contained">{submitText}</Button>
+				<Grid container direction="column" spacing={2}>
+					<Grid item>
+						<TextField disabled={loader} autoFocus={true} color="secondary" value={userName} autoComplete="username" className={classes.txtField} required id="email" type="email" label="Email" variant="outlined" onChange={usernameHandler}/>
+					</Grid>
+					<Grid item>
+						{fields}
+						{progress}
+					</Grid>
+					<Grid item className={classes.btnContainer}>
+						<Button disabled={loader} className={classes.lgnBtn} color="primary" type="submit" variant="contained">{submitText}</Button>
+					</Grid>
 				</Grid>
 			</form>
 			<Grid container direction="row" justify="space-between">

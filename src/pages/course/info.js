@@ -1,11 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { Button, Checkbox, Container, Grid, Typography, Card, LinearProgress, useMediaQuery, makeStyles, Modal } from '@material-ui/core';
+import { Button, Checkbox, Container, Grid, Typography, Card, LinearProgress, useMediaQuery, makeStyles, Modal, Fade } from '@material-ui/core';
 import { Photo, ShoppingCartOutlined, GroupAdd, People, RecordVoiceOver, AvTimer } from '@material-ui/icons';
 import Alert from '@material-ui/lab/Alert';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { format, isTomorrow, isToday, differenceInDays, differenceInMinutes } from 'date-fns';
+import { format, isTomorrow, isToday, isSameDay, differenceInDays, isWithinInterval } from 'date-fns';
 
 import { store, actions } from '../../store';
 import CreateMessage from '../../components/form/createMessage'
@@ -14,8 +14,11 @@ import * as Stripe from '../../api/stripe';
 import log from '../../log';
 import path from '../../routes/path';
 import Cards from '../../components/cards';
+import { BdayIcon } from '../../components/icon/bday';
 
 import { getNextSession } from '../../utils';
+import { OtherCourseInfo } from '../../components/otherCourseInfo';
+import { Instagram } from '../../components/instagram';
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -88,12 +91,13 @@ const useStyles = makeStyles((theme) => ({
     display: 'flex',
     padding: theme.spacing(1),
     alignItems: 'center',
-    justifyContent: 'center',
+    justifyContent: 'center'
   },
   modalContent: {
     background: 'white',
-    padding: theme.spacing(1),
+    borderRadius: '4px',
     padding: theme.spacing(2),
+    outline: 0
   },
   modalBtn: {
     width: '40%',
@@ -171,6 +175,7 @@ export default function () {
   const [userConsent, setUserConsent] = useState(false);
   const [hideAddCard, setHideAddCard] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
+  const [participantList, setParticipantList] = useState(null);
 
   async function getCourse(id) {
     let cls;
@@ -193,6 +198,7 @@ export default function () {
     if (typeof cls.instructor === String) {
       cls.instructor = JSON.parse(cls.instructor);
     }
+    log.info("SET COURSE ", cls);
     setCourse(cls);
   }
 
@@ -228,10 +234,10 @@ export default function () {
       setCancel(
         <Button variant="contained" disabled={cancellingClass} color="secondary" onClick={confirmCancelHandler} style={{width:"100%"}}>Cancel Class</Button>
       )
+      setMakeMessage(true);
     }
 
-    if (currentUser.id === course.instructor.id || currentUser.type === 'admin') {
-      setMakeMessage(true);
+    if (currentUser.id === instructor.id || currentUser.type === 'admin') {
     }
 
     if (currentUser.id === course.instructor.id) {
@@ -314,16 +320,13 @@ export default function () {
 
     if (!sessionTime) return;
 
-    let diff = differenceInMinutes(sessionTime.date, now);
-    if (diff < 20 && diff > 0) {
-      setJoinSession((
-        <Button title="Class is starting soon" disabled={true} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
-      ));
-    }
-
     if (now > sessionTime.start && now < sessionTime.end) {
       setJoinSession((
         <Button disabled={false} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
+      ));
+    } else if (now < sessionTime.end) {
+      setJoinSession((
+        <Button title="Class is not open yet" disabled={true} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
       ));
     }
 
@@ -332,17 +335,13 @@ export default function () {
       let sessionTime = getNextSession(now, course);
 
       if (sessionTime) {
-        let diff = differenceInMinutes(sessionTime.date, now);
-        if (diff < 20 && diff > 0) {
-          setJoinSession((
-            <Button title="Class is starting soon"  disabled={true} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
-          ));
-        }
-
         if (now > sessionTime.start && now < sessionTime.end) {
-          console.log("set class active");
           setJoinSession((
             <Button disabled={false} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
+          ));
+        } else if (now < sessionTime.end) {
+          setJoinSession((
+            <Button title="Class is not open yet"  disabled={true} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
           ));
         }
       }
@@ -351,6 +350,27 @@ export default function () {
     return () => clearInterval(interval);
 
   }, [currentUser, course]);
+
+  useEffect(() => {
+    if (!course.participants) {
+      return;
+    }
+
+    if (!course.instructor || !course.instructor.id || !currentUser.id || !currentUser.type) {
+      setParticipantList(course.participants);
+      return;
+    }
+
+    if (course.instructor.id === currentUser.id || currentUser.type === 'admin') {
+      Course.getParticipants(course.id).then(list => {
+        setParticipantList(list);
+      }).catch (err => {
+        log.warn("COURSE INFO:: unable to fetch list of participants");
+      })
+    } else {
+      setParticipantList(course.participants);
+    }
+  }, [course, currentUser])
 
   const goToLogin = async function() {
     history.push(`${path.login}?redirect=${path.courses}/${course.id}`);
@@ -414,15 +434,16 @@ export default function () {
     log.debug("local payment", paymentMethod);
 
     let defaultPaymentMethod = paymentMethod.current[0];
+    let paymentMethodId = defaultPaymentMethod ? defaultPaymentMethod.id : "none";
 
-    if (!defaultPaymentMethod) {
+    if (course.cost && course.cost > 0 && !defaultPaymentMethod) {
       setPaymentProcessing(false);
       setNeedsPaymentMethod(true);
       setErrMessage({severity: "error", message: "No default payment method. Please add one below."});
       return;
     }
 
-    Stripe.createPaymentIntent(defaultPaymentMethod.id, course.id)
+    Stripe.createPaymentIntent(paymentMethodId, course.id)
       .then(result => {
         setCourse({...result.course});
         store.dispatch(actions.user.addScheduleItem(result.course));
@@ -460,6 +481,20 @@ export default function () {
     history.push(path.courses + "/" + course.id + path.joinPath);
   }
 
+  const birthdayHelper = function (user) {
+    if (user.birthday) {
+      const bday = new Date(user.birthday);
+      const start = new Date(course.start_date);
+      const end = new Date(course.start_date);
+      end.setDate(end.getDate() + 7);
+      bday.setFullYear(start.getFullYear());
+  
+      if (isSameDay(bday, start) || isWithinInterval(bday, {start: start, end: end})) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   let paymentProcessingContent = null;
   if (paymentProcessing) {
@@ -553,6 +588,14 @@ export default function () {
   let instructorContent = null;
 
   if (course.instructor) {
+    let insta = null;
+
+    if (course.instructor.social && course.instructor.social.instagram) {
+      insta = (
+        <Instagram instagram={course.instructor.social.instagram} />
+      );
+    }
+
     instructorContent = (
       <Card className={classes.instructorContainer}>
         <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={2}>
@@ -561,26 +604,32 @@ export default function () {
           </Grid>
           <Grid item>
             <Typography variant="h5">
-              Instructor
+              {course.instructor.username}
             </Typography>
           </Grid>
         </Grid>
-        <Grid container direction="row" justify="flex-start" alignItems="center" spacing={2}>
-          <Grid item>
-            <Typography variant="body1">{course.instructor.first_name} {course.instructor.last_name}</Typography>
-          </Grid>
-          <Grid item>
-            <Typography variant="body2">{course.instructor.username}</Typography>
-          </Grid>
+        <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={2}>
+          {insta}
         </Grid>
-        <Typography variant="body1">{course.instructor.email}</Typography>
       </Card>
     )
   }
 
   let participantsContent = null
 
-  if (course.participants && course.participants.length) {
+  if (participantList && participantList.length) { 
+    let participants = participantList.map(item => (
+      <Grid key={item.username} item xs={6}>
+        <Grid container display='inline' direction='row' alignItems='center'>
+          <Typography variant="body1">{item.username}</Typography>
+          {(currentUser.id === course.instructor.id || currentUser.type === 'admin') && birthdayHelper(item) ? 
+            <BdayIcon bday={item.birthday} /> :
+            null
+          }
+        </Grid>
+      </Grid>
+    ))
+
     participantsContent = (
       <Card className={classes.participantContainer}>
         <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={2}>
@@ -594,11 +643,7 @@ export default function () {
           </Grid>
         </Grid>
         <Grid container direction="row" justify="flex-start">
-        {course.participants.map(item => (
-          <Grid key={item.username} item xs={6}>
-            <Typography variant="body1">{item.username}</Typography>
-          </Grid>
-        ))}
+          {participants}
         </Grid>
       </Card>
     )
@@ -818,13 +863,15 @@ export default function () {
           aria-labelledby="modal-title"
           aria-describedby="modal-description"
         >
-          <div className={classes.modalContent}>
-            <span id='modal-title'>Are you sure you want to cancel?</span>
-            <Grid container id='modal-description' justify='center'>
-              <Button onClick={closeModalHandler} variant="contained" color="secondary" className={classes.modalBtn}>No</Button>
-              <Button onClick={cancelClassHandler} variant="contained" className={classes.modalBtn}>Yes</Button>
-            </Grid>
-          </div>
+          <Fade in={confirmCancel}>
+            <div className={classes.modalContent}>
+              <span id='modal-title'>Are you sure you want to cancel?</span>
+              <Grid container id='modal-description' justify='center'>
+                <Button onClick={closeModalHandler} variant="contained" color="secondary" className={classes.modalBtn}>No</Button>
+                <Button onClick={cancelClassHandler} variant="contained" className={classes.modalBtn}>Yes</Button>
+              </Grid>
+            </div>
+          </Fade>
         </Modal>
         <Grid item>
           {errorContent}
@@ -841,6 +888,7 @@ export default function () {
                   {courseTitle}
                   {courseTimeContent}
                   {descriptionContent}
+                  <OtherCourseInfo />
                 </Grid>
               </Grid>
             </Grid>
