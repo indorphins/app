@@ -12,7 +12,7 @@ const ClassRouter = loadable(/* webpackChunkName: "course" */ () => import(`./co
   cacheKey: () => 'ClassRouter',
 });
 
-export default function() {
+export default function Routes() {
 
   return (
     <Switch>
@@ -41,4 +41,4 @@ export default function() {
       </Header>
     </Switch>
   );
-};
+}

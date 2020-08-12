@@ -104,7 +104,7 @@ export default function(props) {
 
   if (username) {
     return userContent;
-  };
+  }
 
   return noUserContent;
-};
+}

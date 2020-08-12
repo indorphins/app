@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export const Instagram = (props) => {
+export default function Instagram(props) {
 
   const classes = useStyles();
   const theme = useTheme();
@@ -35,7 +35,15 @@ export const Instagram = (props) => {
 
   return (
     <a title="View Instagram profile" className={classes.link} target="_blank" rel="noopener noreferrer" href={url}>
-      <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={1} className={classes.container} >
+      <Grid
+        container
+        direction="row"
+        justify="flex-start"
+        alignItems="center"
+        alignContent="center"
+        spacing={1}
+        className={classes.container}
+      >
         <Grid item className={classes.iconCnt}>
           <InstagramIcon color={iconColor} width="28px" height="28px" className={classes.icon} />
         </Grid>
@@ -47,4 +55,4 @@ export const Instagram = (props) => {
       </Grid>
     </a>
   )
-};
+}

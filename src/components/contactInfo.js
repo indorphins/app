@@ -2,7 +2,7 @@ import React from 'react';
 import { Divider, Grid, Typography} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core';
 import { EmailOutlined, PhoneOutlined } from '@material-ui/icons';
-import { Instagram } from './instagram';
+import Instagram from './instagram';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 
-export default function(props) {
+export default function ContactInfo(props) {
 
   const classes = useStyles();
   
@@ -50,7 +50,15 @@ export default function(props) {
     const mailTo = "mailto:" + props.email;
     emailContent = (
       <a title="Send an email" className={classes.link} target="_blank" rel="noopener noreferrer" href={mailTo}>
-        <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={1} className={classes.container}>
+        <Grid
+          container
+          direction="row"
+          justify="flex-start"
+          alignItems="center"
+          alignContent="center"
+          spacing={1}
+          className={classes.container}
+        >
           <Grid item className={classes.iconCnt}>
             <EmailOutlined className={classes.icon} />
           </Grid>
@@ -69,7 +77,15 @@ export default function(props) {
     phoneContent = (
       <React.Fragment>
         <Divider  style={{width:"100%"}} />
-        <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={1} className={classes.container}>
+        <Grid
+          container
+          direction="row"
+          justify="flex-start"
+          alignItems="center"
+          alignContent="center"
+          spacing={1}
+          className={classes.container}
+        >
           <Grid item className={classes.iconCnt}>
             <PhoneOutlined className={classes.icon} />
           </Grid>

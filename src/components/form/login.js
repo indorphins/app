@@ -65,14 +65,7 @@ export default function() {
 	};
 
 	const googleSignInFlow = async () => {
-		return Firebase.loginWithGoogle()
-			.then((user) => {
-				console.log(user);
-				return Firebase.getToken();
-			})
-			.then((token) => {
-				console.log(token);
-			});
+		return Firebase.loginWithGoogle();
 	};
 
 	// TODO: depending on mode do password reset email
@@ -124,9 +117,21 @@ export default function() {
 		submitText = "Log in";
 		linkText =  "Forgot your password?";
 		fields = (
-			<Grid>
-				<TextField disabled={loader} color="secondary" value={password} autoComplete="current-password" className={classes.txtField} required id="password" type="password" label="Password" variant="outlined" onChange={passwordHandler}/>
-			</Grid>
+  <Grid>
+    <TextField
+      disabled={loader}
+      color="secondary"
+      value={password}
+      autoComplete="current-password"
+      className={classes.txtField}
+      required
+      id="password"
+      type="password"
+      label="Password"
+      variant="outlined"
+      onChange={passwordHandler}
+    />
+  </Grid>
 		);
 	} else {
 		submitText = "Send Reset"
@@ -152,7 +157,7 @@ export default function() {
 
 	if (serverErr) {
 		errContent = (
-			<Alert severity="error" className={classes.txtField}>{serverErr}</Alert>
+  <Alert severity="error" className={classes.txtField}>{serverErr}</Alert>
 		)
 	}
 
@@ -161,62 +166,83 @@ export default function() {
 
 	if (loader) {
 		progress = (
-			<LinearProgress color="secondary" />
+  <LinearProgress color="secondary" />
 		)
 	}
 
 	let infoContent = null;
 	if (info) {
 		infoContent = (
-			<Grid>
-				<Alert severity="info">{info}</Alert>
-			</Grid>
+  <Grid>
+    <Alert severity="info">{info}</Alert>
+  </Grid>
 		)
 	}
 
 	let formcontent = (
-		<Grid>
-			{infoContent}
-			<Grid>
-				{errContent}
-			</Grid>
-			<form id='login-form' onSubmit={formHandler}>
-				<input autoComplete="username" id="_email" type="hidden" value={userName} />
-				<input autoComplete="current-password" id="_password" type="hidden" value={password} />
-				<Grid container direction="column" spacing={2}>
-					<Grid item>
-						<TextField disabled={loader} autoFocus={true} color="secondary" value={userName} autoComplete="username" className={classes.txtField} required id="email" type="email" label="Email" variant="outlined" onChange={usernameHandler}/>
-					</Grid>
-					<Grid item>
-						{fields}
-						{progress}
-					</Grid>
-					<Grid item className={classes.btnContainer}>
-						<Button disabled={loader} className={classes.lgnBtn} color="primary" type="submit" variant="contained">{submitText}</Button>
-					</Grid>
-				</Grid>
-			</form>
-			<Grid container direction="row" justify="space-between">
-				<Grid item>
-					<Typography>
-						<Link color="secondary" onClick={loadSignUpForm}>Need an account?</Link>
-					</Typography>
-				</Grid>
-				<Grid item>
-					<Typography>
-						<Link color="secondary" onClick={switchMode}>{linkText}</Link>
-					</Typography>
-				</Grid>
-			</Grid>
-			<Grid container direction="row" justify="center">
-				<Grid item>
-					<Button color="inherit" disableElevation className={classes.googBtn} onClick={googleSignInFlow}>
-						Sign in with Google
-					</Button>
-				</Grid>
-			</Grid>
-		</Grid>
+  <Grid>
+    {infoContent}
+    <Grid>
+      {errContent}
+    </Grid>
+    <form id='login-form' onSubmit={formHandler}>
+      <input autoComplete="username" id="_email" type="hidden" value={userName} />
+      <input autoComplete="current-password" id="_password" type="hidden" value={password} />
+      <Grid container direction="column" spacing={2}>
+        <Grid item>
+          <TextField
+            disabled={loader}
+            autoFocus={true}
+            color="secondary"
+            value={userName}
+            autoComplete="username"
+            className={classes.txtField}
+            required
+            id="email"
+            type="email"
+            label="Email"
+            variant="outlined"
+            onChange={usernameHandler}
+          />
+        </Grid>
+        <Grid item>
+          {fields}
+          {progress}
+        </Grid>
+        <Grid item className={classes.btnContainer}>
+          <Button
+            disabled={loader}
+            className={classes.lgnBtn}
+            color="primary"
+            type="submit"
+            variant="contained"
+          >
+            {submitText}
+          </Button>
+        </Grid>
+      </Grid>
+    </form>
+    <Grid container direction="row" justify="space-between">
+      <Grid item>
+        <Typography>
+          <Link color="secondary" onClick={loadSignUpForm}>Need an account?</Link>
+        </Typography>
+      </Grid>
+      <Grid item>
+        <Typography>
+          <Link color="secondary" onClick={switchMode}>{linkText}</Link>
+        </Typography>
+      </Grid>
+    </Grid>
+    <Grid container direction="row" justify="center">
+      <Grid item>
+        <Button color="inherit" disableElevation className={classes.googBtn} onClick={googleSignInFlow}>
+          Sign in with Google
+        </Button>
+      </Grid>
+    </Grid>
+  </Grid>
 	);
 
 	return formcontent;
-};
+}

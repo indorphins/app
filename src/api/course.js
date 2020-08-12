@@ -14,7 +14,7 @@ export async function create(data) {
   };
 
   return callAPI(url, options, true);
-};
+}
 
 export async function query(filter, order, limit, page) {
   const options = {
@@ -44,7 +44,7 @@ export async function query(filter, order, limit, page) {
   }
 
   return callAPI(u, options, false);
-};
+}
 
 export async function get(id) {
   const options = {
@@ -75,7 +75,7 @@ export async function remove(id) {
   let u = url + id;
 
   return callAPI(u, options, true);
-};
+}
 
 export async function update(id, data) {
   const options = {

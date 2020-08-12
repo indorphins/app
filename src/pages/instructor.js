@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/core';
 
 import CourseSchedule from '../components/courseSchedule';
 import UserData from '../components/userData';
-import * as Instructor from '../api/instructor';
+import * as InstructorAPI from '../api/instructor';
 import * as Course from '../api/course';
 import log from '../log';
 import path from '../routes/path';
@@ -37,7 +37,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function () {
+export default function Instructor() {
 
   const history = useHistory();
   const classes = useStyles();
@@ -66,7 +66,7 @@ export default function () {
     let instructor;
 
     try {
-      instructor = await Instructor.get(id);
+      instructor = await InstructorAPI.get(id);
     } catch (err) {
       // redirect to user's profile
       log.error("PROFILE::", err);
@@ -133,7 +133,16 @@ export default function () {
   let userContent = (
     <Grid>
       <Grid item>
-        <UserData header={username} email={email} photo={photo} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} showContactInfo={true} />
+        <UserData
+          header={username}
+          email={email}
+          photo={photo}
+          firstName={firstName}
+          lastName={lastName}
+          bio={bio}
+          instagram={insta}
+          showContactInfo={true}
+        />
       </Grid>
       <Grid item>
         <Grid container direction="column" spacing={2}>

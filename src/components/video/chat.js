@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function chat(props) {
+export default function Chat(props) {
 
   const classes = useStyles();
   const { session, user } = props;
@@ -106,7 +106,9 @@ export default function chat(props) {
       <Grid container direction="column">
         {history.map(message => (
           <Grid item key={(Math.random() * 1000000)} className={classes.chatContainer}>
-            <Typography variant="body2" className={classes.chatUsername}>{message.username} [{format(new Date(message.date), 'h:mm aa')}]: </Typography>
+            <Typography variant="body2" className={classes.chatUsername}>
+              {message.username} [{format(new Date(message.date), 'h:mm aa')}]: 
+            </Typography>
             <Typography variant="body1" className={classes.chatMsg}>{message.message}</Typography>
           </Grid>
         ))}

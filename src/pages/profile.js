@@ -54,7 +54,7 @@ const userSchedSelector = createSelector([state => state.user.schedule], (items)
   return items;
 });
 
-export default function () {
+export default function Profile() {
 
   const history = useHistory();
   const classes = useStyles();
@@ -157,7 +157,13 @@ export default function () {
 
   if (editButton) {
     editButtonContent = (
-      <Fab color="secondary" aria-label="edit profile" className={classes.fab} onClick={toggleEditForm} title="Edit your profile info">
+      <Fab 
+        color="secondary"
+        aria-label="edit profile"
+        className={classes.fab}
+        onClick={toggleEditForm}
+        title="Edit your profile info"
+      >
         <Create />
       </Fab>
     );
@@ -209,7 +215,17 @@ export default function () {
         {controlsContent}
       </Grid>
       <Grid item>
-        <UserData header={username} email={email} photo={photo} phone={phone} firstName={firstName} lastName={lastName} bio={bio} instagram={insta} showContactInfo={true} />
+        <UserData 
+          header={username}
+          email={email}
+          photo={photo}
+          phone={phone}
+          firstName={firstName}
+          lastName={lastName}
+          bio={bio}
+          instagram={insta}
+          showContactInfo={true}
+        />
       </Grid>
       <Grid item>
         <Grid container direction="column" spacing={2} style={{flexWrap: "nowrap"}}>

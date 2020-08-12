@@ -25,7 +25,7 @@ const themeMerge = outerTheme => {
   return newTheme;
 };
 
-export const Birthday = (props) => {
+export function Birthday(props) {
 
   const [ date, setDate ] = useState(null);
   const [ minDate, setMinDate ] = useState(null);
@@ -126,7 +126,7 @@ export const Birthday = (props) => {
                 />
               </Grid>
               <Grid item xs={4}>
-              <DatePicker
+                <DatePicker
                   error={showErr}
                   disabled={props.loader}
                   required={props.required}
@@ -146,7 +146,7 @@ export const Birthday = (props) => {
                 />
               </Grid>
               <Grid item xs={4}>
-              <DatePicker
+                <DatePicker
                   error={showErr}
                   disabled={props.loader}
                   required={props.required}
@@ -171,4 +171,4 @@ export const Birthday = (props) => {
       </Grid>
     </ThemeProvider>
   )
-};
+}

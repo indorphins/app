@@ -223,12 +223,13 @@ export default function(props) {
   };
   
   let tooltips = {
-    username: "The nickname you want to appear to other class participants. It can be changed at any time in your profile.",
+    username: `The nickname you want to appear to other class participants. 
+    It can be changed at any time in your profile.`,
     phone: "US numbers only. Area code and 7 digit number."
 	}
 	
 	let phoneField = (
-		<TextField 
+  <TextField 
 			color="secondary" 
 			required
 			disabled={loader} 
@@ -239,11 +240,12 @@ export default function(props) {
 			label="Phone Number" 
 			variant="outlined" 
 			autoComplete="tel" 
-			onChange={phoneHandler}/>
+			onChange={phoneHandler}
+  />
 	);
 	if (phoneErr) {
 		phoneField = (
-			<TextField 
+  <TextField 
 				error
 				required
 				color="secondary" 
@@ -256,12 +258,13 @@ export default function(props) {
 				helperText={phoneErr} 
 				variant="outlined" 
 				autoComplete="tel" 
-				onChange={phoneHandler}/>
+				onChange={phoneHandler}
+  />
 		);
 	}
 
 	let passwordField = (
-		<TextField 
+  <TextField 
 			color="secondary" 
 			disabled={loader} 
 			className={classes.txtField} 
@@ -270,12 +273,13 @@ export default function(props) {
 			label="Password" 
 			variant="outlined" 
 			autoComplete="new-password"
-			onChange={passwordHandler}/>
+			onChange={passwordHandler}
+  />
 	);
 
 	if (passwordErr) {
 		passwordField = (
-			<TextField 
+  <TextField 
 				error
 				color="secondary"
 				disabled={loader}
@@ -286,12 +290,13 @@ export default function(props) {
 				variant="outlined"
 				autoComplete="new-password"
 				helperText={passwordErr} 
-				onChange={passwordHandler}/>
+				onChange={passwordHandler}
+  />
 		);
 	}
 
 	let passwordConfirmField = (
-		<TextField 
+  <TextField 
 			color="secondary" 
 			disabled={loader} 
 			className={classes.txtField} 
@@ -300,12 +305,13 @@ export default function(props) {
 			label="Confirm Password" 
 			variant="outlined" 
 			autoComplete="new-password"
-			onChange={confirmHandler}/>
+			onChange={confirmHandler}
+  />
 	);
 
 	if (passwordConfirmErr) {
 		passwordConfirmField = (
-			<TextField 
+  <TextField 
 				error
 				color="secondary" 
 				disabled={loader} 
@@ -316,7 +322,8 @@ export default function(props) {
 				variant="outlined" 
 				autoComplete="new-password" 
 				helperText={passwordConfirmErr} 
-				onChange={confirmHandler}/>
+				onChange={confirmHandler}
+  />
 		);
 	}
 
@@ -324,48 +331,104 @@ export default function(props) {
 
 	if (loader) {
 		progress = (
-			<LinearProgress color="secondary" />
+  <LinearProgress color="secondary" />
 		);
 	}
 
 	let formcontent = (
-		<form onSubmit={formHandler}>
-			<Grid container direction="column" spacing={2}>
-				<Grid item>
-					<TextField disabled={loader} autoFocus={true} color="secondary" autoComplete="nickname"  className={classes.txtField} title={tooltips.username} required id="username" type="text" label="Nickname" variant="outlined" onChange={usernameHandler}/>
-				</Grid>
-				<Grid item>
-					<TextField disabled={loader} color="secondary" autoComplete="username"  className={classes.txtField} required id="email" type="email" label="Email" variant="outlined" onChange={emailHandler}/>
-				</Grid>
-				<Grid item>
-					{passwordField}
-				</Grid>
-				<Grid item>
-					{passwordConfirmField}
-				</Grid>
-				<Grid item>
-					<TextField disabled={loader} color="secondary" autoComplete="given-name" className={classes.txtField} id="firstName" type="text" label="First Name" variant="outlined" onChange={firstNameHandler}/>
-				</Grid>
-				<Grid item>
-					<TextField disabled={loader} color="secondary" autoComplete="family-name" className={classes.txtField} id="lastName" type="text" label="Last Name" variant="outlined" onChange={lastNameHandler}/>
-				</Grid>
-				<Grid item>
-					{phoneField}
-				</Grid>
-				<Grid item>
-					<Birthday required={true} loader={loader} val={birthday} onChange={birthdayHandler} error={bdayErr} />
-				</Grid>
-				<Grid container direction='row' alignItems='center' className={classes.consentContainer}>
-					<Checkbox checked={userConsent} onChange={consentHandler} className={classes.consentCheck} />
-					<Typography variant='body2' >By signing in or signing up, I agree to Indoorphins.fit's <a className={classes.link} href="/TOS.html" target="_blank">Terms of Service</a> and <a className={classes.link} href="/PP.html" target="_blank">Privacy Policy</a>, confirm that I am 18 years of age or older, and consent to receiving email and sms communication.</Typography>
-				</Grid>
-				{progress}
-				<Grid item>
-					<Button disabled={!userConsent} variant="contained" type="submit" color="primary" className={classes.submitBtn}>Create</Button>
-				</Grid>
-			</Grid>
-		</form>
+  <form onSubmit={formHandler}>
+    <Grid container direction="column" spacing={2}>
+      <Grid item>
+        <TextField
+          disabled={loader}
+          autoFocus={true}
+          color="secondary"
+          autoComplete="nickname" 
+          className={classes.txtField}
+          title={tooltips.username}
+          required id="username"
+          type="text"
+          label="Nickname"
+          variant="outlined"
+          onChange={usernameHandler}
+        />
+      </Grid>
+      <Grid item>
+        <TextField
+          disabled={loader}
+          color="secondary"
+          autoComplete="username"
+          className={classes.txtField}
+          required
+          id="email"
+          type="email"
+          label="Email"
+          variant="outlined"
+          onChange={emailHandler}
+        />
+      </Grid>
+      <Grid item>
+        {passwordField}
+      </Grid>
+      <Grid item>
+        {passwordConfirmField}
+      </Grid>
+      <Grid item>
+        <TextField
+          disabled={loader}
+          color="secondary"
+          autoComplete="given-name"
+          className={classes.txtField}
+          id="firstName"
+          type="text"
+          label="First Name"
+          variant="outlined"
+          onChange={firstNameHandler}
+        />
+      </Grid>
+      <Grid item>
+        <TextField
+          disabled={loader}
+          color="secondary"
+          autoComplete="family-name"
+          className={classes.txtField}
+          id="lastName"
+          type="text"
+          label="Last Name"
+          variant="outlined"
+          onChange={lastNameHandler}
+        />
+      </Grid>
+      <Grid item>
+        {phoneField}
+      </Grid>
+      <Grid item>
+        <Birthday required={true} loader={loader} val={birthday} onChange={birthdayHandler} error={bdayErr} />
+      </Grid>
+      <Grid container direction='row' alignItems='center' className={classes.consentContainer}>
+        <Checkbox checked={userConsent} onChange={consentHandler} className={classes.consentCheck} />
+        <Typography variant='body2'>
+          <span>By signing in or signing up, I agree to Indoorphins.fit&apos;s </span>
+          <span><a className={classes.link} href="/TOS.html" target="_blank">Terms of Service</a> and </span>
+          <span><a className={classes.link} href="/PP.html" target="_blank">Privacy Policy</a>, </span>
+          <span>confirm that I am 18 years of age or older, and consent to receiving email and sms communication.</span>
+        </Typography>
+      </Grid>
+      {progress}
+      <Grid item>
+        <Button
+          disabled={!userConsent}
+          variant="contained"
+          type="submit"
+          color="primary"
+          className={classes.submitBtn}
+        >
+          Create
+        </Button>
+      </Grid>
+    </Grid>
+  </form>
 	);
 
 	return formcontent
-};
+}

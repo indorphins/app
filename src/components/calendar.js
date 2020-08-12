@@ -226,20 +226,29 @@ function Day(props) {
     );
 
     eventsContent = (
-      <Grid container direction={layout.agendaDirection} spacing={layout.eventSpacing} className={classes.eventCardList}>
+      <Grid
+        container
+        direction={layout.agendaDirection}
+        spacing={layout.eventSpacing}
+        className={classes.eventCardList}
+      >
         {props.events.map(evt => (
           <Grid item container key={evt.start} xs={layout.agendaSize}>
             <Link to={evt.url} className={classes.link}>
-            <Card className={classes.eventCard}>
-              <Grid container direction="row" spacing={1}>
-                <Grid item container>
-                  <Typography variant="body2" className={classes.timeLbl}>{evt.startTime} - {evt.endTime}:</Typography>
+              <Card className={classes.eventCard}>
+                <Grid container direction="row" spacing={1}>
+                  <Grid item container>
+                    <Typography variant="body2" className={classes.timeLbl}>
+                      {evt.startTime} - {evt.endTime}:
+                    </Typography>
+                  </Grid>
+                  <Grid item container>
+                    <Typography variant="body2" className={classes.titleLbl}>
+                      {evt.title}
+                    </Typography>
+                  </Grid>
                 </Grid>
-                <Grid item container>
-                  <Typography variant="body2" className={classes.titleLbl}>{evt.title}</Typography>
-                </Grid>
-              </Grid>
-            </Card>
+              </Card>
             </Link>
           </Grid>
         ))}
@@ -282,7 +291,9 @@ function Day(props) {
 
       if (count > 0) {
         more = (
-          <Typography variant="subtitle1" className={`${classes.timeLbl} ${classes.timeLblSml}`}>+{count} more</Typography>
+          <Typography variant="subtitle1" className={`${classes.timeLbl} ${classes.timeLblSml}`}>
+            +{count} more
+          </Typography>
         )
       }
 
@@ -301,16 +312,20 @@ function Day(props) {
           {smlEventsData.map(evt => (
             <Grid item container key={evt.start}>
               <Link to={evt.url} className={classes.link}>
-              <Card className={`${classes.eventCard} ${classes.eventCardSml}`}>
-                <Grid container direction="column">
-                  <Grid item container>
-                    <Typography variant="body2" className={`${classes.timeLbl} ${classes.timeLblSml}`}>{evt.startTime} - {evt.endTime}:</Typography>
+                <Card className={`${classes.eventCard} ${classes.eventCardSml}`}>
+                  <Grid container direction="column">
+                    <Grid item container>
+                      <Typography variant="body2" className={`${classes.timeLbl} ${classes.timeLblSml}`}>
+                        {evt.startTime} - {evt.endTime}:
+                      </Typography>
+                    </Grid>
+                    <Grid item container>
+                      <Typography variant="body2" className={`${classes.titleLbl} ${classes.titleLblSml}`}>
+                        {evt.title}
+                      </Typography>
+                    </Grid>
                   </Grid>
-                  <Grid item container>
-                    <Typography variant="body2" className={`${classes.titleLbl} ${classes.titleLblSml}`}>{evt.title}</Typography>
-                  </Grid>
-                </Grid>
-              </Card>
+                </Card>
               </Link>
             </Grid>
           ))}
@@ -343,7 +358,13 @@ function Day(props) {
   return (
     <React.Fragment>
       <Grid item className={classNames} onClick={smHandler} ref={dayRef}>
-        <Grid container direction={layout.direction} justify={layout.justify} alignItems={layout.align} spacing={layout.spacing}>
+        <Grid
+          container
+          direction={layout.direction}
+          justify={layout.justify}
+          alignItems={layout.align}
+          spacing={layout.spacing}
+        >
           <Grid item>
             <Typography variant="body2" className={classes.number}>{props.day}</Typography>
           </Grid>
@@ -478,7 +499,15 @@ class Calendar extends React.Component {
         <Weekdays classes={classes} />
         <Grid container direction="row" className={classes.month}>
           {days.map(d => (
-            <Day id={d.key} key={d.key} className={d.className} classes={classes} day={d.day} date={d.date} events={d.events} />
+            <Day
+              id={d.key}
+              key={d.key}
+              className={d.className}
+              classes={classes}
+              day={d.day}
+              date={d.date}
+              events={d.events}
+            />
           ))}
         </Grid>
       </Grid>
@@ -497,9 +526,15 @@ class Calendar extends React.Component {
       <Grid container direction="row">
         <Grid item>
           <ButtonGroup variant="contained" color="secondary">
-            <Button onClick={this.prev} title="Previous" classes={{root: classes.button}}><ChevronLeft /></Button>
-            <Button onClick={this.today} title="Today" classes={{root: classes.button}}><TodayOutlined /></Button>
-            <Button onClick={this.next} title="Next" classes={{root: classes.button}}><ChevronRight /></Button>
+            <Button onClick={this.prev} title="Previous" classes={{root: classes.button}}>
+              <ChevronLeft />
+            </Button>
+            <Button onClick={this.today} title="Today" classes={{root: classes.button}}>
+              <TodayOutlined />
+            </Button>
+            <Button onClick={this.next} title="Next" classes={{root: classes.button}}>
+              <ChevronRight />
+            </Button>
           </ButtonGroup>
         </Grid>
       </Grid>

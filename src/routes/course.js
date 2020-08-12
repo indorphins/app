@@ -5,7 +5,7 @@ import path from './path';
 import CourseInfo from '../pages/course/info';
 import CourseList from '../pages/course';
 
-export default function() {
+export default function CourseRoutes() {
   return (
     <Switch>
       <Route exact path={path.courseDetail}>
@@ -19,4 +19,4 @@ export default function() {
       </Route>
     </Switch>
   );
-};
+}
