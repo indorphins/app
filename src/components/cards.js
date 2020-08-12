@@ -7,9 +7,9 @@ import {
   Radio,
   Grid,
   Typography,
-  ExpansionPanel,
-  ExpansionPanelSummary,
-  ExpansionPanelDetails,
+  Accordion,
+  AccordionSummary,
+  AccordionDetails,
   withStyles
 } from '@material-ui/core';
 import { Lens, Delete, ExpandMoreOutlined } from '@material-ui/icons';
@@ -293,14 +293,14 @@ class Cards extends React.Component {
     }
 
     let addPayment = (
-      <ExpansionPanel defaultExpanded={this.state.collapseAdd}>
-        <ExpansionPanelSummary expandIcon={<ExpandMoreOutlined />}>
+      <Accordion defaultExpanded={this.state.collapseAdd}>
+        <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
           <Typography variant="h5">Add a new card</Typography>
-        </ExpansionPanelSummary>
-        <ExpansionPanelDetails>
+        </AccordionSummary>
+        <AccordionDetails>
           <AddPaymentMethod />
-        </ExpansionPanelDetails>
-      </ExpansionPanel>
+        </AccordionDetails>
+      </Accordion>
     );
   
     return (
