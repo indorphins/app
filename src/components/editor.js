@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function(props) {
+export default function Editor(props) {
 
   const classes = useStyles();
   const [html, setHtml] = React.useState(null);
@@ -72,7 +72,12 @@ export default function(props) {
           {props.label}
         </Typography>
       </Box>
-      <MUIRichTextEditor defaultValue={editorState} onChange={changeHandler} onSave={saveHandler} controls={enabledControls} />
+      <MUIRichTextEditor
+        defaultValue={editorState}
+        onChange={changeHandler}
+        onSave={saveHandler}
+        controls={enabledControls} 
+      />
     </Box>
   );
 }

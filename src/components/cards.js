@@ -1,6 +1,17 @@
 import React from 'react';
 import { connect } from 'react-redux'
-import { IconButton, RadioGroup, Card, Radio, Grid, Typography, ExpansionPanel, ExpansionPanelSummary, ExpansionPanelDetails, withStyles } from '@material-ui/core';
+import { 
+  IconButton,
+  RadioGroup,
+  Card,
+  Radio,
+  Grid,
+  Typography,
+  ExpansionPanel,
+  ExpansionPanelSummary,
+  ExpansionPanelDetails,
+  withStyles
+} from '@material-ui/core';
 import { Lens, Delete, ExpandMoreOutlined } from '@material-ui/icons';
 import Alert from '@material-ui/lab/Alert';
 
@@ -219,63 +230,63 @@ class Cards extends React.Component {
         <Grid container className={classes.savedCardsContent}>
           {errorContent}
           
-            <RadioGroup onChange={this.changeDefaultPaymentMethod} className={classes.radioGroup}>
-              {this.state.paymentData.methods.map(item => (
-                <Grid key={item.id} item className={classes.cardItem}>
-                  <Grid container direction="row" justify="center" alignItems="center" spacing={2}>
-                    <Grid item>
-                      <Radio checked={item.default} name={item.id} />
-                    </Grid>
-                    <Grid item>
-                      <Card className={classes.cardData}>
-                        <Grid container direction="column" spacing={2}>
-                          <Grid item>
-                            <Grid container direction="row" spacing={1} justify="center" alignItems="center">
-                              <Grid item>
-                                <Lens className={classes.masked}/>
-                                <Lens className={classes.masked}/>
-                                <Lens className={classes.masked}/>
-                                <Lens className={classes.masked}/>
-                              </Grid>
-                              <Grid item>
-                                <Lens className={classes.masked}/>
-                                <Lens className={classes.masked}/>
-                                <Lens className={classes.masked}/>
-                                <Lens className={classes.masked}/>
-                              </Grid>
-                              <Grid item>
-                                <Lens className={classes.masked}/>
-                                <Lens className={classes.masked}/>
-                                <Lens className={classes.masked}/>
-                                <Lens className={classes.masked}/>
-                              </Grid>
-                              <Grid item>
-                                <Typography className={classes.last4}>{item.last4}</Typography>
-                              </Grid>
+          <RadioGroup onChange={this.changeDefaultPaymentMethod} className={classes.radioGroup}>
+            {this.state.paymentData.methods.map(item => (
+              <Grid key={item.id} item className={classes.cardItem}>
+                <Grid container direction="row" justify="center" alignItems="center" spacing={2}>
+                  <Grid item>
+                    <Radio checked={item.default} name={item.id} />
+                  </Grid>
+                  <Grid item>
+                    <Card className={classes.cardData}>
+                      <Grid container direction="column" spacing={2}>
+                        <Grid item>
+                          <Grid container direction="row" spacing={1} justify="center" alignItems="center">
+                            <Grid item>
+                              <Lens className={classes.masked} />
+                              <Lens className={classes.masked} />
+                              <Lens className={classes.masked} />
+                              <Lens className={classes.masked} />
                             </Grid>
-                          </Grid>
-                          <Grid item>
-                            <Grid container direciton="row" justify="space-between">
-                              <Grid item>
-                                <CardLogo brand={item.brand} />
-                              </Grid>
-                              <Grid item>
-                                <Typography variant="subtitle2">exp: {item.exp_month}/{item.exp_year}</Typography>
-                              </Grid>
+                            <Grid item>
+                              <Lens className={classes.masked} />
+                              <Lens className={classes.masked} />
+                              <Lens className={classes.masked} />
+                              <Lens className={classes.masked} />
+                            </Grid>
+                            <Grid item>
+                              <Lens className={classes.masked} />
+                              <Lens className={classes.masked} />
+                              <Lens className={classes.masked} />
+                              <Lens className={classes.masked} />
+                            </Grid>
+                            <Grid item>
+                              <Typography className={classes.last4}>{item.last4}</Typography>
                             </Grid>
                           </Grid>
                         </Grid>
-                      </Card>
-                    </Grid>
-                    <Grid item>
-                      <IconButton onClick={() => {this.removePaymentMethod(item.id)}}>
-                        <Delete />
-                      </IconButton>
-                    </Grid>
+                        <Grid item>
+                          <Grid container direciton="row" justify="space-between">
+                            <Grid item>
+                              <CardLogo brand={item.brand} />
+                            </Grid>
+                            <Grid item>
+                              <Typography variant="subtitle2">exp: {item.exp_month}/{item.exp_year}</Typography>
+                            </Grid>
+                          </Grid>
+                        </Grid>
+                      </Grid>
+                    </Card>
+                  </Grid>
+                  <Grid item>
+                    <IconButton onClick={() => {this.removePaymentMethod(item.id)}}>
+                      <Delete />
+                    </IconButton>
                   </Grid>
                 </Grid>
+              </Grid>
               ))}
-            </RadioGroup>
+          </RadioGroup>
 
         </Grid>
       );

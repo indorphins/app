@@ -4,7 +4,7 @@ import log from '../log';
 export default async function callAPI(url, options, sendToken) {
 
   if (sendToken) {
-	  let token;
+    let token;
 
     try {
       //log.debug("API:: fetch firbase token")
@@ -44,4 +44,4 @@ export default async function callAPI(url, options, sendToken) {
 			log.error("API:: response", url, error);
 			throw error;
 		});
-};
+}

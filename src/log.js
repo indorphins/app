@@ -1,3 +1,4 @@
+/* eslint no-console: 0*/
 import config from './config';
 
 const colors = {

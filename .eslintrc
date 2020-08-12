@@ -1,0 +1,35 @@
+{
+  "extends": [
+    "react-app",
+    "eslint:recommended",
+    "plugin:react/recommended"
+  ],
+  "plugins": [
+    "react",
+    "react-hooks"
+  ],
+  "rules": {
+    "complexity": ["warn", { "max": 15 }],
+    "max-depth": ["error", 3],
+    "max-len": ["error", { "code": 120 }],
+    "max-lines": ["error", 1200],
+    "max-lines-per-function": 0,
+    "max-nested-callbacks": ["error", 3],
+    "react/prop-types": 0,
+    "react/jsx-indent": [2, 2],
+    "react/jsx-max-depth": [1, { "max": 10 }],
+    "react/no-unsafe": 2,
+    "react/no-deprecated": 1,
+    "react/function-component-definition": [2, {
+      "namedComponents": "function-declaration",
+      "unnamedComponents": "function-expression"
+    }],
+    "react/jsx-equals-spacing": [2, "never"],
+    "react/jsx-tag-spacing": 2,
+    "react/jsx-closing-tag-location": 2,
+    "react/jsx-closing-bracket-location": 2,
+    "react/jsx-filename-extension": [2, { "extensions": [".js"] }],
+    "react-hooks/rules-of-hooks": 2,
+    "react-hooks/exhaustive-deps": 0
+  }
+}

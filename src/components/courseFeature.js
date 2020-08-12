@@ -1,6 +1,16 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link } from "react-router-dom";
-import { Grid, GridList, GridListTile, GridListTileBar, Typography, CircularProgress, IconButton, Fab, useMediaQuery} from '@material-ui/core';
+import { 
+  Grid,
+  GridList,
+  GridListTile,
+  GridListTileBar,
+  Typography,
+  CircularProgress,
+  IconButton,
+  Fab,
+  useMediaQuery
+} from '@material-ui/core';
 import { InfoOutlined, ArrowForward, ArrowBack } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { format, isTomorrow, isToday, differenceInDays } from 'date-fns'
@@ -103,7 +113,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function(props) {
+export default function CourseFeature(props) {
 
   const small = useMediaQuery('(max-width:600px)');
   const med = useMediaQuery('(max-width:950px)');
@@ -215,7 +225,7 @@ export default function(props) {
         }
 
         let now = new Date();
-        let d = new Date(course.start_date);;
+        let d = new Date(course.start_date);
 
         if (now > d && course.recurring) {
           d = getNextDate(course.recurring, 1);
@@ -348,21 +358,21 @@ export default function(props) {
       <div className={classes.root}>
         {prevBtn}
         <GridList cellHeight={height} className={classes.gridList} cols={cols} spacing={spacing}>
-        {displayData.map(course => (
-          <GridListTile key={course.id} cols={1}>
-            <Link className={classes.anchor} to={course.url}>
-              <Grid container>
-                <img alt={course.title} className={classes.photo} src={course.photo_url} />
-                <GridListTileBar
+          {displayData.map(course => (
+            <GridListTile key={course.id} cols={1}>
+              <Link className={classes.anchor} to={course.url}>
+                <Grid container>
+                  <img alt={course.title} className={classes.photo} src={course.photo_url} />
+                  <GridListTileBar
                   title={course.title}
                   subtitle={course.label}
                   className={classes.desc}
                   classes={{title: classes.noWrap, subtitle: classes.textWrap}}
                   actionIcon={infoIcon}
-                />
-              </Grid>
-            </Link>
-          </GridListTile>
+                  />
+                </Grid>
+              </Link>
+            </GridListTile>
         ))}
         </GridList>
         {nextBtn}
@@ -382,7 +392,7 @@ export default function(props) {
 
   return (
     <Grid container className={classes.container}>
-        {content}
+      {content}
     </Grid>
   );
 }

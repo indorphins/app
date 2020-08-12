@@ -9,13 +9,13 @@ const userSchedSelector = createSelector([state => state.user.schedule], (items)
   return items;
 });
 
-export default function() {
+export default function Schedule() {
 
   const schedule = useSelector(state => userSchedSelector(state));
 
   return (
-		<Container>
+    <Container>
       <CourseSchedule course={schedule} />
-		</Container>
+    </Container>
   );
-};
+}

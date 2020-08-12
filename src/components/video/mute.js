@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { IconButton } from '@material-ui/core';
 import { VolumeUp, VolumeOff } from '@material-ui/icons';
 
-export default function muteButton(props) {
+export default function MuteButton(props) {
 
   const [isChecked, setChecked] = useState(props.checked);
 

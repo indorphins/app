@@ -28,7 +28,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function() {
+export default function CourseList() {
 	let now = new Date();
 	let courseFilter = {
 		$or: [
@@ -73,7 +73,13 @@ export default function() {
   let createButton = null;
   if (allowCreate) {
     let btn = (
-      <Fab color="secondary" variant="extended" aria-label="create class" className={classes.fab} onClick={toggleCreateForm}>
+      <Fab
+        color="secondary"
+        variant="extended"
+        aria-label="create class"
+        className={classes.fab}
+        onClick={toggleCreateForm}
+      >
         <Add className={classes.extendedBtn} />
         Class
       </Fab>
@@ -99,7 +105,12 @@ export default function() {
     createContent = (
       <Grow in={showForm}>
         <Grid>
-          <CreateCourse instructorId={currentUser.id} photoUrl={currentUser.photo_url} spotsDisabled={false} costDisabled={false} />
+          <CreateCourse
+            instructorId={currentUser.id}
+            photoUrl={currentUser.photo_url}
+            spotsDisabled={false}
+            costDisabled={false}
+          />
           <Divider className={classes.divider} />
         </Grid>
       </Grow>
@@ -107,31 +118,31 @@ export default function() {
   }
 
 	return (
-		<Container justify='center'>
-			{createButton}
-			{createContent}
-			<Grid container className={classes.content}>
-				<CourseFeature
+  <Container justify='center'>
+    {createButton}
+    {createContent}
+    <Grid container className={classes.content}>
+      <CourseFeature
 					filter={courseFilter}
 					order={order}
 					limit={500}
 					header='Upcoming classes'
-				/>
-			</Grid>
-			<Grid container className={classes.content}>
-				<CourseFeature
+      />
+    </Grid>
+    <Grid container className={classes.content}>
+      <CourseFeature
 					filter={recurringFilter}
 					order={order}
 					limit={500}
 					header='Weekly classes'
-				/>
-			</Grid>
-			<Grid container className={classes.content}>
-				<InstructorFeature
+      />
+    </Grid>
+    <Grid container className={classes.content}>
+      <InstructorFeature
 					limit={500}
 					header='Instructors'
-				/>
-			</Grid>
-		</Container>
+      />
+    </Grid>
+  </Container>
 	);
 }

@@ -9,7 +9,7 @@ import { SnackbarProvider } from 'notistack';
 import * as Course from '../../api/course';
 import path from '../../routes/path';
 import log from '../../log';
-import Opentok from '../../components/videoConference';
+import VideoConference from '../../components/videoConference';
 import { dark } from '../../styles/theme';
 
 const useStyles = makeStyles((theme) => ({
@@ -64,7 +64,6 @@ export default function() {
       data = await Course.getSessionInfo(classId);
     } catch(err) {
       //TODO: redirect to class page with error message or display error here
-      console.error(err);
       log.error("OPENTOK:: session join", err);
       history.push(path.courses + classId);
       return;
@@ -74,7 +73,6 @@ export default function() {
     try {
       courseData = await Course.get(classId);
     } catch(err) {
-      console.error(err);
       log.error("OPENTOK:: get class info", err);
       history.push(path.courses + classId);
       return;
@@ -95,7 +93,7 @@ export default function() {
 
   let chatContent = (
     <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
-      <Opentok credentials={authData} course={course} user={currentUser}></Opentok>
+      <VideoConference credentials={authData} course={course} user={currentUser}></VideoConference>
     </Grid>
   );
 
@@ -118,4 +116,4 @@ export default function() {
       </ThemeProvider>
     </SnackbarProvider>
   );
-};
+}

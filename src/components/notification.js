@@ -40,7 +40,7 @@ const userSchedSelector = createSelector([state => state.user.schedule], (items)
   return items;
 });
 
-export default function() {
+export default function Notification() {
 
   const classes = useStyles();
   const history = useHistory();
@@ -102,7 +102,7 @@ export default function() {
           });
         }
       }
-    };
+    }
   }
 
   function handleClose(event) {

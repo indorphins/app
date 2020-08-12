@@ -57,43 +57,43 @@ export function Legal() {
   )
 }
 
-export default function(props) {
+export default function LoginContainer(props) {
 
   const classes = useStyles();
 
   return (
-		<Grid className={classes.root}>
-			<Grid 
+    <Grid className={classes.root}>
+      <Grid 
 				container
 				spacing={0}
 				direction="column"
 				alignItems="center"
 				justify="center"
 				style={{ minHeight: '100vh' }}
-			>
-				<Zoom in={true}>
-					<Paper elevation={2} className={classes.paperContainer}>
-						<Grid container direction="column" spacing={2}>
-							<Grid item>
-								<Grid container direction="row" justify="center">
-									<Grid item>
-										<Typography variant="h2" className={classes.logo}>indoor</Typography>
-										<Typography variant="h2" className={classes.logo2}>phins</Typography>
-									</Grid>
-								</Grid>
-							</Grid>
-							<Grid item>
-								{props.children}
-							</Grid>
-							<Grid item>
-								<Grid container style={{paddingTop: 30}}>
-									<Legal />
-								</Grid>
-							</Grid>
-						</Grid>
-					</Paper>
-				</Zoom>
-			</Grid>
-		</Grid>
+      >
+        <Zoom in={true}>
+          <Paper elevation={2} className={classes.paperContainer}>
+            <Grid container direction="column" spacing={2}>
+              <Grid item>
+                <Grid container direction="row" justify="center">
+                  <Grid item>
+                    <Typography variant="h2" className={classes.logo}>indoor</Typography>
+                    <Typography variant="h2" className={classes.logo2}>phins</Typography>
+                  </Grid>
+                </Grid>
+              </Grid>
+              <Grid item>
+                {props.children}
+              </Grid>
+              <Grid item>
+                <Grid container style={{paddingTop: 30}}>
+                  <Legal />
+                </Grid>
+              </Grid>
+            </Grid>
+          </Paper>
+        </Zoom>
+      </Grid>
+    </Grid>
 	);
 }
