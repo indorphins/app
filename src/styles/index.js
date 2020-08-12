@@ -51,7 +51,7 @@ const getThemeSelector = createSelector([state => state.theme], (theme) => {
   return theme;
 });
 
-export default function(props) {
+export default function Styles(props) {
 
   const currentTheme = useSelector(state => getThemeSelector(state));
   const [theme, setTheme] = useState(responsiveFontSizes(lightTheme));
@@ -83,10 +83,6 @@ export default function(props) {
       },
     },
     MuiFab: {
-      /*root: {
-        backgroundImage: `url("/img/buttonWave.svg")`,
-        backgroundRepeat: "no-repeat",
-      },*/
       secondary: {
         '&:hover': {
           backgroundColor: theme.palette.primary.main,
@@ -107,15 +103,6 @@ export default function(props) {
         paddingBottom: theme.spacing(0.5),
       }
     },
-    /*MuiSnackbarContent: {
-      root: {
-        opacity: 0.7,
-        minWidth: 0,
-        '@media (min-width: 600px)': {
-          minWidth: 0,
-        },
-      }
-    },*/
     MUIRichTextEditor: {
       root: {
         width: "100%",
@@ -180,7 +167,7 @@ export default function(props) {
   return (
     <React.Fragment>
       <ThemeProvider theme={theme}>
-        <CssBaseline/>
+        <CssBaseline />
         <Box className={classes.root}></Box>
         {props.children}
       </ThemeProvider>

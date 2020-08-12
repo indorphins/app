@@ -84,10 +84,10 @@ export default function(props) {
     value={tab}
     indicatorColor="primary"
     textColor="secondary"
-  >
-    <Tab value={0} className={classes.hidden} />
-    <Tab value={1} label="Classes" onClick={navHome} className={classes.tab} />
-    {profileTab}
-  </Tabs>
+    >
+      <Tab value={0} className={classes.hidden} />
+      <Tab value={1} label="Classes" onClick={navHome} className={classes.tab} />
+      {profileTab}
+    </Tabs>
   )
 }

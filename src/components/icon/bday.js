@@ -2,7 +2,7 @@ import React from 'react';
 import { Tooltip } from '@material-ui/core';
 import BdayCakeIcon from '@material-ui/icons/Cake';
 
-export const BdayIcon = (props) => {
+export function BdayIcon(props) {
   const formatDate = (date) => {
     return `${date.getMonth() + 1}/${date.getDate()}`
   }

@@ -24,7 +24,7 @@ const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
 });
 
-export default function () {
+export default function EditProfile() {
 
   const classes = useStyles();
   const currentUser = useSelector((state) => getUserSelector(state));
@@ -223,23 +223,90 @@ export default function () {
     <form onSubmit={formHandler}>
       <Grid container direction="row" spacing={2}>
         <Grid item xs={layout.half}>
-          <TextField className={classes.input} disabled={loader} required autoComplete="username" color="secondary" variant="outlined" type="text" id="username" label="Nickname" value={username} onChange={usernameHandler} />
+          <TextField
+            className={classes.input}
+            disabled={loader}
+            required
+            autoComplete="username"
+            color="secondary"
+            variant="outlined"
+            type="text"
+            id="username"
+            label="Nickname"
+            value={username}
+            onChange={usernameHandler}
+          />
         </Grid>
         <Grid item xs={layout.half} style={{padding: 0}}></Grid>
         <Grid item xs={layout.half}>
-          <TextField className={classes.input} disabled={loader} autoComplete="given_name" color="secondary" variant="outlined" type="text" id="first" label="First Name" value={firstname} onChange={firstHandler} />
+          <TextField
+            className={classes.input}
+            disabled={loader}
+            autoComplete="given_name"
+            color="secondary"
+            variant="outlined"
+            type="text"
+            id="first"
+            label="First Name"
+            value={firstname}
+            onChange={firstHandler}
+          />
         </Grid>
         <Grid item xs={layout.half}>
-          <TextField className={classes.input} disabled={loader} autoComplete="family_name" color="secondary" variant="outlined" type="text" id="last" label="Last Name" value={lastname} onChange={lastHandler} />
+          <TextField
+            className={classes.input}
+            disabled={loader}
+            autoComplete="family_name"
+            color="secondary"
+            variant="outlined"
+            type="text"
+            id="last"
+            label="Last Name"
+            value={lastname}
+            onChange={lastHandler}
+          />
         </Grid>
         <Grid item xs={layout.half}>
-          <TextField className={classes.input} disabled={loader} required autoComplete="tel" color="secondary" variant="outlined" type="tel" id="phone" label="Phone Number" value={phone} onChange={phoneHandler} />
+          <TextField
+            className={classes.input}
+            disabled={loader} 
+            required
+            autoComplete="tel"
+            color="secondary"
+            variant="outlined"
+            type="tel"
+            id="phone"
+            label="Phone Number"
+            value={phone}
+            onChange={phoneHandler}
+          />
         </Grid>
         <Grid item xs={layout.half}>
-          <TextField className={classes.input} disabled={loader} autoComplete="tel" color="secondary" variant="outlined" type="text" id="instagram" label="Instagram Handle" value={instagram} onChange={instaHandler} />
+          <TextField
+            className={classes.input}
+            disabled={loader}
+            autoComplete="tel"
+            color="secondary"
+            variant="outlined"
+            type="text"
+            id="instagram"
+            label="Instagram Handle"
+            value={instagram}
+            onChange={instaHandler}
+          />
         </Grid>
         <Grid item xs={layout.full}>
-          <TextField className={classes.input} disabled={loader} color="secondary" variant="outlined" type="text" id="photo" label="Profile Photo URL" value={photoUrl} onChange={photoHandler} />
+          <TextField
+            className={classes.input}
+            disabled={loader}
+            color="secondary"
+            variant="outlined"
+            type="text"
+            id="photo"
+            label="Profile Photo URL"
+            value={photoUrl}
+            onChange={photoHandler}
+          />
         </Grid>
         <Grid item xs={layout.quarter}>
           <Birthday required={true} loader={loader} date={bday} onChange={birthdayHandler} error={bdayErr} />
@@ -249,7 +316,15 @@ export default function () {
           {progress}
         </Grid>
         <Grid item xs={layout.full}>
-          <Button className={classes.btn} disabled={loader} variant="contained" color="primary" type="submit">Update</Button>
+          <Button
+            className={classes.btn}
+            disabled={loader}
+            variant="contained"
+            color="primary"
+            type="submit"
+          >
+            Update
+          </Button>
         </Grid>
       </Grid>
     </form>

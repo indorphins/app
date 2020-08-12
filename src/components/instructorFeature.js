@@ -1,6 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from "react-router-dom";
-import { Grid, GridList, GridListTile, GridListTileBar, Typography, CircularProgress, useMediaQuery } from '@material-ui/core';
+import {
+  Grid,
+  GridList,
+  GridListTile,
+  GridListTileBar,
+  Typography,
+  CircularProgress,
+  useMediaQuery
+} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
 import * as Instructor from '../api/instructor';
@@ -31,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function(props) {
+export default function InstructorFeature(props) {
 
   const small = useMediaQuery('(max-width:600px)');
   const med = useMediaQuery('(max-width:950px)');
@@ -140,19 +148,19 @@ export default function(props) {
           {headerContent}
         </Grid>
         <GridList cellHeight={height} cols={cols} spacing={spacing}>
-        {items.map(instructor => (
-          <GridListTile key={instructor.id} cols={1}>
-            <Link className={classes.anchor} to={instructor.url}>
-              <Grid container>
-                <img alt={instructor.firstName} className={classes.photo} src={instructor.photo} />
-                <GridListTileBar
+          {items.map(instructor => (
+            <GridListTile key={instructor.id} cols={1}>
+              <Link className={classes.anchor} to={instructor.url}>
+                <Grid container>
+                  <img alt={instructor.firstName} className={classes.photo} src={instructor.photo} />
+                  <GridListTileBar
                   title={instructor.firstName}
                   subtitle="See Schedule"
                   className={classes.desc}
-                />
-              </Grid>
-            </Link>
-          </GridListTile>
+                  />
+                </Grid>
+              </Link>
+            </GridListTile>
         ))}
         </GridList>
       </Grid>

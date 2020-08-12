@@ -1,7 +1,17 @@
 import 'date-fns';
 import React, { useState, useEffect } from "react";
 import { useHistory } from 'react-router-dom';
-import { Grid, TextField, Button, Slider, Box, Typography, InputAdornment, Switch, LinearProgress } from '@material-ui/core';
+import { 
+  Grid,
+  TextField,
+  Button,
+  Slider,
+  Box,
+  Typography,
+  InputAdornment,
+  Switch,
+  LinearProgress
+} from '@material-ui/core';
 import MonetizationOnRounded from '@material-ui/icons/MonetizationOnRounded';
 import { makeStyles } from '@material-ui/core/styles';
 import DateFnsUtils from '@date-io/date-fns';
@@ -222,7 +232,16 @@ export default function (props) {
       <Box>
         <Typography variant="body1">{spots} spots</Typography>
       </Box>
-      <Slider disabled={loader} className={classes.slider} defaultValue={20} min={10} max={20} step={5} valueLabelDisplay="auto" onChangeCommitted={handleSpotsSlider} />
+      <Slider
+        disabled={loader}
+        className={classes.slider}
+        defaultValue={20}
+        min={10}
+        max={20}
+        step={5}
+        valueLabelDisplay="auto"
+        onChangeCommitted={handleSpotsSlider}
+      />
     </Grid>
   );
 
@@ -248,10 +267,27 @@ export default function (props) {
             <Grid container direction="column" justify="flex-start" alignItems="flex-start">
               <MuiPickersUtilsProvider utils={DateFnsUtils} className={classes.slider}>
                 <Grid item className={classes.slider}>
-                  <KeyboardDatePicker disabled={loader} variant="inline" format="MM/dd/yyyy" margin="normal" id="date" label="Date" value={selectedDate} onChange={handleDateChange} />
+                  <KeyboardDatePicker
+                    disabled={loader}
+                    variant="inline"
+                    format="MM/dd/yyyy"
+                    margin="normal"
+                    id="date"
+                    label="Date"
+                    value={selectedDate}
+                    onChange={handleDateChange}
+                  />
                 </Grid>
                 <Grid item className={classes.slider}>
-                  <KeyboardTimePicker disabled={loader} variant="inline" margin="normal" id="time" label="Time" value={selectedDate} onChange={handleDateChange} />
+                  <KeyboardTimePicker
+                    disabled={loader}
+                    variant="inline"
+                    margin="normal"
+                    id="time"
+                    label="Time"
+                    value={selectedDate}
+                    onChange={handleDateChange}
+                  />
                 </Grid>
               </MuiPickersUtilsProvider>
             </Grid>
@@ -264,37 +300,82 @@ export default function (props) {
                 <Box>
                   <Typography variant="body1">{duration} minutes</Typography>
                 </Box>
-                <Slider disabled={loader} className={classes.durSlider} defaultValue={45} min={30} max={60} step={15} valueLabelDisplay="auto" onChangeCommitted={handleDurationSlider} />
+                <Slider
+                  disabled={loader}
+                  className={classes.durSlider}
+                  defaultValue={45}
+                  min={30}
+                  max={60}
+                  step={15}
+                  valueLabelDisplay="auto"
+                  onChangeCommitted={handleDurationSlider}
+                />
               </Grid>
             </Grid>
           </Grid>
         </Grid>
         <Grid container direction="row" justify="flex-start" spacing={2}>
           <Grid item xs={4}>
-            <TextField disabled={loader} className={classes.type} color="secondary" required id="type" type="text" label="Type" variant="outlined" value={courseType} onChange={typeHandler} />
+            <TextField
+              disabled={loader}
+              className={classes.type}
+              color="secondary"
+              required
+              id="type"
+              type="text"
+              label="Type"
+              variant="outlined"
+              value={courseType}
+              onChange={typeHandler}
+            />
           </Grid>
           <Grid item xs={8}>
-            <TextField disabled={loader} className={classes.title} color="secondary" required id="title" type="text" label="Title" variant="outlined" value={title} onChange={titleHandler} />
+            <TextField
+              disabled={loader}
+              className={classes.title}
+              color="secondary"
+              required
+              id="title"
+              type="text"
+              label="Title"
+              variant="outlined"
+              value={title}
+              onChange={titleHandler}
+            />
           </Grid>
           <Grid item xs={12}>
-            <Editor value={props.description} id="description" label="Description *" onChange={editorHandler} onSave={editorSaveHandler} />
+            <Editor
+              value={props.description}
+              id="description"
+              label="Description *"
+              onChange={editorHandler}
+              onSave={editorSaveHandler} 
+            />
             {loaderContent}
           </Grid>
           <Grid item xs={12}>
             <Grid container direction="row" justify="flex-start" alignItems="center" spacing={1}>
-                <Grid item>
-                  <Switch
+              <Grid item>
+                <Switch
                     checked={recurring}
                     onChange={recurringHandler}
-                  />
-                </Grid>
-                <Grid item>
-                  <Typography variant="body1">Weekly</Typography>
-                </Grid>
+                />
+              </Grid>
+              <Grid item>
+                <Typography variant="body1">Weekly</Typography>
+              </Grid>
             </Grid>
           </Grid>
           <Grid item xs={12}>
-            <Button disabled={loader} className={classes.btn} type="submit" variant="contained" color="secondary">Create</Button>
+            <Button
+              disabled={loader}
+              className={classes.btn} 
+              type="submit"
+              variant="contained"
+              color="secondary"
+            >
+              Create
+            </Button>
           </Grid>
         </Grid>
       </form>

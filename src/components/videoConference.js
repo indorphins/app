@@ -114,7 +114,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function(props) {
+export default function VideoConference(props) {
 
   let looper = null;
   const loopTime = 20000;
@@ -147,7 +147,10 @@ export default function(props) {
       log.error("OPENTOK::", err);
 
       if (err.name === 'OT_HARDWARE_UNAVAILABLE') {
-        setDisplayMsg({severity: "error", message: "We cannot access your camera or microphone, they are already in use by another application."});
+        setDisplayMsg({
+          severity: "error",
+          message: "We cannot access your camera or microphone, they are already in use by another application."
+        });
         return;
       }
 
@@ -157,7 +160,11 @@ export default function(props) {
       }
 
       if (err.name === 'OT_TIMEOUT' || err.name === 'OT_MEDIA_ERR_NETWORK') {
-        setDisplayMsg({severity: "warning", message: "Network connection slow. Disabling participant video. Try moving closer to your router if possible, or check your internet speed, and then refresh this page."});
+        setDisplayMsg({
+          severity: "warning",
+          message: `Network connection slow. Disabling participant video. 
+          Try moving closer to your router if possible, or check your internet speed, and then refresh this page.`
+        });
         setSubs(subs.map(item => {
           if (item.video) {
             item.video = false;
@@ -205,14 +212,20 @@ export default function(props) {
     let valid = true;
 
     if (isMobile) {
-      setDisplayMsg({severity: "warning", message: "Indoorphins classes are not yet optimized for mobile devices. Apologies for the inconvenience."});
+      setDisplayMsg({
+        severity: "warning",
+        message: "Indoorphins classes are not yet optimized for mobile devices. Apologies for the inconvenience."
+      });
       valid = false;
     }
 
     if (isSafari) {
       let compare = compareVersions(fullBrowserVersion, '12.1.0');
       if (compare === -1) {
-        setDisplayMsg({severity: "error", message: "This version of Safari is not supported. Please update your system."});
+        setDisplayMsg({
+          severity: "error",
+          message: "This version of Safari is not supported. Please update your system."
+        });
         valid = false;
       }
     }
@@ -552,7 +565,7 @@ export default function(props) {
         });
       }
     }
-  };
+  }
 
   useEffect(() => {
     if (loopMode) {
@@ -721,9 +734,17 @@ export default function(props) {
           </ExpansionPanelSummary>
           <ExpansionPanelDetails>
             <Grid container direction="column">
-              <Grid item container direction="row" justify="flex-end" alignItems="center" alignContent="center" style={{width: "100%"}}>
+              <Grid
+                item
+                container
+                direction="row"
+                justify="flex-end"
+                alignItems="center"
+                alignContent="center"
+                style={{width: "100%"}}
+              >
                 <Grid item>
-                  <Loop/>
+                  <Loop />
                 </Grid>
                 <Grid item>
                   <Switch checked={loopMode} onChange={toggleLoopMode} title="Rotate participants viewed" name="loop" />
@@ -737,7 +758,7 @@ export default function(props) {
         </ExpansionPanel>
         <ExpansionPanel defaultExpanded>
           <ExpansionPanelSummary expandIcon={<ExpandMoreOutlined />}>
-          <Typography variant="h5">Chat</Typography>
+            <Typography variant="h5">Chat</Typography>
           </ExpansionPanelSummary>
           <ExpansionPanelDetails>
             {chatWindow}
@@ -787,12 +808,24 @@ export default function(props) {
 
   let participantsVideo = (
     <Grid xs item style={{height:"100%", overflow: "hidden"}}>
-      <Grid container direction="row" justify="flex-start" className={participantsClass} style={{height:"100%", overflow: "hidden"}}>
+      <Grid
+        container
+        direction="row"
+        justify="flex-start"
+        className={participantsClass}
+        style={{height:"100%", overflow: "hidden"}}
+      >
         {subs.map(item => (
           <Grid key={item.user.id} item className={item.className} style={{order: item.order, position: "relative"}}>
             <Box id={item.user.id} className={classes.subscriberFeatureVid} />
             <Box className={classes.subscriberLabelBox}>
-              <Typography align="center" variant="h5" className={classes.subscriberLabel}>{item.user.username}</Typography>
+              <Typography
+                align="center"
+                variant="h5"
+                className={classes.subscriberLabel}
+              >
+                {item.user.username}
+              </Typography>
             </Box>
             <Grid style={{position: "absolute", zIndex: 999, bottom: "10px", right: "10px"}}>
               <Emote userId={item.user.id} username={user.username} session={session} />

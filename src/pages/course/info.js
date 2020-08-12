@@ -1,6 +1,18 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { Button, Checkbox, Container, Grid, Typography, Card, LinearProgress, useMediaQuery, makeStyles, Modal, Fade } from '@material-ui/core';
+import { 
+  Button, 
+  Checkbox, 
+  Container, 
+  Grid, 
+  Typography, 
+  Card, 
+  LinearProgress, 
+  useMediaQuery, 
+  makeStyles, 
+  Modal, 
+  Fade 
+} from '@material-ui/core';
 import { Photo, ShoppingCartOutlined, GroupAdd, People, RecordVoiceOver, AvTimer } from '@material-ui/icons';
 import Alert from '@material-ui/lab/Alert';
 import { useSelector } from 'react-redux';
@@ -18,7 +30,7 @@ import { BdayIcon } from '../../components/icon/bday';
 
 import { getNextSession } from '../../utils';
 import { OtherCourseInfo } from '../../components/otherCourseInfo';
-import { Instagram } from '../../components/instagram';
+import Instagram from '../../components/instagram';
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -223,7 +235,14 @@ export default function () {
 
     if (!currentUser.id) {
       setSignup((
-        <Button variant="contained" color="secondary" onClick={goToLogin} style={{width:"100%"}}>Login to Book Class</Button>
+        <Button 
+          variant="contained"
+          color="secondary"
+          onClick={goToLogin}
+          style={{width:"100%"}}
+        >
+          Login to Book Class
+        </Button>
       ));
       return;
     }
@@ -232,12 +251,17 @@ export default function () {
 
     if (currentUser.id === instructor.id || currentUser.type === 'admin') {
       setCancel(
-        <Button variant="contained" disabled={cancellingClass} color="secondary" onClick={confirmCancelHandler} style={{width:"100%"}}>Cancel Class</Button>
+        <Button
+          variant="contained"
+          disabled={cancellingClass}
+          color="secondary"
+          onClick={confirmCancelHandler}
+          style={{width:"100%"}}
+        >
+          Cancel Class
+        </Button>
       )
       setMakeMessage(true);
-    }
-
-    if (currentUser.id === instructor.id || currentUser.type === 'admin') {
     }
 
     if (currentUser.id === course.instructor.id) {
@@ -253,11 +277,18 @@ export default function () {
         if (course.participants[i].id === currentUser.id) {
           enrolled = true;
         }
-      };
+      }
 
       if (enrolled) {
         setSignup((
-          <Button variant="contained" color="secondary" onClick={courseLeaveHandler} style={{width:"100%"}}>Leave Class</Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={courseLeaveHandler}
+            style={{width:"100%"}}
+          >
+            Leave Class
+          </Button>
         ));
         return;
       }
@@ -266,11 +297,25 @@ export default function () {
     if (course.available_spots > 0) {
       if (course.cost && course.cost > 0) {
         setSignup((
-          <Button variant="contained" color="secondary" onClick={showSignupForm} style={{width:"100%"}}>Book Class</Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={showSignupForm}
+            style={{width:"100%"}}
+          >
+            Book Class
+          </Button>
         ));
       } else {
         setSignup((
-          <Button variant="contained" color="secondary" onClick={courseSignupHandler} style={{width:"100%"}}>Book Class</Button>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={courseSignupHandler}
+            style={{width:"100%"}}
+          >
+            Book Class
+          </Button>
         ));
       }
     }
@@ -322,11 +367,28 @@ export default function () {
 
     if (now > sessionTime.start && now < sessionTime.end) {
       setJoinSession((
-        <Button disabled={false} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
+        <Button
+          disabled={false}
+          variant="contained"
+          color="secondary"
+          onClick={joinHandler}
+          style={{width:"100%"}}
+        >
+          Join Session
+        </Button>
       ));
     } else if (now < sessionTime.end) {
       setJoinSession((
-        <Button title="Class is not open yet" disabled={true} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
+        <Button
+          title="Class is not open yet"
+          disabled={true}
+          variant="contained"
+          color="secondary"
+          onClick={joinHandler}
+          style={{width:"100%"}}
+        >
+          Join Session
+        </Button>
       ));
     }
 
@@ -337,11 +399,28 @@ export default function () {
       if (sessionTime) {
         if (now > sessionTime.start && now < sessionTime.end) {
           setJoinSession((
-            <Button disabled={false} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
+            <Button
+              disabled={false}
+              variant="contained"
+              color="secondary"
+              onClick={joinHandler}
+              style={{width:"100%"}}
+            >
+              Join Session
+            </Button>
           ));
         } else if (now < sessionTime.end) {
           setJoinSession((
-            <Button title="Class is not open yet"  disabled={true} variant="contained" color="secondary" onClick={joinHandler} style={{width:"100%"}}>Join Session</Button>
+            <Button
+              title="Class is not open yet"
+              disabled={true}
+              variant="contained"
+              color="secondary"
+              onClick={joinHandler}
+              style={{width:"100%"}}
+            >
+              Join Session
+            </Button>
           ));
         }
       }
@@ -529,7 +608,10 @@ export default function () {
 
   if (course.cost) {
     costContent = (
-      <Card className={classes.spotsContainer} title="Per class cost. Classes can be left up to 24 hours before the class start time">
+      <Card
+        className={classes.spotsContainer}
+        title="Per class cost. Classes can be left up to 24 hours before the class start time"
+      >
         <Grid container direction="column" justify="center" alignItems="center">
           <Grid item>
             <ShoppingCartOutlined color="primary" />
@@ -688,11 +770,27 @@ export default function () {
                 <Checkbox checked={userConsent} onChange={handleConsent} />
               </Grid>
               <Grid item>
-                <Typography variant="body1" className={classes.userAccept}>I understand that any fitness class can put my health at risk, I attest that I am physically fit to take this class and I take full responsibility for my physical well being. I continue to agree to the <a className={classes.link} href="/TOS.html" target="_blank">Terms of Service</a> and give permission for my payment method to be charged.</Typography>
+                <Typography
+                  variant="body1"
+                  className={classes.userAccept}
+                >
+                  <span>I understand that any fitness class can put my health at risk, I attest that I am </span>
+                  <span>physically fit to take this class and I take full responsibility for my physical </span>
+                  <span>well being. I continue to agree to the </span>
+                  <span><a className={classes.link} href="/TOS.html" target="_blank">Terms of Service</a> </span>
+                  <span>and give permission for my payment method to be charged.</span>
+                </Typography>
               </Grid>
             </Grid>
             <Grid item>
-              <Button disabled={!userConsent} variant="contained" color="primary" onClick={courseSignupHandler}>Submit Payment</Button>
+              <Button 
+                disabled={!userConsent}
+                variant="contained"
+                color="primary"
+                onClick={courseSignupHandler}
+              >
+                Submit Payment
+              </Button>
             </Grid>
           </Grid>
         </Grid>
@@ -867,7 +965,14 @@ export default function () {
             <div className={classes.modalContent}>
               <span id='modal-title'>Are you sure you want to cancel?</span>
               <Grid container id='modal-description' justify='center'>
-                <Button onClick={closeModalHandler} variant="contained" color="secondary" className={classes.modalBtn}>No</Button>
+                <Button
+                  onClick={closeModalHandler}
+                  variant="contained"
+                  color="secondary"
+                  className={classes.modalBtn}
+                >
+                  No
+                </Button>
                 <Button onClick={cancelClassHandler} variant="contained" className={classes.modalBtn}>Yes</Button>
               </Grid>
             </div>

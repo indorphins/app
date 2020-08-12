@@ -143,4 +143,4 @@ export default function (props) {
   let content = formContent;
 
   return content;
-};
+}

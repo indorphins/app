@@ -18,7 +18,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 // Expects a props.courseId (String) and props.onSend which functions as a method to remove this component
-export default function (props) {
+export default function CreateMessage(props) {
   const classes = useStyles();
   const [message, setMessage] = useState('');
   const [errMessage, setErrMessage] = useState(null);
@@ -87,7 +87,14 @@ export default function (props) {
       {errorContent}
       {progress}
       <Editor onChange={editorHandler} onSave={editorSaveHandler} />
-      <Button className={classes.actionBtn} variant='contained' color='secondary' onClick={editorSaveHandler}>Send Email</Button>
+      <Button
+        className={classes.actionBtn}
+        variant='contained'
+        color='secondary'
+        onClick={editorSaveHandler}
+      >
+        Send Email
+      </Button>
     </Grid>
   )
 }

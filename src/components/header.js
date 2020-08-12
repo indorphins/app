@@ -74,7 +74,7 @@ const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
 });
 
-export default function(props) {
+export default function Header(props) {
 
   if (props.className) {
     useStyles = props.className;
@@ -150,4 +150,4 @@ export default function(props) {
       {props.children}
     </Box>
   );
-};
+}

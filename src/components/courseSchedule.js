@@ -56,7 +56,7 @@ const extrapolateRecurringEvents = function(course) {
   return data;
 }
 
-export default function(props) {
+export default function CourseSchedule(props) {
 
   const classes = useStyles();
   const [events, setEvents] = useState([]);

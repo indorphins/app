@@ -53,12 +53,18 @@ export default function Emote(props) {
   return (
     <Grid style={{display: "inline"}}>
       <IconButton ref={btn} onClick={handleClick} title="Send an emote"><InsertEmoticon color="primary" /></IconButton>
-      <Menu keepMounted open={Boolean(anchorEl)} anchorEl={anchorEl} onClose={handleClose} classes={{list: classes.emoteMenu}}>
+      <Menu
+        keepMounted
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        classes={{list: classes.emoteMenu}}
+      >
         <MenuItem value="👍" title="Send a thumbs-up" onClick={() => handleSelect(`${props.username}: 👍`)}>
           <span aria-label="thumbs-up" role="img">👍</span>
         </MenuItem>
         <MenuItem value="✋" title="Give them a high-five" onClick={() => handleSelect(`${props.username}: ✋`)}>
-            <span aria-label="high-five" role="img">✋</span>
+          <span aria-label="high-five" role="img">✋</span>
         </MenuItem>
         <MenuItem value="👋" title="Wave hello" onClick={() => handleSelect(`${props.username}: 👋`)}>
           <span aria-label="hand-wave" role="img">👋</span>
@@ -72,7 +78,11 @@ export default function Emote(props) {
         <MenuItem value="😍" title="Let them know you loved that" onClick={() => handleSelect(`${props.username}: 😍`)}>
           <span aria-label="loved-that" role="img">😍</span>
         </MenuItem>
-        <MenuItem value="🥵" title="Let them know you are exhausted" onClick={() => handleSelect(`${props.username}: 🥵`)}>
+        <MenuItem 
+          value="🥵"
+          title="Let them know you are exhausted"
+          onClick={() => handleSelect(`${props.username}: 🥵`)}
+        >
           <span aria-label="worn-out" role="img">🥵</span>
         </MenuItem>
         <MenuItem value="🔥" title="You are on fire" onClick={() => handleSelect(`${props.username}: 🔥`)}>
