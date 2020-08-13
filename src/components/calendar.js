@@ -155,14 +155,14 @@ function Weekdays(props) {
 }
 
 function LargeFormatExtras(props) {
-  const { classes, events, toggle } = props;
+  const { classes, events, toggle, open } = props;
   const sm = useMediaQuery('(max-width:600px)');
   let eventsContent = null;
 
-  if (!sm) {
+  if (!sm && events && events.length > 0) {
     let smlEventsData = events.slice(0,2);
     let more = null;
-    let count = props.events.length - smlEventsData.length;
+    let count = events.length - smlEventsData.length;
 
     if (count > 0) {
       more = (
@@ -376,7 +376,7 @@ function Day(props) {
             <Typography variant="body2" className={classes.number}>{props.day}</Typography>
           </Grid>
           {indicator}
-          <LargeFormatExtras evetns={props.events} classes={classes} toggle={smHandler} />
+          <LargeFormatExtras events={props.events} classes={classes} toggle={toggleEventsAgenda} open={open} />
         </Grid>
       </Grid>
       {wrapper}
