@@ -14,10 +14,6 @@ export default function Signup(props) {
 
     if (!course.id) return;
 
-    if (currentUser.id === course.instructor.id) {
-      return;
-    }
-
     let handler = goToLogin;
     let label = "Login to Book Class";
     let enrolled = false;
@@ -45,18 +41,22 @@ export default function Signup(props) {
       }
     }
 
-    setSignup(
-      <Grid item xs={size}>
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => { handler(); setSignup(null);}}
-          style={{width:"100%"}}
-        >
-          {label}
-        </Button>
-      </Grid>
-    );
+    if (currentUser.id !== course.instructor.id) {
+      setSignup(
+        <Grid item xs={size}>
+          <Button
+            variant="contained"
+            color="secondary"
+            onClick={() => { handler(); setSignup(null);}}
+            style={{width:"100%"}}
+          >
+            {label}
+          </Button>
+        </Grid>
+      );
+    } else {
+      setSignup(null);
+    }
 
   }, [currentUser, course]);
 
