@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Modal, Fade, Grid, makeStyles } from '@material-ui/core';
+import { Button, Modal, Paper, Fade, Grid, Typography, makeStyles } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
   modal: {
@@ -9,9 +9,7 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'center'
   },
   modalContent: {
-    background: 'white',
-    borderRadius: '4px',
-    padding: theme.spacing(2),
+    padding: theme.spacing(4),
     outline: 0
   },
   modalBtn: {
@@ -67,8 +65,8 @@ export default function Cancel(props) {
       aria-describedby="modal-description"
     >
       <Fade in={confirmCancel}>
-        <div className={classes.modalContent}>
-          <span id='modal-title'>Are you sure you want to cancel?</span>
+        <Paper className={classes.modalContent}>
+          <Typography variant="body1">Are you sure you want to cancel this class?</Typography>
           <Grid container id='modal-description' justify='center'>
             <Button
               onClick={closeModalHandler}
@@ -80,7 +78,7 @@ export default function Cancel(props) {
             </Button>
             <Button onClick={onCancel} variant="contained" className={classes.modalBtn}>Yes</Button>
           </Grid>
-        </div>
+        </Paper>
       </Fade>
     </Modal>
   );
