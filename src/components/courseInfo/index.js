@@ -7,6 +7,7 @@ import JoinSession from './joinSession';
 import OtherCourseInfo from './otherCourseInfo';
 import Cancel from './cancel';
 import Signup from './signup';
+import Message from './message';
 
 export {
   AvailableSpots,
@@ -14,6 +15,7 @@ export {
   Cost,
   Duration,
   JoinSession,
+  Message,
   OtherCourseInfo,
   Signup,
   StartTime,

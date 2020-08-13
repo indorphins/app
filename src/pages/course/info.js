@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import { 
-  Button,  
+import {
   Container, 
   Grid, 
   Typography, 
@@ -21,13 +20,13 @@ import {
   Cost, 
   Duration, 
   JoinSession,
+  Message,
   OtherCourseInfo,
   Signup,
   StartTime, 
   Participants 
 } from '../../components/courseInfo/index';
 import { store, actions } from '../../store';
-import CreateMessage from '../../components/form/createMessage'
 import * as Course from '../../api/course';
 import * as Stripe from '../../api/stripe';
 import log from '../../log';
@@ -152,11 +151,45 @@ export default function CourseInfo() {
   const defaultPaymentMethod = useSelector(state => selectDefaultPaymentMethod(state));
   const paymentMethod = useRef(defaultPaymentMethod);
   const [course, setCourse] = useState('');
-  const [notify, setNotify] = useState(null);
-  const [makeMessage, setMakeMessage] = useState(false);
   const [needsPaymentMethod, setNeedsPaymentMethod] = useState(false);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [errMessage, setErrMessage] = useState(null);
+
+  const sml = useMediaQuery('(max-width:600px)');
+  const med = useMediaQuery('(max-width:900px)');
+
+  useEffect(() => {
+    document.querySelector('body').scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
+    getCourse(params.id);
+  }, [params]);
+
+  useEffect(() => {
+    if(defaultPaymentMethod) {
+      paymentMethod.current = defaultPaymentMethod;
+    }
+  }, [defaultPaymentMethod]);
+
+  useEffect(() => {
+
+    if (!currentUser.id) {
+      return;
+    }
+
+    if (paymentData.id) { 
+      return;
+    }
+
+    Stripe.getPaymentMethods().then(result => {
+      return store.dispatch(actions.user.setPaymentData(result));
+    })
+    .catch(err => {
+      log.error("PROFILE:: update user payment data", err);
+    });
+
+  }, [paymentData.id, currentUser.id]);
 
   async function getCourse(id) {
     let cls;
@@ -183,45 +216,6 @@ export default function CourseInfo() {
     setCourse(cls);
   }
 
-  useEffect(() => {
-    document.querySelector('body').scrollTo(0, 0);
-  }, []);
-
-  useEffect(() => {
-    getCourse(params.id);
-  }, [params]);
-
-  useEffect(() => {
-
-    if (!currentUser.id) {
-      return;
-    }
-
-    if (paymentData.id) { 
-      return;
-    }
-
-    Stripe.getPaymentMethods().then(result => {
-      return store.dispatch(actions.user.setPaymentData(result));
-    })
-    .catch(err => {
-      log.error("PROFILE:: update user payment data", err);
-    });
-
-  }, [paymentData.id, currentUser.id]);
-
-  const createMessageHandler = function () {
-    setMakeMessage(true)
-    setNotify(null)
-  }
-
-  const sendMessageHandler = function () {
-    setMakeMessage(false)
-    setNotify((
-      <Button variant='contained' color='secondary' onClick={createMessageHandler}>Message Sent</Button>
-    ))
-  }
-
   const showSignupForm = async function() {
     setNeedsPaymentMethod(true);
   }
@@ -240,12 +234,6 @@ export default function CourseInfo() {
     setPaymentProcessing(false);
     history.push(path.home);
   }
-
-  useEffect(() => {
-    if(defaultPaymentMethod) {
-      paymentMethod.current = defaultPaymentMethod;
-    }
-  }, [defaultPaymentMethod]);
 
   const courseSignupHandler = async function () {
 
@@ -298,6 +286,57 @@ export default function CourseInfo() {
     store.dispatch(actions.user.removeScheduleItem(updatedCourse.course));
   }
 
+  let layout = null;
+  if (sml) {
+    layout = {
+      main: "column-reverse",
+      courseDetailsDirection: "column",
+      courseDetailsJustify: "flex-start",
+      courseDetailsSize: 12,
+      courseCostSize: 12,
+      costSize: 4,
+      spotsSize: 4,
+      coursePhotoDirection: "column",
+      coursePhotoSize: "auto",
+      actionBtnDirection: "column",
+      actionBtnSize: "auto",
+      instructorDetailsDirection: "column",
+      instructorDetailsSize: "auto",
+    };
+  } else if (med) {
+    layout = {
+      main: "column-reverse",
+      courseDetailsDirection: "column",
+      courseDetailsJustify: "flex-start",
+      courseDetailsSize: 12,
+      courseCostSize: 12,
+      costSize: 4,
+      spotsSize: 4,
+      coursePhotoDirection: "row",
+      coursePhotoSize: 4,
+      actionBtnDirection: "row",
+      actionBtnSize: 6,
+      instructorDetailsDirection: "row",
+      instructorDetailsSize: 6,
+    }
+  } else {
+    layout = {
+      main: "column-reverse",
+      courseDetailsDirection: "row",
+      courseDetailsJustify: "space-between",
+      courseDetailsSize: 8,
+      courseCostSize: 4,
+      costSize: "auto",
+      spotsSize: "auto",
+      coursePhotoDirection: "row",
+      coursePhotoSize: 4,
+      actionBtnDirection: "row",
+      actionBtnSize: 3,
+      instructorDetailsDirection: "column",
+      instructorDetailsSize: "auto",
+    }
+  }
+
   let paymentProcessingContent = null;
   if (paymentProcessing) {
     paymentProcessingContent = ( 
@@ -313,18 +352,6 @@ export default function CourseInfo() {
         {paymentProcessingContent}
       </Grid>
     );
-  }
-
-  let messageContent = null;
-  if (makeMessage) {
-    messageContent = (
-      <Grid>
-        <Typography variant="h5">
-          Send your class a message
-        </Typography>
-        <CreateMessage onSend={sendMessageHandler} courseId={course.id} />
-      </Grid>
-    )
   }
 
   let instructorContent = null;
@@ -383,69 +410,6 @@ export default function CourseInfo() {
     }
 
     paymentContent = (<CoursePayment onSubmit={courseSignupHandler} hideAddCard={hideAdd} classes={classes} />);
-  }
-
-  const sml = useMediaQuery('(max-width:600px)');
-  const med = useMediaQuery('(max-width:900px)');
-
-  let layout = null;
-  if (sml) {
-    layout = {
-      main: "column-reverse",
-      courseDetailsDirection: "column",
-      courseDetailsJustify: "flex-start",
-      courseDetailsSize: 12,
-      courseCostSize: 12,
-      costSize: 4,
-      spotsSize: 4,
-      coursePhotoDirection: "column",
-      coursePhotoSize: "auto",
-      actionBtnDirection: "column",
-      actionBtnSize: "auto",
-      instructorDetailsDirection: "column",
-      instructorDetailsSize: "auto",
-    };
-  } else if (med) {
-    layout = {
-      main: "column-reverse",
-      courseDetailsDirection: "column",
-      courseDetailsJustify: "flex-start",
-      courseDetailsSize: 12,
-      courseCostSize: 12,
-      costSize: 4,
-      spotsSize: 4,
-      coursePhotoDirection: "row",
-      coursePhotoSize: 4,
-      actionBtnDirection: "row",
-      actionBtnSize: 6,
-      instructorDetailsDirection: "row",
-      instructorDetailsSize: 6,
-    }
-  } else {
-    layout = {
-      main: "column-reverse",
-      courseDetailsDirection: "row",
-      courseDetailsJustify: "space-between",
-      courseDetailsSize: 8,
-      courseCostSize: 4,
-      costSize: "auto",
-      spotsSize: "auto",
-      coursePhotoDirection: "row",
-      coursePhotoSize: 4,
-      actionBtnDirection: "row",
-      actionBtnSize: 3,
-      instructorDetailsDirection: "column",
-      instructorDetailsSize: "auto",
-    }
-  }
-
-  let notifyBtn = null;
-  if (notify) {
-    notifyBtn = (
-      <Grid item xs={layout.actionBtnSize}>
-        {notify}
-      </Grid>
-    );
   }
 
   let courseMetaData = (
@@ -508,7 +472,6 @@ export default function CourseInfo() {
       <Grid container direction={layout.main} spacing={2}>
         <Grid item>
           <Grid container direction={layout.actionBtnDirection} justify="flex-end" spacing={2}>
-            {notifyBtn}
             <JoinSession currentUser={currentUser} course={course} size={layout.actionBtnSize} />
             <Signup
               currentUser={currentUser}
@@ -534,7 +497,7 @@ export default function CourseInfo() {
           {courseDetails}
         </Grid>
       </Grid>
-      {messageContent}
+      <Message currentUser={currentUser} course={course} />
     </Container>
   )
 }
