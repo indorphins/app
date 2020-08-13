@@ -20,28 +20,28 @@ export default async function callAPI(url, options, sendToken) {
     options.headers.Authorization = `Bearer ${token}`;
   }
 
-	log.info("API:: request", url, options);
+  log.info("API:: request", url, options);
 
-	return fetch(url, options)
+  return fetch(url, options)
 		.then((response) => {
-			log.info("API:: response status code", response.status);
-			if (response.status !== 201 && response.status !== 200) {
-				return response.json().then(result => {
+  log.info("API:: response status code", response.status);
+  if (response.status !== 201 && response.status !== 200) {
+    return response.json().then(result => {
 
-					if (result.message.raw && result.message.raw.message) {
-						throw Error(result.message.raw.message);
-					}
+      if (result.message.raw && result.message.raw.message) {
+        throw Error(result.message.raw.message);
+      }
 
-					throw Error(result.message);
-				})
-			}
-			return response.json();
-		})
+      throw Error(result.message);
+    })
+  }
+  return response.json();
+})
 		.then((data) => {
-			return data;
-		})
+  return data;
+})
 		.catch((error) => {
-			log.error("API:: response", url, error);
-			throw error;
-		});
+  log.error("API:: response", url, error);
+  throw error;
+});
 }

@@ -5,9 +5,9 @@ import Container from '../components/loginContainer';
 
 export default function Login() {
 
-	return (
-  <Container>
-    <LoginForm />
-  </Container>
-	);
+  return (
+    <Container>
+      <LoginForm />
+    </Container>
+  );
 }

@@ -12,27 +12,27 @@ const url = config.host + '/user/';
  */
 export async function create(username, firstName, lastName, email, phone, birthday) {
 
-	let properties = {
-		username: username,
-		first_name: firstName,
-		last_name: lastName,
+  let properties = {
+    username: username,
+    first_name: firstName,
+    last_name: lastName,
     email: email,
     birthday: birthday
-	};
+  };
 
-	if (phone) {
-		properties.phone_number = phone;
-	}
+  if (phone) {
+    properties.phone_number = phone;
+  }
 
-	let options = {
-		method: 'POST',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify(properties),
-	}
+  let options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(properties),
+  }
 
-	return callAPI(url, options, true);
+  return callAPI(url, options, true);
 }
 
 /**
@@ -41,14 +41,14 @@ export async function create(username, firstName, lastName, email, phone, birthd
  */
 export async function remove() {
 
-	let options = {
-		method: 'DELETE',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-	};
+  let options = {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
 
-	return callAPI(url, options, true);
+  return callAPI(url, options, true);
 }
 
 /**
@@ -57,14 +57,14 @@ export async function remove() {
  */
 export async function get() {
 
-	let options = {
-		method: 'GET',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-	};
+  let options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
 
-	return callAPI(url, options, true);
+  return callAPI(url, options, true);
 }
 
 /**
@@ -73,13 +73,13 @@ export async function get() {
  */
 export async function update(userData) {
 
-	let options = {
-		method: 'PUT',
-		headers: {
-			'Content-Type': 'application/json',
-		},
-		body: JSON.stringify(userData),
-	};
+  let options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(userData),
+  };
 
-	return callAPI(url, options, true);
+  return callAPI(url, options, true);
 }
