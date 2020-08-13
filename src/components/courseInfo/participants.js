@@ -3,6 +3,7 @@ import {
   Card,
   Grid,
   Typography,
+  makeStyles,
 } from '@material-ui/core';
 import { People } from '@material-ui/icons';
 import { isSameDay, isWithinInterval, sub, add } from 'date-fns';
@@ -11,9 +12,21 @@ import { BdayIcon } from '../../components/icon/bday';
 import * as Course from '../../api/course';
 import log from '../../log';
 
+const useStyles = makeStyles((theme) => ({
+  participantContainer: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    cursor: "default",
+    backgroundColor: theme.palette.grey[200],
+  },
+}));
+
 export default function Participants(props) {
 
-  const { currentUser, course, classes } = props;
+  const classes = useStyles();
+  const { currentUser, course } = props;
   const [participantList, setParticipantList] = useState(null);
 
   useEffect(() => {

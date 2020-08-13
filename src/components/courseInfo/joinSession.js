@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Button } from '@material-ui/core';
+import { Button, Grid } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
 
 import { getNextSession } from '../../utils';
@@ -7,7 +7,7 @@ import path from '../../routes/path';
 
 export default function JoinSession(props) {
 
-  const { currentUser, course } = props;
+  const { currentUser, course, size } = props;
   const history = useHistory();
   const [joinSession, setJoinSession] = useState(null);
 
@@ -47,15 +47,17 @@ export default function JoinSession(props) {
     }
 
     setJoinSession((
-      <Button
-        disabled={disabled}
-        variant="contained"
-        color="secondary"
-        onClick={joinHandler}
-        style={{width:"100%"}}
-      >
-        Join Session
-      </Button>
+      <Grid item xs={size}>
+        <Button
+          disabled={disabled}
+          variant="contained"
+          color="secondary"
+          onClick={joinHandler}
+          style={{width:"100%"}}
+        >
+          Join Session
+        </Button>
+      </Grid>
     ));
 
     const interval = setInterval(() => {
@@ -70,15 +72,17 @@ export default function JoinSession(props) {
       }
   
       setJoinSession((
-        <Button
-          disabled={disabled}
-          variant="contained"
-          color="secondary"
-          onClick={joinHandler}
-          style={{width:"100%"}}
-        >
-          Join Session
-        </Button>
+        <Grid item xs={size}>
+          <Button
+            disabled={disabled}
+            variant="contained"
+            color="secondary"
+            onClick={joinHandler}
+            style={{width:"100%"}}
+          >
+            Join Session
+          </Button>
+        </Grid>
       ));
     }, 10000);
 
