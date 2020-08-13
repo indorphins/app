@@ -1,8 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { 
-  Button, 
-  Checkbox, 
+  Button,  
   Container, 
   Grid, 
   Typography, 
@@ -17,7 +16,7 @@ import { Photo, People, RecordVoiceOver } from '@material-ui/icons';
 import Alert from '@material-ui/lab/Alert';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { format, isTomorrow, isToday, isSameDay, differenceInDays, isWithinInterval, sub, add } from 'date-fns';
+import { isSameDay, isWithinInterval, sub, add } from 'date-fns';
 
 import { store, actions } from '../../store';
 import CreateMessage from '../../components/form/createMessage'
@@ -25,9 +24,9 @@ import * as Course from '../../api/course';
 import * as Stripe from '../../api/stripe';
 import log from '../../log';
 import path from '../../routes/path';
-import Cards from '../../components/cards';
 import { BdayIcon } from '../../components/icon/bday';
-import { AvailableSpots, Cost, Duration } from '../../components/courseInfo/index';
+import { AvailableSpots, Cost, Duration, StartTime } from '../../components/courseInfo/index';
+import CoursePayment from '../../components/form/coursePayment';
 
 import { getNextSession } from '../../utils';
 import { OtherCourseInfo } from '../../components/otherCourseInfo';
@@ -185,8 +184,6 @@ export default function () {
   const [errMessage, setErrMessage] = useState(null);
   const [cancel, setCancel] = useState(null);
   const [cancellingClass, setCancellingClass] = useState(false);
-  const [userConsent, setUserConsent] = useState(false);
-  const [hideAddCard, setHideAddCard] = useState(false);
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [participantList, setParticipantList] = useState(null);
 
@@ -214,12 +211,6 @@ export default function () {
     log.info("SET COURSE ", cls);
     setCourse(cls);
   }
-
-  useEffect(() => {
-    if (defaultPaymentMethod[0]) {
-      setHideAddCard(true);
-    }
-  }, [defaultPaymentMethod])
 
   useEffect(() => {
     document.querySelector('body').scrollTo(0, 0);
@@ -371,65 +362,48 @@ export default function () {
 
     if (!sessionTime) return;
 
+    let disabled = true;
+
     if (now > sessionTime.start && now < sessionTime.end) {
-      setJoinSession((
-        <Button
-          disabled={false}
-          variant="contained"
-          color="secondary"
-          onClick={joinHandler}
-          style={{width:"100%"}}
-        >
-          Join Session
-        </Button>
-      ));
+      disabled = false;
     } else if (now < sessionTime.end) {
-      setJoinSession((
-        <Button
-          title="Class is not open yet"
-          disabled={true}
-          variant="contained"
-          color="secondary"
-          onClick={joinHandler}
-          style={{width:"100%"}}
-        >
-          Join Session
-        </Button>
-      ));
+      disabled = true;
     }
+
+    setJoinSession((
+      <Button
+        disabled={disabled}
+        variant="contained"
+        color="secondary"
+        onClick={joinHandler}
+        style={{width:"100%"}}
+      >
+        Join Session
+      </Button>
+    ));
 
     const interval = setInterval(() => {
       let now = new Date();
       let sessionTime = getNextSession(now, course);
+      let disabled = true;
 
-      if (sessionTime) {
-        if (now > sessionTime.start && now < sessionTime.end) {
-          setJoinSession((
-            <Button
-              disabled={false}
-              variant="contained"
-              color="secondary"
-              onClick={joinHandler}
-              style={{width:"100%"}}
-            >
-              Join Session
-            </Button>
-          ));
-        } else if (now < sessionTime.end) {
-          setJoinSession((
-            <Button
-              title="Class is not open yet"
-              disabled={true}
-              variant="contained"
-              color="secondary"
-              onClick={joinHandler}
-              style={{width:"100%"}}
-            >
-              Join Session
-            </Button>
-          ));
-        }
+      if (now > sessionTime.start && now < sessionTime.end) {
+        disabled = false;
+      } else if (now < sessionTime.end) {
+        disabled = true;
       }
+  
+      setJoinSession((
+        <Button
+          disabled={disabled}
+          variant="contained"
+          color="secondary"
+          onClick={joinHandler}
+          style={{width:"100%"}}
+        >
+          Join Session
+        </Button>
+      ));
     }, 10000);
 
     return () => clearInterval(interval);
@@ -692,113 +666,16 @@ export default function () {
     );
   }
 
-  const handleConsent = function() {
-    setUserConsent(!userConsent);
-  }
-
-  let userConsentContent = (
-    <Grid container direction="row" alignItems="center" className={classes.consentContainer}>
-      <Grid item>
-        <Checkbox checked={userConsent} onChange={handleConsent} />
-      </Grid>
-      <Grid item>
-        <Typography
-          variant="body1"
-          className={classes.userAccept}
-        >
-          <span>I understand that any fitness class can put my health at risk, I attest that I am </span>
-          <span>physically fit to take this class and I take full responsibility for my physical </span>
-          <span>well being. I continue to agree to the </span>
-          <span><a className={classes.link} href="/TOS.html" target="_blank">Terms of Service</a> </span>
-          <span>and give permission for my payment method to be charged.</span>
-        </Typography>
-      </Grid>
-    </Grid>
-  );
-
   let paymentContent = null;
   if (needsPaymentMethod) {
-    paymentContent = (
-      <Grid container direction="column" justify="flex-start" spacing={2} style={{flexWrap: "nowrap"}}>
-        <Grid item>
-          <Typography variant="h5">Select or enter your default payment method</Typography>
-        </Grid>
-        <Grid item>
-          <Cards collapseAdd={hideAddCard} />
-        </Grid>
-        <Grid item>
-          <Grid container direction="column" alignItems="flex-end" spacing={2}>
-            {userConsentContent}
-            <Grid item>
-              <Button 
-                disabled={!userConsent}
-                variant="contained"
-                color="primary"
-                onClick={courseSignupHandler}
-              >
-                Submit Payment
-              </Button>
-            </Grid>
-          </Grid>
-        </Grid>
-      </Grid>
-    );
-  }
-  let descriptionContent = null;
+    let hideAdd = true;
 
-  if (course.description) {
-    descriptionContent = (
-      <div id="wysiwygContent" className={classes.bio} dangerouslySetInnerHTML={{__html: course.description}}></div>
-    );
-  }
-
-  let courseTitle = null;
-
-  if (course.title) {
-    courseTitle = (
-      <Typography variant="h1" className={classes.title}>
-        {course.title}
-      </Typography>
-    );
-  }
-
-  let courseTimeContent = null;
-
-  if (course.start_date) {
-    let now = new Date();
-    let next = getNextSession(now, course);
-    let formatted = null;
-
-    if (next) {
-      let d = new Date(next.date);
-      let dt = format(d, "iiii");
-      let time = format(d, "h:mm a");
-
-      if (differenceInDays(d, now) >= 7) {
-        dt = format(d, "iiii, MMMM do");
-      }
-
-      if (isTomorrow(d)) {
-        dt = "Tomorrow";
-      }
-
-      if (isToday(d)) {
-        dt = "Today";
-      }
-
-      formatted = dt + " @ " + time;
-      if (course.recurring) {
-        formatted = formatted + " - weekly";
-      }
-    } else {
-      formatted = "Class over";
+    if (!defaultPaymentMethod[0]) {
+      hideAdd = false;
     }
 
-    courseTimeContent = (
-      <Typography variant="h3" className={classes.courseTime}>{formatted}</Typography>
-    );
+    paymentContent = (<CoursePayment onSubmit={courseSignupHandler} hideAddCard={hideAdd} classes={classes} />);
   }
-
 
   const sml = useMediaQuery('(max-width:600px)');
   const med = useMediaQuery('(max-width:900px)');
@@ -926,9 +803,15 @@ export default function () {
             {photoContent}
           </Grid>
           <Grid item xs>
-            {courseTitle}
-            {courseTimeContent}
-            {descriptionContent}
+            <Typography variant="h1" className={classes.title}>
+              {course.title}
+            </Typography>
+            <StartTime course={course} classes={classes} />
+            <div 
+              id="wysiwygContent"
+              className={classes.bio}
+              dangerouslySetInnerHTML={{__html: course.description}}
+            />
             <OtherCourseInfo />
           </Grid>
         </Grid>
