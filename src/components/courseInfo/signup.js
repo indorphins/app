@@ -43,16 +43,14 @@ export default function Signup(props) {
 
     if (currentUser.id !== course.instructor.id) {
       setSignup(
-        <Grid item xs={size}>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={() => { handler(); setSignup(null);}}
-            style={{width:"100%"}}
-          >
-            {label}
-          </Button>
-        </Grid>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => { handler(); setSignup(null);}}
+          style={{width:"100%"}}
+        >
+          {label}
+        </Button>
       );
     } else {
       setSignup(null);
@@ -64,5 +62,15 @@ export default function Signup(props) {
     history.push(`${path.login}?redirect=${path.courses}/${course.id}`);
   }
 
-  return signupBtn;
+  let content = null;
+
+  if (signupBtn) {
+    content = (
+      <Grid item xs={size}>
+        {signupBtn}
+      </Grid>
+    )
+  }
+
+  return content;
 }

@@ -48,17 +48,15 @@ export default function JoinSession(props) {
 
     if (authorized) {
       setJoinSession(
-        <Grid item xs={size}>
-          <Button
-            disabled={disabled}
-            variant="contained"
-            color="secondary"
-            onClick={joinHandler}
-            style={{width:"100%"}}
-          >
-            Join Session
-          </Button>
-        </Grid>
+        <Button
+          disabled={disabled}
+          variant="contained"
+          color="secondary"
+          onClick={joinHandler}
+          style={{width:"100%"}}
+        >
+          Join Session
+        </Button>
       );
     } else {
       setJoinSession(null);
@@ -75,24 +73,32 @@ export default function JoinSession(props) {
         disabled = true;
       }
   
-      setJoinSession((
-        <Grid item xs={size}>
-          <Button
-            disabled={disabled}
-            variant="contained"
-            color="secondary"
-            onClick={joinHandler}
-            style={{width:"100%"}}
-          >
-            Join Session
-          </Button>
-        </Grid>
-      ));
+      setJoinSession(
+        <Button
+          disabled={disabled}
+          variant="contained"
+          color="secondary"
+          onClick={joinHandler}
+          style={{width:"100%"}}
+        >
+          Join Session
+        </Button>
+      );
     }, 10000);
 
     return () => clearInterval(interval);
 
   }, [currentUser, course]);
 
-  return joinSession;
+  let content = null;
+
+  if (joinSession) {
+    content = (
+      <Grid item xs={size}>
+        {joinSession}
+      </Grid>
+    )
+  }
+
+  return content;
 }
