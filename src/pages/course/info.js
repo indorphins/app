@@ -8,9 +8,7 @@ import {
   Card, 
   LinearProgress, 
   useMediaQuery, 
-  makeStyles, 
-  Modal, 
-  Fade 
+  makeStyles,
 } from '@material-ui/core';
 import { Photo, RecordVoiceOver } from '@material-ui/icons';
 import Alert from '@material-ui/lab/Alert';
@@ -18,11 +16,13 @@ import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 
 import { 
-  AvailableSpots, 
+  AvailableSpots,
+  Cancel,
   Cost, 
   Duration, 
   JoinSession,
   OtherCourseInfo,
+  Signup,
   StartTime, 
   Participants 
 } from '../../components/courseInfo/index';
@@ -45,14 +45,6 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
   },
   spotsContainer: {
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2),
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-    cursor: "default",
-    backgroundColor: theme.palette.grey[200],
-  },
-  participantContainer: {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
     paddingTop: theme.spacing(1),
@@ -101,24 +93,6 @@ const useStyles = makeStyles((theme) => ({
     cursor: "pointer",
     textDecoration: "none",
     color: theme.palette.primary.main,
-  },
-  modal: {
-    display: 'flex',
-    padding: theme.spacing(1),
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  modalContent: {
-    background: 'white',
-    borderRadius: '4px',
-    padding: theme.spacing(2),
-    outline: 0
-  },
-  modalBtn: {
-    width: '40%',
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1),
-    marginTop: theme.spacing(1)
   },
   '@global': {
     html: {
@@ -178,15 +152,11 @@ export default function CourseInfo() {
   const defaultPaymentMethod = useSelector(state => selectDefaultPaymentMethod(state));
   const paymentMethod = useRef(defaultPaymentMethod);
   const [course, setCourse] = useState('');
-  const [signup, setSignup] = useState(null);
   const [notify, setNotify] = useState(null);
   const [makeMessage, setMakeMessage] = useState(false);
   const [needsPaymentMethod, setNeedsPaymentMethod] = useState(false);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [errMessage, setErrMessage] = useState(null);
-  const [cancel, setCancel] = useState(null);
-  const [cancellingClass, setCancellingClass] = useState(false);
-  const [confirmCancel, setConfirmCancel] = useState(false);
 
   async function getCourse(id) {
     let cls;
@@ -223,105 +193,6 @@ export default function CourseInfo() {
 
   useEffect(() => {
 
-    if (!course.id) return;
-
-    let instructor = course.instructor;
-
-    if (currentUser.id === instructor.id || currentUser.type === 'admin') {
-      setCancel(
-        <Button
-          variant="contained"
-          disabled={cancellingClass}
-          color="secondary"
-          onClick={confirmCancelHandler}
-          style={{width:"100%"}}
-        >
-          Cancel Class
-        </Button>
-      )
-      setMakeMessage(true);
-    }
-
-  }, [currentUser, course]);
-
-  useEffect(() => {
-
-    if (!course.id) return;
-
-    if (!currentUser.id) {
-      setSignup((
-        <Button 
-          variant="contained"
-          color="secondary"
-          onClick={goToLogin}
-          style={{width:"100%"}}
-        >
-          Login to Book Class
-        </Button>
-      ));
-      return;
-    }
-
-    if (currentUser.id === course.instructor.id) {
-      setSignup((
-        <Button variant="contained" color="secondary" style={{width:"100%"}}>Edit Class</Button>
-      ));
-      return;
-    }
-
-    if (course.participants.length > 0) {
-      let enrolled = false;
-      for (var i = 0; i < course.participants.length; i++) {
-        if (course.participants[i].id === currentUser.id) {
-          enrolled = true;
-        }
-      }
-
-      if (enrolled) {
-        setSignup((
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={courseLeaveHandler}
-            style={{width:"100%"}}
-          >
-            Leave Class
-          </Button>
-        ));
-        return;
-      }
-    }
-
-    if (course.available_spots > 0) {
-      if (course.cost && course.cost > 0) {
-        setSignup((
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={showSignupForm}
-            style={{width:"100%"}}
-          >
-            Book Class
-          </Button>
-        ));
-      } else {
-        setSignup((
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={courseSignupHandler}
-            style={{width:"100%"}}
-          >
-            Book Class
-          </Button>
-        ));
-      }
-    }
-
-  }, [currentUser, course]);
-
-  useEffect(() => {
-
     if (!currentUser.id) {
       return;
     }
@@ -339,9 +210,6 @@ export default function CourseInfo() {
 
   }, [paymentData.id, currentUser.id]);
 
-  const goToLogin = async function() {
-    history.push(`${path.login}?redirect=${path.courses}/${course.id}`);
-  }
   const createMessageHandler = function () {
     setMakeMessage(true)
     setNotify(null)
@@ -356,20 +224,9 @@ export default function CourseInfo() {
 
   const showSignupForm = async function() {
     setNeedsPaymentMethod(true);
-    setSignup(null);
-  }
-
-  const confirmCancelHandler = () => {
-    setConfirmCancel(true)
-  }
-
-  const closeModalHandler = () => {
-    setConfirmCancel(false);
   }
 
   const cancelClassHandler = async function () {
-    setCancellingClass(true);
-    setConfirmCancel(false);
     setPaymentProcessing(true);
     
     try {
@@ -380,7 +237,6 @@ export default function CourseInfo() {
       return log.error("COURSE INFO: course cancel ", err);
     }
 
-    setCancellingClass(false);
     setPaymentProcessing(false);
     history.push(path.home);
   }
@@ -396,7 +252,6 @@ export default function CourseInfo() {
     setErrMessage({severity: "info", message: "Processing..."});
     setPaymentProcessing(true);
     setNeedsPaymentMethod(false);
-    setSignup(null);
 
     log.debug("local payment", paymentMethod);
 
@@ -429,7 +284,6 @@ export default function CourseInfo() {
     setPaymentProcessing(true);
     setErrMessage({severity: "info", message: "Processing..."});
 
-    // remove from the course
     try {
       updatedCourse = await Stripe.refundPayment(course.id);
     } catch (err) {
@@ -477,7 +331,6 @@ export default function CourseInfo() {
 
   if (course.instructor) {
     let insta = null;
-
     if (course.instructor.social && course.instructor.social.instagram) {
       insta = (
         <Instagram instagram={course.instructor.social.instagram} />
@@ -595,25 +448,7 @@ export default function CourseInfo() {
     );
   }
 
-  let signupBtn = null;
-  if (signup) {
-    signupBtn = (
-      <Grid item xs={layout.actionBtnSize}>
-        {signup}
-      </Grid>
-    );
-  }
-
-  let cancelBtn = null;
-  if (cancel) {
-    cancelBtn = (
-      <Grid item xs={layout.actionBtnSize}>
-        {cancel}
-      </Grid>
-    )
-  }
-
-  let courseCostContainer = (
+  let courseMetaData = (
     <Grid container direction="column" spacing={2}>
       <Grid item>
         <Grid container direction="row" justify="flex-end" spacing={2}>
@@ -634,7 +469,7 @@ export default function CourseInfo() {
             {instructorContent}
           </Grid>
           <Grid item xs={layout.instructorDetailsSize}>
-            <Participants currentUser={currentUser} course={course} classes={classes} />
+            <Participants currentUser={currentUser} course={course} />
           </Grid>
         </Grid>
       </Grid>
@@ -663,7 +498,7 @@ export default function CourseInfo() {
         </Grid>
       </Grid>
       <Grid item xs={layout.courseCostSize}>
-        {courseCostContainer}
+        {courseMetaData}
       </Grid>
     </Grid>
   );
@@ -674,37 +509,23 @@ export default function CourseInfo() {
         <Grid item>
           <Grid container direction={layout.actionBtnDirection} justify="flex-end" spacing={2}>
             {notifyBtn}
-            <Grid item xs={layout.actionBtnSize}>
-              <JoinSession currentUser={currentUser} course={course} />
-            </Grid>
-            {signupBtn}
-            {cancelBtn}
+            <JoinSession currentUser={currentUser} course={course} size={layout.actionBtnSize} />
+            <Signup
+              currentUser={currentUser}
+              course={course}
+              size={layout.actionBtnSize}
+              leaveHandler={courseLeaveHandler}
+              paidHandler={showSignupForm}
+              freeHandler={courseSignupHandler}
+            />
+            <Cancel 
+              currentUser={currentUser}
+              course={course}
+              size={layout.actionBtnSize}
+              onCancel={cancelClassHandler}
+            />
           </Grid>
         </Grid>
-        <Modal
-          open={confirmCancel}
-          onClose={closeModalHandler}
-          className={classes.modal}
-          aria-labelledby="modal-title"
-          aria-describedby="modal-description"
-        >
-          <Fade in={confirmCancel}>
-            <div className={classes.modalContent}>
-              <span id='modal-title'>Are you sure you want to cancel?</span>
-              <Grid container id='modal-description' justify='center'>
-                <Button
-                  onClick={closeModalHandler}
-                  variant="contained"
-                  color="secondary"
-                  className={classes.modalBtn}
-                >
-                  No
-                </Button>
-                <Button onClick={cancelClassHandler} variant="contained" className={classes.modalBtn}>Yes</Button>
-              </Grid>
-            </div>
-          </Fade>
-        </Modal>
         <Grid item>
           {errorContent}
           {paymentContent}
