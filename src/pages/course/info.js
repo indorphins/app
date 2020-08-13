@@ -21,7 +21,8 @@ import {
   AvailableSpots, 
   Cost, 
   Duration, 
-  JoinSession, 
+  JoinSession,
+  OtherCourseInfo,
   StartTime, 
   Participants 
 } from '../../components/courseInfo/index';
@@ -32,7 +33,6 @@ import * as Stripe from '../../api/stripe';
 import log from '../../log';
 import path from '../../routes/path';
 import CoursePayment from '../../components/form/coursePayment';
-import { OtherCourseInfo } from '../../components/otherCourseInfo';
 import Instagram from '../../components/instagram';
 
 const useStyles = makeStyles((theme) => ({

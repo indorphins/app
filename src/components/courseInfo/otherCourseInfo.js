@@ -7,7 +7,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export function OtherCourseInfo(props) {
+export default function OtherCourseInfo(props) {
   const classes = useStyles();
 
   return (
