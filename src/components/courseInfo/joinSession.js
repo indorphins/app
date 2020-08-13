@@ -25,13 +25,13 @@ export default function JoinSession(props) {
       authorized = true;
     }
 
-    course.participants.forEach(function (user) {
-      if (user.id === currentUser.id) {
-        authorized = true;
-      }
+    let exists = course.participants.filter(item => {
+      return item.id === currentUser.id;
     });
 
-    if (!authorized) return;
+    if (exists && exists[0]) {
+      authorized = true;
+    }
 
     let now = new Date();
     let sessionTime = getNextSession(now, course);
@@ -46,19 +46,23 @@ export default function JoinSession(props) {
       disabled = true;
     }
 
-    setJoinSession((
-      <Grid item xs={size}>
-        <Button
-          disabled={disabled}
-          variant="contained"
-          color="secondary"
-          onClick={joinHandler}
-          style={{width:"100%"}}
-        >
-          Join Session
-        </Button>
-      </Grid>
-    ));
+    if (authorized) {
+      setJoinSession(
+        <Grid item xs={size}>
+          <Button
+            disabled={disabled}
+            variant="contained"
+            color="secondary"
+            onClick={joinHandler}
+            style={{width:"100%"}}
+          >
+            Join Session
+          </Button>
+        </Grid>
+      );
+    } else {
+      setJoinSession(null);
+    }
 
     const interval = setInterval(() => {
       let now = new Date();
