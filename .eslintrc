@@ -9,6 +9,7 @@
     "react-hooks"
   ],
   "rules": {
+    "indent-legacy": ["error", 2],
     "complexity": ["warn", { "max": 12 }],
     "max-depth": ["error", 3],
     "max-len": ["error", { "code": 120 }],

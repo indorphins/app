@@ -5,9 +5,9 @@ import Container from '../components/loginContainer';
 
 export default function Signup(props) {
 
-	return (
-  <Container>
-    <CreateForm />
-  </Container>
-	);
+  return (
+    <Container>
+      <CreateForm />
+    </Container>
+  );
 }

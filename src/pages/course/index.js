@@ -10,7 +10,7 @@ import CourseFeature from '../../components/courseFeature';
 import InstructorFeature from '../../components/instructorFeature';
 
 const getUserSelector = createSelector([(state) => state.user.data], (user) => {
-	return user;
+  return user;
 });
 
 const useStyles = makeStyles((theme) => ({
@@ -29,46 +29,46 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function CourseList() {
-	let now = new Date();
-	let courseFilter = {
-		$or: [
+  let now = new Date();
+  let courseFilter = {
+    $or: [
 			{ start_date: { $gte: now.toISOString() } },
 			{ end_date: { $gte: now.toISOString() } },
-		],
-		recurring: { $exists: false },
-		start_date: { $exists: true },
+    ],
+    recurring: { $exists: false },
+    start_date: { $exists: true },
 		//available_spots: { $gt: 0 },
-	};
+  };
 
-	let recurringFilter = {
-		recurring: { $exists: true },
+  let recurringFilter = {
+    recurring: { $exists: true },
 		//available_spots: { $gt: 0 },
-	};
+  };
 
-	let order = {
-		start_date: 'asc',
-	};
+  let order = {
+    start_date: 'asc',
+  };
 
-	const classes = useStyles();
-	const currentUser = useSelector((state) => getUserSelector(state));
-	const [allowCreate, setAllowCreate] = useState(false);
-	const [showForm, setShowForm] = useState(false);
+  const classes = useStyles();
+  const currentUser = useSelector((state) => getUserSelector(state));
+  const [allowCreate, setAllowCreate] = useState(false);
+  const [showForm, setShowForm] = useState(false);
 
-	useEffect(() => {
-		if (currentUser.type && currentUser.type !== 'standard') {
-			setAllowCreate(true);
-		} else {
-			setAllowCreate(false);
-		}
-	}, [currentUser]);
+  useEffect(() => {
+    if (currentUser.type && currentUser.type !== 'standard') {
+      setAllowCreate(true);
+    } else {
+      setAllowCreate(false);
+    }
+  }, [currentUser]);
 
-	const toggleCreateForm = function() {
-		if (showForm) {
-			setShowForm(false);
-		} else {
-			setShowForm(true);
-		}
-	};
+  const toggleCreateForm = function() {
+    if (showForm) {
+      setShowForm(false);
+    } else {
+      setShowForm(true);
+    }
+  };
 
   let createButton = null;
   if (allowCreate) {
@@ -117,32 +117,32 @@ export default function CourseList() {
     );
   }
 
-	return (
-  <Container justify='center'>
-    {createButton}
-    {createContent}
-    <Grid container className={classes.content}>
-      <CourseFeature
+  return (
+    <Container justify='center'>
+      {createButton}
+      {createContent}
+      <Grid container className={classes.content}>
+        <CourseFeature
 					filter={courseFilter}
 					order={order}
 					limit={500}
 					header='Upcoming classes'
-      />
-    </Grid>
-    <Grid container className={classes.content}>
-      <CourseFeature
+        />
+      </Grid>
+      <Grid container className={classes.content}>
+        <CourseFeature
 					filter={recurringFilter}
 					order={order}
 					limit={500}
 					header='Weekly classes'
-      />
-    </Grid>
-    <Grid container className={classes.content}>
-      <InstructorFeature
+        />
+      </Grid>
+      <Grid container className={classes.content}>
+        <InstructorFeature
 					limit={500}
 					header='Instructors'
-      />
-    </Grid>
-  </Container>
-	);
+        />
+      </Grid>
+    </Container>
+  );
 }
