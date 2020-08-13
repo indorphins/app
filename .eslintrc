@@ -9,7 +9,7 @@
     "react-hooks"
   ],
   "rules": {
-    "complexity": ["warn", { "max": 15 }],
+    "complexity": ["warn", { "max": 12 }],
     "max-depth": ["error", 3],
     "max-len": ["error", { "code": 120 }],
     "max-lines": ["error", 1000],
