@@ -37,16 +37,14 @@ export default function Cancel(props) {
 
     if (currentUser.id === instructor.id || currentUser.type === 'admin') {
       setCancelBtn(
-        <Grid item xs={size}>
-          <Button
-            variant="contained"
-            color="secondary"
-            onClick={confirmCancelHandler}
-            style={{width:"100%"}}
-          >
-            Cancel Class
-          </Button>
-        </Grid>
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={confirmCancelHandler}
+          style={{width:"100%"}}
+        >
+          Cancel Class
+        </Button>
       )
     }
 
@@ -87,7 +85,15 @@ export default function Cancel(props) {
     </Modal>
   );
 
-  let content = cancelBtn;
+  let content = null;
+
+  if (cancelBtn) {
+    content = (
+      <Grid item xs={size}>
+        {cancelBtn}
+      </Grid>
+    )
+  }
 
   if (confirmCancel) {
     content = modal;
