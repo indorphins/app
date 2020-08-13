@@ -17,16 +17,21 @@ import Alert from '@material-ui/lab/Alert';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 
+import { 
+  AvailableSpots, 
+  Cost, 
+  Duration, 
+  JoinSession, 
+  StartTime, 
+  Participants 
+} from '../../components/courseInfo/index';
 import { store, actions } from '../../store';
 import CreateMessage from '../../components/form/createMessage'
 import * as Course from '../../api/course';
 import * as Stripe from '../../api/stripe';
 import log from '../../log';
 import path from '../../routes/path';
-import { AvailableSpots, Cost, Duration, StartTime, Participants } from '../../components/courseInfo/index';
 import CoursePayment from '../../components/form/coursePayment';
-
-import { getNextSession } from '../../utils';
 import { OtherCourseInfo } from '../../components/otherCourseInfo';
 import Instagram from '../../components/instagram';
 
@@ -176,7 +181,6 @@ export default function CourseInfo() {
   const [signup, setSignup] = useState(null);
   const [notify, setNotify] = useState(null);
   const [makeMessage, setMakeMessage] = useState(false);
-  const [joinSession, setJoinSession] = useState(null);
   const [needsPaymentMethod, setNeedsPaymentMethod] = useState(false);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [errMessage, setErrMessage] = useState(null);
@@ -335,79 +339,6 @@ export default function CourseInfo() {
 
   }, [paymentData.id, currentUser.id]);
 
-
-  useEffect(() => {
-    if (!currentUser.id || !course.id) return;
-
-    let authorized = false;
-    let instructor = course.instructor;
-
-    if (currentUser.id === instructor.id) {
-      authorized = true;
-    }
-
-    course.participants.forEach(function (user) {
-      if (user.id === currentUser.id) {
-        authorized = true;
-      }
-    });
-
-    if (!authorized) return;
-
-    let now = new Date();
-    let sessionTime = getNextSession(now, course);
-
-    if (!sessionTime) return;
-
-    let disabled = true;
-
-    if (now > sessionTime.start && now < sessionTime.end) {
-      disabled = false;
-    } else if (now < sessionTime.end) {
-      disabled = true;
-    }
-
-    setJoinSession((
-      <Button
-        disabled={disabled}
-        variant="contained"
-        color="secondary"
-        onClick={joinHandler}
-        style={{width:"100%"}}
-      >
-        Join Session
-      </Button>
-    ));
-
-    const interval = setInterval(() => {
-      let now = new Date();
-      let sessionTime = getNextSession(now, course);
-      let disabled = true;
-
-      if (now > sessionTime.start && now < sessionTime.end) {
-        disabled = false;
-      } else if (now < sessionTime.end) {
-        disabled = true;
-      }
-  
-      setJoinSession((
-        <Button
-          disabled={disabled}
-          variant="contained"
-          color="secondary"
-          onClick={joinHandler}
-          style={{width:"100%"}}
-        >
-          Join Session
-        </Button>
-      ));
-    }, 10000);
-
-    return () => clearInterval(interval);
-
-  }, [currentUser, course]);
-
-
   const goToLogin = async function() {
     history.push(`${path.login}?redirect=${path.courses}/${course.id}`);
   }
@@ -511,10 +442,6 @@ export default function CourseInfo() {
     setErrMessage({severity: "success", message: updatedCourse.message});
     setCourse(updatedCourse.course);
     store.dispatch(actions.user.removeScheduleItem(updatedCourse.course));
-  }
-
-  const joinHandler = function () {
-    history.push(path.courses + "/" + course.id + path.joinPath);
   }
 
   let paymentProcessingContent = null;
@@ -668,15 +595,6 @@ export default function CourseInfo() {
     );
   }
 
-  let joinBtn = null;
-  if (joinSession) {
-    joinBtn = (
-      <Grid item xs={layout.actionBtnSize}>
-        {joinSession}
-      </Grid>
-    );
-  }
-
   let signupBtn = null;
   if (signup) {
     signupBtn = (
@@ -756,7 +674,9 @@ export default function CourseInfo() {
         <Grid item>
           <Grid container direction={layout.actionBtnDirection} justify="flex-end" spacing={2}>
             {notifyBtn}
-            {joinBtn}
+            <Grid item xs={layout.actionBtnSize}>
+              <JoinSession currentUser={currentUser} course={course} />
+            </Grid>
             {signupBtn}
             {cancelBtn}
           </Grid>
