@@ -33,6 +33,7 @@ import log from '../../log';
 import path from '../../routes/path';
 import CoursePayment from '../../components/form/coursePayment';
 import Instagram from '../../components/instagram';
+import EditorContent from '../../components/editorContent';
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -92,39 +93,6 @@ const useStyles = makeStyles((theme) => ({
     cursor: "pointer",
     textDecoration: "none",
     color: theme.palette.primary.main,
-  },
-  '@global': {
-    html: {
-      overflow: 'hidden',
-      height: '100%',
-    },
-    body: {
-      overflow: 'auto',
-      height: '100%',
-    },
-    '#wysiwygContent > h2': {
-      color: theme.palette.text.secondary, 
-      fontSize: "1.5rem"
-    },
-    '#wysiwygContent > p': {
-      fontSize: "1.1rem",
-      color: theme.palette.text.secondary,
-    },
-    '#wysiwygContent > ol': {
-      fontSize: "1.1rem",
-      color: theme.palette.text.secondary,
-    },
-    '#wysiwygContent > ul': {
-      fontSize: "1.1rem",
-      color: theme.palette.text.secondary,
-    },
-    '#wysiwygContent > blockquote': {
-      borderLeft: "3px solid grey",
-      paddingLeft: "2em",
-      fontStyle: "italic",
-      fontWeight: "bold",
-      color: theme.palette.text.secondary,
-    }
   }
 }));
 
@@ -289,7 +257,7 @@ export default function CourseInfo() {
   let layout = null;
   if (sml) {
     layout = {
-      main: "column-reverse",
+      main: "column",
       courseDetailsDirection: "column",
       courseDetailsJustify: "flex-start",
       courseDetailsSize: 12,
@@ -305,7 +273,7 @@ export default function CourseInfo() {
     };
   } else if (med) {
     layout = {
-      main: "column-reverse",
+      main: "column",
       courseDetailsDirection: "column",
       courseDetailsJustify: "flex-start",
       courseDetailsSize: 12,
@@ -321,7 +289,7 @@ export default function CourseInfo() {
     }
   } else {
     layout = {
-      main: "column-reverse",
+      main: "column",
       courseDetailsDirection: "row",
       courseDetailsJustify: "space-between",
       courseDetailsSize: 8,
@@ -452,11 +420,7 @@ export default function CourseInfo() {
               {course.title}
             </Typography>
             <StartTime course={course} classes={classes} />
-            <div 
-              id="wysiwygContent"
-              className={classes.bio}
-              dangerouslySetInnerHTML={{__html: course.description}}
-            />
+            <EditorContent content={course.description} />
             <OtherCourseInfo />
           </Grid>
         </Grid>
@@ -470,6 +434,13 @@ export default function CourseInfo() {
   return (
     <Container style={{paddingTop: "2rem", paddingBottom: "2rem"}}>
       <Grid container direction={layout.main} spacing={2}>
+        <Grid item>
+          {courseDetails}
+        </Grid>
+        <Grid item>
+          {errorContent}
+          {paymentContent}
+        </Grid>
         <Grid item>
           <Grid container direction={layout.actionBtnDirection} justify="flex-end" spacing={2}>
             <JoinSession currentUser={currentUser} course={course} size={layout.actionBtnSize} />
@@ -490,14 +461,9 @@ export default function CourseInfo() {
           </Grid>
         </Grid>
         <Grid item>
-          {errorContent}
-          {paymentContent}
-        </Grid>
-        <Grid item>
-          {courseDetails}
+          <Message currentUser={currentUser} course={course} />
         </Grid>
       </Grid>
-      <Message currentUser={currentUser} course={course} />
     </Container>
   )
 }
