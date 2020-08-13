@@ -34,10 +34,7 @@ export default function Participants(props) {
       return;
     }
 
-    if (!course.instructor || !course.instructor.id || !currentUser.id || !currentUser.type) {
-      setParticipantList(course.participants);
-      return;
-    }
+    setParticipantList(course.participants);
 
     if (course.instructor.id === currentUser.id || currentUser.type === 'admin') {
       Course.getParticipants(course.id).then(list => {
