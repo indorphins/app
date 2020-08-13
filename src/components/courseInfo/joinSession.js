@@ -1,0 +1,90 @@
+import React, { useEffect, useState } from 'react';
+import { Button } from '@material-ui/core';
+import { useHistory } from 'react-router-dom';
+
+import { getNextSession } from '../../utils';
+import path from '../../routes/path';
+
+export default function JoinSession(props) {
+
+  const { currentUser, course } = props;
+  const history = useHistory();
+  const [joinSession, setJoinSession] = useState(null);
+
+  const joinHandler = function () {
+    history.push(path.courses + "/" + course.id + path.joinPath);
+  }
+
+  useEffect(() => {
+    if (!currentUser.id || !course.id) return;
+
+    let authorized = false;
+    let instructor = course.instructor;
+
+    if (currentUser.id === instructor.id) {
+      authorized = true;
+    }
+
+    course.participants.forEach(function (user) {
+      if (user.id === currentUser.id) {
+        authorized = true;
+      }
+    });
+
+    if (!authorized) return;
+
+    let now = new Date();
+    let sessionTime = getNextSession(now, course);
+
+    if (!sessionTime) return;
+
+    let disabled = true;
+
+    if (now > sessionTime.start && now < sessionTime.end) {
+      disabled = false;
+    } else if (now < sessionTime.end) {
+      disabled = true;
+    }
+
+    setJoinSession((
+      <Button
+        disabled={disabled}
+        variant="contained"
+        color="secondary"
+        onClick={joinHandler}
+        style={{width:"100%"}}
+      >
+        Join Session
+      </Button>
+    ));
+
+    const interval = setInterval(() => {
+      let now = new Date();
+      let sessionTime = getNextSession(now, course);
+      let disabled = true;
+
+      if (now > sessionTime.start && now < sessionTime.end) {
+        disabled = false;
+      } else if (now < sessionTime.end) {
+        disabled = true;
+      }
+  
+      setJoinSession((
+        <Button
+          disabled={disabled}
+          variant="contained"
+          color="secondary"
+          onClick={joinHandler}
+          style={{width:"100%"}}
+        >
+          Join Session
+        </Button>
+      ));
+    }, 10000);
+
+    return () => clearInterval(interval);
+
+  }, [currentUser, course]);
+
+  return joinSession;
+}

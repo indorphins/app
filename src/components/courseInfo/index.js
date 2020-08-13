@@ -3,11 +3,13 @@ import AvailableSpots from './availableSpots';
 import Duration from './duration';
 import StartTime from './startTime';
 import Participants from './participants';
+import JoinSession from './joinSession';
 
 export {
+  AvailableSpots,
   Cost,
   Duration,
-  AvailableSpots,
+  JoinSession,
   StartTime,
   Participants
 };
