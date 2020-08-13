@@ -154,6 +154,73 @@ function Weekdays(props) {
   return content;
 }
 
+function LargeFormatExtras(props) {
+  const { classes, events, toggle } = props;
+  const sm = useMediaQuery('(max-width:600px)');
+  let eventsContent = null;
+
+  if (!sm) {
+    let smlEventsData = events.slice(0,2);
+    let more = null;
+    let count = props.events.length - smlEventsData.length;
+
+    if (count > 0) {
+      more = (
+        <Typography variant="subtitle1" className={`${classes.timeLbl} ${classes.timeLblSml}`}>
+          +{count} more
+        </Typography>
+      )
+    }
+
+    let expandBtn = (
+      <ChevronRight onClick={toggle} style={{cursor:"pointer"}} />
+    )
+
+    if (open) {
+      expandBtn = (
+        <ExpandMore onClick={toggle} style={{cursor:"pointer"}} />
+      );
+    }
+
+    eventsContent = (
+      <React.Fragment>
+        {smlEventsData.map(evt => (
+          <Grid item container key={evt.start}>
+            <Link to={evt.url} className={classes.link}>
+              <Card className={`${classes.eventCard} ${classes.eventCardSml}`}>
+                <Grid container direction="column">
+                  <Grid item container>
+                    <Typography variant="body2" className={`${classes.timeLbl} ${classes.timeLblSml}`}>
+                      {evt.startTime} - {evt.endTime}:
+                    </Typography>
+                  </Grid>
+                  <Grid item container>
+                    <Typography variant="body2" className={`${classes.titleLbl} ${classes.titleLblSml}`}>
+                      {evt.title}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </Card>
+            </Link>
+          </Grid>
+        ))}
+        <Grid item container>
+          <Grid container direction="row" justify="space-between" alignItems="center" alignContent="center">
+            <Grid item xs>
+              {more}
+            </Grid>
+            <Grid item>
+              {expandBtn}
+            </Grid>
+          </Grid>
+        </Grid>
+      </React.Fragment>
+    );
+  }
+
+  return eventsContent;
+}
+
 function Day(props) {
   const { classes, date } = props;
   const [open, setOpen] = useState(false);
@@ -213,7 +280,6 @@ function Day(props) {
   let indicator = null;
   let eventsContent = null;
   let wrapper = null;
-  let smlEventsContent = null;
 
   if (props.events && props.events.length > 0) {
     props.events.sort(function(a,b) {
@@ -283,65 +349,6 @@ function Day(props) {
         {wkdayBufTiles}
       </React.Fragment>
     );
-
-    if (!sm) {
-      let smlEventsData = props.events.slice(0,2);
-      let more = null;
-      let count = props.events.length - smlEventsData.length;
-
-      if (count > 0) {
-        more = (
-          <Typography variant="subtitle1" className={`${classes.timeLbl} ${classes.timeLblSml}`}>
-            +{count} more
-          </Typography>
-        )
-      }
-
-      let expandBtn = (
-        <ChevronRight onClick={toggleEventsAgenda} style={{cursor:"pointer"}} />
-      )
-
-      if (open) {
-        expandBtn = (
-          <ExpandMore onClick={toggleEventsAgenda} style={{cursor:"pointer"}} />
-        );
-      }
-
-      smlEventsContent = (
-        <React.Fragment>
-          {smlEventsData.map(evt => (
-            <Grid item container key={evt.start}>
-              <Link to={evt.url} className={classes.link}>
-                <Card className={`${classes.eventCard} ${classes.eventCardSml}`}>
-                  <Grid container direction="column">
-                    <Grid item container>
-                      <Typography variant="body2" className={`${classes.timeLbl} ${classes.timeLblSml}`}>
-                        {evt.startTime} - {evt.endTime}:
-                      </Typography>
-                    </Grid>
-                    <Grid item container>
-                      <Typography variant="body2" className={`${classes.titleLbl} ${classes.titleLblSml}`}>
-                        {evt.title}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                </Card>
-              </Link>
-            </Grid>
-          ))}
-          <Grid item container>
-            <Grid container direction="row" justify="space-between" alignItems="center" alignContent="center">
-              <Grid item xs>
-                {more}
-              </Grid>
-              <Grid item>
-                {expandBtn}
-              </Grid>
-            </Grid>
-          </Grid>
-        </React.Fragment>
-      );
-    }
   }
 
   let smHandler = null;
@@ -369,7 +376,7 @@ function Day(props) {
             <Typography variant="body2" className={classes.number}>{props.day}</Typography>
           </Grid>
           {indicator}
-          {smlEventsContent}
+          <LargeFormatExtras evetns={props.events} classes={classes} toggle={smHandler} />
         </Grid>
       </Grid>
       {wrapper}
