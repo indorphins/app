@@ -34,16 +34,31 @@ export default function Participants(props) {
       return;
     }
 
-    setParticipantList(course.participants);
+    setParticipantList([].concat(course.participants).sort((a, b) => {
+      if (a.username === b.username) {
+        return 0;
+      } else if (a.username > b.username) {
+        return 1;
+      } else {
+        return -1;
+      }
+    }));
 
     if (course.instructor.id === currentUser.id || currentUser.type === 'admin') {
       Course.getParticipants(course.id).then(list => {
-        setParticipantList(list);
+        console.log("compart", course.participants, list.sort());
+        setParticipantList(list.sort((a, b) => {
+          if (a.username === b.username) {
+            return 0;
+          } else if (a.username > b.username) {
+            return 1;
+          } else {
+            return -1;
+          }
+        }))
       }).catch (err => {
         log.warn("COURSE INFO:: unable to fetch list of participants");
       })
-    } else {
-      setParticipantList(course.participants);
     }
   }, [course, currentUser]);
 
