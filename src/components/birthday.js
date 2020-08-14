@@ -8,10 +8,16 @@ const localTheme = createMuiTheme({
   overrides: {
     MuiPickersYearSelection: {
       container: {
+        boxSizing: "border-box",
         flexDirection: "column-reverse",
         display: "flex",
       },
     },
+    MuiPickersYear: {
+      root: {
+        minHeight: 32,
+      }
+    }
   },
 });
 
