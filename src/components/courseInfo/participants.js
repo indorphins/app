@@ -46,7 +46,6 @@ export default function Participants(props) {
 
     if (course.instructor.id === currentUser.id || currentUser.type === 'admin') {
       Course.getParticipants(course.id).then(list => {
-        console.log("compart", course.participants, list.sort());
         setParticipantList(list.sort((a, b) => {
           if (a.username === b.username) {
             return 0;
