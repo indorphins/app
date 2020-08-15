@@ -16,7 +16,8 @@ const useStyles = makeStyles((theme) => ({
   },
   subscriberItemAlt: {
     height: "25%",
-    background: theme.palette.grey[100],
+    background: theme.palette.grey[50],
+    position: "relative",
   },
   subscriberFeatureVid: {
     height: "100%",
@@ -71,11 +72,13 @@ export default function Vertical(props) {
   const classes = useStyles();
   const [ featureVid, setFeatureVid ] = useState(null);
   const [ regularVid, setRegularVid ] = useState([]);
-  const [ max, setMax ] = useState(3);
+  const [ max, setMax ] = useState(4);
 
   useEffect(() => {
     if (subs) {
-      let filtered = subs.filter(item => {return item.video && item.videoElement}).slice(0, max);
+      let filtered = subs.filter(item => {
+        return item.videoElement;
+      }).slice(0, max);
 
       log.debug("got filtered subscriber videos", filtered);
 
@@ -85,9 +88,8 @@ export default function Vertical(props) {
   }, [subs]);
 
   useEffect(() => {
-
-    if (props.maxSmall) {
-      setMax(3);
+    if (props.max) {
+      setMax(props.max);
     }
   }, [props]);
 
@@ -96,7 +98,7 @@ export default function Vertical(props) {
   if (featureVid) {
     featureVidContent = (
       <VideoContainer
-        id={featureVid.user.variantid}
+        id={featureVid.user.id}
         username={featureVid.user.username}
         session={session}
         className={classes.subscriberFeature}
@@ -117,7 +119,7 @@ export default function Vertical(props) {
             username={item.user.username}
             session={session}
             className={classes.subscriberItemAlt}
-            style={{width: `calc(100% / ${max})`}}
+            style={{width: `calc(100% / ${max - 1})`}}
           >
             <VideoDOMElement element={item.videoElement} />
           </VideoContainer>

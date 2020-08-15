@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { 
   Box, 
   Grid, 
@@ -6,9 +6,9 @@ import {
   IconButton, 
   Checkbox,  
   Typography, 
-  ExpansionPanel, 
-  ExpansionPanelSummary, 
-  ExpansionPanelDetails,
+  Accordion, 
+  AccordionSummary, 
+  AccordionDetails,
   Switch,
 } from '@material-ui/core';
 import { 
@@ -122,27 +122,23 @@ export default function VideoConference(props) {
   const loopTime = 20000;
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
-  const [maxStreams, setMaxStreams] = useState(3)
+  const maxStreams = 4;
+  //const [maxStreams, setMaxStreams] = useState(4);
   const [user, setUser] = useState(null);
-  const [videoSubsCount, setVideoSubsCount] = useState(0);
-  const [subs, setSubs] = useState([]);
   const [course, setCourse] = useState(null);
   const [credentials, setCredentials] = useState(null);
   const [session, setSession] = useState(null);
   const [publisher, setPublisher] = useState(null);
   const [publishVideo, setPublishVideo] = useState(true);
   const [publishAudio, setPublishAudio] = useState(false);
+  const [subs, setSubs] = useState([]);
+  const [subsShown, setSubsShown] = useState([]);
   const [loopMode, setLoopMode] = useState(true);
   const [fullscreenMode, setFullscreenMode] = useState(false);
   const [displayMsg, setDisplayMsg] = useState(null);
   const [permissionsError, setPermissionsError] = useState(false);
   const subsRef = useRef();
-  const videoSubsCountRef = useRef();
-  const fullscreenRef = useRef();
-
-  subsRef.current = subs;
-  videoSubsCountRef.current = videoSubsCount;
-  fullscreenRef.current = fullscreenMode;
+  subsRef.current = subs
 
   async function handleError(err) {
     if (err) {
@@ -170,9 +166,7 @@ export default function VideoConference(props) {
         setSubs(subs.map(item => {
           if (item.video) {
             item.video = false;
-            item.className = `${classes.subscriberItem} ${classes.hidden}`
             item.subscriber.subscribeToVideo(false);
-            setVideoSubsCount(videoSubsCountRef.current - 1);
           }
           return item;
         }));
@@ -196,10 +190,8 @@ export default function VideoConference(props) {
     }
 
     setSession(session);
-
     settings.name = session.data;
   
-    // Create a publisher
     let publisher = OT.initPublisher('publisher', settings, handleError);
     setPublisher(publisher);
 
@@ -245,7 +237,8 @@ export default function VideoConference(props) {
       insertMode: 'append',
       width: '100%',
       height: '100%',
-      mirror: true,
+      //mirror: true,
+      mirror: false,
       showControls: false,
       insertDefaultUI: true,
       publishAudio: false,
@@ -254,7 +247,8 @@ export default function VideoConference(props) {
       frameRate: 30,
       audioBitrate: 20000,
       enableStereo: false,
-      maxResolution: {width: 640, height: 480},
+      //maxResolution: {width: 640, height: 480},
+      maxResolution: {width: 320, height: 240},
     };
 
     if (user.id === course.instructor.id) {
@@ -262,7 +256,8 @@ export default function VideoConference(props) {
       settings.audioBitrate = 96000;
       settings.disableAudioProcessing = true;
       settings.publishAudio = true;
-      settings.maxResolution = {width: 1280, height: 720};
+      //settings.maxResolution = {width: 1280, height: 720};
+      settings.maxResolution = {width: 640, height: 480};
       setPublishAudio(true);
     }
 
@@ -275,7 +270,6 @@ export default function VideoConference(props) {
   function streamDestroyed(event) {
     log.debug('OPENTOK:: stream destroyed', event);
     let data = JSON.parse(event.stream.connection.data);
-
     setSubs(subs => subs.filter(item => item.user.id !== data.id));
   }
 
@@ -298,8 +292,7 @@ export default function VideoConference(props) {
     };
 
     if (data.instructor) {
-      props.preferredResolution = {width: 1280, height: 720};
-    } else {
+      props.subscribeToVideo = true;
       props.preferredResolution = {width: 640, height: 480};
     }
 
@@ -310,6 +303,21 @@ export default function VideoConference(props) {
     }
 
     log.debug("Created subscriber", subscriber);
+
+    let subData = {
+      user: data, 
+      subscriber: subscriber,
+      audio: props.subscribeToAudio,
+      video: props.subscribeToVideo,
+      videoElement: null,
+      disabled: false,
+    };
+
+    if (data.instructor) {
+      setSubs(subs => [subData, ...subs]);
+    } else {
+      setSubs(subs => [...subs, subData]);
+    }
 
     subscriber.on('videoElementCreated', (event) => {
 
@@ -329,74 +337,75 @@ export default function VideoConference(props) {
       }));
     });
 
-    setSubs(subs => [...subs, {
-      user: data, 
-      subscriber: subscriber,
-      audio: props.subscribeToAudio,
-      video: props.subscribeToVideo,
-      order: subs.length + 1,
-      videoElement: null,
-    }]);
+    subscriber.on('videoDisabled', (event) => {
+      log.debug("subscriber video disabled", event);
+      if (event.reason === "publishVideo") {
+        setSubs(subs => subs.map(item => {
+          if (item.user.id === data.id) {
+            item.disabled = true;
+          }
+          return item;
+        }));
+      }
+    });
+
+    subscriber.on('videoEnabled', (event) => {
+      log.debug("subscriber video enabled", event);
+      if (event.reason === "publishVideo") {
+        setSubs(subs => subs.map(item => {
+          if (item.user.id === data.id) {
+            item.disabled = false;
+          }
+          return item;
+        }));
+      }
+    });
   }
 
   useEffect(() => {
-    if (subs.length && subs.length > 0) { 
-      log.debug("running subs effect");
-      let enabled = subs.slice(0, maxStreams);
-      let disabled = subs.slice(maxStreams);
+    if (subs.length && subs.length > 0) {
 
+      let enabled = subs.filter(item => {
+        return !item.disabled && item.video;
+      }).slice(0, maxStreams - 1);
+      
       log.debug("enabled", enabled);
-      log.debug("disabled", disabled);
-
       enabled.map(item => {
-        item.video = true;
         item.subscriber.subscribeToVideo(true);
         return item;
       });
 
-      disabled.map(item => {
-        item.video = false;
-        item.subscriber.subscribeToVideo(false);
-        return item;
-      });
+      setSubsShown([...enabled]);
     }
   }, [subs]);
 
-  async function loop() {
+  useEffect(() => {
+    if (loopMode) {
+      loop(subs, user, course);
+      looper = setInterval(() => {
+        loop(subs, user, course);
+      }, loopTime);
+    } else {
+      clearInterval(looper);
+    }
 
-  }
+    return function() {
+      clearInterval(looper);
+    };
+  }, [loopMode, subs, user, course]);
 
-  async function setupLoopMode() {
+  async function loop(subs, user, course) {
+    /*if (subs && subs.length > 1) {
 
+    }*/
   }
 
   async function toggleLoopMode() {
-    if (loopMode) {
-      setLoopMode(false);
-    } else {
-      setLoopMode(true);
-      setupLoopMode();
-    }
+    setLoopMode(!loopMode);
   }
 
   async function toggleFullscreenMode() {
-    if (fullscreenMode) {
-      setFullscreenMode(false);
-      setLoopMode(true);
-      setupLoopMode();
-    } else {
-      setSubs(subs.map(item => {
-        if (item.video) {
-          item.video = false;
-          item.className = `${classes.subscriberItem} ${classes.hidden}`
-          item.subscriber.subscribeToVideo(false);
-          setVideoSubsCount(videoSubsCountRef.current - 1);
-        }
-        return item;
-      }));
-      setFullscreenMode(true);
-      setLoopMode(false);
-    }
+    setFullscreenMode(!fullscreenMode);
 
     if (drawer) {
       toggleDrawer();
@@ -404,8 +413,28 @@ export default function VideoConference(props) {
   }
 
   async function toggleSubscriberVideo(evt) {
-    //let data = evt.target.name;
-    
+    let data = evt.target.name;
+    let index = subsRef.current.findIndex(item => {
+      return item.user.id === data;
+    });
+
+    if (index < 0) return;
+
+    let items = subsRef.current;
+    let item = items.splice(index, 1)[0];
+
+    if (item) {
+      log.debug("toggle item", item);
+      if (item.video) {
+        item.video = false;
+        item.subscriber.subscribeToVideo(false);
+        setSubs([...items, item]);
+      } else {
+        item.video = true;
+        item.subscriber.subscribeToVideo(true);
+        setSubs([item, ...items]);
+      }
+    }
   }
 
   function toggleSubscriberAudio(evt) {
@@ -446,7 +475,6 @@ export default function VideoConference(props) {
   }
 
   function handleSignal(event) {
-
     if (event.type === "signal:emote") {
       let data = JSON.parse(event.data);
       if (data.userId === user.id) {
@@ -460,20 +488,6 @@ export default function VideoConference(props) {
   }
 
   useEffect(() => {
-    if (loopMode) {
-      loop();
-      looper = setInterval(loop, loopTime);
-    } else {
-      clearInterval(looper);
-    }
-
-    return function() {
-      clearInterval(looper);
-    };
-  }, [loopMode]);
-
-  useEffect(() => {
-    if (props.user.id === props.course.instructor.id) setMaxStreams(4);
     setCredentials(props.credentials);
     setCourse(props.course);
     setUser(props.user);
@@ -598,11 +612,11 @@ export default function VideoConference(props) {
         {fullscreenBtn}
       </Box>
       <Box>
-        <ExpansionPanel defaultExpanded>
-          <ExpansionPanelSummary expandIcon={<ExpandMoreOutlined />}>
+        <Accordion defaultExpanded>
+          <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
             <Typography variant="h5">Participants</Typography>
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
+          </AccordionSummary>
+          <AccordionDetails>
             <Grid container direction="column">
               <Grid
                 item
@@ -624,16 +638,16 @@ export default function VideoConference(props) {
                 {participantsControls}
               </Grid>
             </Grid>
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
-        <ExpansionPanel defaultExpanded>
-          <ExpansionPanelSummary expandIcon={<ExpandMoreOutlined />}>
+          </AccordionDetails>
+        </Accordion>
+        <Accordion defaultExpanded>
+          <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
             <Typography variant="h5">Chat</Typography>
-          </ExpansionPanelSummary>
-          <ExpansionPanelDetails>
+          </AccordionSummary>
+          <AccordionDetails>
             {chatWindow}
-          </ExpansionPanelDetails>
-        </ExpansionPanel>
+          </AccordionDetails>
+        </Accordion>
       </Box>
     </Grid>
   );
@@ -671,7 +685,7 @@ export default function VideoConference(props) {
   }
 
   let participantsVideoContent = (
-    <Vertical subs={subs} session={session} />
+    <Vertical subs={subsShown} session={session} max={maxStreams} />
   );
 
   let displayMsgContent = null;
