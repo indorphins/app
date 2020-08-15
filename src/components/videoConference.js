@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef } from 'react';
 import { 
   Box, 
   Grid, 
@@ -35,6 +35,8 @@ import Emote from './video/emote';
 import MuteButton from './video/mute';
 import PermissionsError from './video/permissionsError';
 import log from '../log';
+
+import Vertical from './video/layout/vertical';
 
 const useStyles = makeStyles((theme) => ({
   publisher: {
@@ -137,6 +139,7 @@ export default function VideoConference(props) {
   const subsRef = useRef();
   const videoSubsCountRef = useRef();
   const fullscreenRef = useRef();
+  const [ featureVideo, setFeatureVideo ] = useState(null);
 
   subsRef.current = subs;
   videoSubsCountRef.current = videoSubsCount;
@@ -292,24 +295,28 @@ export default function VideoConference(props) {
       preferredFrameRate: 30,
       preferredResolution: {width: 320, height: 240},
       showControls: false,
-      insertDefaultUI: true,
+      insertDefaultUI: false,
       subscribeToAudio: true,
       subscribeToVideo: false,
       fitMode: "cover",
     };
 
-    if (data.instructor) {
+    /*if (data.instructor) {
       props.preferredFrameRate = 30;
       props.preferredResolution = {width: 1280, height: 720};
       props.subscribeToVideo = true;
       subscriber = await session.subscribe(event.stream, 'feature', props, handleError);
       return;
-    }
+    }*/
 
-    let classname = `${classes.subscriberItem} ${classes.hidden}`;
-    let order = 0;
+    props.preferredResolution = {width: 1280, height: 720};
+    props.preferredFrameRate = 30;
+    props.subscribeToVideo = true;
 
-    if (event.stream.hasVideo && videoSubsCountRef.current < maxStreams && !fullscreenRef.current) {
+    //let classname = `${classes.subscriberItem} ${classes.hidden}`;
+    //let order = 0;
+
+    /*if (event.stream.hasVideo && videoSubsCountRef.current < maxStreams && !fullscreenRef.current) {
       if (videoSubsCountRef.current === 0 && user.id === course.instructor.id) {
         props.preferredResolution = {width: 1280, height: 720};
         props.preferredFrameRate = 30;
@@ -323,31 +330,51 @@ export default function VideoConference(props) {
       props.subscribeToVideo = true;
       order = videoSubsCountRef.current + 1;
       setVideoSubsCount(order);
-    }
-
-    setSubs(subs => [...subs, {
-      user: data, 
-      stream: event.stream,
-      audio: props.subscribeToAudio,
-      video: props.subscribeToVideo,
-      className: classname,
-      order: order,
-    }]);
+    }*/
 
     try {
-      subscriber = await session.subscribe(event.stream, data.id, props, handleError);
+      subscriber = await session.subscribe(event.stream, /*data.id*/ null, props, handleError);
     } catch (err) {
       log.error("Subscribe to stream", err);
     }
 
     log.debug("Created subscriber", subscriber);
 
-    setSubs(subs => subs.map(item => {
-      if (item.user.id === data.id) {
-        item.subscriber = subscriber;
-      }
-      return item;
-    }));
+    subscriber.on('videoElementCreated', (event) => {
+
+      log.debug("got video element", event, event.element);
+
+      let videoElement = event.element;
+      videoElement.style.height = "100%";
+      videoElement.style.width = "100%";
+      videoElement.style.objectFit = "cover";
+      videoElement.style.objectPosition = "center";
+
+      setSubs(subs => subs.map(item => {
+        if (item.user.id === data.id) {
+          item.videoElement = videoElement;
+          setFeatureVideo({
+            id: item.user.id,
+            username: item.user.username,
+            element: videoElement,
+          })
+        }
+        return item;
+      }));
+
+      //document.getElementById(data.id).appendChild(videoElement);
+    })
+
+    setSubs(subs => [...subs, {
+      user: data, 
+      subscriber: subscriber,
+      audio: props.subscribeToAudio,
+      video: props.subscribeToVideo,
+      //className: classname,
+      //order: order,
+      videoElement: null,
+    }]);
+
   }
 
   async function loop() {
@@ -666,28 +693,6 @@ export default function VideoConference(props) {
     }
   }
 
-  let featurePanel = (
-    <Grid xs item style={{height: "100%", overflow: "hidden", position: "relative"}}></Grid>
-  );
-
-  if (course && session && user) {
-    featurePanel = (
-      <Grid xs item style={{height: "100%", overflow: "hidden", position: "relative"}}>
-        <Box id="feature" className={classes.instructor} />
-        <Grid style={{position: "absolute", zIndex: 999, bottom: "10px", right: "10px"}}>
-          <Emote userId={course.instructor.id} username={user.username} session={session} />
-        </Grid>
-        <Grid style={{position: "absolute", zIndex: 999, top: "10px", left: "20px"}}>
-          {fullscreenBtn}
-        </Grid>
-      </Grid>
-    );
-  }
-
-  if (user && course && user.id === course.instructor.id) {
-    featurePanel = null;
-  }
-
   let participantsControls = (
     <Grid container direction="column" justify="flex-start" alignItems="flex-start">
       {subs.map(item => (
@@ -800,59 +805,9 @@ export default function VideoConference(props) {
     );
   }
 
-  let participantsClass = classes.subscriberGrid;
-
-  if (user && course && user.id === course.instructor.id) {
-    participantsClass = classes.subscriberGridAlt;
-  }
-
-  let participantsVideo = (
-    <Grid xs item style={{height:"100%", overflow: "hidden"}}>
-      <Grid
-        container
-        direction="row"
-        justify="flex-start"
-        className={participantsClass}
-        style={{height:"100%", overflow: "hidden"}}
-      >
-        {subs.map(item => (
-          <Grid key={item.user.id} item className={item.className} style={{order: item.order, position: "relative"}}>
-            <Box id={item.user.id} className={classes.subscriberFeatureVid} />
-            <Box className={classes.subscriberLabelBox}>
-              <Typography
-                align="center"
-                variant="h5"
-                className={classes.subscriberLabel}
-              >
-                {item.user.username}
-              </Typography>
-            </Box>
-            <Grid style={{position: "absolute", zIndex: 999, bottom: "10px", right: "10px"}}>
-              <Emote userId={item.user.id} username={user.username} session={session} />
-            </Grid>
-          </Grid>
-        ))}
-      </Grid>
-    </Grid>
-  );
-
   let participantsVideoContent = (
-    <Grid item style={{height:"100%", overflow: "hidden"}}>
-      {participantsVideo}
-    </Grid>
+    <Vertical feature={featureVideo} session={session} />
   );
-
-  if (course && user && user.id === course.instructor.id) {
-    participantsVideoContent = (
-      <Grid item xs style={{height:"100%", overflow: "hidden"}}>
-        {participantsVideo}
-      </Grid>
-    );
-  }
-
-  if (subsRef.current.length === 0) {
-    participantsVideo = null;
-  }
 
   let displayMsgContent = null;
   
@@ -875,7 +830,6 @@ export default function VideoConference(props) {
       {displayMsgContent}
       <Grid container direction="row" justify="flex-start" style={{height:"100%", overflow: "hidden"}}>
         <Grid container direction="row" spacing={0} justify="flex-start" style={{height: "100%", overflow: "hidden"}} >
-          {featurePanel}
           {participantsVideoContent}
           <Grid item style={{width: 0}}>
             {drawerBtn}
