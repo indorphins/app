@@ -46,6 +46,8 @@ export default function JoinSession(props) {
       disabled = true;
     }
 
+    let interval = null;
+
     if (authorized) {
       setJoinSession(
         <Button
@@ -58,33 +60,36 @@ export default function JoinSession(props) {
           Join Session
         </Button>
       );
+
+      interval = setInterval(() => {
+        let now = new Date();
+        let sessionTime = getNextSession(now, course);
+        let disabled = true;
+  
+        if (sessionTime) {
+          if (now > sessionTime.start && now < sessionTime.end) {
+            disabled = false;
+          } else if (now < sessionTime.end) {
+            disabled = true;
+          }
+        }
+    
+        setJoinSession(
+          <Button
+            disabled={disabled}
+            variant="contained"
+            color="secondary"
+            onClick={joinHandler}
+            style={{width:"100%"}}
+          >
+            Join Session
+          </Button>
+        );
+      }, 10000);
+      
     } else {
       setJoinSession(null);
     }
-
-    const interval = setInterval(() => {
-      let now = new Date();
-      let sessionTime = getNextSession(now, course);
-      let disabled = true;
-
-      if (now > sessionTime.start && now < sessionTime.end) {
-        disabled = false;
-      } else if (now < sessionTime.end) {
-        disabled = true;
-      }
-  
-      setJoinSession(
-        <Button
-          disabled={disabled}
-          variant="contained"
-          color="secondary"
-          onClick={joinHandler}
-          style={{width:"100%"}}
-        >
-          Join Session
-        </Button>
-      );
-    }, 10000);
 
     return () => clearInterval(interval);
 
