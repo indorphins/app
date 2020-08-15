@@ -343,6 +343,9 @@ export default function VideoConference(props) {
         setSubs(subs => subs.map(item => {
           if (item.user.id === data.id) {
             item.disabled = true;
+            if (item.video) {
+              item.subscriber.subscribeToVideo(false);
+            }
           }
           return item;
         }));
@@ -355,6 +358,9 @@ export default function VideoConference(props) {
         setSubs(subs => subs.map(item => {
           if (item.user.id === data.id) {
             item.disabled = false;
+            if (item.video) {
+              item.subscriber.subscribeToVideo(true);
+            }
           }
           return item;
         }));
@@ -365,19 +371,47 @@ export default function VideoConference(props) {
   useEffect(() => {
     if (subs.length && subs.length > 0) {
 
-      let enabled = subs.filter(item => {
-        return !item.disabled && item.video;
-      }).slice(0, maxStreams - 1);
+      let enabled = [];
+      let dis = [];
+
+      if (loopMode) {
+
+        enabled = subs.filter(item => {
+          return !item.disabled;
+        }).slice(0, maxStreams - 1);
+
+        dis = subs.filter(item => {
+          return !item.disabled;
+        }).slice(maxStreams - 1);
+
+      } else {
+
+        enabled = subs.filter(item => {
+          return !item.disabled && item.video;
+        }).slice(0, maxStreams - 1);
+
+        dis = subs.filter(item => {
+          return !item.disabled && item.video;
+        }).slice(maxStreams - 1);
+      }
       
       log.debug("enabled", enabled);
       enabled.map(item => {
+        item.video = true;
         item.subscriber.subscribeToVideo(true);
         return item;
       });
 
+      log.debug("disabled", dis);
+      dis.map(item => {
+        item.video = false;
+        item.subscriber.subscribeToVideo(true);
+        return item;
+      })
+
       setSubsShown([...enabled]);
     }
-  }, [subs]);
+  }, [subs, loopMode]);
 
   useEffect(() => {
     if (loopMode) {
@@ -425,6 +459,7 @@ export default function VideoConference(props) {
 
     if (item) {
       log.debug("toggle item", item);
+
       if (item.video) {
         item.video = false;
         item.subscriber.subscribeToVideo(false);
