@@ -8,6 +8,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import Emote from '../emote';
 import VideoDOMElement from './videoDOMElement';
+import log from '../../../log';
 
 const useStyles = makeStyles((theme) => ({
   subscriberGridAlt: {
@@ -46,7 +47,7 @@ function VideoContainer(props) {
   const classes = useStyles();
 
   return (
-    <Grid item className={props.className}>
+    <Grid item className={props.className} style={props.style}>
       {props.children}
       <Box className={classes.subscriberLabelBox}>
         <Typography
@@ -66,20 +67,24 @@ function VideoContainer(props) {
 
 export default function Vertical(props) {
 
-  const { session } = props;
+  const { session, subs } = props;
   const classes = useStyles();
   const [ featureVid, setFeatureVid ] = useState(null);
   const [ regularVid, setRegularVid ] = useState([]);
   const [ max, setMax ] = useState(3);
 
   useEffect(() => {
-    if (props.feature) {
-      setFeatureVid(props.feature);
-    }
+    if (subs) {
+      let filtered = subs.filter(item => {return item.video && item.videoElement}).slice(0, max);
 
-    if (props.small) {
-      setRegularVid([].concat(props.small.slice(0, max - 1)));
+      log.debug("got filtered subscriber videos", filtered);
+
+      setFeatureVid(filtered[0])
+      setRegularVid([].concat(filtered.slice(1)));
     }
+  }, [subs]);
+
+  useEffect(() => {
 
     if (props.maxSmall) {
       setMax(3);
@@ -91,12 +96,12 @@ export default function Vertical(props) {
   if (featureVid) {
     featureVidContent = (
       <VideoContainer
-        id={featureVid.id}
-        username={featureVid.username}
+        id={featureVid.user.variantid}
+        username={featureVid.user.username}
         session={session}
         className={classes.subscriberFeature}
       >
-        <VideoDOMElement element={featureVid.element} />
+        <VideoDOMElement element={featureVid.videoElement} />
       </VideoContainer>
     )
   }
@@ -107,14 +112,14 @@ export default function Vertical(props) {
       <React.Fragment>
         {regularVid.map(item => (
           <VideoContainer 
-            key={item.id}
-            id={item.id}
-            username={item.username}
+            key={item.user.id}
+            id={item.user.id}
+            username={item.user.username}
             session={session}
             className={classes.subscriberItemAlt}
             style={{width: `calc(100% / ${max})`}}
           >
-            <VideoDOMElement element={item.element} />
+            <VideoDOMElement element={item.videoElement} />
           </VideoContainer>
         ))}
       </React.Fragment>
