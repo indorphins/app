@@ -139,7 +139,6 @@ export default function VideoConference(props) {
   const subsRef = useRef();
   const videoSubsCountRef = useRef();
   const fullscreenRef = useRef();
-  const [ featureVideo, setFeatureVideo ] = useState(null);
 
   subsRef.current = subs;
   videoSubsCountRef.current = videoSubsCount;
@@ -255,7 +254,7 @@ export default function VideoConference(props) {
       frameRate: 30,
       audioBitrate: 20000,
       enableStereo: false,
-      maxResolution: {width: 1280, height: 720},
+      maxResolution: {width: 640, height: 480},
     };
 
     if (user.id === course.instructor.id) {
@@ -263,6 +262,7 @@ export default function VideoConference(props) {
       settings.audioBitrate = 96000;
       settings.disableAudioProcessing = true;
       settings.publishAudio = true;
+      settings.maxResolution = {width: 1280, height: 720};
       setPublishAudio(true);
     }
 
@@ -277,9 +277,6 @@ export default function VideoConference(props) {
     let data = JSON.parse(event.stream.connection.data);
 
     setSubs(subs => subs.filter(item => item.user.id !== data.id));
-    if (loopMode) {
-      setupLoopMode();
-    }
   }
 
   async function streamCreated(event) {
@@ -298,42 +295,16 @@ export default function VideoConference(props) {
       insertDefaultUI: false,
       subscribeToAudio: true,
       subscribeToVideo: false,
-      fitMode: "cover",
     };
 
-    /*if (data.instructor) {
-      props.preferredFrameRate = 30;
+    if (data.instructor) {
       props.preferredResolution = {width: 1280, height: 720};
-      props.subscribeToVideo = true;
-      subscriber = await session.subscribe(event.stream, 'feature', props, handleError);
-      return;
-    }*/
-
-    props.preferredResolution = {width: 1280, height: 720};
-    props.preferredFrameRate = 30;
-    props.subscribeToVideo = true;
-
-    //let classname = `${classes.subscriberItem} ${classes.hidden}`;
-    //let order = 0;
-
-    /*if (event.stream.hasVideo && videoSubsCountRef.current < maxStreams && !fullscreenRef.current) {
-      if (videoSubsCountRef.current === 0 && user.id === course.instructor.id) {
-        props.preferredResolution = {width: 1280, height: 720};
-        props.preferredFrameRate = 30;
-        classname = `${classes.subscriberFeature} ${classes.shown}`;
-      } else if (videoSubsCountRef.current !== 0 && user.id === course.instructor.id) {
-        classname = `${classes.subscriberItemAlt} ${classes.shown}`;
-      } else {
-        classname = `${classes.subscriberItem} ${classes.shown}`;
-      }
-
-      props.subscribeToVideo = true;
-      order = videoSubsCountRef.current + 1;
-      setVideoSubsCount(order);
-    }*/
+    } else {
+      props.preferredResolution = {width: 640, height: 480};
+    }
 
     try {
-      subscriber = await session.subscribe(event.stream, /*data.id*/ null, props, handleError);
+      subscriber = await session.subscribe(event.stream, null, props, handleError);
     } catch (err) {
       log.error("Subscribe to stream", err);
     }
@@ -342,7 +313,7 @@ export default function VideoConference(props) {
 
     subscriber.on('videoElementCreated', (event) => {
 
-      log.debug("got video element", event, event.element);
+      log.debug("Got subscriber video element", event);
 
       let videoElement = event.element;
       videoElement.style.height = "100%";
@@ -353,109 +324,50 @@ export default function VideoConference(props) {
       setSubs(subs => subs.map(item => {
         if (item.user.id === data.id) {
           item.videoElement = videoElement;
-          setFeatureVideo({
-            id: item.user.id,
-            username: item.user.username,
-            element: videoElement,
-          })
         }
         return item;
       }));
-
-      //document.getElementById(data.id).appendChild(videoElement);
-    })
+    });
 
     setSubs(subs => [...subs, {
       user: data, 
       subscriber: subscriber,
       audio: props.subscribeToAudio,
       video: props.subscribeToVideo,
-      //className: classname,
-      //order: order,
+      order: subs.length + 1,
       videoElement: null,
     }]);
-
   }
 
+  useEffect(() => {
+    if (subs.length && subs.length > 0) { 
+      log.debug("running subs effect");
+      let enabled = subs.slice(0, maxStreams);
+      let disabled = subs.slice(maxStreams);
+
+      log.debug("enabled", enabled);
+      log.debug("disabled", disabled);
+
+      enabled.map(item => {
+        item.video = true;
+        item.subscriber.subscribeToVideo(true);
+        return item;
+      });
+
+      disabled.map(item => {
+        item.video = false;
+        item.subscriber.subscribeToVideo(false);
+        return item;
+      });
+    }
+  }, [subs]);
+
   async function loop() {
-    
-    if (!loopMode || subsRef.current.length <= maxStreams) {
-      return;
-    }
 
-    if (subsRef.current.length < videoSubsCountRef.current) {
-      setupLoopMode();
-      return;
-    }
-
-    let updated = subsRef.current;
-
-    let first = updated.shift();
-
-    first.video = false;
-    first.className = `${classes.subscriberItem} ${classes.hidden}`;
-    first.subscriber.subscribeToVideo(false);
-
-    updated.push(first);
-
-    for (var i = 0; i < updated.length; i++) {
-      if (i < maxStreams) {
-        if (i === 0 && props.user.id === props.course.instructor.id) {
-          updated[i].subscriber.preferredResolution = {width: 640, height: 480};
-          updated[i].subscriber.preferredFrameRate = 30;
-          updated[i].className = `${classes.subscriberFeature} ${classes.shown}`;
-        } else if (i !== 0 && props.user.id === props.course.instructor.id) {
-          updated[i].subscriber.preferredResolution = {width: 320, height: 240};
-          updated[i].subscriber.preferredFrameRate = 15;
-          updated[i].className = `${classes.subscriberItemAlt} ${classes.shown}`;
-        } else {
-          updated[i].className = `${classes.subscriberItem} ${classes.shown}`;
-        }
-        updated[i].video = true;
-        updated[i].order = i;
-        updated[i].subscriber.subscribeToVideo(true);
-      } else {
-        updated[i].className = `${classes.subscriberItem} ${classes.hidden}`;
-        updated[i].video = false;
-        updated[i].order = 0;
-        updated[i].subscriber.subscribeToVideo(false);
-      }
-    }
-
-    setSubs(updated.concat([]));
   }
 
   async function setupLoopMode() {
-    let updated = subsRef.current;
-    let count = 0;
 
-    for (var i = 0; i < updated.length; i++) {
-      if (i < maxStreams) {
-        if (i === 0 && props.user.id === props.course.instructor.id) {
-          updated[i].subscriber.preferredResolution = {width: 640, height: 480};
-          updated[i].subscriber.preferredFrameRate = 30;
-          updated[i].className = `${classes.subscriberFeature} ${classes.shown}`;
-        } else if (i !== 0 && props.user.id === props.course.instructor.id) {
-          updated[i].subscriber.preferredResolution = {width: 320, height: 240};
-          updated[i].subscriber.preferredFrameRate = 15;
-          updated[i].className = `${classes.subscriberItemAlt} ${classes.shown}`;
-        } else {
-          updated[i].className = `${classes.subscriberItem} ${classes.shown}`;
-        }
-        updated[i].video = true;
-        updated[i].subscriber.subscribeToVideo(true);
-        updated[i].order = count;
-        count = count + 1;
-      } else {
-        updated[i].video = false;
-        updated[i].className = `${classes.subscriberItem} ${classes.hidden}`;
-        updated[i].subscriber.subscribeToVideo(false);
-        updated[i].order = 0;
-      }
-    }
-
-    setVideoSubsCount(count);
-    setSubs(updated.concat([]));
   }
 
   async function toggleLoopMode() {
@@ -492,55 +404,8 @@ export default function VideoConference(props) {
   }
 
   async function toggleSubscriberVideo(evt) {
-    let data = evt.target.name;
+    //let data = evt.target.name;
     
-    let disabled = false;
-    let current = subsRef.current.filter(item => { return item.user.id === data });
-
-    if (current[0].video) {
-      current[0].video = false;
-      current[0].className = `${classes.subscriberItem} ${classes.hidden}`
-      current[0].subscriber.subscribeToVideo(false);
-      current[0].order = 0;
-      disabled = true;
-      setVideoSubsCount(videoSubsCountRef.current - 1);
-    } else {
-      if (videoSubsCountRef.current < maxStreams) {
-        if (user.id === course.instructor.id) {
-          current[0].className = `${classes.subscriberFeature} ${classes.shown}`;
-        } else {
-          current[0].className = `${classes.subscriberItem} ${classes.shown}`;
-        }
-        current[0].video = true;
-        current[0].order = 1;
-        current[0].subscriber.subscribeToVideo(true);
-        setVideoSubsCount(videoSubsCountRef.current + 1);
-      }
-    }
-
-    if (user.id === course.instructor.id) {
-      let index = 2;
-
-      setSubs(subs.map(item => {
-        if (item.user.id === data) {
-          return current[0];
-        }
-
-        if (item.video) {
-          item.order = index;
-          if (disabled && index === 2) {
-            item.className = `${classes.subscriberFeature} ${classes.shown}`;
-          } else {
-            item.className = `${classes.subscriberItemAlt} ${classes.shown}`;
-          }
-          index++;
-        } else {
-          item.className = `${classes.subscriberItemAlt} ${classes.hidden}`;
-        }
-
-        return item;
-      }));
-    }
   }
 
   function toggleSubscriberAudio(evt) {
@@ -806,7 +671,7 @@ export default function VideoConference(props) {
   }
 
   let participantsVideoContent = (
-    <Vertical feature={featureVideo} session={session} />
+    <Vertical subs={subs} session={session} />
   );
 
   let displayMsgContent = null;
