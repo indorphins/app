@@ -9,7 +9,7 @@ import { SnackbarProvider } from 'notistack';
 import * as Course from '../../api/course';
 import path from '../../routes/path';
 import log from '../../log';
-import VideoConference from '../../components/videoConference';
+import Video from '../../components/video';
 import { dark } from '../../styles/theme';
 
 const useStyles = makeStyles((theme) => ({
@@ -93,7 +93,7 @@ export default function() {
 
   let chatContent = (
     <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
-      <VideoConference credentials={authData} course={course} user={currentUser}></VideoConference>
+      <Video credentials={authData} course={course} user={currentUser} />
     </Grid>
   );
 

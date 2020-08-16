@@ -12,77 +12,25 @@ import {
   ExpandMoreOutlined,
   Loop,
 } from '@material-ui/icons';
-import { makeStyles } from '@material-ui/core/styles';
 import { Alert } from '@material-ui/lab';
 import * as OT from '@opentok/client';
 import { isSafari, isMobile, fullBrowserVersion } from 'react-device-detect';
 import compareVersions from 'compare-versions';
 import { useSnackbar } from 'notistack';
 
-import Chat from './video/chat';
-import Drawer from './video/drawer';
-import PermissionsError from './video/permissionsError';
-import ParticipantControls from './video/participantControls';
-import PublisherControls from './video/publisherControls';
-import log from '../log';
+import Chat from './chat';
+import Drawer from './drawer';
+import PermissionsError from './permissionsError';
+import ParticipantControls from './participantControls';
+import PublisherControls from './publisherControls';
+import log from '../../log';
 
-import Vertical from './video/layout/vertical';
+import Vertical from './layout/vertical';
 
-const useStyles = makeStyles((theme) => ({
-  subscriberGrid: {
-    height: "100%",
-    maxWidth: 240,
-    alignContent: "flex-start",
-    '@media (min-width: 1200px)': {
-      maxWidth: 320
-    },
-    '@media (min-width: 1600px)': {
-      maxWidth: 420
-    },
-  },
-  subscriberGridAlt: {
-    height: "100%",
-  },
-  subscriberItem: {
-    height: "calc(100% / 3)",
-    background: theme.palette.grey[100],
-    width: 240,
-    '@media (min-width: 1200px)': {
-      width: 320
-    },
-    '@media (min-width: 1600px)': {
-      width: 420
-    },
-  },
-  subscriberItemAlt: {
-    height: "25%",
-    width: "calc(100% / 3)",
-    background: theme.palette.grey[100],
-  },
-  subscriberFeatureVid: {
-    height: "100%",
-  },  
-  subscriberFeature: {
-    height: "75%",
-    width: "100%",
-    background: theme.palette.grey[50],
-  },
-  subscriberLabelBox: {
-    position: 'relative',
-    bottom: '50px',
-  },
-  subscriberLabel: {
-    fontSize: "2rem",
-    color: theme.palette.grey[800],
-  },
-  videoControls: {},
-}));
-
-export default function VideoConference(props) {
+export default function Video(props) {
 
   let looper = null;
   const loopTime = 5000;
-  const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
   const [maxStreams, setMaxStreams] = useState(4);
   const [user, setUser] = useState(null);
@@ -560,7 +508,7 @@ export default function VideoConference(props) {
   )
 
   let videoControls = (
-    <Grid className={classes.videoControls}>
+    <Grid>
       <PublisherControls publisher={publisher} user={user} course={course} />
       {accor}
     </Grid>
