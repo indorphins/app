@@ -11,17 +11,22 @@ import VideoDOMElement from './videoDOMElement';
 import log from '../../../log';
 
 const useStyles = makeStyles((theme) => ({
-  subscriberGridAlt: {
-    height: "100%",
+  subscriberItem: {
+    height: "calc(100% / 3)",
+    background: theme.palette.grey[100],
+    width: 240,
+    '@media (min-width: 1200px)': {
+      width: 320
+    },
+    '@media (min-width: 1600px)': {
+      width: 420
+    },
   },
   subscriberItemAlt: {
     height: "25%",
     background: theme.palette.grey[50],
     position: "relative",
   },
-  subscriberFeatureVid: {
-    height: "100%",
-  },  
   subscriberFeature: {
     height: "75%",
     width: "100%",
