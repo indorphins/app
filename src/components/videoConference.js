@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Box, 
   Grid, 
-  IconButton,  
   Typography, 
   Accordion, 
   AccordionSummary, 
@@ -10,14 +9,8 @@ import {
   Switch,
 } from '@material-ui/core';
 import { 
-  VideocamOffOutlined, 
-  VideocamOutlined, 
-  MicNone, 
-  MicOffOutlined, 
   ExpandMoreOutlined,
   Loop,
-  Person,
-  Group,
 } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { Alert } from '@material-ui/lab';
@@ -30,16 +23,12 @@ import Chat from './video/chat';
 import Drawer from './video/drawer';
 import PermissionsError from './video/permissionsError';
 import ParticipantControls from './video/participantControls';
+import PublisherControls from './video/publisherControls';
 import log from '../log';
 
 import Vertical from './video/layout/vertical';
 
 const useStyles = makeStyles((theme) => ({
-  publisher: {
-    height: 240,
-    width: 320,
-    background: theme.palette.grey[100],
-  },
   subscriberGrid: {
     height: "100%",
     maxWidth: 240,
@@ -86,30 +75,7 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "2rem",
     color: theme.palette.grey[800],
   },
-  instructor: {
-    height: "100%",
-    width: "100%",
-    background: theme.palette.grey[50],
-  },
   videoControls: {},
-  drawer: {
-    height: "100%",
-    overflowY: "scroll",
-    overflowX: "hidden",
-    backgroundColor: "#0e0e0e",
-  },
-  drawerBtn: {
-    position: 'relative',
-    top: '10px',
-    right: '50px',
-    zIndex: '9999',
-  },
-  shown: {
-    display: "block",
-  },
-  hidden: {
-    display: "none",
-  },
 }));
 
 export default function VideoConference(props) {
@@ -118,23 +84,19 @@ export default function VideoConference(props) {
   const loopTime = 20000;
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
-  const maxStreams = 4;
-  //const [maxStreams, setMaxStreams] = useState(4);
+  const [maxStreams, setMaxStreams] = useState(4);
   const [user, setUser] = useState(null);
   const [course, setCourse] = useState(null);
   const [credentials, setCredentials] = useState(null);
   const [session, setSession] = useState(null);
   const [publisher, setPublisher] = useState(null);
-  const [publishVideo, setPublishVideo] = useState(true);
-  const [publishAudio, setPublishAudio] = useState(false);
   const [subs, setSubs] = useState([]);
   const [subsShown, setSubsShown] = useState([]);
   const [loopMode, setLoopMode] = useState(true);
-  const [fullscreenMode, setFullscreenMode] = useState(false);
   const [displayMsg, setDisplayMsg] = useState(null);
   const [permissionsError, setPermissionsError] = useState(false);
   const subsRef = useRef();
-  subsRef.current = subs
+  subsRef.current = subs;
 
   async function handleError(err) {
     if (err) {
@@ -159,15 +121,7 @@ export default function VideoConference(props) {
           message: `Network connection slow. Disabling participant video. 
           Try moving closer to your router if possible, or check your internet speed, and then refresh this page.`
         });
-        setSubs(subs.map(item => {
-          if (item.video) {
-            item.video = false;
-            item.subscriber.subscribeToVideo(false);
-          }
-          return item;
-        }));
-        setFullscreenMode(true);
-        setLoopMode(false);
+        setMaxStreams(1);
         return;
       }
     }
@@ -250,11 +204,10 @@ export default function VideoConference(props) {
     if (user.id === course.instructor.id) {
       settings.resolution = "1280x720";
       settings.audioBitrate = 96000;
-      settings.disableAudioProcessing = true;
+      settings.disableAudioProcessing = false;
       settings.publishAudio = true;
       //settings.maxResolution = {width: 1280, height: 720};
       settings.maxResolution = {width: 640, height: 480};
-      setPublishAudio(true);
     }
 
     if (credentials.apiKey && credentials.sessionId) {
@@ -432,10 +385,6 @@ export default function VideoConference(props) {
     setLoopMode(!loopMode);
   }
 
-  async function toggleFullscreenMode() {
-    setFullscreenMode(!fullscreenMode);
-  }
-
   async function toggleSubscriberVideo(evt) {
     let data = evt.target.name;
     let index = subsRef.current.findIndex(item => {
@@ -477,26 +426,6 @@ export default function VideoConference(props) {
       }
       return item;
     }));
-  }
-
-  function toggleAudio() {
-    if (publishAudio) {
-      if (publisher) publisher.publishAudio(false);
-      setPublishAudio(false);
-    } else {
-      if (publisher) publisher.publishAudio(true);
-      setPublishAudio(true);
-    }
-  }
-
-  function toggleVideo() {
-    if (publishVideo) {
-      if (publisher) publisher.publishVideo(false);
-      setPublishVideo(false);
-    } else {
-      if (publisher) publisher.publishVideo(true);
-      setPublishVideo(true);
-    }
   }
 
   function handleSignal(event) {
@@ -572,38 +501,6 @@ export default function VideoConference(props) {
     }
   }, [session, publisher]);
 
-
-  let fullscreenBtn = null;
-  if (user && course && user.id !== course.instructor.id) {
-    if (fullscreenMode) {
-      fullscreenBtn = (
-        <IconButton title="Watch instructor and class participants" onClick={toggleFullscreenMode}>
-          <Group />
-        </IconButton>
-      );
-    } else {
-      fullscreenBtn = (
-        <IconButton title="Watch instructor only" onClick={toggleFullscreenMode}>
-          <Person />
-        </IconButton>
-      );
-    }
-  }
-
-  let videoBtn = (<VideocamOffOutlined />);
-  let videoTitle = "Enable camera";
-  if (publishVideo) {
-    videoBtn = (<VideocamOutlined />);
-    videoTitle = "Disable camera";
-  }
-
-  let micBtn = (<MicOffOutlined />);
-  let micTitle = "Enable microphone";
-  if (publishAudio) {
-    micBtn = (<MicNone />);
-    micTitle = "Disable microphone"
-  }
-
   let accor = (
     <Box>
       <Accordion defaultExpanded>
@@ -655,16 +552,7 @@ export default function VideoConference(props) {
 
   let videoControls = (
     <Grid className={classes.videoControls}>
-      <Box>
-        <Grid id="publisher" className={classes.publisher}></Grid>
-        <IconButton title={videoTitle} onClick={toggleVideo}>
-          {videoBtn}
-        </IconButton>
-        <IconButton title={micTitle} onClick={toggleAudio}>
-          {micBtn}
-        </IconButton>
-        {fullscreenBtn}
-      </Box>
+      <PublisherControls publisher={publisher} user={user} course={course} />
       {accor}
     </Grid>
   );
