@@ -2,9 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { 
   Box, 
   Grid, 
-  Chip,
-  IconButton, 
-  Checkbox,  
+  IconButton,  
   Typography, 
   Accordion, 
   AccordionSummary, 
@@ -18,8 +16,6 @@ import {
   MicOffOutlined, 
   ExpandMoreOutlined,
   Loop,
-  ChevronLeft,
-  ChevronRight,
   Person,
   Group,
 } from '@material-ui/icons';
@@ -31,9 +27,9 @@ import compareVersions from 'compare-versions';
 import { useSnackbar } from 'notistack';
 
 import Chat from './video/chat';
-import Emote from './video/emote';
-import MuteButton from './video/mute';
+import Drawer from './video/drawer';
 import PermissionsError from './video/permissionsError';
+import ParticipantControls from './video/participantControls';
 import log from '../log';
 
 import Vertical from './video/layout/vertical';
@@ -343,9 +339,7 @@ export default function VideoConference(props) {
         setSubs(subs => subs.map(item => {
           if (item.user.id === data.id) {
             item.disabled = true;
-            if (item.video) {
-              item.subscriber.subscribeToVideo(false);
-            }
+            item.subscriber.subscribeToVideo(false);
           }
           return item;
         }));
@@ -440,10 +434,6 @@ export default function VideoConference(props) {
 
   async function toggleFullscreenMode() {
     setFullscreenMode(!fullscreenMode);
-
-    if (drawer) {
-      toggleDrawer();
-    }
   }
 
   async function toggleSubscriberVideo(evt) {
@@ -582,13 +572,6 @@ export default function VideoConference(props) {
     }
   }, [session, publisher]);
 
-  let chatWindow = (<Grid></Grid>);
-
-  if (session && user) {
-    chatWindow = (
-      <Chat session={session} user={user} />
-    );
-  }
 
   let fullscreenBtn = null;
   if (user && course && user.id !== course.instructor.id) {
@@ -607,27 +590,6 @@ export default function VideoConference(props) {
     }
   }
 
-  let participantsControls = (
-    <Grid container direction="column" justify="flex-start" alignItems="flex-start">
-      {subs.sort((a, b) => {
-        if (a.user.username === b.user.username) {
-          return 0;
-        } else if (a.user.username > b.user.username) {
-          return 1;
-        } else {
-          return -1;
-        }
-      }).map(item => (
-        <Grid item key={item.user.id}>
-          <Checkbox disabled={loopMode} name={item.user.id} checked={item.video} onClick={toggleSubscriberVideo} />
-          <Chip label={item.user.username} />
-          <MuteButton name={item.user.id} checked={item.audio} onClick={toggleSubscriberAudio} />
-          <Emote userId={item.user.id} username={user.username} session={session} />
-        </Grid>
-      ))}
-    </Grid>
-  );
-
   let videoBtn = (<VideocamOffOutlined />);
   let videoTitle = "Enable camera";
   if (publishVideo) {
@@ -642,6 +604,55 @@ export default function VideoConference(props) {
     micTitle = "Disable microphone"
   }
 
+  let accor = (
+    <Box>
+      <Accordion defaultExpanded>
+        <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
+          <Typography variant="h5">Participants</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Grid container direction="column">
+            <Grid
+              item
+              container
+              direction="row"
+              justify="flex-end"
+              alignItems="center"
+              alignContent="center"
+              style={{width: "100%"}}
+            >
+              <Grid item>
+                <Loop />
+              </Grid>
+              <Grid item>
+                <Switch checked={loopMode} onChange={toggleLoopMode} title="Rotate participants viewed" name="loop" />
+              </Grid>
+            </Grid>
+            <Grid item style={{width: "100%"}}>
+              <ParticipantControls
+                user={user}
+                course={course}
+                session={session}
+                subs={subs}
+                loopMode={loopMode}
+                audioHandler={toggleSubscriberAudio}
+                videoHandler={toggleSubscriberVideo} 
+              />
+            </Grid>
+          </Grid>
+        </AccordionDetails>
+      </Accordion>
+      <Accordion defaultExpanded>
+        <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
+          <Typography variant="h5">Chat</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <Chat session={session} user={user} />
+        </AccordionDetails>
+      </Accordion>
+    </Box>
+  )
+
   let videoControls = (
     <Grid className={classes.videoControls}>
       <Box>
@@ -654,81 +665,8 @@ export default function VideoConference(props) {
         </IconButton>
         {fullscreenBtn}
       </Box>
-      <Box>
-        <Accordion defaultExpanded>
-          <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
-            <Typography variant="h5">Participants</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            <Grid container direction="column">
-              <Grid
-                item
-                container
-                direction="row"
-                justify="flex-end"
-                alignItems="center"
-                alignContent="center"
-                style={{width: "100%"}}
-              >
-                <Grid item>
-                  <Loop />
-                </Grid>
-                <Grid item>
-                  <Switch checked={loopMode} onChange={toggleLoopMode} title="Rotate participants viewed" name="loop" />
-                </Grid>
-              </Grid>
-              <Grid item style={{width: "100%"}}>
-                {participantsControls}
-              </Grid>
-            </Grid>
-          </AccordionDetails>
-        </Accordion>
-        <Accordion defaultExpanded>
-          <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
-            <Typography variant="h5">Chat</Typography>
-          </AccordionSummary>
-          <AccordionDetails>
-            {chatWindow}
-          </AccordionDetails>
-        </Accordion>
-      </Box>
+      {accor}
     </Grid>
-  );
-
-  const [drawer, setDrawer] = useState(true);
-  function toggleDrawer() {
-    if (drawer) {
-      setDrawer(false);
-    } else {
-      setDrawer(true);
-    }
-  }
-
-  let drawerBtn = (
-    <IconButton title="Expand video controls" onClick={toggleDrawer} className={classes.drawerBtn}>
-      <ChevronLeft />
-    </IconButton>
-  );
-  let drawerContent = (
-    <Grid item className={classes.drawer} style={{ display: "none"}}>
-      {videoControls}
-    </Grid>
-  );
-  if (drawer) {
-    drawerContent = (
-      <Grid item xs={3} className={classes.drawer}>
-        {videoControls}
-      </Grid>
-    );
-    drawerBtn = (
-      <IconButton title="Collapse video controls" onClick={toggleDrawer} className={classes.drawerBtn}>
-        <ChevronRight />
-      </IconButton>
-    );
-  }
-
-  let participantsVideoContent = (
-    <Vertical subs={subsShown} session={session} max={maxStreams} />
   );
 
   let displayMsgContent = null;
@@ -752,11 +690,10 @@ export default function VideoConference(props) {
       {displayMsgContent}
       <Grid container direction="row" justify="flex-start" style={{height:"100%", overflow: "hidden"}}>
         <Grid container direction="row" spacing={0} justify="flex-start" style={{height: "100%", overflow: "hidden"}} >
-          {participantsVideoContent}
-          <Grid item style={{width: 0}}>
-            {drawerBtn}
-          </Grid>
-          {drawerContent}
+          <Vertical user={user} subs={subsShown} session={session} max={maxStreams} />
+          <Drawer>
+            {videoControls}
+          </Drawer>
         </Grid>
       </Grid>
     </Grid>

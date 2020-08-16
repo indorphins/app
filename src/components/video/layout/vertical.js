@@ -60,7 +60,7 @@ function VideoContainer(props) {
         </Typography>
       </Box>
       <Grid className={classes.emoteBtn}>
-        <Emote userId={props.id} username={props.username} session={props.session} />
+        <Emote userId={props.id} username={props.user.username} session={props.session} />
       </Grid>
     </Grid>
   );
@@ -68,7 +68,7 @@ function VideoContainer(props) {
 
 export default function Vertical(props) {
 
-  const { session, subs } = props;
+  const { session, subs, user } = props;
   const classes = useStyles();
   const [ featureVid, setFeatureVid ] = useState(null);
   const [ regularVid, setRegularVid ] = useState([]);
@@ -100,6 +100,7 @@ export default function Vertical(props) {
       <VideoContainer
         id={featureVid.user.id}
         username={featureVid.user.username}
+        user={user}
         session={session}
         className={classes.subscriberFeature}
       >
