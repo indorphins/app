@@ -22,7 +22,7 @@ export default function ParticipantControls(props) {
 
   useEffect(() => {
     if (props.subs) {
-      setSubs([].concat(props.subs.sort((a, b) => {
+      setSubs([].concat(props.subs).sort((a, b) => {
         if (a.user.username === b.user.username) {
           return 0;
         } else if (a.user.username > b.user.username) {
@@ -59,7 +59,7 @@ export default function ParticipantControls(props) {
         }
 
         return item;
-      })));
+      }));
     }
   }, [props]);
 

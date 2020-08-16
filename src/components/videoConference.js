@@ -81,7 +81,7 @@ const useStyles = makeStyles((theme) => ({
 export default function VideoConference(props) {
 
   let looper = null;
-  const loopTime = 20000;
+  const loopTime = 5000;
   const classes = useStyles();
   const { enqueueSnackbar } = useSnackbar();
   const [maxStreams, setMaxStreams] = useState(4);
@@ -362,7 +362,6 @@ export default function VideoConference(props) {
 
   useEffect(() => {
     if (loopMode) {
-      loop(subs, user, course);
       looper = setInterval(() => {
         loop(subs, user, course);
       }, loopTime);
@@ -373,12 +372,22 @@ export default function VideoConference(props) {
     return function() {
       clearInterval(looper);
     };
-  }, [loopMode, subs, user, course]);
+  }, [subs, loopMode, user, course]);
 
   async function loop(subs, user, course) {
-    /*if (subs && subs.length > 1) {
+    if (subs && subs.length > 1) {
+      let expired = null;
+      if (user.id === course.instructor.id) {
+        expired = subs.splice(0,1)[0];
+      } else {
+        expired = subs.splice(1,1)[0];
+      }
 
-    }*/
+      if (expired) {
+        log.debug("set new loop order", [...subs, expired]);
+        setSubs([...subs, expired]);
+      }
+    }
   }
 
   async function toggleLoopMode() {
