@@ -14,20 +14,23 @@ const verticalStyles = makeStyles((theme) => ({
   full: {
     height: "100%",
     width: "100%",
+    position: "relative",
   },
   split: {
     height: "50%",
     width: "100%",
+    position: "relative",
   },
   subscriberItem: {
     height: "25%",
     background: theme.palette.grey[50],
     position: "relative",
-    width: "calc(100% / 3)"
+    width: "calc(100% / 3)",
   },
   subscriberItemAlt: {
     height: "33.33%",
     width: "calc(100% / 2)",
+    position: "relative",
   },
   subscriberFeature: {
     height: "75%",
@@ -38,6 +41,7 @@ const verticalStyles = makeStyles((theme) => ({
   subscriberFeatureAlt: {
     height: "66.66%",
     width: "100%",
+    position: "relative",
   },
   subscriberLabelBox: {
     position: 'relative',
@@ -59,10 +63,12 @@ const horizontalStyles = makeStyles((theme) => ({
   full: {
     height: "100%",
     width: "100%",
+    position: "relative",
   },
   split: {
     height: "100%",
     width: "50%",
+    position: "relative",
   },
   subscriberItem: {
     width: "25%",
@@ -73,6 +79,7 @@ const horizontalStyles = makeStyles((theme) => ({
   subscriberItemAlt: {
     width: "33.33%",
     height: "calc(100% / 2)",
+    position: "relative",
   },
   subscriberFeature: {
     width: "75%",
@@ -83,6 +90,7 @@ const horizontalStyles = makeStyles((theme) => ({
   subscriberFeatureAlt: {
     width: "66.66%",
     height: "100%",
+    position: "relative",
   },
   subscriberLabelBox: {
     position: 'relative',
@@ -104,10 +112,12 @@ const gridStyles = makeStyles((theme) => ({
   full: {
     height: "100%",
     width: "100%",
+    position: "relative",
   },
   split: {
     height: "100%",
     width: "50%",
+    position: "relative",
   },
   subscriberItem: {
     height: "50%",
@@ -118,6 +128,7 @@ const gridStyles = makeStyles((theme) => ({
   subscriberItemAlt: {
     height: "50%",
     width: "50%",
+    position: "relative",
   },
   subscriberFeature: {
     height: "50%",
@@ -128,6 +139,7 @@ const gridStyles = makeStyles((theme) => ({
   subscriberFeatureAlt: {
     height: "50%",
     width: "50%",
+    position: "relative",
   },
   subscriberLabelBox: {
     position: 'relative',
