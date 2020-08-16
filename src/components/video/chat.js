@@ -34,12 +34,14 @@ export default function Chat(props) {
   const [chatMsg, setChatMsg] = useState('');
 
   useEffect(() => {
-    if (session.on) {
+    if (session && session.on) {
       session.on('signal', handleSignal);
     }
 
     return function() {
-      session.off('signal');
+      if (session && session.off) {
+        session.off('signal');
+      }
     }
   }, [session]);
 
@@ -83,36 +85,40 @@ export default function Chat(props) {
     setChatMsg(evt.target.value);
   }
 
-  return (
-    <Grid className={classes.root}>
-      <form onSubmit={chatFormHandler}>
-        <Grid container direction="row" justify="flex-start" alignContent="center" alignItems="flex-end">
-          <Grid item xs>
-            <TextField 
-              color="secondary" 
-              type="text" 
-              label="Message" 
-              variant="standard" 
-              onChange={chatMsgHandler} 
-              value={chatMsg} 
-              className={classes.chatField} 
-            />
+  if (session && user) {
+    return (
+      <Grid className={classes.root}>
+        <form onSubmit={chatFormHandler}>
+          <Grid container direction="row" justify="flex-start" alignContent="center" alignItems="flex-end">
+            <Grid item xs>
+              <TextField 
+                color="secondary" 
+                type="text" 
+                label="Message" 
+                variant="standard" 
+                onChange={chatMsgHandler} 
+                value={chatMsg} 
+                className={classes.chatField} 
+              />
+            </Grid>
+            <Grid item>
+              <Button type="submit" color="secondary">Send</Button>
+            </Grid>
           </Grid>
-          <Grid item>
-            <Button type="submit" color="secondary">Send</Button>
-          </Grid>
+        </form>
+        <Grid container direction="column">
+          {history.map(message => (
+            <Grid item key={(Math.random() * 1000000)} className={classes.chatContainer}>
+              <Typography variant="body2" className={classes.chatUsername}>
+                {message.username} [{format(new Date(message.date), 'h:mm aa')}]: 
+              </Typography>
+              <Typography variant="body1" className={classes.chatMsg}>{message.message}</Typography>
+            </Grid>
+          ))}
         </Grid>
-      </form>
-      <Grid container direction="column">
-        {history.map(message => (
-          <Grid item key={(Math.random() * 1000000)} className={classes.chatContainer}>
-            <Typography variant="body2" className={classes.chatUsername}>
-              {message.username} [{format(new Date(message.date), 'h:mm aa')}]: 
-            </Typography>
-            <Typography variant="body1" className={classes.chatMsg}>{message.message}</Typography>
-          </Grid>
-        ))}
       </Grid>
-    </Grid>
-  );
+    );
+  }
+
+  return (<Grid></Grid>)
 }
