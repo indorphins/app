@@ -38,7 +38,7 @@ export default function PublisherControls(props) {
   }, [props]);
 
   useEffect(() => {
-    if (publisher) publisher.publishAudio(publishVideo);
+    if (publisher) publisher.publishVideo(publishVideo);
   }, [publishVideo]);
 
   useEffect(() => {
