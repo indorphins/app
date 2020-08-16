@@ -11,10 +11,19 @@ import {
 
 const useStyles = makeStyles((theme) => ({
   drawer: {
+    minWidth: 360,
+    maxWidth: "27.5%",
+    width: "calc(100% / 4)",
     height: "100%",
     overflowY: "scroll",
     overflowX: "hidden",
     backgroundColor: "#0e0e0e",
+    transition: "all 175ms cubic-bezier(0.725, 0.005, 0.320, 0.990)",
+  },
+  hidden: {
+    width: 0,
+    minWidth: 0,
+    maxWidth: 0,
   },
   drawerBtn: {
     position: 'relative',
@@ -41,18 +50,12 @@ export default function Drawer(props) {
       <ChevronLeft />
     </IconButton>
   );
-  let drawerContent = (
-    <Grid item className={classes.drawer} style={{ display: "none"}}>
-      {props.children}
-    </Grid>
-  );
+
+  let drawerClasses = `${classes.drawer} ${classes.hidden}`;
+
 
   if (drawer) {
-    drawerContent = (
-      <Grid item xs={3} className={classes.drawer}>
-        {props.children}
-      </Grid>
-    );
+    drawerClasses = classes.drawer;
     drawerBtn = (
       <IconButton title="Collapse video controls" onClick={toggleDrawer} className={classes.drawerBtn}>
         <ChevronRight />
@@ -65,7 +68,9 @@ export default function Drawer(props) {
       <Grid item style={{width: 0}}>
         {drawerBtn}
       </Grid>
-      {drawerContent}
+      <Grid item className={drawerClasses}>
+        {props.children}
+      </Grid>
     </React.Fragment>
   )
 }
