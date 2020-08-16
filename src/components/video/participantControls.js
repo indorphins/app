@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(1),
   },
   camOffIcon: {
-    color: theme.palette.text.disabled,
+    color: theme.palette.error.dark,
   }
 }));
 
