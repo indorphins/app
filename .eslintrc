@@ -10,10 +10,10 @@
   ],
   "rules": {
     "indent-legacy": ["error", 2],
-    "complexity": ["warn", { "max": 12 }],
+    "complexity": ["error", { "max": 12 }],
     "max-depth": ["error", 3],
     "max-len": ["error", { "code": 120 }],
-    "max-lines": ["warn", 500],
+    "max-lines": ["warn", {"max": 500, "skipBlankLines": true, "skipComments": true}],
     "max-lines-per-function": 0,
     "max-nested-callbacks": ["error", 3],
     "react/prop-types": 0,
