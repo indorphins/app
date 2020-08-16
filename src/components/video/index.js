@@ -458,6 +458,38 @@ export default function Video(props) {
     }
   }, [session, publisher]);
 
+  let controlsGrid = (
+    <Grid container direction="column">
+      <Grid
+        item
+        container
+        direction="row"
+        justify="flex-end"
+        alignItems="center"
+        alignContent="center"
+        style={{width: "100%"}}
+      >
+        <Grid item>
+          <Loop />
+        </Grid>
+        <Grid item>
+          <Switch checked={loopMode} onChange={toggleLoopMode} title="Rotate participants viewed" name="loop" />
+        </Grid>
+      </Grid>
+      <Grid item style={{width: "100%"}}>
+        <ParticipantControls
+          user={user}
+          course={course}
+          session={session}
+          subs={subs}
+          loopMode={loopMode}
+          audioHandler={toggleSubscriberAudio}
+          videoHandler={toggleSubscriberVideo} 
+        />
+      </Grid>
+    </Grid>
+  )
+
   let accor = (
     <Box>
       <Accordion defaultExpanded>
@@ -465,35 +497,7 @@ export default function Video(props) {
           <Typography variant="h5">Participants</Typography>
         </AccordionSummary>
         <AccordionDetails>
-          <Grid container direction="column">
-            <Grid
-              item
-              container
-              direction="row"
-              justify="flex-end"
-              alignItems="center"
-              alignContent="center"
-              style={{width: "100%"}}
-            >
-              <Grid item>
-                <Loop />
-              </Grid>
-              <Grid item>
-                <Switch checked={loopMode} onChange={toggleLoopMode} title="Rotate participants viewed" name="loop" />
-              </Grid>
-            </Grid>
-            <Grid item style={{width: "100%"}}>
-              <ParticipantControls
-                user={user}
-                course={course}
-                session={session}
-                subs={subs}
-                loopMode={loopMode}
-                audioHandler={toggleSubscriberAudio}
-                videoHandler={toggleSubscriberVideo} 
-              />
-            </Grid>
-          </Grid>
+          {controlsGrid}
         </AccordionDetails>
       </Accordion>
       <Accordion defaultExpanded>
@@ -505,13 +509,6 @@ export default function Video(props) {
         </AccordionDetails>
       </Accordion>
     </Box>
-  )
-
-  let videoControls = (
-    <Grid>
-      <PublisherControls publisher={publisher} user={user} course={course} />
-      {accor}
-    </Grid>
   );
 
   let displayMsgContent = null;
@@ -537,7 +534,8 @@ export default function Video(props) {
         <Grid container direction="row" spacing={0} justify="flex-start" style={{height: "100%", overflow: "hidden"}} >
           <Vertical user={user} subs={subsShown} session={session} max={maxStreams} />
           <Drawer>
-            {videoControls}
+            <PublisherControls publisher={publisher} user={user} course={course} />
+            {accor}
           </Drawer>
         </Grid>
       </Grid>
