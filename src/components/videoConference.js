@@ -405,7 +405,7 @@ export default function VideoConference(props) {
       log.debug("disabled", dis);
       dis.map(item => {
         item.video = false;
-        item.subscriber.subscribeToVideo(true);
+        item.subscriber.subscribeToVideo(false);
         return item;
       })
 
