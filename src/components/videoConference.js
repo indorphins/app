@@ -609,7 +609,15 @@ export default function VideoConference(props) {
 
   let participantsControls = (
     <Grid container direction="column" justify="flex-start" alignItems="flex-start">
-      {subs.map(item => (
+      {subs.sort((a, b) => {
+        if (a.user.username === b.user.username) {
+          return 0;
+        } else if (a.user.username > b.user.username) {
+          return 1;
+        } else {
+          return -1;
+        }
+      }).map(item => (
         <Grid item key={item.user.id}>
           <Checkbox disabled={loopMode} name={item.user.id} checked={item.video} onClick={toggleSubscriberVideo} />
           <Chip label={item.user.username} />
