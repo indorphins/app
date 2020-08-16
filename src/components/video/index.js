@@ -399,9 +399,9 @@ export default function Video(props) {
   }
 
   useEffect(() => {
-    setCredentials(props.credentials);
-    setCourse(props.course);
-    setUser(props.user);
+    if (props.credentials) setCredentials(props.credentials);
+    if (props.course) setCourse(props.course);
+    if (props.user) setUser(props.user);
   }, [props]);
 
   useEffect(() => {
