@@ -25,7 +25,7 @@ import ParticipantControls from './participantControls';
 import PublisherControls from './publisherControls';
 import log from '../../log';
 
-import Vertical from './layout/vertical';
+import Default from './layout/default';
 
 export default function Video(props) {
 
@@ -43,6 +43,8 @@ export default function Video(props) {
   const [loopMode, setLoopMode] = useState(true);
   const [displayMsg, setDisplayMsg] = useState(null);
   const [permissionsError, setPermissionsError] = useState(false);
+  const videoLayout = "horizontal";
+  //const [videoLayout, setVideoLayout] = useState("vertical");
   const subsRef = useRef();
   subsRef.current = subs;
 
@@ -532,7 +534,7 @@ export default function Video(props) {
       {displayMsgContent}
       <Grid container direction="row" justify="flex-start" style={{height:"100%", overflow: "hidden"}}>
         <Grid container direction="row" spacing={0} justify="flex-start" style={{height: "100%", overflow: "hidden"}} >
-          <Vertical user={user} subs={subsShown} session={session} max={maxStreams} />
+          <Default user={user} subs={subsShown} session={session} max={maxStreams} layout={videoLayout} />
           <Drawer>
             <PublisherControls publisher={publisher} user={user} course={course} />
             {accor}
