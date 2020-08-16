@@ -118,6 +118,7 @@ export default function Vertical(props) {
             key={item.user.id}
             id={item.user.id}
             username={item.user.username}
+            user={user}
             session={session}
             className={classes.subscriberItemAlt}
             style={{width: `calc(100% / ${max - 1})`}}
