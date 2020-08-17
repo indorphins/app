@@ -43,7 +43,7 @@ export default function Video(props) {
 
   const classes = useStyles();
   let looper = null;
-  const loopTime = 5000;
+  const loopTime = 15000;
   const { enqueueSnackbar } = useSnackbar();
   const [maxStreams, setMaxStreams] = useState(4);
   const [user, setUser] = useState(null);
@@ -147,17 +147,15 @@ export default function Video(props) {
         insertMode: 'append',
         width: '100%',
         height: '100%',
-        //mirror: true,
-        mirror: false,
+        mirror: true,
         showControls: false,
         insertDefaultUI: true,
         publishAudio: false,
         publishVideo: true,
         resolution: "640x480",
-        frameRate: 7,
+        frameRate: 30,
         audioBitrate: 20000,
         enableStereo: false,
-        //maxResolution: {width: 640, height: 480},
         maxResolution: {width: 640, height: 480},
       };
 
@@ -165,8 +163,8 @@ export default function Video(props) {
         settings.audioBitrate = 96000;
         settings.disableAudioProcessing = false;
         settings.publishAudio = true;
-        //settings.resolution = "1280x720";
-        //settings.maxResolution = {width: 1280, height: 720};
+        settings.resolution = "1280x720";
+        settings.maxResolution = {width: 1280, height: 720};
       }
 
       if (credentials.apiKey && credentials.sessionId) {
