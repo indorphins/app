@@ -52,7 +52,6 @@ export default function Video(props) {
   const [session, setSession] = useState(null);
   const [publisher, setPublisher] = useState(null);
   const [subs, setSubs] = useState([]);
-  const [subsShown, setSubsShown] = useState([]);
   const [loopMode, setLoopMode] = useState(true);
   const [displayMsg, setDisplayMsg] = useState(null);
   const [permissionsError, setPermissionsError] = useState(false);
@@ -92,9 +91,6 @@ export default function Video(props) {
   async function initializeSession(apiKey, sessionId, settings) {
 
     let session = OT.initSession(apiKey, sessionId);
-    
-
-    log.debug("session publish", session.capabilities.publish);
 
     if (session.capabilities.publish !== 0) {
       setDisplayMsg({severity: "error", message: "Not allowed to publish to session"});
@@ -105,6 +101,7 @@ export default function Video(props) {
     settings.name = session.data;
   
     let publisher = OT.initPublisher('publisher', settings, handleError);
+    log.info("OPENTOK:: publisher created", publisher);
     setPublisher(publisher);
 
     publisher.on({
@@ -139,44 +136,111 @@ export default function Video(props) {
   }
 
   useEffect(() => {
-    if (!credentials) return;
+    if (credentials && user && course) {
 
-    let valid = validateBrowserVersion();
+      let valid = validateBrowserVersion();
 
-    if (!valid) return;
+      if (!valid) return;
 
-    let settings = {
-      insertMode: 'append',
-      width: '100%',
-      height: '100%',
-      //mirror: true,
-      mirror: false,
-      showControls: false,
-      insertDefaultUI: true,
-      publishAudio: false,
-      publishVideo: true,
-      resolution: "640x480",
-      frameRate: 30,
-      audioBitrate: 20000,
-      enableStereo: false,
-      //maxResolution: {width: 640, height: 480},
-      maxResolution: {width: 320, height: 240},
-    };
+      let settings = {
+        insertMode: 'append',
+        width: '100%',
+        height: '100%',
+        //mirror: true,
+        mirror: false,
+        showControls: false,
+        insertDefaultUI: true,
+        publishAudio: false,
+        publishVideo: true,
+        resolution: "640x480",
+        frameRate: 30,
+        audioBitrate: 20000,
+        enableStereo: false,
+        //maxResolution: {width: 640, height: 480},
+        maxResolution: {width: 320, height: 240},
+      };
 
-    if (user.id === course.instructor.id) {
-      settings.resolution = "1280x720";
-      settings.audioBitrate = 96000;
-      settings.disableAudioProcessing = false;
-      settings.publishAudio = true;
-      //settings.maxResolution = {width: 1280, height: 720};
-      settings.maxResolution = {width: 640, height: 480};
-    }
+      if (user.id === course.instructor.id) {
+        settings.resolution = "1280x720";
+        settings.audioBitrate = 96000;
+        settings.disableAudioProcessing = false;
+        settings.publishAudio = true;
+        //settings.maxResolution = {width: 1280, height: 720};
+        settings.maxResolution = {width: 640, height: 480};
+      }
 
-    if (credentials.apiKey && credentials.sessionId) {
-      initializeSession(credentials.apiKey, credentials.sessionId, settings);
+      if (credentials.apiKey && credentials.sessionId) {
+        initializeSession(credentials.apiKey, credentials.sessionId, settings);
+      }
     }
   }, [credentials, user, course]);
 
+  useEffect(() => {
+
+    if (!session) return;
+
+    log.debug("OPENTOK:: session object", session);
+
+    // Subscribe to stream events
+    if (session.on) {
+      session.on('connectionCreated', connectionCreated);
+      session.on('connectionDestroyed', connectionDestroyed);
+      session.on('streamCreated', streamCreated);
+      session.on('streamDestroyed', streamDestroyed);
+      session.on('signal', handleSignal);
+    }
+    
+    // connect to session if a connection does not already exist
+    if (session.connect && !session.connection) {
+      // Connect to the session
+      session.connect(credentials.token, function(error) {
+        // If the connection is successful, initialize a publisher and publish to the session
+        if (error) {
+          return handleError(error);
+        }
+
+        if (session.capabilities.publish === 1) {
+          session.publish(publisher, handleError);
+        }
+
+      });
+    }
+
+    return function() {
+      // disconnect the event listeners
+      session.off('connectionCreated');
+      session.off('connectionDestroyed');
+      session.off('streamCreated');
+      session.off('streamDestroyed');
+      session.off('signal');
+
+      setSubs(subs.map(sub => {
+        sub.subscriber.subscribeToVideo(false);
+        sub.subscriber.subscribeToAudio(false);
+        session.unsubscribe(sub.subscriber);
+        return sub;
+      }));
+
+      // destroy publisher object
+      publisher.publishVideo(false);
+      publisher.publishAudio(false);
+      publisher.destroy();
+
+      // disconnect local session
+      if (session && session.connection) session.disconnect();
+      log.debug('OPENTOK:: disconnected from video session');
+    }
+  }, [session, publisher]);
+
+  function connectionCreated(event) {
+    log.info("OPENTOK:: connection created", event);
+  }
+
+  function connectionDestroyed(event) {
+    log.info("OPENTOK:: connection destroyed", event);
+    let data = JSON.parse(event.connection.data);
+    setSubs(subs => subs.filter(item => item.user.id !== data.id));
+  }
 
   function streamDestroyed(event) {
     log.debug('OPENTOK:: stream destroyed', event);
@@ -213,7 +277,7 @@ export default function Video(props) {
       log.error("Subscribe to stream", err);
     }
 
-    log.debug("Created subscriber", subscriber);
+    log.debug("OPENTOK:: created subscriber", subscriber);
 
     let subData = {
       user: data, 
@@ -232,7 +296,7 @@ export default function Video(props) {
 
     subscriber.on('videoElementCreated', (event) => {
 
-      log.debug("Got subscriber video element", event);
+      log.debug("OPENTOK:: subscriber video element created", event);
 
       let videoElement = event.element;
       videoElement.style.height = "100%";
@@ -317,8 +381,6 @@ export default function Video(props) {
         item.subscriber.subscribeToVideo(false);
         return item;
       })
-
-      setSubsShown([...enabled]);
     }
   }, [subs, loopMode]);
 
@@ -427,60 +489,6 @@ export default function Video(props) {
     if (props.user) setUser(props.user);
   }, [props]);
 
-  useEffect(() => {
-
-    if (!session) return;
-
-    log.debug("OPENTOK:: session object", session);
-
-    // Subscribe to stream events
-    if (session.on) {
-      session.on('streamCreated', streamCreated);
-      session.on('streamDestroyed', streamDestroyed);
-      session.on('signal', handleSignal);
-    }
-    
-    // connect to session if a connection does not already exist
-    if (session.connect && !session.connection) {
-      // Connect to the session
-      session.connect(credentials.token, function(error) {
-        // If the connection is successful, initialize a publisher and publish to the session
-        if (error) {
-          return handleError(error);
-        }
-
-        if (session.capabilities.publish === 1) {
-          log.debug("OPENTOK:: publish local media", publisher);
-          session.publish(publisher, handleError);
-        }
-
-      });
-    }
-
-    return function() {
-      // disconnect the event listeners
-      session.off('streamCreated');
-      session.off('streamDestroyed');
-      session.off('signal');
-
-      setSubs(subs.map(sub => {
-        sub.subscriber.subscribeToVideo(false);
-        sub.subscriber.subscribeToAudio(false);
-        session.unsubscribe(sub.subscriber);
-        return sub;
-      }));
-
-      // destroy publisher object
-      publisher.publishVideo(false);
-      publisher.publishAudio(false);
-      publisher.destroy();
-
-      // disconnect local session
-      if (session.connection) session.disconnect();
-      log.debug('OPENTOK:: disconnected from video session');
-    }
-  }, [session, publisher]);
-
   let settings = (
     <Grid container direction="column">
       <Grid item container direction="row" alignItems="center" alignContent="center">
@@ -578,7 +586,7 @@ export default function Video(props) {
       {displayMsgContent}
       <Grid container direction="row" justify="flex-start" style={{height:"100%", overflow: "hidden"}}>
         <Grid container direction="row" spacing={0} justify="flex-start" style={{height: "100%", overflow: "hidden"}} >
-          <Default user={user} subs={subsShown} session={session} max={maxStreams} layout={videoLayout} />
+          <Default user={user} subs={subs} session={session} max={maxStreams} layout={videoLayout} />
           <Drawer>
             <PublisherControls publisher={publisher} user={user} course={course} />
             {accor}
