@@ -15,11 +15,13 @@ const verticalStyles = makeStyles((theme) => ({
     height: "100%",
     width: "100%",
     position: "relative",
+    background: theme.palette.grey[50],
   },
   split: {
     height: "50%",
     width: "100%",
     position: "relative",
+    background: theme.palette.grey[50],
   },
   subscriberItem: {
     height: "25%",
@@ -29,8 +31,9 @@ const verticalStyles = makeStyles((theme) => ({
   },
   subscriberItemAlt: {
     height: "33.33%",
-    width: "calc(100% / 2)",
+    width: "50%",
     position: "relative",
+    background: theme.palette.grey[50],
   },
   subscriberFeature: {
     height: "75%",
@@ -42,6 +45,7 @@ const verticalStyles = makeStyles((theme) => ({
     height: "66.66%",
     width: "100%",
     position: "relative",
+    background: theme.palette.grey[50],
   },
   subscriberLabelBox: {
     position: 'relative',
@@ -188,6 +192,7 @@ export default function Default(props) {
   const [ classes, setClasses ]  = useState(horizontalClasses);
   const [ featureVid, setFeatureVid ] = useState(null);
   const [ regularVid, setRegularVid ] = useState([]);
+  const [ direction, setDirection ] = useState("column");
   const [ max, setMax ] = useState(4);
 
   useEffect(() => {
@@ -198,8 +203,16 @@ export default function Default(props) {
 
       log.debug("DEFAULT LAYOUT:: filtered subscriber videos", filtered);
 
-      setFeatureVid(filtered[0])
-      setRegularVid([].concat(filtered.slice(1)));
+      if (filtered[0]) {
+        setFeatureVid(filtered[0]);
+      } else {
+        setFeatureVid(null);
+      }
+      if (filtered.length > 1) {
+        setRegularVid([].concat(filtered.slice(1)));
+      } else {
+        setRegularVid([]);
+      }
     }
   }, [subs]);
 
@@ -209,9 +222,18 @@ export default function Default(props) {
     }
 
     if (props.layout) {
-      if (props.layout === "vertical") setClasses(verticalClasses);
-      if (props.layout === "horizontal") setClasses(horizontalClasses);
-      if (props.layout === "grid") setClasses(gridClasses);
+      if (props.layout === "vertical") { 
+        setDirection("row");
+        setClasses(verticalClasses);
+      }
+      if (props.layout === "horizontal") {
+        setDirection("column");
+        setClasses(horizontalClasses);
+      }
+      if (props.layout === "grid") {
+        setDirection("column");
+        setClasses(gridClasses);
+      }
     }
   }, [props]);
 
@@ -273,7 +295,7 @@ export default function Default(props) {
     <Grid xs item style={{height:"100%", overflow: "hidden"}}>
       <Grid
         container
-        direction="column"
+        direction={direction}
         justify="flex-start"
         style={{height:"100%", overflow: "hidden"}}
       >

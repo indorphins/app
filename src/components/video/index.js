@@ -153,7 +153,7 @@ export default function Video(props) {
         publishAudio: false,
         publishVideo: true,
         resolution: "640x480",
-        frameRate: 30,
+        frameRate: 7,
         audioBitrate: 20000,
         enableStereo: false,
         maxResolution: {width: 640, height: 480},
@@ -163,8 +163,8 @@ export default function Video(props) {
         settings.audioBitrate = 96000;
         settings.disableAudioProcessing = false;
         settings.publishAudio = true;
-        settings.resolution = "1280x720";
-        settings.maxResolution = {width: 1280, height: 720};
+        //settings.resolution = "1280x720";
+        //settings.maxResolution = {width: 1280, height: 720};
       }
 
       if (credentials.apiKey && credentials.sessionId) {
@@ -329,9 +329,6 @@ export default function Video(props) {
         setSubs(subs => subs.map(item => {
           if (item.user.id === data.id) {
             item.disabled = false;
-            if (item.video) {
-              item.subscriber.subscribeToVideo(true);
-            }
           }
           return item;
         }));
