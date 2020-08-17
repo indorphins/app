@@ -7,6 +7,7 @@ import {
   AccordionSummary, 
   AccordionDetails,
   Switch,
+  makeStyles,
 } from '@material-ui/core';
 import { 
   ExpandMoreOutlined,
@@ -28,8 +29,19 @@ import log from '../../log';
 import Default from './layout/default';
 import LayoutPicker from './layout/picker';
 
+const useStyles = makeStyles((theme) => ({
+  settingsIcon: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "48px",
+    height: "48px",
+  }
+}));
+
 export default function Video(props) {
 
+  const classes = useStyles();
   let looper = null;
   const loopTime = 5000;
   const { enqueueSnackbar } = useSnackbar();
@@ -469,27 +481,39 @@ export default function Video(props) {
     }
   }, [session, publisher]);
 
-  let controlsGrid = (
+  let settings = (
     <Grid container direction="column">
+      <Grid item container direction="row" alignItems="center" alignContent="center">
+        <Grid item className={classes.settingsIcon}>
+          <LayoutPicker layout={videoLayout} onSelect={(evt) => toggleLayout(evt)} />
+        </Grid>
+        <Grid item xs>
+          <Typography>Display</Typography>
+        </Grid>
+      </Grid>
       <Grid
         item
         container
         direction="row"
-        justify="flex-end"
+        justify="space-between"
         alignItems="center"
         alignContent="center"
-        style={{width: "100%"}}
       >
-        <Grid item>
+        <Grid item className={classes.settingsIcon}>
           <Loop />
+        </Grid>
+        <Grid item xs>
+          <Typography>Rotate Videos</Typography>
         </Grid>
         <Grid item>
           <Switch checked={loopMode} onChange={toggleLoopMode} title="Rotate participants viewed" name="loop" />
         </Grid>
-        <Grid item>
-          <LayoutPicker layout={videoLayout} onSelect={(evt) => toggleLayout(evt)} />
-        </Grid>
       </Grid>
+    </Grid>
+  );
+
+  let controlsGrid = (
+    <Grid container direction="column">
       <Grid item style={{width: "100%"}}>
         <ParticipantControls
           user={user}
@@ -506,6 +530,14 @@ export default function Video(props) {
 
   let accor = (
     <Box>
+      <Accordion defaultExpanded>
+        <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
+          <Typography variant="h5">Settings</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          {settings}
+        </AccordionDetails>
+      </Accordion>
       <Accordion defaultExpanded>
         <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
           <Typography variant="h5">Participants</Typography>
