@@ -26,6 +26,7 @@ import PublisherControls from './publisherControls';
 import log from '../../log';
 
 import Default from './layout/default';
+import LayoutPicker from './layout/picker';
 
 export default function Video(props) {
 
@@ -43,8 +44,7 @@ export default function Video(props) {
   const [loopMode, setLoopMode] = useState(true);
   const [displayMsg, setDisplayMsg] = useState(null);
   const [permissionsError, setPermissionsError] = useState(false);
-  const videoLayout = "horizontal";
-  //const [videoLayout, setVideoLayout] = useState("vertical");
+  const [videoLayout, setVideoLayout] = useState("horizontal");
   const subsRef = useRef();
   subsRef.current = subs;
 
@@ -275,21 +275,21 @@ export default function Video(props) {
 
         enabled = subs.filter(item => {
           return !item.disabled;
-        }).slice(0, maxStreams - 1);
+        }).slice(0, maxStreams);
 
         dis = subs.filter(item => {
           return !item.disabled;
-        }).slice(maxStreams - 1);
+        }).slice(maxStreams);
 
       } else {
 
         enabled = subs.filter(item => {
           return !item.disabled && item.video;
-        }).slice(0, maxStreams - 1);
+        }).slice(0, maxStreams);
 
         dis = subs.filter(item => {
           return !item.disabled && item.video;
-        }).slice(maxStreams - 1);
+        }).slice(maxStreams);
       }
       
       log.debug("enabled", enabled);
@@ -338,6 +338,15 @@ export default function Video(props) {
         setSubs([...subs, expired]);
       }
     }
+  }
+
+  async function toggleLayout(evt) {
+    if (evt === "fullscreen") {
+      setMaxStreams(1);
+    } else {
+      setMaxStreams(4);
+    }
+    setVideoLayout(evt);
   }
 
   async function toggleLoopMode() {
@@ -476,6 +485,9 @@ export default function Video(props) {
         </Grid>
         <Grid item>
           <Switch checked={loopMode} onChange={toggleLoopMode} title="Rotate participants viewed" name="loop" />
+        </Grid>
+        <Grid item>
+          <LayoutPicker layout={videoLayout} onSelect={(evt) => toggleLayout(evt)} />
         </Grid>
       </Grid>
       <Grid item style={{width: "100%"}}>
