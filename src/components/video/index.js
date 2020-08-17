@@ -52,6 +52,7 @@ export default function Video(props) {
   const [session, setSession] = useState(null);
   const [publisher, setPublisher] = useState(null);
   const [subs, setSubs] = useState([]);
+  const [subsShown, setSubsShown] = useState([]);
   const [loopMode, setLoopMode] = useState(true);
   const [displayMsg, setDisplayMsg] = useState(null);
   const [permissionsError, setPermissionsError] = useState(false);
@@ -153,20 +154,19 @@ export default function Video(props) {
         publishAudio: false,
         publishVideo: true,
         resolution: "640x480",
-        frameRate: 30,
+        frameRate: 7,
         audioBitrate: 20000,
         enableStereo: false,
         //maxResolution: {width: 640, height: 480},
-        maxResolution: {width: 320, height: 240},
+        maxResolution: {width: 640, height: 480},
       };
 
       if (user.id === course.instructor.id) {
-        settings.resolution = "1280x720";
         settings.audioBitrate = 96000;
         settings.disableAudioProcessing = false;
         settings.publishAudio = true;
+        //settings.resolution = "1280x720";
         //settings.maxResolution = {width: 1280, height: 720};
-        settings.maxResolution = {width: 640, height: 480};
       }
 
       if (credentials.apiKey && credentials.sessionId) {
@@ -259,7 +259,7 @@ export default function Video(props) {
       width: '100%',
       height: '100%',
       preferredFrameRate: 30,
-      preferredResolution: {width: 320, height: 240},
+      preferredResolution: {width: 640, height: 480},
       showControls: false,
       insertDefaultUI: false,
       subscribeToAudio: true,
@@ -268,7 +268,7 @@ export default function Video(props) {
 
     if (data.instructor) {
       props.subscribeToVideo = true;
-      props.preferredResolution = {width: 640, height: 480};
+      props.preferredResolution = {width: 1280, height: 720};
     }
 
     try {
@@ -313,7 +313,7 @@ export default function Video(props) {
     });
 
     subscriber.on('videoDisabled', (event) => {
-      log.debug("subscriber video disabled", event);
+      log.debug("OPENTOK:: subscriber video disabled", event);
       if (event.reason === "publishVideo") {
         setSubs(subs => subs.map(item => {
           if (item.user.id === data.id) {
@@ -326,7 +326,7 @@ export default function Video(props) {
     });
 
     subscriber.on('videoEnabled', (event) => {
-      log.debug("subscriber video enabled", event);
+      log.debug("OPENTOK:: subscriber video enabled", event);
       if (event.reason === "publishVideo") {
         setSubs(subs => subs.map(item => {
           if (item.user.id === data.id) {
@@ -380,7 +380,9 @@ export default function Video(props) {
         item.video = false;
         item.subscriber.subscribeToVideo(false);
         return item;
-      })
+      });
+
+      setSubsShown([...enabled]);
     }
   }, [subs, loopMode]);
 
@@ -586,7 +588,7 @@ export default function Video(props) {
       {displayMsgContent}
       <Grid container direction="row" justify="flex-start" style={{height:"100%", overflow: "hidden"}}>
         <Grid container direction="row" spacing={0} justify="flex-start" style={{height: "100%", overflow: "hidden"}} >
-          <Default user={user} subs={subs} session={session} max={maxStreams} layout={videoLayout} />
+          <Default user={user} subs={subsShown} session={session} max={maxStreams} layout={videoLayout} />
           <Drawer>
             <PublisherControls publisher={publisher} user={user} course={course} />
             {accor}
