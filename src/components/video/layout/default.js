@@ -196,7 +196,7 @@ export default function Default(props) {
         return item.videoElement;
       }).slice(0, max);
 
-      log.debug("got filtered subscriber videos", filtered);
+      log.debug("DEFAULT LAYOUT:: filtered subscriber videos", filtered);
 
       setFeatureVid(filtered[0])
       setRegularVid([].concat(filtered.slice(1)));
