@@ -62,7 +62,6 @@ export default function(props) {
     }
   }, [currentUser])
 
-
   async function navHome() {
     history.push(path.home);
   }
@@ -71,12 +70,22 @@ export default function(props) {
     history.push(path.schedule);
   }
 
-  let profileTab = null;
+  async function navMilestone() {
+    history.push(path.milestone);
+  }
+
+  let profileTab, milestoneTab = null;
 
   if (showProfile) {
     profileTab = (
       <Tab value={2} label={profileLabel} onClick={navProfile} className={classes.tab} />
     );
+  }
+
+  if (showProfile) {
+    milestoneTab = (
+      <Tab value={3} label="Milestones" onClick={navMilestone} className={classes.tab} />
+    )
   }
 
   return (
@@ -88,6 +97,7 @@ export default function(props) {
       <Tab value={0} className={classes.hidden} />
       <Tab value={1} label="Classes" onClick={navHome} className={classes.tab} />
       {profileTab}
+      {milestoneTab}
     </Tabs>
   )
 }

@@ -2,8 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { Button, Grid } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
 
+import * as Milestone from '../../api/milestone';
 import { getNextSession } from '../../utils';
 import path from '../../routes/path';
+import log from '../../log';
 
 export default function JoinSession(props) {
 
@@ -11,7 +13,14 @@ export default function JoinSession(props) {
   const history = useHistory();
   const [joinSession, setJoinSession] = useState(null);
 
-  const joinHandler = function () {
+  const joinHandler = async function () {
+    try {
+      let result = await Milestone.update(course.id)
+      console.log("RESULT FROM MILESTONE UPDATE: ", result);
+    } catch (err) {
+      log.warn("UPDATE MILESTONE:: error ", err);
+    }
+
     history.push(path.courses + "/" + course.id + path.joinPath);
   }
 

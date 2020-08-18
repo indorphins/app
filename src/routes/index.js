@@ -35,6 +35,9 @@ export default function Routes() {
         <Route exact path={path.instructorProfile}>
           <AsyncPage page="instructor" />
         </Route>
+        <Route exact path={path.milestone}>
+          <AsyncPage page="milestone" />
+        </Route>
         <Route path={path.home}>
           <ClassRouter />
         </Route>
