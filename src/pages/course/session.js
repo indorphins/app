@@ -11,6 +11,7 @@ import path from '../../routes/path';
 import log from '../../log';
 import Video from '../../components/video';
 import { dark } from '../../styles/theme';
+import * as Session from '../../api/session';
 
 const useStyles = makeStyles((theme) => ({
   '@global': {
@@ -62,7 +63,7 @@ export default function() {
     let data;
     try {
       data = await Course.getSessionInfo(classId);
-    } catch(err) {
+    } catch (err) {
       //TODO: redirect to class page with error message or display error here
       log.error("OPENTOK:: session join", err);
       history.push(path.courses + classId);
@@ -76,6 +77,25 @@ export default function() {
       log.error("OPENTOK:: get class info", err);
       history.push(path.courses + classId);
       return;
+    }
+
+    let session;
+    try {
+      session = await Session.get(courseData.id, data.sessionId)
+    } catch (err) {
+      log.error("OPENTOK:: create class session ", err);
+      // TODO do we want to fail or continue here
+    }
+
+    if (courseData.instructor !== currentUser.id) {
+      session.users_joined.push(currentUser.id);
+    }
+
+    try {
+      session = await Session.update(courseData.id, data.sessionId, session);
+    } catch (err) {
+      log.error("OPENTOK:: updating class session ", err);
+      // TODO error handling
     }
     
     setAuthData({

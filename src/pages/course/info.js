@@ -29,6 +29,7 @@ import {
 import { store, actions } from '../../store';
 import * as Course from '../../api/course';
 import * as Stripe from '../../api/stripe';
+import * as Session from '../../api/session';
 import log from '../../log';
 import path from '../../routes/path';
 import CoursePayment from '../../components/form/coursePayment';
@@ -228,6 +229,25 @@ export default function CourseInfo() {
         setPaymentProcessing(false);
         setNeedsPaymentMethod(false);
         setErrMessage({severity: "success", message: result.message});
+
+        let session;
+        try {
+          session = await Session.get(courseData.id, data.sessionId)
+        } catch (err) {
+          log.error("OPENTOK:: create class session ", err);
+          // TODO do we want to fail or continue here
+        }
+    
+        if (course.instructor !== currentUser.id) {
+          session.users_enrolled.push(currentUser.id);
+        }
+    
+        try {
+          session = await Session.update(courseData.id, data.sessionId, session);
+        } catch (err) {
+          log.error("OPENTOK:: updating class session ", err);
+          // TODO error handling
+        }
       }).catch(err => {
         setPaymentProcessing(false);
         showSignupForm();
