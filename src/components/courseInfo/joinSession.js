@@ -14,13 +14,6 @@ export default function JoinSession(props) {
   const [joinSession, setJoinSession] = useState(null);
 
   const joinHandler = async function () {
-    try {
-      let result = await Milestone.update(course.id)
-      console.log("RESULT FROM MILESTONE UPDATE: ", result);
-    } catch (err) {
-      log.warn("UPDATE MILESTONE:: error ", err);
-    }
-
     history.push(path.courses + "/" + course.id + path.joinPath);
   }
 
