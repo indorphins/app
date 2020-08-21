@@ -160,32 +160,29 @@ export default function WeeklyStreak(props) {
 
   weeklyStreakLabels.forEach(label => {
     let fullLabel = `${label}-Week Streak`;
-    let style = classes.milestone;
+    let typeStyle = {};
+    let iconStyle = {};
+    let contentsStyle = classes.milestone;
+
+    if (label <= streak) {
+      iconStyle = classes.contentsHit;
+      typeStyle = classes.contentsHit;
+      contentsStyle = classes.milestoneHit;
+    }
+
+    let icon = <Whatshot className={iconStyle} />;
+
+    if (label === longestStreak) {
+      icon = <StarSharpIcon className={iconStyle} />
+    }
+    
+    let type = <Typography variant='h3' className={typeStyle}>{label}</Typography>
     let contents = (
-      <Grid container className={style} justify='center' alignItems='center'>
-        <Typography variant='h3'>{label}</Typography>
-        <Whatshot />
+      <Grid container className={contentsStyle} justify='center' alignItems='center'>
+        {type}
+        {icon}
       </Grid>
     )
-    // To test successful streak
-    if (label <= streak) {
-      style = classes.milestoneHit;
-      contents = (
-        <Grid container className={style} justify='center' alignItems='center'>
-          <Typography variant='h3' className={classes.contentsHit}>{label}</Typography>
-          <Whatshot className={classes.contentsHit} />
-        </Grid>
-      )
-    }
-    if (label === longestStreak) {
-      style = classes.milestoneHit;
-      contents = (
-        <Grid container className={style} justify='center' alignItems='center'>
-          <Typography variant='h3' className={classes.contentsHit}>{label}</Typography>
-          <StarSharpIcon className={classes.contentsHit} />
-        </Grid>
-      )
-    }
     if (label === 52) {
       fullLabel = '1-Year Streak';
     } 
