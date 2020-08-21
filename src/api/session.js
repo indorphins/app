@@ -70,3 +70,19 @@ export async function create(classId, sessionId, data) {
 
   return callAPI(u, options, true);
 }
+
+/**
+ * Fetches all the class sessions the user was apart of
+ */
+export async function getAll() {
+  let options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+
+  let u = url;
+
+  return callAPI(u, options, true);
+}

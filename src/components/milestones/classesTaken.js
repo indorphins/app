@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Grid, makeStyles, CardMedia } from '@material-ui/core';
+import { Container, Typography, Grid, makeStyles } from '@material-ui/core';
 import DirectionsRunIcon from '@material-ui/icons/DirectionsRun';
-import hexy from './assets/hexy.png'
 
 const useStyles = makeStyles((theme) => ({
   topContainer: {
@@ -64,25 +63,38 @@ const useStyles = makeStyles((theme) => ({
 
 export default function ClassesTaken(props) {
   const classes = useStyles();
+  const [classesTaken, setClassesTaken] = useState(0);
+
+  useEffect(() => {
+    if (props.sessions) {
+      setClassesTaken(props.sessions.length);
+    }
+  }, [props.sessions])
 
   let content = [];
-  let classesTakenLabels = [1, 5, 10, 20, 30, 50, 75, 100, 150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000]
+  let classesTakenLabels = 
+    [1, 5, 10, 20, 30, 50, 75, 100, 150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000]
 
   classesTakenLabels.forEach(label => {
     let fullLabel = `${label} Classes`;
     let style = classes.milestone;
+
     if (label === 1000) {
       fullLabel = '1K Classes'
       label = '1K'
     }
+    if (classesTakenLabels.indexOf(label) === 0) {
+      fullLabel = 'First Class';
+    }
+
     let contents = (
       <Grid container className={style} justify='center'>
         <Typography variant='h3'>{label}</Typography>
         <DirectionsRunIcon />
       </Grid>
-    )
-    if (classesTakenLabels.indexOf(label) === 0) {
-      fullLabel = 'First Class';
+    );
+
+    if (classesTaken >= label) {
       style = classes.milestoneHit;
       contents = (
         <Grid container className={style} justify='center'>
@@ -92,10 +104,9 @@ export default function ClassesTaken(props) {
       )
     }
     content.push(
-      <Grid item className={classes.item}>
+      <Grid item className={classes.item} key={fullLabel}>
         <Grid container className={classes.milestoneContainer} direction='column' alignItems='center' justify='center'>
-            {/* <CardMedia image={hexy} title='milestone-hexy' className={classes.media} component='image'/> */}
-            {contents}
+          {contents}
           <Typography variant='body2' className={classes.milestoneLabel} align='center'>{fullLabel}</Typography>
         </Grid>
       </Grid>
@@ -104,10 +115,10 @@ export default function ClassesTaken(props) {
 
   return (
     <Container className={classes.topContainer}>
-      <Typography variant='h1' className={classes.header}>Classes Taken</Typography>
-      <Grid container className={classes.grid} spacing={7} alignItems='center' justify='center' direction='row' justify='flex-start'>
+      <Typography variant='h5' className={classes.header}>Classes Taken</Typography>
+      <Grid container className={classes.grid} spacing={7} alignItems='center' direction='row' justify='flex-start'>
         {content}
       </Grid>
     </Container>
   )
-};
+}

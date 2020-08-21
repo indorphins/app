@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Grid, makeStyles, CardMedia } from '@material-ui/core';
+import { Container, Typography, Grid, makeStyles } from '@material-ui/core';
 import Whatshot from '@material-ui/icons/Whatshot';
 import StarSharpIcon from '@material-ui/icons/StarSharp';
-import hexy from './assets/hexy.png'
+import { getDayOfYear, differenceInWeeks } from 'date-fns';
 
 const useStyles = makeStyles((theme) => ({
   topContainer: {
@@ -65,11 +65,100 @@ const useStyles = makeStyles((theme) => ({
 
 export default function WeeklyStreak(props) {
   const classes = useStyles();
+  const [streak, setStreak] = useState(0);
+  const [longestStreak, setLongestStreak] = useState(0);
+  let weeklyStreakLabels = [2, 3, 4, 7, 10, 20, 30, 40, 52, 60, 70, 80, 90, 104, 125, 156, 175, 208]
+
+  useEffect(() => {
+    // Sessions will be from earliest to latest
+    if (props.sessions) {
+      setStreak(getRecentStreak(props.sessions));
+      setLongestStreak(getLongestStreak(props.sessions));
+    }
+  }, [props.sessions])
+
+  function getRecentStreak(sessions) {
+    if (sessions.length < 2) {
+      return 0;
+    }
+
+    let longest = 0;
+    let start, last;
+
+    sessions.forEach(session => {
+      let sessionDate = new Date(session.start_date);
+
+      if (!start) {
+        start = sessionDate;
+      }
+      if (!last) {
+        last = sessionDate;
+      }
+
+      if (getDayOfYear(last) !== getDayOfYear(sessionDate)) {
+        let weekDiff = differenceInWeeks(last, sessionDate)
+        if (weekDiff > 1) {
+          return longest;
+        } else {
+          weekDiff = differenceInWeeks(start, sessionDate);
+          if (weekDiff > longest) {
+            longest = weekDiff;
+          }
+        }
+        last = sessionDate;
+      }
+    })
+    return longest
+  }
+
+  function getLongestStreak(sessions) {
+    if (sessions.length < 2) {
+      return 0;
+    }
+
+    let longest = 0;
+    let start, last;
+
+    sessions.forEach(session => {
+      let sessionDate = new Date(session.start_date);
+      if (!start) {
+        start = sessionDate;
+      }
+      if (!last) {
+        last = sessionDate;
+      }
+
+      if (getDayOfYear(last) !== getDayOfYear(sessionDate)) {
+        let weekDiff = differenceInWeeks(last, sessionDate)
+        if (weekDiff > 1) {
+          start = sessionDate;
+        } else {
+          weekDiff = differenceInWeeks(start, sessionDate);
+          if (weekDiff > longest) {
+            longest = weekDiff;
+          }
+        }
+        last = sessionDate;
+      }
+    })
+
+    // Fit longest to its closest valid label
+    if (longest >= 2) {
+      let i = 0;
+      let longestLabel = 0;
+      while (longest >= weeklyStreakLabels[i]) {
+        longestLabel = weeklyStreakLabels[i];
+        i++;
+      }
+      longest = longestLabel;
+    }
+
+    return longest
+  }
 
   let content = [];
-  let classesTakenLabels = [2, 3, 4, 7, 10, 20, 30, 40, 52, 60, 70, 80, 90, 104, 125, 156, 175, 208]
 
-  classesTakenLabels.forEach(label => {
+  weeklyStreakLabels.forEach(label => {
     let fullLabel = `${label}-Week Streak`;
     let style = classes.milestone;
     let contents = (
@@ -79,7 +168,16 @@ export default function WeeklyStreak(props) {
       </Grid>
     )
     // To test successful streak
-    if (label === 2) {
+    if (label <= streak) {
+      style = classes.milestoneHit;
+      contents = (
+        <Grid container className={style} justify='center' alignItems='center'>
+          <Typography variant='h3' className={classes.contentsHit}>{label}</Typography>
+          <Whatshot className={classes.contentsHit} />
+        </Grid>
+      )
+    }
+    if (label === longestStreak) {
       style = classes.milestoneHit;
       contents = (
         <Grid container className={style} justify='center' alignItems='center'>
@@ -90,7 +188,6 @@ export default function WeeklyStreak(props) {
     }
     if (label === 52) {
       fullLabel = '1-Year Streak';
-      style = classes.milestoneHit;
     } 
     if (label === 104) {
       fullLabel = '2-Year Streak';
@@ -102,10 +199,9 @@ export default function WeeklyStreak(props) {
       fullLabel = '4-Year Streak';
     }
     content.push(
-      <Grid item className={classes.item}>
+      <Grid item className={classes.item} key={fullLabel}>
         <Grid container className={classes.milestoneContainer} direction='column' alignItems='center' justify='center'>
-            {/* <CardMedia image={hexy} title='milestone-hexy' className={classes.media} component='image'/> */}
-            {contents}
+          {contents}
           <Typography variant='body2' className={classes.milestoneLabel} align='center'>{fullLabel}</Typography>
         </Grid>
       </Grid>
@@ -114,10 +210,10 @@ export default function WeeklyStreak(props) {
 
   return (
     <Container>
-      <Typography variant='h1' className={classes.header}>Weekly Streak</Typography>
-      <Grid container className={classes.grid} spacing={7} alignItems='center' justify='center' direction='row' justify='flex-start'>
+      <Typography variant='h5' className={classes.header}>Weekly Streak</Typography>
+      <Grid container className={classes.grid} spacing={7} alignItems='center' direction='row' justify='flex-start'>
         {content}
       </Grid>
     </Container>
   )
-};
+}
