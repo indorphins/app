@@ -77,7 +77,6 @@ export default function ClassesTaken(props) {
 
   classesTakenLabels.forEach(label => {
     let fullLabel = `${label} Classes`;
-    let style = classes.milestone;
 
     if (label === 1000) {
       fullLabel = '1K Classes'
@@ -88,16 +87,15 @@ export default function ClassesTaken(props) {
     }
 
     let contents = (
-      <Grid container className={style} justify='center'>
+      <Grid container className={classes.milestone} justify='center'>
         <Typography variant='h3'>{label}</Typography>
         <DirectionsRunIcon />
       </Grid>
     );
 
     if (classesTaken >= label) {
-      style = classes.milestoneHit;
       contents = (
-        <Grid container className={style} justify='center'>
+        <Grid container className={classes.milestoneHit} justify='center'>
           <Typography variant='h3' className={classes.contentsHit}>{label}</Typography>
           <DirectionsRunIcon className={classes.contentsHit} />
         </Grid>
