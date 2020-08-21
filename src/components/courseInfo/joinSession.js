@@ -2,10 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Button, Grid } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
 
-import * as Milestone from '../../api/milestone';
 import { getNextSession } from '../../utils';
 import path from '../../routes/path';
-import log from '../../log';
 
 export default function JoinSession(props) {
 

@@ -28,6 +28,7 @@ export default function(props) {
   let home = useRouteMatch({ path: path.home, strict: true});
   let profile = useRouteMatch(path.schedule);
   let instructor = useRouteMatch(path.instructorProfile);
+  let milestones = useRouteMatch(path.milestone);
 
   useEffect(() => {
     if (home && home.isExact) {
@@ -55,6 +56,12 @@ export default function(props) {
   }, [instructor]);
 
   useEffect(() => {
+    if (milestones) {
+      setTab(3);
+    }
+  })
+
+  useEffect(() => {
     if (currentUser.id) {
       setShowProfile(true);
     } else {
@@ -74,7 +81,7 @@ export default function(props) {
     history.push(path.milestone);
   }
 
-  let profileTab, milestoneTab = null;
+  let profileTab = null;
 
   if (showProfile) {
     profileTab = (
@@ -82,11 +89,9 @@ export default function(props) {
     );
   }
 
-  if (showProfile) {
-    milestoneTab = (
-      <Tab value={3} label="Milestones" onClick={navMilestone} className={classes.tab} />
-    )
-  }
+  let milestoneTab = (
+    <Tab value={3} label="Milestones" onClick={navMilestone} className={classes.tab} />
+  )
 
   return (
     <Tabs

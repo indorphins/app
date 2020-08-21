@@ -87,17 +87,17 @@ export default function() {
       // TODO do we want to fail or continue here
     }
 
-    if (courseData.instructor !== currentUser.id) {
+    if (session.instructor_id !== currentUser.id && session.users_joined.indexOf(currentUser.id) < 0) {
       session.users_joined.push(currentUser.id);
+
+      try {
+        session = await Session.update(courseData.id, data.sessionId, session);
+      } catch (err) {
+        log.error("OPENTOK:: updating class session ", err);
+        // TODO error handling
+      }
     }
 
-    try {
-      session = await Session.update(courseData.id, data.sessionId, session);
-    } catch (err) {
-      log.error("OPENTOK:: updating class session ", err);
-      // TODO error handling
-    }
-    
     setAuthData({
       sessionId: data.sessionId,
       token: data.token,
