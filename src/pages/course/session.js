@@ -87,7 +87,7 @@ export default function() {
       // TODO do we want to fail or continue here
     }
 
-    if (session.instructor_id !== currentUser.id && session.users_joined.indexOf(currentUser.id) < 0) {
+    if (session && session.instructor_id !== currentUser.id && session.users_joined.indexOf(currentUser.id) < 0) {
       session.users_joined.push(currentUser.id);
 
       try {
