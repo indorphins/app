@@ -153,7 +153,7 @@ export default function Video(props) {
         publishAudio: false,
         publishVideo: true,
         resolution: "320x240",
-        frameRate: 30,
+        frameRate: 15,
         audioBitrate: 20000,
         enableStereo: false,
         maxResolution: {width: 320, height: 240},
