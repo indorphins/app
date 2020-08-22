@@ -45,7 +45,7 @@ export default function Video(props) {
   let looper = null;
   const loopTime = 15000;
   const { enqueueSnackbar } = useSnackbar();
-  const [maxStreams, setMaxStreams] = useState(2);
+  const [maxStreams, setMaxStreams] = useState(4);
   const [user, setUser] = useState(null);
   const [course, setCourse] = useState(null);
   const [credentials, setCredentials] = useState(null);
