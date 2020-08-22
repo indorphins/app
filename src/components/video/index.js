@@ -152,11 +152,11 @@ export default function Video(props) {
         insertDefaultUI: true,
         publishAudio: false,
         publishVideo: true,
-        resolution: "640x480",
+        resolution: "320x240",
         frameRate: 30,
         audioBitrate: 20000,
         enableStereo: false,
-        maxResolution: {width: 640, height: 480},
+        maxResolution: {width: 320, height: 240},
       };
 
       if (user.id === course.instructor.id) {
@@ -256,8 +256,8 @@ export default function Video(props) {
       insertMode: 'append',
       width: '100%',
       height: '100%',
-      preferredFrameRate: 30,
-      preferredResolution: {width: 640, height: 480},
+      preferredFrameRate: 15,
+      preferredResolution: {width: 320, height: 240},
       showControls: false,
       insertDefaultUI: false,
       subscribeToAudio: true,
@@ -265,6 +265,7 @@ export default function Video(props) {
     };
 
     if (data.instructor) {
+      props.preferredFrameRate = 30;
       props.subscribeToVideo = true;
       props.preferredResolution = {width: 1280, height: 720};
     }
