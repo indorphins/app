@@ -45,7 +45,7 @@ export default function Video(props) {
   let looper = null;
   const loopTime = 15000;
   const { enqueueSnackbar } = useSnackbar();
-  const [maxStreams, setMaxStreams] = useState(4);
+  const [maxStreams, setMaxStreams] = useState(2);
   const [user, setUser] = useState(null);
   const [course, setCourse] = useState(null);
   const [credentials, setCredentials] = useState(null);
@@ -156,13 +156,14 @@ export default function Video(props) {
         frameRate: 15,
         audioBitrate: 20000,
         enableStereo: false,
-        maxResolution: {width: 320, height: 240},
+        maxResolution: {width: 640, height: 480},
       };
 
       if (user.id === course.instructor.id) {
         settings.audioBitrate = 96000;
         settings.disableAudioProcessing = false;
         settings.publishAudio = true;
+        settings.frameRate = 30;
         settings.resolution = "1280x720";
         settings.maxResolution = {width: 1280, height: 720};
       }
@@ -317,7 +318,6 @@ export default function Video(props) {
         setSubs(subs => subs.map(item => {
           if (item.user.id === data.id) {
             item.disabled = true;
-            item.subscriber.subscribeToVideo(false);
           }
           return item;
         }));
@@ -446,7 +446,16 @@ export default function Video(props) {
       } else {
         item.video = true;
         item.subscriber.subscribeToVideo(true);
-        setSubs([item, ...items]);
+
+        if (user.id === course.instructor.id) {
+          setSubs([item, ...items]);
+        } else {
+          setSubs([
+            ...subsRef.current.filter(i => i.user.id === course.instructor.id),
+            item,
+            ...subsRef.current.filter(i => i.user.id !== item.user.id && i.user.id !== course.instructor.id)
+          ])
+        }
       }
     }
   }
