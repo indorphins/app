@@ -11,7 +11,7 @@ export default function JoinSession(props) {
   const history = useHistory();
   const [joinSession, setJoinSession] = useState(null);
 
-  const joinHandler = function () {
+  const joinHandler = async function () {
     history.push(path.courses + "/" + course.id + path.joinPath);
   }
 
