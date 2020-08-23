@@ -380,7 +380,7 @@ export default function Video(props) {
 
       setSubsShown([...enabled]);
     }
-  }, [subs, loopMode]);
+  }, [subs, loopMode, maxStreams]);
 
   useEffect(() => {
     if (loopMode) {
