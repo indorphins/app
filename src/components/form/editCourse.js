@@ -1,5 +1,6 @@
 import 'date-fns';
 import React, { useState, useEffect } from "react";
+import { createSelector } from 'reselect';
 import { useHistory } from 'react-router-dom';
 import { 
   Grid,
@@ -27,6 +28,7 @@ import * as Course from '../../api/course';
 import * as utils from '../../utils';
 import path from '../../routes/path';
 import { store, actions } from '../../store';
+import { useSelector } from 'react-redux';
 
 const useStyles = makeStyles((theme) => ({
   root: {},
@@ -51,9 +53,14 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+const getUserSelector = createSelector([state => state.user.data], (user) => {
+  return user;
+});
+
 export default function (props) {
 
   const classes = useStyles();
+  const currentUser = useSelector((state) => getUserSelector(state));
   const history = useHistory();
   const [title, setTitle] = useState('');
   const [courseType, setCourseType] = useState('');
@@ -103,8 +110,6 @@ export default function (props) {
 
     if (value) {
       setDuration(value);
-    } else {
-      setDuration(20);
     }
   }
 
@@ -247,6 +252,11 @@ export default function (props) {
 
   if (props.spotsDisabled) {
     spotsContent = null;
+  }
+
+  if (currentUser && currentUser.type === 'instructor') {
+    spotsContent = null;
+    costContent = null;
   }
 
   let loaderContent = null;
