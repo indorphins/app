@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { Container, Grid, Fab, Grow, Divider }  from '@material-ui/core';
+import { Container, Grid, Fab, Grow, Divider, Typography }  from '@material-ui/core';
 import { Add, Clear } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -129,7 +129,13 @@ export default function CourseList() {
     );
   }
 
-  let myClassesContent= null;
+  let myClassesContent = (
+    <Grid container className={classes.content} style={{ 'display': 'block' }}>
+      <Typography variant='h5'>Class happens here. Indoorphins go with you everywhere.</Typography>
+      <Typography variant='h5'>Book a class below to get started.</Typography>
+    </Grid>
+  );
+  
   if (currentUser.id) {
     myClassesContent = (
       <Grid container className={classes.content}>
