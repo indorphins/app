@@ -29,6 +29,11 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function CourseList() {
+  const classes = useStyles();
+  const currentUser = useSelector((state) => getUserSelector(state));
+  const [allowCreate, setAllowCreate] = useState(false);
+  const [showForm, setShowForm] = useState(false);
+
   let now = new Date();
   let courseFilter = {
     $or: [
@@ -37,22 +42,29 @@ export default function CourseList() {
     ],
     recurring: { $exists: false },
     start_date: { $exists: true },
-		//available_spots: { $gt: 0 },
   };
 
   let recurringFilter = {
     recurring: { $exists: true },
-		//available_spots: { $gt: 0 },
+  };
+
+  let scheduleFilter = {
+    '$and': [
+      {'$or': [
+        {instructor: currentUser.id},
+        {participants: { $elemMatch: { id: currentUser.id }}},
+      ]},
+      {'$or': [ 
+        { start_date: {"$gte" : now.toISOString() }},
+        { recurring: { '$exists': true }}
+      ]},
+    ],
+    start_date: { '$exists': true },
   };
 
   let order = {
     start_date: 'asc',
   };
-
-  const classes = useStyles();
-  const currentUser = useSelector((state) => getUserSelector(state));
-  const [allowCreate, setAllowCreate] = useState(false);
-  const [showForm, setShowForm] = useState(false);
 
   useEffect(() => {
     if (currentUser.type && currentUser.type !== 'standard') {
@@ -117,10 +129,25 @@ export default function CourseList() {
     );
   }
 
+  let myClassesContent= null;
+  if (currentUser.id) {
+    myClassesContent = (
+      <Grid container className={classes.content}>
+        <CourseFeature
+          filter={scheduleFilter}
+          order={order}
+          limit={500}
+          header='My Classes'
+        />
+      </Grid>
+    );    
+  }
+
   return (
     <Container justify='center'>
       {createButton}
       {createContent}
+      {myClassesContent}
       <Grid container className={classes.content}>
         <CourseFeature
 					filter={courseFilter}

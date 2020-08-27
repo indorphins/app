@@ -7,14 +7,13 @@ const url = config.host + '/session';
  * Updates the session object with data
  * @param {String} classId
  */
-export async function update(classId, sessionId, data) {
+export async function update(classId, sessionId) {
 
   let options = {
-    method: 'PUT',
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify(data)
   };
   
   let u = url + `/${classId}/${sessionId}`;

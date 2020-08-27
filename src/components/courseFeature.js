@@ -107,8 +107,11 @@ const useStyles = makeStyles((theme) => ({
   textWrap: {
     whiteSpace: "break-spaces",
     fontSize: "1rem",
+    lineHeight: '1.3em',
+    height: 80,
     '@media (max-width: 400px)': {
-      height: 40,
+      height: 85,
+      lineHeight: '1.1em'
     }
   }
 }));
@@ -216,10 +219,6 @@ export default function CourseFeature(props) {
           id: course.id,
         };
 
-        if (course.available_spots === 0) {
-          data.title = 'SOLD OUT: ' + data.title;
-        }
-
         if (course.photo_url) {
           data.photo_url = course.photo_url;
         }
@@ -246,7 +245,15 @@ export default function CourseFeature(props) {
           dt = "Today";
         }
 
-        data.label = dt + " @ " + time;
+        data.label = dt + " @ " + time + '\nInspired By: ' + course.type;
+
+        if (course.available_spots === 0) {
+          data.label += '\n SOLD OUT';
+        } else if (course.available_spots <= 5) {
+          data.label += '\n' + course.available_spots + ' spots left!';
+        } else {
+          data.label += '\n ';
+        }
 
         items.push(data);
       });
