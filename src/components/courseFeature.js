@@ -7,11 +7,10 @@ import {
   GridListTileBar,
   Typography,
   CircularProgress,
-  IconButton,
   Fab,
   useMediaQuery
 } from '@material-ui/core';
-import { InfoOutlined, ArrowForward, ArrowBack } from '@material-ui/icons';
+import { ArrowForward, ArrowBack } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { format, isTomorrow, isToday, differenceInDays } from 'date-fns'
 
@@ -108,9 +107,11 @@ const useStyles = makeStyles((theme) => ({
     whiteSpace: "break-spaces",
     fontSize: "1rem",
     lineHeight: '1.3em',
-    height: 80,
+    height: 60,
+    color: "white",
+    fontWeight: 300,
     '@media (max-width: 400px)': {
-      height: 85,
+      height: 67,
       lineHeight: '1.1em'
     }
   }
@@ -234,7 +235,7 @@ export default function CourseFeature(props) {
         let time = format(d, "h:mma");
 
         if (differenceInDays(d, now) >= 7) {
-          dt = format(d, "M/d");
+          dt += " " + format(d, "M/d");
         }
 
         if (isTomorrow(d)) {
@@ -245,10 +246,10 @@ export default function CourseFeature(props) {
           dt = "Today";
         }
 
-        data.label = dt + " @ " + time + '\nInspired By: ' + course.type;
+        data.label = dt + " @ " + time + '\n' + course.type;
 
         if (course.available_spots === 0) {
-          data.label += '\n SOLD OUT';
+          data.label += '\nSOLD OUT';
         } else if (course.available_spots <= 5) {
           data.label += '\n' + course.available_spots + ' spots left!';
         } else {
@@ -347,16 +348,6 @@ export default function CourseFeature(props) {
     );
   }
 
-  let infoIcon = null;
-
-  if (!small) {
-    infoIcon = (
-      <IconButton color="primary">
-        <InfoOutlined />
-      </IconButton>
-    );
-  }
-
   formContent = (
     <Grid container style={{width: "100%"}}>
       <Grid>
@@ -375,7 +366,6 @@ export default function CourseFeature(props) {
                   subtitle={course.label}
                   className={classes.desc}
                   classes={{title: classes.noWrap, subtitle: classes.textWrap}}
-                  actionIcon={infoIcon}
                   />
                 </Grid>
               </Link>
