@@ -79,9 +79,10 @@ export default function() {
       return;
     }
 
-    let session;
+    let session = null;
+
     try {
-      session = await Session.get(courseData.id, data.sessionId)
+      session = await Session.update(courseData.id, data.sessionId);
     } catch (err) {
       log.error("OPENTOK:: create class session ", err);
       // TODO do we want to fail or continue here
