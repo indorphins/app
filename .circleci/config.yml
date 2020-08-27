@@ -18,7 +18,10 @@ jobs:
           command: docker run --rm -it -v $(pwd):/var/app -w /var/app node:14.1 /bin/bash -c "npm i && npm i -g webpack webpack-cli && webpack --config webpack.config.js"
       - run:
           name: Upload static files to build bucket
-          command: docker run -it -v $(pwd)/build:/var/build -e AWS_ACCESS_KEY_ID=$ACCESS_KEY -e AWS_SECRET_ACCESS_KEY=$SECRET_KEY organs/awscli aws s3 sync /var/build/ s3://indorphins-fe-build/ --exclude="*.js" 
+          command: docker run -it -v $(pwd)/build:/var/build -e AWS_ACCESS_KEY_ID=$ACCESS_KEY -e AWS_SECRET_ACCESS_KEY=$SECRET_KEY organs/awscli aws s3 sync /var/build/ s3://indorphins-fe-build/ --exclude="*.js" --exclude="index.js"
+      - run:
+          name: Upload index.html file
+          command: docker run -it -v $(pwd)/build:/var/build -e AWS_ACCESS_KEY_ID=$ACCESS_KEY -e AWS_SECRET_ACCESS_KEY=$SECRET_KEY organs/awscli aws s3 cp --cache-control "max-age=0, no-cache, no-store" /var/build/index.html s3://indorphins-fe-build/index.html
       - run:
           name: Upload js to build bucket
           command: docker run -it -v $(pwd)/build:/var/build -e AWS_ACCESS_KEY_ID=$ACCESS_KEY -e AWS_SECRET_ACCESS_KEY=$SECRET_KEY organs/awscli aws s3 sync --content-encoding gzip /var/build/static/js/ s3://indorphins-fe-build/static/js/
