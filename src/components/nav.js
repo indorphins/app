@@ -20,14 +20,9 @@ const useStyles = makeStyles((theme) => ({
 export default function(props) {
 
   const [tab, setTab] = useState(0);
-  const [profileLabel, setProfileLabel] = useState("My Schedule");
-  const [showProfile, setShowProfile] = useState(false);
-  const currentUser = props.user;
   const classes = useStyles();
   const history = useHistory();
   let home = useRouteMatch({ path: path.home, strict: true});
-  let profile = useRouteMatch(path.schedule);
-  let instructor = useRouteMatch(path.instructorProfile);
   let milestones = useRouteMatch(path.milestone);
 
   useEffect(() => {
@@ -36,24 +31,7 @@ export default function(props) {
     } else {
       setTab(0);
     }
-    setProfileLabel('My Schedule');
   }, [home]);
-
-  useEffect(() => {
-    if (profile) {
-      setShowProfile(true);
-      setTab(2);
-      setProfileLabel('My Schedule');
-    }
-  }, [profile, currentUser]);
-
-  useEffect(() => {
-    if (instructor) {
-      setShowProfile(true);
-      setTab(2);
-      setProfileLabel('Instructor');
-    }
-  }, [instructor]);
 
   useEffect(() => {
     if (milestones) {
@@ -61,36 +39,16 @@ export default function(props) {
     }
   })
 
-  useEffect(() => {
-    if (currentUser.id) {
-      setShowProfile(true);
-    } else {
-      setShowProfile(false);
-    }
-  }, [currentUser])
-
   async function navHome() {
     history.push(path.home);
-  }
-
-  async function navProfile() {
-    history.push(path.schedule);
   }
 
   async function navMilestone() {
     history.push(path.milestone);
   }
 
-  let profileTab = null;
-
-  if (showProfile) {
-    profileTab = (
-      <Tab value={2} label={profileLabel} onClick={navProfile} className={classes.tab} />
-    );
-  }
-
   let milestoneTab = (
-    <Tab value={3} label="Milestones" onClick={navMilestone} className={classes.tab} />
+    <Tab value={2} label="Milestones" onClick={navMilestone} className={classes.tab} />
   )
 
   return (
@@ -101,7 +59,6 @@ export default function(props) {
     >
       <Tab value={0} className={classes.hidden} />
       <Tab value={1} label="Classes" onClick={navHome} className={classes.tab} />
-      {profileTab}
       {milestoneTab}
     </Tabs>
   )
