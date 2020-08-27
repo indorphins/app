@@ -248,7 +248,7 @@ export default function CourseFeature(props) {
         data.label = dt + " @ " + time + '\nInspired By: ' + course.type;
 
         if (course.available_spots === 0) {
-          data.label += '\n' + 'SOLD OUT';
+          data.label += '\n SOLD OUT';
         } else if (course.available_spots <= 5) {
           data.label += '\n' + course.available_spots + ' spots left!';
         } else {
