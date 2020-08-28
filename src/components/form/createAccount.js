@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { TextField, Button, LinearProgress, Grid, Checkbox, Typography } from '@material-ui/core';
+import Alert from '@material-ui/lab/Alert';
 import { makeStyles } from '@material-ui/core/styles';
 
 import * as User from '../../api/user';
@@ -56,6 +57,7 @@ export default function(props) {
   const [userConsent, setUserConsent] = useState(false)
   const [birthday, setBirthday] = useState(null);
   const [bdayErr, setBdayErr] = useState(null);
+  const [serverErr, setServerErr] = useState(null);
   const history = useHistory();
   const rx = /^1?[-|\s]?\(?(\d{3})?\)?[-|\s]?(\d{3})[-|\s]?(\d{4})/gm;
 
@@ -194,7 +196,23 @@ export default function(props) {
     } catch(err) {
 			// TODO: display this error to the user
       setLoader(false);
-      return log.error("AUTH:: firebase account create", err);
+      log.error("AUTH:: firebase account create", err);
+
+      if (err.code === "auth/email-already-in-use") {
+
+        return setServerErr({
+          severity: "error",
+          message: `An account already exists with this email address. If you used 'Sign in with Google' to 
+          create your account please use that same option to login to your account, or you can use the forgot 
+          password link to reset or generate an Indoorphins.fit password`,
+        });
+
+      } else {
+        return setServerErr({
+          severity: "error",
+          message: err.message,
+        });
+      }
     }
 
     log.debug("AUTH:: created new firebase account for user");
@@ -211,7 +229,12 @@ export default function(props) {
     } catch(err) {
 			// TODO: display this error the user?
       setLoader(false);
-      return log.warn("AUTH:: error creating user account from firebase token", err);
+      log.warn("AUTH:: error creating user account from firebase token", err);
+
+      return setServerErr({
+        severity: "error",
+        message: err.message,
+      });
     }
 		
     log.debug("AUTH:: created new user", user);
@@ -335,9 +358,19 @@ export default function(props) {
 		);
   }
 
+  let infoContent = null;
+  if (serverErr) {
+    infoContent = (
+      <Grid item>
+        <Alert severity={serverErr.severity}>{serverErr.message}</Alert>
+      </Grid>
+		)
+  }
+
   let formcontent = (
     <form onSubmit={formHandler}>
       <Grid container direction="column" spacing={2}>
+        {infoContent}
         <Grid item>
           <TextField
           disabled={loader}

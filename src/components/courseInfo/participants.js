@@ -11,6 +11,8 @@ import { isSameDay, isWithinInterval, sub, add } from 'date-fns';
 import { BdayIcon } from '../../components/icon/bday';
 import * as Course from '../../api/course';
 import log from '../../log';
+import { ClassesTakenIcon } from '../icon/classesTaken';
+import { WeekStreakIcon } from '../icon/weekStreak';
 
 const useStyles = makeStyles((theme) => ({
   participantContainer: {
@@ -86,6 +88,14 @@ export default function Participants(props) {
           <Typography variant="body1">{item.username}</Typography>
           {(currentUser.id === course.instructor.id || currentUser.type === 'admin') && birthdayHelper(item) ? 
             <BdayIcon bday={item.birthday} /> :
+            null
+          }
+          {(currentUser.id === course.instructor.id || currentUser.type === 'admin') && item.classesTaken ? 
+            <ClassesTakenIcon classes={item.classesTaken} /> :
+            null
+          }
+          {(currentUser.id === course.instructor.id || currentUser.type === 'admin') && item.weeklyStreak ? 
+            <WeekStreakIcon weeks={item.weeklyStreak} /> :
             null
           }
         </Grid>
