@@ -35,7 +35,7 @@ export default function(props) {
 
   useEffect(() => {
     if (milestones) {
-      setTab(3);
+      setTab(2);
     }
   })
 

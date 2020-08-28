@@ -79,24 +79,11 @@ export default function() {
       return;
     }
 
-    let session = null;
-
     try {
-      session = await Session.update(courseData.id, data.sessionId);
+      await Session.update(courseData.id, data.sessionId);
     } catch (err) {
       log.error("OPENTOK:: create class session ", err);
       // TODO do we want to fail or continue here
-    }
-
-    if (session && session.instructor_id !== currentUser.id && session.users_joined.indexOf(currentUser.id) < 0) {
-      session.users_joined.push(currentUser.id);
-
-      try {
-        session = await Session.update(courseData.id, data.sessionId, session);
-      } catch (err) {
-        log.error("OPENTOK:: updating class session ", err);
-        // TODO error handling
-      }
     }
 
     setAuthData({

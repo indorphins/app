@@ -378,7 +378,11 @@ export default function CourseFeature(props) {
   );
 
   if (displayData && displayData.length === 0) {
-    formContent = null;
+    if (props.altContent) {
+      formContent = props.altContent;
+    } else {
+      formContent = null;
+    }
   }
 
   content = formContent;

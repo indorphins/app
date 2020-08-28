@@ -25,6 +25,9 @@ const useStyles = makeStyles((theme) => ({
   },
   fab: {
     fontWeight: "bold",
+  },
+  noClassContainer: {
+    marginBottom: theme.spacing(2),
   }
 }));
 
@@ -129,13 +132,16 @@ export default function CourseList() {
     );
   }
 
-  let myClassesContent = (
-    <Grid container className={classes.content} style={{ 'display': 'block' }}>
-      <Typography variant='h5'>Class happens here. Indoorphins go with you everywhere.</Typography>
+  let noClassContent = (
+    <Grid container className={classes.noClassContainer} style={{ 'display': 'block' }}>
+      <Typography variant='h5' style={{ 'padding-bottom': '10px' }}>
+        Class happens here. Indoorphins go with you everywhere.
+      </Typography>
       <Typography variant='h5'>Book a class below to get started.</Typography>
     </Grid>
   );
-  
+
+  let myClassesContent ;
   if (currentUser.id) {
     myClassesContent = (
       <Grid container className={classes.content}>
@@ -144,9 +150,12 @@ export default function CourseList() {
           order={order}
           limit={500}
           header='My Classes'
+          altContent={noClassContent}
         />
       </Grid>
     );    
+  } else {
+    myClassesContent = noClassContent;
   }
 
   return (
