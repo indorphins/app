@@ -53,7 +53,7 @@ export default function Signup(props) {
       }
     }
 
-    if (course.available_spots > 0 && !enrolled) {
+    if (course.available_spots > 0 && !enrolled && currentUser.id) {
       label = "Book Class";
       if (course.cost && course.cost > 0) {
         handler = props.paidHandler
