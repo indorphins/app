@@ -205,11 +205,16 @@ export default function Default(props) {
 
       if (filtered[0]) {
         setFeatureVid(filtered[0]);
+        filtered[0].subscriber.subscribeToVideo(true);
       } else {
         setFeatureVid(null);
       }
       if (filtered.length > 1) {
         setRegularVid([].concat(filtered.slice(1)));
+        filtered.slice(1).map(item => {
+          item.subscriber.subscribeToVideo(true);
+          return item;
+        })
       } else {
         setRegularVid([]);
       }
