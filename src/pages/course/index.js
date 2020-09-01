@@ -5,12 +5,19 @@ import { Container, Grid, Fab, Grow, Divider, Typography }  from '@material-ui/c
 import { Add, Clear } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 
+import log from '../../log';
+import * as Course from '../../api/course';
+import { getNextSession } from '../../utils';
 import CreateCourse from '../../components/form/editCourse';
 import CourseFeature from '../../components/courseFeature';
 import InstructorFeature from '../../components/instructorFeature';
 
 const getUserSelector = createSelector([(state) => state.user.data], (user) => {
   return user;
+});
+
+const userSchedSelector = createSelector([state => state.user.schedule], (items) => {
+  return items;
 });
 
 const useStyles = makeStyles((theme) => ({
@@ -32,40 +39,75 @@ const useStyles = makeStyles((theme) => ({
 export default function CourseList() {
   const classes = useStyles();
   const currentUser = useSelector((state) => getUserSelector(state));
+  const schedule = useSelector(state => userSchedSelector(state));
   const [allowCreate, setAllowCreate] = useState(false);
+  const [courseData, setCourseData] = useState([]);
+  const [upcomingData, setUpcomingData] = useState([]);
+  const [weeklyData, setUWeeklyData] = useState([]);
+  const [scheduleData, setScheduleData] = useState([]);
   const [showForm, setShowForm] = useState(false);
 
-  let now = new Date();
-  let courseFilter = {
-    $or: [
-			{ start_date: { $gte: now.toISOString() } },
-			{ end_date: { $gte: now.toISOString() } },
-    ],
-    recurring: { $exists: false },
-    start_date: { $exists: true },
-  };
+  async function init() {
+    let now = new Date();
+    let filter = {
+      $or: [
+        { start_date: { $gte: now.toISOString() } },
+        { end_date: { $gte: now.toISOString() } },
+        { recurring: { $exists: true } }
+      ]
+    };
+    let order = {
+      start_date: 'asc',
+    };
+    let result = [];
 
-  let recurringFilter = {
-    recurring: { $exists: true },
-  };
+    try {
+      result = await Course.query(filter, order, 1000);
+    } catch(err) {
+      return log.error("COURSE WIDGET:: query for courses", filter, order, err);
+    }
 
-  let scheduleFilter = {
-    '$and': [
-      {'$or': [
-        {instructor: currentUser.id},
-        {participants: { $elemMatch: { id: currentUser.id }}},
-      ]},
-      {'$or': [ 
-        { start_date: {"$gte" : now.toISOString() }},
-        { recurring: { '$exists': true }}
-      ]},
-    ],
-    start_date: { '$exists': true },
-  };
+    setCourseData([].concat(result.data));
+  }
 
-  let order = {
-    start_date: 'asc',
-  };
+  useEffect(() => {
+    init();
+  }, []);
+
+  useEffect(() => {
+
+    if (schedule && schedule.length <= 0) {
+      return setScheduleData([]);
+    }
+
+    let now = new Date();
+    let filtered = schedule.filter(item => {
+      if(getNextSession(now, item)) {
+        return true;
+      }
+      return false;
+    });
+
+    setScheduleData([].concat(filtered));
+
+  }, [schedule]);
+
+  useEffect(() => {
+
+    if (courseData.length <= 0) return;
+
+    let upcoming = courseData.filter(item => {
+      return !item.recurring;
+    });
+
+    let weekly = courseData.filter(item => {
+      return item.recurring;
+    });
+
+    setUpcomingData([].concat(upcoming));
+    setUWeeklyData([].concat(weekly));
+
+  }, [courseData])
 
   useEffect(() => {
     if (currentUser.type && currentUser.type !== 'standard') {
@@ -133,27 +175,16 @@ export default function CourseList() {
 
   let myClassesContent;
 
-  if (currentUser.id) {
+  if (scheduleData && scheduleData.length > 0) {
     myClassesContent = (
       <Grid item>
-        <CourseFeature
-          filter={scheduleFilter}
-          order={order}
-          limit={500}
-          header='My Classes'
-        />
+        <CourseFeature header="My Classes" items={scheduleData} />
       </Grid>
     );    
   } else {
     myClassesContent = (
       <Grid item>
         <Grid container direction="column" justify="center" alignItems="center" spacing={1}>
-          {/*<Grid item>
-            <Typography variant='h2'>Indoorphins go with you everywhere</Typography>
-          </Grid>          
-          <Grid item>
-            <Typography variant='h3'>Class happens here</Typography>
-          </Grid>*/}
           <Grid item>
             <Typography variant='h3'>Book a class below to get started</Typography>
           </Grid>
@@ -169,20 +200,10 @@ export default function CourseList() {
       <Grid container direction="column" className={classes.content} spacing={3}>
         {myClassesContent}
         <Grid item>
-          <CourseFeature
-            filter={courseFilter}
-            order={order}
-            limit={500}
-            header='Upcoming classes'
-          />
+          <CourseFeature header="Upcoming Classes" items={upcomingData} />
         </Grid>
         <Grid item>
-          <CourseFeature
-            filter={recurringFilter}
-            order={order}
-            limit={500}
-            header='Weekly classes'
-          />
+          <CourseFeature header="Weekly Classes" items={weeklyData} />
         </Grid>
         <Grid item>
           <InstructorFeature
