@@ -181,7 +181,9 @@ export default function(props) {
 
   if (serverErr) {
     errContent = (
-      <Alert severity="error" className={classes.txtField}>{serverErr}</Alert>
+      <Grid item>
+        <Alert severity="error" className={classes.txtField}>{serverErr}</Alert>
+      </Grid>
 		)
   }
 
@@ -197,7 +199,7 @@ export default function(props) {
   let infoContent = null;
   if (info) {
     infoContent = (
-      <Grid>
+      <Grid item>
         <Alert severity="info">{info}</Alert>
       </Grid>
 		)
@@ -205,14 +207,12 @@ export default function(props) {
 
   let formcontent = (
     <Grid>
-      {infoContent}
-      <Grid>
-        {errContent}
-      </Grid>
       <form id='login-form' onSubmit={formHandler}>
         <input autoComplete="username" id="_email" type="hidden" value={userName} />
         <input autoComplete="current-password" id="_password" type="hidden" value={password} />
         <Grid container direction="column" spacing={2}>
+          {infoContent}
+          {errContent}
           <Grid item>
             <TextField
             disabled={loader}

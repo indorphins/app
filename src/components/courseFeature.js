@@ -6,7 +6,6 @@ import {
   GridListTile,
   GridListTileBar,
   Typography,
-  CircularProgress,
   Fab,
   useMediaQuery
 } from '@material-ui/core';
@@ -14,8 +13,6 @@ import { ArrowForward, ArrowBack } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { format, isTomorrow, isToday, differenceInDays } from 'date-fns'
 
-import * as Course from '../api/course';
-import log from '../log';
 import path from '../routes/path';
 import { getNextDate } from '../utils';
 
@@ -126,9 +123,7 @@ export default function CourseFeature(props) {
   const [formatted, setFormatted] = useState([]);
   const [header, setHeader] = useState(null);
   const [cols, setCols] = useState(4);
-  const [spacing, setSpacing] = useState(0);
   const [height, setHeight] = useState(400);
-  const [loader, setLoader] = useState(true);
   const [displayNumber, setDisplayNumber] = useState(4);
   const [displayIndex, setDisplayIndex] = useState(0);
   const [displayData, setDisplayData] = useState([]);
@@ -143,77 +138,42 @@ export default function CourseFeature(props) {
   let content = null;
   let headerContent = null;
   let formContent = null;
-  let loaderContent = (
-    <Grid  className={classes.loader} container direction="row" justify="center" alignItems="center">
-      <CircularProgress color="secondary" />
-    </Grid>
-  );
-
-  const init = async function() {
-
-    let filter = props.filter;
-    let order = props.order;
-    let result = null;
-    let limit = 100;
-
-    if (props.limit) {
-      limit = props.limit;
-    }
-
-    try {
-      result = await Course.query(filter, order, limit);
-    } catch(err) {
-      setLoader(false);
-      return log.error("COURSE WIDGET:: query for courses", filter, order, err);
-    }
-
-    if (result && result.total > 0) {
-      setData(result);
-    }
-
-    setLoader(false);
-    log.debug("COURSE WIDGET:: got result", result);
-  }
 
   useEffect(() => {
     if (props.header) {
       setHeader(props.header);
+    }
+
+    if (props.items) {
+      setData(props.items);
     }
   }, [props]);
 
   useEffect(() => {
     if (small) {
       setCols(2);
-      //setSpacing(10);
       setDisplayNumber(2);
       setHeight(275)
     } else if (med) {
       setCols(3);
       setDisplayNumber(3);
-      //setSpacing(20);
       setHeight(325);
     }else {
       setCols(4);
-      setSpacing(0);
       setDisplayNumber(4);
       setHeight(400);
     }
   }, [small, med]);
 
   useEffect(() => {
-    init();
-  }, []);
-
-  useEffect(() => {
     let disp = formatted.slice(displayIndex, displayIndex + displayNumber);
     setDisplayData(disp.concat([]));
   }, [formatted, displayIndex, displayNumber]);
 
-
   useEffect(() => {
-    if (data) {
+    if (data && data.length > 0) {
       let items = []
-      data.data.forEach(function(course) {
+      data.forEach(function(course) {
         let data = {
           title: course.title,
           url: path.courses + "/" + course.id,
@@ -355,7 +315,7 @@ export default function CourseFeature(props) {
       </Grid>
       <div className={classes.root}>
         {prevBtn}
-        <GridList cellHeight={height} className={classes.gridList} cols={cols} spacing={spacing}>
+        <GridList cellHeight={height} className={classes.gridList} cols={cols} spacing={0}>
           {displayData.map(course => (
             <GridListTile key={course.id} cols={1}>
               <Link className={classes.anchor} to={course.url}>
@@ -386,10 +346,6 @@ export default function CourseFeature(props) {
   }
 
   content = formContent;
-
-  if (loader) {
-    content = loaderContent;
-  }
 
   return (
     <Grid container className={classes.container}>

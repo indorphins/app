@@ -211,8 +211,8 @@ export default function(props) {
         return setServerErr({
           severity: "error",
           message: `An account already exists with this email address. If you used 'Sign in with Google' to 
-          create your account please use that same option to login to your account, or you can use the forgot 
-          password link to reset or generate an Indoorphins.fit password`,
+          create your account please use that same option to login to your account, or use the forgot 
+          password link to reset/generate the Indoorphins.fit password`,
         });
 
       } else {

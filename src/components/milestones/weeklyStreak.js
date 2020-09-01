@@ -177,7 +177,7 @@ export default function WeeklyStreak(props) {
     }
 
     content.push(
-      <Grid item xs={layout.width}>
+      <Grid key={fullLabel} item xs={layout.width}>
         <Grid container direction='column' alignItems='center' justify='center' spacing={2}>
           <Grid item className={contentStyle}>
             {contents}
