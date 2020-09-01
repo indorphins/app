@@ -43,7 +43,10 @@ export default function CourseList() {
   const [allowCreate, setAllowCreate] = useState(false);
   const [courseData, setCourseData] = useState([]);
   const [upcomingData, setUpcomingData] = useState([]);
-  const [weeklyData, setUWeeklyData] = useState([]);
+  const [weeklyData, setWeeklyData] = useState([]);
+  const [morningData, setMorningData] = useState([]);
+  const [middayData, setMiddayData] = useState([]);
+  const [eveningData, setEveningData] = useState([]);    
   const [scheduleData, setScheduleData] = useState([]);
   const [showForm, setShowForm] = useState(false);
 
@@ -96,6 +99,8 @@ export default function CourseList() {
 
     if (courseData.length <= 0) return;
 
+    let now = new Date();
+
     let upcoming = courseData.filter(item => {
       return !item.recurring;
     });
@@ -104,8 +109,53 @@ export default function CourseList() {
       return item.recurring;
     });
 
+    let morning = courseData.filter(item => {
+      let next = getNextSession(now, item);
+
+      if (next && next.date) {
+        let d = new Date(next.date);
+        let hour = d.getHours();
+        if (hour >= 0 && hour < 11) {
+          return true;
+        }
+      }
+
+      return false;
+    });
+
+    let mid = courseData.filter(item => {
+      let next = getNextSession(now, item);
+
+      if (next && next.date) {
+        let d = new Date(next.date);
+        let hour = d.getHours();
+        if (hour >= 11 && hour <= 16) {
+          return true;
+        }
+      }
+
+      return false;
+    });
+
+    let evening = courseData.filter(item => {
+      let next = getNextSession(now, item);
+
+      if (next && next.date) {
+        let d = new Date(next.date);
+        let hour = d.getHours();
+        if (hour > 16) {
+          return true;
+        }
+      }
+
+      return false;
+    });
+
     setUpcomingData([].concat(upcoming));
-    setUWeeklyData([].concat(weekly));
+    setWeeklyData([].concat(weekly));
+    setMorningData([].concat(morning));
+    setMiddayData([].concat(mid));
+    setEveningData([].concat(evening));
 
   }, [courseData])
 
@@ -201,6 +251,15 @@ export default function CourseList() {
         {myClassesContent}
         <Grid item>
           <CourseFeature header="Upcoming Classes" items={upcomingData} />
+        </Grid>
+        <Grid item>
+          <CourseFeature header="Morning Classes" items={morningData} />
+        </Grid>
+        <Grid item>
+          <CourseFeature header="Mid Day Classes" items={middayData} />
+        </Grid>
+        <Grid item>
+          <CourseFeature header="Evening Classes" items={eveningData} />
         </Grid>
         <Grid item>
           <CourseFeature header="Weekly Classes" items={weeklyData} />
