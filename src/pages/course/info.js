@@ -237,7 +237,7 @@ export default function CourseInfo() {
         const s = new Date(course.start_date);
         let end = new Date(course.start_date);
         end.setMinutes(end.getMinutes() + course.duration);
-        const cal = createCalenderEvent(course.title, course.description, 'indoorphins.fit', course.id, s, end, false)
+        const cal = createCalenderEvent(course.title, 'indoorphins.fit', course.id, s, end, false)
         classJoined(start, course.id, btoa(cal.toString()));
       }).catch(err => {
         setPaymentProcessing(false);

@@ -87,9 +87,9 @@ function getClassUrl(classId) {
   return `${config.host}/${classId}`;
 }
 
-export function createCalenderEvent(subject, description, organizer, id, begin, end, recurring) {
+export function createCalenderEvent(subject, organizer, id, begin, end, recurring) {
   const classUrl = getClassUrl(id);
-  description += `\n${classUrl}`
+  const description = `You'll take class here: ${classUrl}`
 
   // TODO Add recurring functionality for subscription classes 
 
