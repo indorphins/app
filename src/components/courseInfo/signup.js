@@ -90,17 +90,13 @@ export default function Signup(props) {
     history.push(`${path.login}?redirect=${path.courses}/${course.id}`);
   }
 
-  const confirmLeaveHandler = () => {
-    setConfirmLeave(true)
-  }
-
   const closeHandler = () => {
     setConfirmLeave(false);
   }
 
   let modal = (
     <Modal
-      open={confirmLeaveHandler}
+      open={confirmLeave}
       onClose={closeHandler}
       className={classes.modal}
       aria-labelledby="modal-title"

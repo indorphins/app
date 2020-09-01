@@ -14,9 +14,7 @@ const getUserSelector = createSelector([(state) => state.user.data], (user) => {
 });
 
 const useStyles = makeStyles((theme) => ({
-  content: {
-    marginBottom: theme.spacing(4),
-  },
+  content: {},
   extendedBtn: {
     marginRight: theme.spacing(1),
   },
@@ -132,58 +130,66 @@ export default function CourseList() {
     );
   }
 
-  let noClassContent = (
-    <Grid container className={classes.noClassContainer} style={{ 'display': 'block' }}>
-      <Typography variant='h5' style={{ 'padding-bottom': '10px' }}>
-        Class happens here. Indoorphins go with you everywhere.
-      </Typography>
-      <Typography variant='h5'>Book a class below to get started.</Typography>
-    </Grid>
-  );
 
-  let myClassesContent ;
+  let myClassesContent;
+
   if (currentUser.id) {
     myClassesContent = (
-      <Grid container className={classes.content}>
+      <Grid item>
         <CourseFeature
           filter={scheduleFilter}
           order={order}
           limit={500}
           header='My Classes'
-          altContent={noClassContent}
         />
       </Grid>
     );    
   } else {
-    myClassesContent = noClassContent;
+    myClassesContent = (
+      <Grid item>
+        <Grid container direction="column" justify="center" alignItems="center" spacing={1}>
+          <Grid item>
+            <Typography variant='h2'>Indoorphins go with you everywhere</Typography>
+          </Grid>          
+          <Grid item>
+            <Typography variant='h3'>Class happens here</Typography>
+          </Grid>
+          <Grid item>
+            <Typography variant='h6'>Book a class below to get started</Typography>
+          </Grid>
+        </Grid>
+      </Grid>
+    );
   }
 
   return (
     <Container justify='center'>
       {createButton}
       {createContent}
-      {myClassesContent}
-      <Grid container className={classes.content}>
-        <CourseFeature
-					filter={courseFilter}
-					order={order}
-					limit={500}
-					header='Upcoming classes'
-        />
-      </Grid>
-      <Grid container className={classes.content}>
-        <CourseFeature
-					filter={recurringFilter}
-					order={order}
-					limit={500}
-					header='Weekly classes'
-        />
-      </Grid>
-      <Grid container className={classes.content}>
-        <InstructorFeature
-					limit={500}
-					header='Instructors'
-        />
+      <Grid container direction="column" className={classes.content} spacing={3}>
+        {myClassesContent}
+        <Grid item>
+          <CourseFeature
+            filter={courseFilter}
+            order={order}
+            limit={500}
+            header='Upcoming classes'
+          />
+        </Grid>
+        <Grid item>
+          <CourseFeature
+            filter={recurringFilter}
+            order={order}
+            limit={500}
+            header='Weekly classes'
+          />
+        </Grid>
+        <Grid item>
+          <InstructorFeature
+            limit={500}
+            header='Instructors'
+          />
+        </Grid>
       </Grid>
     </Container>
   );

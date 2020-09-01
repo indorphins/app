@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { TextField, Button, LinearProgress, Grid, Checkbox, Typography } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
@@ -58,8 +58,16 @@ export default function(props) {
   const [birthday, setBirthday] = useState(null);
   const [bdayErr, setBdayErr] = useState(null);
   const [serverErr, setServerErr] = useState(null);
+  const [redirectUrl, setRedirectUrl] = useState(null);
   const history = useHistory();
   const rx = /^1?[-|\s]?\(?(\d{3})?\)?[-|\s]?(\d{3})[-|\s]?(\d{4})/gm;
+
+  useEffect(() => {
+    if (props.query && props.query.redirect && !redirectUrl) {
+      log.debug("LOGIN:: set redirect URL", props.query.redirect);
+      setRedirectUrl(props.query.redirect);
+    }
+  }, [props, redirectUrl]);
 
   const usernameHandler = (event) => {
     setUsername(event.target.value);
@@ -242,7 +250,14 @@ export default function(props) {
     await store.dispatch(actions.user.set(user.data));
 
     setLoader(false);
-    history.push(path.home);
+    
+    if (redirectUrl) {
+      log.debug('CREATE ACCOUNT:: redirect to', redirectUrl);
+      history.push(redirectUrl);
+    } else {
+      log.debug('CREATE ACCOUNT:: redirect to home', path.home);
+      history.push(path.home);
+    }
   };
   
   let tooltips = {

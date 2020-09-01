@@ -7,7 +7,7 @@ export default function Signup(props) {
 
   return (
     <Container>
-      <CreateForm />
+      <CreateForm query={props.query} />
     </Container>
   );
 }
