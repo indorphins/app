@@ -1,73 +1,40 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Grid, makeStyles } from '@material-ui/core';
+import { Typography, Grid, makeStyles, useMediaQuery } from '@material-ui/core';
 import Whatshot from '@material-ui/icons/Whatshot';
 import StarSharpIcon from '@material-ui/icons/StarSharp';
 import { getDayOfYear, differenceInWeeks } from 'date-fns';
 
 const useStyles = makeStyles((theme) => ({
-  topContainer: {
-    marginBottom: theme.spacing(5)
-  },
-  milestoneContainer: {
-    marginRight: theme.spacing(2),
-    marginTop: theme.spacing(1),
-  },
   milestone: {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
     borderColor: theme.palette.grey[500],
-    height: '95px',
-    width: '75px',
-    zIndex: 25,
     border: "solid 2px",
     borderRadius: "20% / 50%"
   },
-  milestoneHit: {
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2),
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-    borderColor: "white",
-    height: '95px',
-    width: '75px',
-    zIndex: 25,
-    border: "solid 2px",
-    borderRadius: "20% / 50%",
-    backgroundColor: "#FF877F"
+  number: {
+    minWidth: 60,
+    textAlign: "center",
+    '@media (max-width: 900px)': {
+      minWidth: 40,
+    },
   },
-  contentsHit: {
-    color: "white"
-  },
-  milestoneLabel: {
-    paddingTop: theme.spacing(1),
-    width: 130,
-  },
-  item: {
-    flexGrow: 0,
-    paddingTop: theme.spacing(1) + "px !important",
-    paddingBottom: theme.spacing(1) + "px !important",
-    paddingRight: theme.spacing(1) + "px !important",
-    paddingLeft: theme.spacing(1) + "px !important"
-  },
-  grid: {
-    margin: 0
-  },
-  header: {
-    marginLeft: theme.spacing(4)
-  },
-  media: {
-    height: 94,
-    width: 76
-  },
+  hit: {
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.white,
+  }
 }));
 
 export default function WeeklyStreak(props) {
   const classes = useStyles();
   const [streak, setStreak] = useState(0);
   const [longestStreak, setLongestStreak] = useState(0);
-  let weeklyStreakLabels = [2, 3, 4, 7, 10, 20, 30, 40, 52, 60, 70, 80, 90, 104, 125, 156, 175, 208]
+  let weeklyStreakLabels = [2, 3, 4, 7, 10, 20, 30, 40, 52, 60, 70, 80, 90, 104, 125, 156, 175, 208];
+
+  const sml = useMediaQuery('(max-width:600px)');
+  const med = useMediaQuery('(max-width:900px)');
 
   useEffect(() => {
     // Sessions will be from earliest to latest
@@ -157,60 +124,82 @@ export default function WeeklyStreak(props) {
   }
 
   let content = [];
+  let layout = {
+    width: 2,
+  };
+
+  if (sml) {
+    layout.width = 4;
+  } else if (med) {
+    layout.width = 3;
+  } else {
+    layout.width = 2;
+  }
 
   weeklyStreakLabels.forEach(label => {
-    let fullLabel = `${label}-Week Streak`;
-    let typeStyle = {};
-    let iconStyle = {};
-    let contentsStyle = classes.milestone;
-
-    if (label <= streak) {
-      iconStyle = classes.contentsHit;
-      typeStyle = classes.contentsHit;
-      contentsStyle = classes.milestoneHit;
-    }
-
-    let icon = <Whatshot className={iconStyle} />;
+    
+    let icon = <Whatshot className={classes.icon} />;
 
     if (label === longestStreak) {
-      icon = <StarSharpIcon className={iconStyle} />
+      icon = <StarSharpIcon className={classes.icon} />
+    }
+
+    let contentStyle = classes.milestone;
+
+    if (label <= streak) {
+      contentStyle = `${classes.milestone} ${classes.hit}`;
     }
     
-    let type = <Typography variant='h3' className={typeStyle}>{label}</Typography>
     let contents = (
-      <Grid container className={contentsStyle} justify='center' alignItems='center'>
-        {type}
-        {icon}
+      <Grid container direction="column" justify='center' alignItems='center' spacing={1}>
+        <Grid item>
+          <Typography variant='h3' className={classes.number}>{label}</Typography>
+        </Grid>
+        <Grid item>
+          {icon}
+        </Grid>
       </Grid>
     )
+
+    let fullLabel = `${label} Week Streak`;
+
     if (label === 52) {
-      fullLabel = '1-Year Streak';
+      fullLabel = '1 Year Streak';
     } 
     if (label === 104) {
-      fullLabel = '2-Year Streak';
+      fullLabel = '2 Year Streak';
     }
     if (label === 156) {
-      fullLabel = '3-Year Streak';
+      fullLabel = '3 Year Streak';
     }
     if (label === 208) {
-      fullLabel = '4-Year Streak';
+      fullLabel = '4 Year Streak';
     }
+
     content.push(
-      <Grid item className={classes.item} key={fullLabel}>
-        <Grid container className={classes.milestoneContainer} direction='column' alignItems='center' justify='center'>
-          {contents}
-          <Typography variant='body2' className={classes.milestoneLabel} align='center'>{fullLabel}</Typography>
+      <Grid item xs={layout.width}>
+        <Grid container direction='column' alignItems='center' justify='center' spacing={2}>
+          <Grid item className={contentStyle}>
+            {contents}
+          </Grid>
+          <Grid item>
+            <Typography variant='body2' align="center">{fullLabel}</Typography>
+          </Grid>
         </Grid>
       </Grid>
     )
   })
 
   return (
-    <Container>
-      <Typography variant='h5' className={classes.header}>Weekly Streak</Typography>
-      <Grid container className={classes.grid} spacing={7} alignItems='center' direction='row' justify='flex-start'>
-        {content}
+    <Grid container direction="column" spacing={4}>
+      <Grid item>
+        <Typography variant='h3' align="center">Weekly Streak</Typography>
       </Grid>
-    </Container>
+      <Grid item>
+        <Grid container spacing={4} direction='row' justify='flex-start'>
+          {content}
+        </Grid>
+      </Grid>
+    </Grid>
   )
 }
