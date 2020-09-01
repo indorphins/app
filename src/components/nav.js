@@ -2,6 +2,8 @@ import React, {useState, useEffect} from 'react';
 import { useRouteMatch, useHistory } from 'react-router-dom';
 import { Tab, Tabs } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { useSelector } from 'react-redux';
+import { createSelector } from 'reselect';
 
 import path from '../routes/path';
 
@@ -17,39 +19,44 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const getUserSelector = createSelector([state => state.user.data], (user) => {
+  return user;
+});
+
 export default function(props) {
 
   const [tab, setTab] = useState(0);
+  const currentUser = useSelector(state => getUserSelector(state));
   const classes = useStyles();
   const history = useHistory();
   let home = useRouteMatch({ path: path.home, strict: true});
-  let milestones = useRouteMatch(path.milestone);
+  let schedule = useRouteMatch(path.schedule);
 
   useEffect(() => {
     if (home && home.isExact) {
       setTab(1);
+    } else if (currentUser.id && schedule) {
+      setTab(2);
     } else {
       setTab(0);
     }
   }, [home]);
 
-  useEffect(() => {
-    if (milestones) {
-      setTab(2);
-    }
-  })
-
   async function navHome() {
     history.push(path.home);
   }
 
-  async function navMilestone() {
-    history.push(path.milestone);
+  async function navSchedule() {
+    history.push(path.schedule);
   }
 
-  let milestoneTab = (
-    <Tab value={2} label="Milestones" onClick={navMilestone} className={classes.tab} />
-  )
+  let scheduleTab = null;
+
+  if (currentUser.id) {
+    scheduleTab = (
+      <Tab value={2} label="My Schedule" onClick={navSchedule} className={classes.tab} />
+    )
+  }
 
   return (
     <Tabs
@@ -59,7 +66,7 @@ export default function(props) {
     >
       <Tab value={0} className={classes.hidden} />
       <Tab value={1} label="Classes" onClick={navHome} className={classes.tab} />
-      {milestoneTab}
+      {scheduleTab}
     </Tabs>
   )
 }
