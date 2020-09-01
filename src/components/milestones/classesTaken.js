@@ -1,69 +1,36 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Grid, makeStyles } from '@material-ui/core';
+import { Typography, Grid, makeStyles, useMediaQuery } from '@material-ui/core';
 import DirectionsRunIcon from '@material-ui/icons/DirectionsRun';
 
 const useStyles = makeStyles((theme) => ({
-  topContainer: {
-    marginBottom: theme.spacing(5)
-  },
-  milestoneContainer: {
-    marginRight: theme.spacing(2),
-    marginTop: theme.spacing(1),
-  },
   milestone: {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
     borderColor: theme.palette.grey[500],
-    height: 95,
-    width: 75,
-    zIndex: 25,
     border: "solid 2px",
     borderRadius: "20% / 50%"
   },
-  milestoneHit: {
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2),
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-    borderColor: "white",
-    height: 95,
-    width: 75,
-    zIndex: 25,
-    border: "solid 2px",
-    borderRadius: "20% / 50%",
-    backgroundColor: "#FF877F"
+  number: {
+    minWidth: 60,
+    textAlign: "center",
+    '@media (max-width: 900px)': {
+      minWidth: 40,
+    },
   },
-  contentsHit: {
-    color: "white"
-  },
-  milestoneLabel: {
-    paddingTop: theme.spacing(1),
-    width: 130,
-  },
-  item: {
-    flexGrow: 0,
-    paddingTop: theme.spacing(1) + "px !important",
-    paddingBottom: theme.spacing(1) + "px !important",
-    paddingRight: theme.spacing(1) + "px !important",
-    paddingLeft: theme.spacing(1) + "px !important"
-  },
-  grid: {
-    margin: 0
-  },
-  header: {
-    marginLeft: theme.spacing(4)
-  },
-  media: {
-    height: 94,
-    width: 76
-  },
+  hit: {
+    backgroundColor: theme.palette.secondary.main,
+    color: theme.palette.common.white,
+  }
 }));
 
 export default function ClassesTaken(props) {
   const classes = useStyles();
   const [classesTaken, setClassesTaken] = useState(0);
+
+  const sml = useMediaQuery('(max-width:600px)');
+  const med = useMediaQuery('(max-width:900px)');
 
   useEffect(() => {
     if (props.sessions) {
@@ -74,6 +41,18 @@ export default function ClassesTaken(props) {
   let content = [];
   let classesTakenLabels = 
     [1, 5, 10, 20, 30, 50, 75, 100, 150, 200, 250, 300, 350, 400, 450, 500, 600, 700, 800, 900, 1000]
+
+  let layout = {
+    width: 2,
+  };
+
+  if (sml) {
+    layout.width = 4;
+  } else if (med) {
+    layout.width = 3;
+  } else {
+    layout.width = 2;
+  }
 
   classesTakenLabels.forEach(label => {
     let fullLabel = `${label} Classes`;
@@ -87,36 +66,55 @@ export default function ClassesTaken(props) {
     }
 
     let contents = (
-      <Grid container className={classes.milestone} justify='center'>
-        <Typography variant='h3'>{label}</Typography>
-        <DirectionsRunIcon />
+      <Grid container direction="column" justify='center' alignItems="center" spacing={1}>
+        <Grid item>
+          <Typography variant='h3' className={classes.number} style={{color: "inherit"}}>{label}</Typography>
+        </Grid>
+        <Grid item>
+          <DirectionsRunIcon />
+        </Grid>
       </Grid>
     );
+    let contentStyle = classes.milestone;
 
     if (classesTaken >= label) {
       contents = (
-        <Grid container className={classes.milestoneHit} justify='center'>
-          <Typography variant='h3' className={classes.contentsHit}>{label}</Typography>
-          <DirectionsRunIcon className={classes.contentsHit} />
+        <Grid container direction="column" justify='center' alignItems="center" spacing={1}>
+          <Grid item>
+            <Typography variant='h3' className={classes.number} style={{color: "inherit"}}>{label}</Typography>
+          </Grid>
+          <Grid item>
+            <DirectionsRunIcon />
+          </Grid>
         </Grid>
-      )
+      );
+      contentStyle = `${classes.milestone} ${classes.hit}`;
     }
+
     content.push(
-      <Grid item className={classes.item} key={fullLabel}>
-        <Grid container className={classes.milestoneContainer} direction='column' alignItems='center' justify='center'>
-          {contents}
-          <Typography variant='body2' className={classes.milestoneLabel} align='center'>{fullLabel}</Typography>
+      <Grid item key={fullLabel} xs={layout.width}>
+        <Grid container direction='column' alignItems='center' justify='center' spacing={2}>
+          <Grid item className={contentStyle}>
+            {contents}
+          </Grid>
+          <Grid item>
+            <Typography variant='body2' align='center'>{fullLabel}</Typography>
+          </Grid>
         </Grid>
       </Grid>
     )
   })
 
   return (
-    <Container className={classes.topContainer}>
-      <Typography variant='h5' className={classes.header}>Classes Taken</Typography>
-      <Grid container className={classes.grid} spacing={7} alignItems='center' direction='row' justify='flex-start'>
-        {content}
+    <Grid container direction="column" spacing={4}>
+      <Grid item>
+        <Typography variant='h3' align="center">Classes Taken</Typography>
       </Grid>
-    </Container>
+      <Grid item>
+        <Grid container spacing={4} direction='row' justify='flex-start'>
+          {content}
+        </Grid>
+      </Grid>
+    </Grid>
   )
 }

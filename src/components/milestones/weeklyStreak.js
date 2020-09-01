@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Grid, makeStyles, useMediaQuery } from '@material-ui/core';
+import { Typography, Grid, makeStyles, useMediaQuery } from '@material-ui/core';
 import Whatshot from '@material-ui/icons/Whatshot';
 import StarSharpIcon from '@material-ui/icons/StarSharp';
 import { getDayOfYear, differenceInWeeks } from 'date-fns';
@@ -124,6 +124,17 @@ export default function WeeklyStreak(props) {
   }
 
   let content = [];
+  let layout = {
+    width: 2,
+  };
+
+  if (sml) {
+    layout.width = 4;
+  } else if (med) {
+    layout.width = 3;
+  } else {
+    layout.width = 2;
+  }
 
   weeklyStreakLabels.forEach(label => {
     
@@ -140,7 +151,7 @@ export default function WeeklyStreak(props) {
     }
     
     let contents = (
-      <Grid container direction="column" justify='center' alignItems='center'>
+      <Grid container direction="column" justify='center' alignItems='center' spacing={1}>
         <Grid item>
           <Typography variant='h3' className={classes.number}>{label}</Typography>
         </Grid>
@@ -165,18 +176,6 @@ export default function WeeklyStreak(props) {
       fullLabel = '4 Year Streak';
     }
 
-    let layout = {
-      width: 2,
-    };
-
-    if (sml) {
-      layout.width = 4;
-    } else if (med) {
-      layout.width = 3;
-    } else {
-      layout.width = 2;
-    }
-
     content.push(
       <Grid item xs={layout.width}>
         <Grid container direction='column' alignItems='center' justify='center' spacing={2}>
@@ -192,17 +191,15 @@ export default function WeeklyStreak(props) {
   })
 
   return (
-    <Container>
-      <Grid container direction="column" spacing={4}>
-        <Grid item>
-          <Typography variant='h3' align="center">Weekly Streak</Typography>
-        </Grid>
-        <Grid item>
-          <Grid container spacing={4} direction='row' justify='flex-start'>
-            {content}
-          </Grid>
+    <Grid container direction="column" spacing={4}>
+      <Grid item>
+        <Typography variant='h3' align="center">Weekly Streak</Typography>
+      </Grid>
+      <Grid item>
+        <Grid container spacing={4} direction='row' justify='flex-start'>
+          {content}
         </Grid>
       </Grid>
-    </Container>
+    </Grid>
   )
 }

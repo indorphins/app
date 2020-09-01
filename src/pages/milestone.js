@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Grid } from '@material-ui/core';
+import { Container, Grid } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 import ClassesTaken from '../components/milestones/classesTaken';
@@ -31,9 +31,15 @@ export default function Milestones(props) {
   }
 
   return (
-    <Grid container>
-      <ClassesTaken sessions={sessions} />
-      <WeeklyStreak sessions={sessions} />  
-    </Grid>
+    <Container>
+      <Grid container direction="column" spacing={4}>
+        <Grid item>
+          <ClassesTaken sessions={sessions} />
+        </Grid>
+        <Grid item>
+          <WeeklyStreak sessions={sessions} />
+        </Grid>
+      </Grid>
+    </Container>
   );
 }
