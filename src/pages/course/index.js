@@ -148,14 +148,14 @@ export default function CourseList() {
     myClassesContent = (
       <Grid item>
         <Grid container direction="column" justify="center" alignItems="center" spacing={1}>
-          <Grid item>
+          {/*<Grid item>
             <Typography variant='h2'>Indoorphins go with you everywhere</Typography>
           </Grid>          
           <Grid item>
             <Typography variant='h3'>Class happens here</Typography>
-          </Grid>
+          </Grid>*/}
           <Grid item>
-            <Typography variant='h6'>Book a class below to get started</Typography>
+            <Typography variant='h3'>Book a class below to get started</Typography>
           </Grid>
         </Grid>
       </Grid>
