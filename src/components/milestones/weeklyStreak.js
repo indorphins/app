@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Grid, makeStyles } from '@material-ui/core';
+import { Container, Typography, Grid, makeStyles, useMediaQuery } from '@material-ui/core';
 import Whatshot from '@material-ui/icons/Whatshot';
 import StarSharpIcon from '@material-ui/icons/StarSharp';
 import { getDayOfYear, differenceInWeeks } from 'date-fns';
@@ -31,7 +31,10 @@ export default function WeeklyStreak(props) {
   const classes = useStyles();
   const [streak, setStreak] = useState(0);
   const [longestStreak, setLongestStreak] = useState(0);
-  let weeklyStreakLabels = [2, 3, 4, 7, 10, 20, 30, 40, 52, 60, 70, 80, 90, 104, 125, 156, 175, 208]
+  let weeklyStreakLabels = [2, 3, 4, 7, 10, 20, 30, 40, 52, 60, 70, 80, 90, 104, 125, 156, 175, 208];
+
+  const sml = useMediaQuery('(max-width:600px)');
+  const med = useMediaQuery('(max-width:900px)');
 
   useEffect(() => {
     // Sessions will be from earliest to latest
@@ -162,8 +165,20 @@ export default function WeeklyStreak(props) {
       fullLabel = '4 Year Streak';
     }
 
+    let layout = {
+      width: 2,
+    };
+
+    if (sml) {
+      layout.width = 4;
+    } else if (med) {
+      layout.width = 3;
+    } else {
+      layout.width = 2;
+    }
+
     content.push(
-      <Grid item xs={2}>
+      <Grid item xs={layout.width}>
         <Grid container direction='column' alignItems='center' justify='center' spacing={2}>
           <Grid item className={contentStyle}>
             {contents}
