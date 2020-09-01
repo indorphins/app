@@ -104,17 +104,17 @@ export function createCalenderEvent(subject, description, organizer, id, begin, 
         properties: [
           new Property({
             name: 'DTSTART',
-            parameters: { VALUE: 'DATE' },
+            parameters: { VALUE: 'DATETIME' },
             value: begin
           }),
           new Property({
             name: 'DTEND',
-            parameters: { VALUE: 'DATE' },
+            parameters: { VALUE: 'DATETIME' },
             value: end
           }),
           new Property({
             name: 'DTSTAMP',
-            parameters: { VALUE: 'DATE' },
+            parameters: { VALUE: 'DATETIME' },
             value: new Date()
           }),
           new Property({
