@@ -29,7 +29,7 @@ export default function Routes() {
   return (
     <Switch>
       <Route exact path={path.signup}>
-        <Signup />
+        <Signup query={query} />
       </Route>
       <Route exact path={path.login}>
         <Login query={query} />

@@ -170,7 +170,11 @@ export default function(props) {
   };
 
   const loadSignUpForm = () => {
-    history.push(path.signup);
+    if (redirectUrl) {
+      history.push(path.signup + "?redirect=" + redirectUrl);
+    } else {
+      history.push(path.signup);
+    }
   };
 
   let errContent;
