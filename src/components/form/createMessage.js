@@ -20,7 +20,7 @@ const useStyles = makeStyles((theme) => ({
 // Expects a props.courseId (String) and props.onSend which functions as a method to remove this component
 export default function CreateMessage(props) {
   const classes = useStyles();
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState(null);
   const [errMessage, setErrMessage] = useState(null);
   const [loader, setLoader] = useState(false);
   let progress;
@@ -45,6 +45,7 @@ export default function CreateMessage(props) {
     }
 
     setLoader(false);
+    setErrMessage({ severity: "info", message: "Message sent"});
 
     if (typeof props.onSend === "function") {
       props.onSend();
