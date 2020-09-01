@@ -19,6 +19,7 @@
 		"date-fns": "^2.15.0",
 		"draft-convert": "^2.1.10",
 		"firebase": "^7.14.2",
+		"immutable-ics": "^0.4.0",
 		"later": "RickCarlino/later",
 		"lodash": "^4.17.15",
 		"mui-rte": "^1.19.0",
