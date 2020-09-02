@@ -1,4 +1,7 @@
 import * as later from 'later';
+import { Component, Property } from 'immutable-ics';
+import config from '../config'
+
 
 const sessionWindow = 5;
 
@@ -78,4 +81,61 @@ export function getNextSession(now, c) {
     start: startWindow,
     end: endWindow,
   };
+}
+
+function getClassUrl(classId) {
+  return `${config.host}/${classId}`;
+}
+
+export function createCalenderEvent(subject, organizer, id, begin, end, recurring) {
+  const classUrl = getClassUrl(id);
+  const description = `You'll take class here: ${classUrl}`
+
+  // TODO Add recurring functionality for subscription classes 
+
+  const calendar = new Component({
+    name: 'VCALENDAR',
+    properties: [
+      new Property({ name: 'VERSION', value: 2 })
+    ],
+    components: [
+      new Component({
+        name: 'VEVENT',
+        properties: [
+          new Property({
+            name: 'DTSTART',
+            parameters: { VALUE: 'DATETIME' },
+            value: begin
+          }),
+          new Property({
+            name: 'DTEND',
+            parameters: { VALUE: 'DATETIME' },
+            value: end
+          }),
+          new Property({
+            name: 'DTSTAMP',
+            parameters: { VALUE: 'DATETIME' },
+            value: new Date()
+          }),
+          new Property({
+            name: 'DESCRIPTION',
+            parameters: { VALUE: 'STRING' },
+            value: description
+          }),
+          new Property({
+            name: 'SUMMARY',
+            parameters: { VALUE: 'STRING' },
+            value: subject
+          }),
+          new Property({
+            name: 'ORGANIZER',
+            parameters: { CN: organizer },
+            value: "indoorphins@indoorphins.fit"
+          }),
+        ]
+      })
+    ]
+  })
+
+  return calendar;
 }
