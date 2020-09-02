@@ -1,7 +1,6 @@
 import * as later from 'later';
 import { Component, Property } from 'immutable-ics';
-import config from '../config'
-
+import path from '../routes/path';
 
 const sessionWindow = 5;
 
@@ -84,7 +83,7 @@ export function getNextSession(now, c) {
 }
 
 function getClassUrl(classId) {
-  return `${config.client}/class/${classId}`;
+  return `${window.location.origin}${path.login}?redirect=${path.courses}/${classId}`;
 }
 
 export function createCalenderEvent(subject, organizer, id, begin, end, recurring) {
