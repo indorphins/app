@@ -1,5 +1,6 @@
 const appConfig = {
   "host": "http://192.168.1.40:3001",
+  "client": "http://localhost:3000",
   "log_level": "DEBUG",
   "log_type": "",
   "firebase": {

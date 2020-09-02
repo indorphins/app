@@ -84,7 +84,7 @@ export function getNextSession(now, c) {
 }
 
 function getClassUrl(classId) {
-  return `${config.host}/${classId}`;
+  return `${config.client}/class/${classId}`;
 }
 
 export function createCalenderEvent(subject, organizer, id, begin, end, recurring) {

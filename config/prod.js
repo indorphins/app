@@ -1,5 +1,6 @@
 const appConfig = {
   "host": "https://api.indorphins.com",
+  "client": "https://indoorphins.fit",
   "firebase": {
     "apiKey": "AIzaSyDvzc4jsC0j3jTnJQOucgtzwJbDUbWM7pE",
     "authDomain": "indoorphins-f4de1.firebaseapp.com",
