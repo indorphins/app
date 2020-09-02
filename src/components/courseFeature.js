@@ -191,6 +191,8 @@ export default function CourseFeature(props) {
           d = getNextDate(course.recurring, 1);
         }
 
+        data.date = d;
+
         let dt = format(d, "iiii");
         let time = format(d, "h:mma");
 
@@ -219,7 +221,9 @@ export default function CourseFeature(props) {
         items.push(data);
       });
 
-      setFormatted(items.concat([]));
+      setFormatted(items.sort(function(a,b) {
+        return a.date.getTime() - b.date.getTime();
+      }).concat([]));
     }
   }, [data]);
 
