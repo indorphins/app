@@ -9,11 +9,10 @@ export default function VideoDOMElement(props) {
         container
         style={{width:"100%", height: "100%"}}
         ref={(nodeRef) => {
-          (function(nodeRef) { 
-            if (!nodeRef) return; 
-            nodeRef.innerHTML=""; 
+          if (nodeRef) {
+            nodeRef.innerHTML= "";
             nodeRef.appendChild(props.element);
-          })(nodeRef);
+          }
         }}
       />
     )
