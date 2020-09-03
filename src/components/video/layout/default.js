@@ -7,7 +7,8 @@ import {
 import { makeStyles } from '@material-ui/core/styles';
 
 import Emote from '../emote';
-import VideoDOMElement from './videoDOMElement';
+//import VideoDOMElement from './videoDOMElement';
+import VideoDOMElement from './videoElementAlt';
 import log from '../../../log';
 
 const verticalStyles = makeStyles((theme) => ({
@@ -198,7 +199,7 @@ export default function Default(props) {
   useEffect(() => {
     if (subs) {
       let filtered = subs.filter(item => {
-        return item.videoElement && item.video && !item.disabled;
+        return item.videoElement;
       }).slice(0, max);
 
       log.debug("DEFAULT LAYOUT:: filtered subscriber videos", filtered);

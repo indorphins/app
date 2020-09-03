@@ -4,7 +4,7 @@ import { createSelector } from 'reselect';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 
-import CourseFeedback from './components/form/courseFeedback';
+import Feedback from './components/feedback';
 import AppTheme from './styles';
 import log from './log';
 import Firebase from './Firebase';
@@ -19,20 +19,10 @@ const getUserSelector = createSelector([(state) => state.user.data], (user) => {
   return user;
 });
 
-const courseFeedbackSelector = createSelector([(state) => state.feedback], (feedback) => {
-  return feedback.show;
-});
-
-const courseSelector = createSelector([(state) => state.feedback], (feedback) => {
-  return feedback.course;
-});
-
 const stripePromise = loadStripe(config.stripe_public_key);
 
 export default function App() {
   const currentUser = useSelector((state) => getUserSelector(state));
-  const showFeedback = useSelector((state) => courseFeedbackSelector(state));
-  const course = useSelector((state) => courseSelector(state));
 
   async function getUser(firebaseUserData) {
     let user;
@@ -165,19 +155,11 @@ export default function App() {
     }
   }, [currentUser]);
 
-  let feedbackcontent = null;
-
-  if (showFeedback) {
-    feedbackcontent = (
-      <CourseFeedback course={course} />
-    )
-  }
-
   return (
     <Elements stripe={stripePromise}>
       <AppTheme>
         <Notification />
-        {feedbackcontent}
+        <Feedback />
         <Routes />
       </AppTheme>
     </Elements>
