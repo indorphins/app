@@ -28,11 +28,16 @@ const courseSelector = createSelector([(state) => state.feedback], (feedback) =>
   return feedback.course;
 });
 
+const sessionIdSelector = createSelector([(state) => state.feedback], (feedback) => {
+  return feedback.sessionId;
+});
+
 export default function Feedback() {
   const classes = useStyles();
   const showFeedback = useSelector((state) => courseFeedbackSelector(state));
   const [ showFeedbackForm, setShowFeedbackForm ] = useState(false);
   const course = useSelector((state) => courseSelector(state));
+  const sessionId = useSelector((state) => sessionIdSelector(state));
   let match = useRouteMatch({
     path: path.courseJoinSession,
     strict: true,
@@ -71,7 +76,7 @@ export default function Feedback() {
           </Typography>
         </Grid>
         <Grid item>
-          <CourseFeedback course={course} />
+          <CourseFeedback course={course} sessionId={sessionId} onSubmit={() => closeModal()} />
         </Grid>
       </Grid>
     </Paper>

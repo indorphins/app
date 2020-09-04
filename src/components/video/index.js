@@ -19,7 +19,6 @@ import { isSafari, isMobile, fullBrowserVersion } from 'react-device-detect';
 import compareVersions from 'compare-versions';
 import { useSnackbar } from 'notistack';
 
-//import { store, actions } from '../../store';
 import Chat from './chat';
 import Drawer from './drawer';
 import PermissionsError from './permissionsError';
@@ -167,10 +166,7 @@ export default function Video(props) {
         settings.frameRate = 30;
         settings.resolution = "640x480";
         settings.maxResolution = {width: 1280, height: 720};
-      } /*else {
-        store.dispatch(actions.feedback.setCourse(course));
-        store.dispatch(actions.feedback.setShow(true));
-      }*/
+      }
 
       if (credentials.apiKey && credentials.sessionId) {
         initializeSession(credentials.apiKey, credentials.sessionId, settings);
