@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Grid, Typography } from '@material-ui/core';
+import { Button, Grid, Typography, LinearProgress } from '@material-ui/core';
 import Rating from '@material-ui/lab/Rating';
 
 import * as Course from '../../api/course';
@@ -28,6 +28,7 @@ export default function CourseFeedback(props) {
   const [ videoRating, setVideoRating ] = useState(0);
   const [ videoHover, setVideoHover ] = useState(-1);
   const [ comments, setComments ] = useState(null);
+  const [loader, setLoader] = useState(false);
   const { course, sessionId } = props;
 
   const editorHandler = function (e) {
@@ -40,6 +41,7 @@ export default function CourseFeedback(props) {
 
   async function formHandler(e) {
     e.preventDefault();
+    setLoader(true);
 
     let data = {
       instructorId: course.instructor.id,
@@ -58,9 +60,11 @@ export default function CourseFeedback(props) {
       await Course.sendClassFeedback(course.id, sessionId, data);
     } catch (err) {
       log.error("Feedback submit error", err);
+      setLoader(false);
       if (props.onSubmit) return props.onSubmit(err);
     }
 
+    setLoader(false);
     if (props.onSubmit) props.onSubmit();
   }
 
@@ -85,6 +89,14 @@ export default function CourseFeedback(props) {
       <Typography variant="subtitle1">{videoLabelText}</Typography>
     </Grid>
   );
+
+  let progress = null;
+
+  if (loader) {
+    progress = (
+      <LinearProgress color="secondary" />
+    );
+  }
 
   return (
     <form onSubmit={formHandler}>
@@ -157,6 +169,7 @@ export default function CourseFeedback(props) {
         </Grid>
         <Grid item>
           <Editor onChange={editorHandler} onSave={editorSaveHandler} />
+          {progress}
         </Grid>
         <Grid item>
           <Button variant="contained" type="submit" color="secondary" style={{width:"100%"}}>Submit</Button>
