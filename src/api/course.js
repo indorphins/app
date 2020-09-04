@@ -167,3 +167,17 @@ export function getParticipants(id) {
   
   return callAPI(u, options, true);  
 }
+
+export function sendClassFeedback(id, sessionId, data) {
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data),
+  }
+  
+  let u = url + id + '/feedback/' + sessionId;
+
+  return callAPI(u, options, true);
+}

@@ -51,6 +51,7 @@ const feedbackSlice = createSlice({
   initialState: {
     show: false,
     course: {},
+    sessionId: null,
   },
   reducers: {
     setShow(state, action) {
@@ -61,6 +62,11 @@ const feedbackSlice = createSlice({
     setCourse(state, action) {
       log.debug("STORE:: set feedback course", action.payload);
       state.course = Object.assign(state.course, action.payload);
+      return state;
+    },
+    setSessionId(state, action) {
+      log.debug("STORE:: set feedback sessionID", action.payload);
+      state.sessionId = action.payload;
       return state;
     }
   }

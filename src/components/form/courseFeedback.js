@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Button, Grid, Typography } from '@material-ui/core';
+import { Button, Grid, Typography, LinearProgress } from '@material-ui/core';
 import Rating from '@material-ui/lab/Rating';
 
+import * as Course from '../../api/course';
 import Editor from '../editor';
 import log from '../../log';
 
@@ -18,7 +19,7 @@ const labels = {
   5: 'Excellent',
 };
 
-export default function CourseFeedback() {
+export default function CourseFeedback(props) {
 
   const [ classRating, setClassRating ] = useState(0);
   const [ classHover, setClassHover ] = useState(-1);
@@ -27,6 +28,8 @@ export default function CourseFeedback() {
   const [ videoRating, setVideoRating ] = useState(0);
   const [ videoHover, setVideoHover ] = useState(-1);
   const [ comments, setComments ] = useState(null);
+  const [loader, setLoader] = useState(false);
+  const { course, sessionId } = props;
 
   const editorHandler = function (e) {
     setComments(e);
@@ -38,15 +41,31 @@ export default function CourseFeedback() {
 
   async function formHandler(e) {
     e.preventDefault();
+    setLoader(true);
 
     let data = {
+      instructorId: course.instructor.id,
       classRating: classRating,
       instructorRating: instructorRating,
       videoRating: videoRating,
-      comments: comments,
+    }
+
+    if (comments !== "<p></p>") {
+      data.comments = comments;
     }
 
     log.debug("Feedback form submitted", data);
+
+    try {
+      await Course.sendClassFeedback(course.id, sessionId, data);
+    } catch (err) {
+      log.error("Feedback submit error", err);
+      setLoader(false);
+      if (props.onSubmit) return props.onSubmit(err);
+    }
+
+    setLoader(false);
+    if (props.onSubmit) props.onSubmit();
   }
 
   let classLabelText = labels[classHover] ? labels[classHover] : labels[classRating];
@@ -70,6 +89,14 @@ export default function CourseFeedback() {
       <Typography variant="subtitle1">{videoLabelText}</Typography>
     </Grid>
   );
+
+  let progress = null;
+
+  if (loader) {
+    progress = (
+      <LinearProgress color="secondary" />
+    );
+  }
 
   return (
     <form onSubmit={formHandler}>
@@ -142,6 +169,7 @@ export default function CourseFeedback() {
         </Grid>
         <Grid item>
           <Editor onChange={editorHandler} onSave={editorSaveHandler} />
+          {progress}
         </Grid>
         <Grid item>
           <Button variant="contained" type="submit" color="secondary" style={{width:"100%"}}>Submit</Button>

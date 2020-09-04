@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 import { SnackbarProvider } from 'notistack';
 
+import { store, actions } from '../../store';
 import * as Course from '../../api/course';
 import path from '../../routes/path';
 import log from '../../log';
@@ -66,7 +67,7 @@ export default function() {
     } catch (err) {
       //TODO: redirect to class page with error message or display error here
       log.error("OPENTOK:: session join", err);
-      history.push(path.courses + classId);
+      history.push(path.courses + "/" + classId);
       return;
     }
 
@@ -75,7 +76,7 @@ export default function() {
       courseData = await Course.get(classId);
     } catch(err) {
       log.error("OPENTOK:: get class info", err);
-      history.push(path.courses + classId);
+      history.push(path.courses + "/" + classId);
       return;
     }
 
@@ -94,6 +95,14 @@ export default function() {
     setCourse(courseData);
     setLoader(false);
   }
+
+  useEffect(() => {
+    if (course.instructor && currentUser.id !== course.instructor.id) {
+      store.dispatch(actions.feedback.setCourse(course));
+      store.dispatch(actions.feedback.setShow(true));
+      store.dispatch(actions.feedback.setSessionId(authData.sessionId));
+    }
+  }, [course, currentUser, authData])
 
   useEffect(() => {
     init(params.id);
