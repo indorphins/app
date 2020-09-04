@@ -198,23 +198,18 @@ export default function Default(props) {
   useEffect(() => {
     if (subs) {
       let filtered = subs.filter(item => {
-        return item.videoElement && item.video && !item.disabled;
+        return item.video && item.videoElement && !item.disabled;
       }).slice(0, max);
 
       log.debug("DEFAULT LAYOUT:: filtered subscriber videos", filtered);
 
       if (filtered[0]) {
         setFeatureVid(filtered[0]);
-        filtered[0].subscriber.subscribeToVideo(true);
       } else {
         setFeatureVid(null);
       }
       if (filtered.length > 1) {
         setRegularVid([].concat(filtered.slice(1)));
-        filtered.slice(1).map(item => {
-          item.subscriber.subscribeToVideo(true);
-          return item;
-        })
       } else {
         setRegularVid([]);
       }

@@ -4,6 +4,7 @@ import { createSelector } from 'reselect';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 
+import Feedback from './components/feedback';
 import AppTheme from './styles';
 import log from './log';
 import Firebase from './Firebase';
@@ -158,6 +159,7 @@ export default function App() {
     <Elements stripe={stripePromise}>
       <AppTheme>
         <Notification />
+        <Feedback />
         <Routes />
       </AppTheme>
     </Elements>
