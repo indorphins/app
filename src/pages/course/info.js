@@ -225,7 +225,7 @@ export default function CourseInfo() {
     }
 
     Stripe.createPaymentIntent(paymentMethodId, course.id)
-      .then(async result => {
+      .then(result => {
         setCourse({...result.course});
         store.dispatch(actions.user.addScheduleItem(result.course));
         setPaymentProcessing(false);
