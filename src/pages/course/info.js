@@ -29,11 +29,14 @@ import {
 import { store, actions } from '../../store';
 import * as Course from '../../api/course';
 import * as Stripe from '../../api/stripe';
+import { classJoined } from '../../api/message';
 import log from '../../log';
 import path from '../../routes/path';
 import CoursePayment from '../../components/form/coursePayment';
 import Instagram from '../../components/instagram';
 import EditorContent from '../../components/editorContent';
+import { format } from 'date-fns';
+import { createCalenderEvent } from '../../utils/index';
 
 const useStyles = makeStyles((theme) => ({
   title: {
@@ -228,6 +231,14 @@ export default function CourseInfo() {
         setPaymentProcessing(false);
         setNeedsPaymentMethod(false);
         setErrMessage({severity: "success", message: result.message});
+
+        // Send class joined email
+        const start = format(new Date(course.start_date), "iiii, MMMM do");
+        const s = new Date(course.start_date);
+        let end = new Date(course.start_date);
+        end.setMinutes(end.getMinutes() + course.duration);
+        const cal = createCalenderEvent(course.title, 'indoorphins.fit', course.id, s, end, false)
+        classJoined(start, course.id, btoa(cal.toString()));
       }).catch(err => {
         setPaymentProcessing(false);
         showSignupForm();

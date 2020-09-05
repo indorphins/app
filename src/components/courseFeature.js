@@ -6,17 +6,13 @@ import {
   GridListTile,
   GridListTileBar,
   Typography,
-  CircularProgress,
-  IconButton,
   Fab,
   useMediaQuery
 } from '@material-ui/core';
-import { InfoOutlined, ArrowForward, ArrowBack } from '@material-ui/icons';
+import { ArrowForward, ArrowBack } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { format, isTomorrow, isToday, differenceInDays } from 'date-fns'
 
-import * as Course from '../api/course';
-import log from '../log';
 import path from '../routes/path';
 import { getNextDate } from '../utils';
 
@@ -107,8 +103,13 @@ const useStyles = makeStyles((theme) => ({
   textWrap: {
     whiteSpace: "break-spaces",
     fontSize: "1rem",
+    lineHeight: '1.3em',
+    height: 60,
+    color: "white",
+    fontWeight: 300,
     '@media (max-width: 400px)': {
-      height: 40,
+      height: 67,
+      lineHeight: '1.1em'
     }
   }
 }));
@@ -122,9 +123,7 @@ export default function CourseFeature(props) {
   const [formatted, setFormatted] = useState([]);
   const [header, setHeader] = useState(null);
   const [cols, setCols] = useState(4);
-  const [spacing, setSpacing] = useState(0);
   const [height, setHeight] = useState(400);
-  const [loader, setLoader] = useState(true);
   const [displayNumber, setDisplayNumber] = useState(4);
   const [displayIndex, setDisplayIndex] = useState(0);
   const [displayData, setDisplayData] = useState([]);
@@ -139,86 +138,47 @@ export default function CourseFeature(props) {
   let content = null;
   let headerContent = null;
   let formContent = null;
-  let loaderContent = (
-    <Grid  className={classes.loader} container direction="row" justify="center" alignItems="center">
-      <CircularProgress color="secondary" />
-    </Grid>
-  );
-
-  const init = async function() {
-
-    let filter = props.filter;
-    let order = props.order;
-    let result = null;
-    let limit = 100;
-
-    if (props.limit) {
-      limit = props.limit;
-    }
-
-    try {
-      result = await Course.query(filter, order, limit);
-    } catch(err) {
-      setLoader(false);
-      return log.error("COURSE WIDGET:: query for courses", filter, order, err);
-    }
-
-    if (result && result.total > 0) {
-      setData(result);
-    }
-
-    setLoader(false);
-    log.debug("COURSE WIDGET:: got result", result);
-  }
 
   useEffect(() => {
     if (props.header) {
       setHeader(props.header);
+    }
+
+    if (props.items) {
+      setData(props.items);
     }
   }, [props]);
 
   useEffect(() => {
     if (small) {
       setCols(2);
-      //setSpacing(10);
       setDisplayNumber(2);
       setHeight(275)
     } else if (med) {
       setCols(3);
       setDisplayNumber(3);
-      //setSpacing(20);
       setHeight(325);
     }else {
       setCols(4);
-      setSpacing(0);
       setDisplayNumber(4);
       setHeight(400);
     }
   }, [small, med]);
 
   useEffect(() => {
-    init();
-  }, []);
-
-  useEffect(() => {
     let disp = formatted.slice(displayIndex, displayIndex + displayNumber);
     setDisplayData(disp.concat([]));
   }, [formatted, displayIndex, displayNumber]);
 
-
   useEffect(() => {
-    if (data) {
+    if (data && data.length > 0) {
       let items = []
-      data.data.forEach(function(course) {
+      data.forEach(function(course) {
         let data = {
           title: course.title,
           url: path.courses + "/" + course.id,
           id: course.id,
         };
-
-        if (course.available_spots === 0) {
-          data.title = 'SOLD OUT: ' + data.title;
-        }
 
         if (course.photo_url) {
           data.photo_url = course.photo_url;
@@ -231,11 +191,13 @@ export default function CourseFeature(props) {
           d = getNextDate(course.recurring, 1);
         }
 
+        data.date = d;
+
         let dt = format(d, "iiii");
         let time = format(d, "h:mma");
 
         if (differenceInDays(d, now) >= 7) {
-          dt = format(d, "M/d");
+          dt += " " + format(d, "M/d");
         }
 
         if (isTomorrow(d)) {
@@ -246,12 +208,22 @@ export default function CourseFeature(props) {
           dt = "Today";
         }
 
-        data.label = dt + " @ " + time;
+        data.label = dt + " @ " + time + '\n' + course.type;
+
+        if (course.available_spots === 0) {
+          data.label += '\nSOLD OUT';
+        } else if (course.available_spots <= 5) {
+          data.label += '\n' + course.available_spots + ' spots left!';
+        } else {
+          data.label += '\n ';
+        }
 
         items.push(data);
       });
 
-      setFormatted(items.concat([]));
+      setFormatted(items.sort(function(a,b) {
+        return a.date.getTime() - b.date.getTime();
+      }).concat([]));
     }
   }, [data]);
 
@@ -340,16 +312,6 @@ export default function CourseFeature(props) {
     );
   }
 
-  let infoIcon = null;
-
-  if (!small) {
-    infoIcon = (
-      <IconButton color="primary">
-        <InfoOutlined />
-      </IconButton>
-    );
-  }
-
   formContent = (
     <Grid container style={{width: "100%"}}>
       <Grid>
@@ -357,7 +319,7 @@ export default function CourseFeature(props) {
       </Grid>
       <div className={classes.root}>
         {prevBtn}
-        <GridList cellHeight={height} className={classes.gridList} cols={cols} spacing={spacing}>
+        <GridList cellHeight={height} className={classes.gridList} cols={cols} spacing={0}>
           {displayData.map(course => (
             <GridListTile key={course.id} cols={1}>
               <Link className={classes.anchor} to={course.url}>
@@ -368,7 +330,6 @@ export default function CourseFeature(props) {
                   subtitle={course.label}
                   className={classes.desc}
                   classes={{title: classes.noWrap, subtitle: classes.textWrap}}
-                  actionIcon={infoIcon}
                   />
                 </Grid>
               </Link>
@@ -381,14 +342,14 @@ export default function CourseFeature(props) {
   );
 
   if (displayData && displayData.length === 0) {
-    formContent = null;
+    if (props.altContent) {
+      formContent = props.altContent;
+    } else {
+      formContent = null;
+    }
   }
 
   content = formContent;
-
-  if (loader) {
-    content = loaderContent;
-  }
 
   return (
     <Grid container className={classes.container}>

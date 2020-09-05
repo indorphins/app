@@ -32,10 +32,14 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   desc: {
-    fontWeight: "bold"
+    fontWeight: "bold",
   },
   anchor: {
     textDecoration: "none",
+  },
+  subtitle: {
+    color: "white",
+    fontWeight: 300,
   }
 }));
 
@@ -157,6 +161,7 @@ export default function InstructorFeature(props) {
                   title={instructor.firstName}
                   subtitle="See Schedule"
                   className={classes.desc}
+                  classes={{subtitle: classes.subtitle}}
                   />
                 </Grid>
               </Link>

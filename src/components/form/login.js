@@ -36,7 +36,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function() {
+export default function(props) {
   const currentUser = useSelector((state) => getUserSelector(state))
   const classes = useStyles();
   const [userName, setUserName] = useState('');
@@ -45,13 +45,27 @@ export default function() {
   const [loginMode, setLoginMode] = useState(true);
   const [serverErr, setServerErr] = useState(null);
   const [info, setInfo] = useState(null);
+  const [redirectUrl, setRedirectUrl] = useState(null);
   const history = useHistory();
 
   useEffect(() => {
     if (currentUser.id) {
-      history.push(path.home);
+      if (redirectUrl) {
+        log.debug('LOGIN:: redirect to', redirectUrl);
+        history.push(redirectUrl);
+      } else {
+        log.debug('LOGIN:: redirect to home', path.home);
+        history.push(path.home);
+      }
     } 
-  }, [currentUser]);
+  }, [currentUser, redirectUrl]);
+
+  useEffect(() => {
+    if (props.query && props.query.redirect && !redirectUrl) {
+      log.debug("LOGIN:: set redirect URL", props.query.redirect);
+      setRedirectUrl(props.query.redirect);
+    }
+  }, [props, redirectUrl]);
 
 
   const usernameHandler = (event) => {
@@ -76,27 +90,33 @@ export default function() {
     if (loginMode) {
       Firebase.clearListeners();
       Firebase.signInWithEmailPassword(userName, password)
-				.then((user) => {
-  return User.get();
-})
-				.then((user) => {
-  return store.dispatch(actions.user.set(user.data))
-})
-				.then(() => {
-  setLoader(false);
-  history.push(path.home);
-})
-				.catch((error) => {
-  setLoader(false);
+      .then((user) => {
+        return User.get();
+      })
+      .then((user) => {
+        return store.dispatch(actions.user.set(user.data))
+      })
+      .then(() => {
+        setLoader(false);
+        if (redirectUrl) {
+          log.debug('LOGIN:: redirect to', redirectUrl);
+          history.push(redirectUrl);
+        } else {
+          log.debug('LOGIN:: redirect to home', path.home);
+          history.push(path.home);
+        }
+      })
+      .catch((error) => {
+        setLoader(false);
 
-  if (error.code === "auth/user-not-found" || error.code === "auth/wrong-password") {
-    setServerErr("Incorrect email or password")
-  } else {
-    setServerErr(error.message);
-  }
+        if (error.code === "auth/user-not-found" || error.code === "auth/wrong-password") {
+          setServerErr("Incorrect email or password")
+        } else {
+          setServerErr(error.message);
+        }
 
-  return log.error('Error firebase signin email pw ', error);
-});
+        return log.error('Error firebase signin email pw ', error);
+      });
     } else {
       Firebase.sendPasswordResetEmail(userName).then(result => {
         setLoader(false);
@@ -150,14 +170,20 @@ export default function() {
   };
 
   const loadSignUpForm = () => {
-    history.push(path.signup);
+    if (redirectUrl) {
+      history.push(path.signup + "?redirect=" + redirectUrl);
+    } else {
+      history.push(path.signup);
+    }
   };
 
   let errContent;
 
   if (serverErr) {
     errContent = (
-      <Alert severity="error" className={classes.txtField}>{serverErr}</Alert>
+      <Grid item>
+        <Alert severity="error" className={classes.txtField}>{serverErr}</Alert>
+      </Grid>
 		)
   }
 
@@ -173,7 +199,7 @@ export default function() {
   let infoContent = null;
   if (info) {
     infoContent = (
-      <Grid>
+      <Grid item>
         <Alert severity="info">{info}</Alert>
       </Grid>
 		)
@@ -181,14 +207,12 @@ export default function() {
 
   let formcontent = (
     <Grid>
-      {infoContent}
-      <Grid>
-        {errContent}
-      </Grid>
       <form id='login-form' onSubmit={formHandler}>
         <input autoComplete="username" id="_email" type="hidden" value={userName} />
         <input autoComplete="current-password" id="_password" type="hidden" value={password} />
         <Grid container direction="column" spacing={2}>
+          {infoContent}
+          {errContent}
           <Grid item>
             <TextField
             disabled={loader}

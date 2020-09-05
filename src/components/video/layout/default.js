@@ -198,7 +198,7 @@ export default function Default(props) {
   useEffect(() => {
     if (subs) {
       let filtered = subs.filter(item => {
-        return item.videoElement && item.video && !item.disabled;
+        return item.video && item.videoElement && !item.disabled;
       }).slice(0, max);
 
       log.debug("DEFAULT LAYOUT:: filtered subscriber videos", filtered);

@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { TextField, Button, LinearProgress, Grid, Checkbox, Typography } from '@material-ui/core';
+import Alert from '@material-ui/lab/Alert';
 import { makeStyles } from '@material-ui/core/styles';
 
 import * as User from '../../api/user';
@@ -56,8 +57,17 @@ export default function(props) {
   const [userConsent, setUserConsent] = useState(false)
   const [birthday, setBirthday] = useState(null);
   const [bdayErr, setBdayErr] = useState(null);
+  const [serverErr, setServerErr] = useState(null);
+  const [redirectUrl, setRedirectUrl] = useState(null);
   const history = useHistory();
   const rx = /^1?[-|\s]?\(?(\d{3})?\)?[-|\s]?(\d{3})[-|\s]?(\d{4})/gm;
+
+  useEffect(() => {
+    if (props.query && props.query.redirect && !redirectUrl) {
+      log.debug("LOGIN:: set redirect URL", props.query.redirect);
+      setRedirectUrl(props.query.redirect);
+    }
+  }, [props, redirectUrl]);
 
   const usernameHandler = (event) => {
     setUsername(event.target.value);
@@ -194,7 +204,23 @@ export default function(props) {
     } catch(err) {
 			// TODO: display this error to the user
       setLoader(false);
-      return log.error("AUTH:: firebase account create", err);
+      log.error("AUTH:: firebase account create", err);
+
+      if (err.code === "auth/email-already-in-use") {
+
+        return setServerErr({
+          severity: "error",
+          message: `An account already exists with this email address. If you used 'Sign in with Google' to 
+          create your account please use that same option to login to your account, or use the forgot 
+          password link to reset/generate the Indoorphins.fit password`,
+        });
+
+      } else {
+        return setServerErr({
+          severity: "error",
+          message: err.message,
+        });
+      }
     }
 
     log.debug("AUTH:: created new firebase account for user");
@@ -211,7 +237,12 @@ export default function(props) {
     } catch(err) {
 			// TODO: display this error the user?
       setLoader(false);
-      return log.warn("AUTH:: error creating user account from firebase token", err);
+      log.warn("AUTH:: error creating user account from firebase token", err);
+
+      return setServerErr({
+        severity: "error",
+        message: err.message,
+      });
     }
 		
     log.debug("AUTH:: created new user", user);
@@ -219,7 +250,14 @@ export default function(props) {
     await store.dispatch(actions.user.set(user.data));
 
     setLoader(false);
-    history.push(path.home);
+    
+    if (redirectUrl) {
+      log.debug('CREATE ACCOUNT:: redirect to', redirectUrl);
+      history.push(redirectUrl);
+    } else {
+      log.debug('CREATE ACCOUNT:: redirect to home', path.home);
+      history.push(path.home);
+    }
   };
   
   let tooltips = {
@@ -335,9 +373,19 @@ export default function(props) {
 		);
   }
 
+  let infoContent = null;
+  if (serverErr) {
+    infoContent = (
+      <Grid item>
+        <Alert severity={serverErr.severity}>{serverErr.message}</Alert>
+      </Grid>
+		)
+  }
+
   let formcontent = (
     <form onSubmit={formHandler}>
       <Grid container direction="column" spacing={2}>
+        {infoContent}
         <Grid item>
           <TextField
           disabled={loader}

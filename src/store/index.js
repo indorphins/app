@@ -21,7 +21,7 @@ const userSlice = createSlice({
     },
     setSchedule(state, action) {
       log.debug("STORE:: set user schedule", action.payload);
-      state.schedule = state.schedule.concat(action.payload);
+      state.schedule = [...action.payload];
       return state;
     },
     addScheduleItem(state, action) {
@@ -46,6 +46,32 @@ const userSlice = createSlice({
   }
 });
 
+const feedbackSlice = createSlice({
+  name: 'feedback',
+  initialState: {
+    show: false,
+    course: {},
+    sessionId: null,
+  },
+  reducers: {
+    setShow(state, action) {
+      log.debug("STORE:: set feedback show", action.payload);
+      state.show = action.payload;
+      return state;
+    },
+    setCourse(state, action) {
+      log.debug("STORE:: set feedback course", action.payload);
+      state.course = Object.assign(state.course, action.payload);
+      return state;
+    },
+    setSessionId(state, action) {
+      log.debug("STORE:: set feedback sessionID", action.payload);
+      state.sessionId = action.payload;
+      return state;
+    }
+  }
+})
+
 const themeSlice = createSlice({
   name: 'theme',
   initialState: 'light',
@@ -66,11 +92,13 @@ const themeSlice = createSlice({
 const rootReducer = combineReducers({
   user: userSlice.reducer,
   theme: themeSlice.reducer,
+  feedback: feedbackSlice.reducer,
 });
 
 export const actions = {
   user: userSlice.actions,
-  theme: themeSlice.actions
+  theme: themeSlice.actions,
+  feedback: feedbackSlice.actions,
 };
 
 export const store = configureStore({

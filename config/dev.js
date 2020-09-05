@@ -1,5 +1,6 @@
 const appConfig = {
   "host": "https://dev.api.indorphins.com",
+  "client": "https://dev-app.indorphins.com",
   "log_level": "DEBUG",
   "log_type": "",
   "firebase": {
