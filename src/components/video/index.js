@@ -39,20 +39,43 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+const loopTime = 5000;
+const max = 2;
+const vidProps = {
+  preferredFrameRate: 30,
+  preferredResolution: {width: 320, height: 240},
+  showControls: false,
+  insertDefaultUI: false,
+  subscribeToAudio: false,
+  subscribeToVideo: false,
+};
+
+const pubSettings = {
+  mirror: true,
+  showControls: false,
+  insertDefaultUI: true,
+  publishAudio: false,
+  publishVideo: true,
+  resolution: "320x240",
+  frameRate: 30,
+  audioBitrate: 20000,
+  enableStereo: false,
+  maxResolution: {width: 640, height: 480},
+};
+
 export default function Video(props) {
 
   const classes = useStyles();
   let looper = null;
-  const loopTime = 15000;
   const { enqueueSnackbar } = useSnackbar();
-  const [maxStreams, setMaxStreams] = useState(4);
+  const [maxStreams, setMaxStreams] = useState(max);
   const [user, setUser] = useState(null);
   const [course, setCourse] = useState(null);
   const [credentials, setCredentials] = useState(null);
   const [session, setSession] = useState(null);
   const [publisher, setPublisher] = useState(null);
   const [subs, setSubs] = useState([]);
-  const [subsShown, setSubsShown] = useState([]);
+  //const [subsShown, setSubsShown] = useState([]);
   const [loopMode, setLoopMode] = useState(true);
   const [displayMsg, setDisplayMsg] = useState(null);
   const [permissionsError, setPermissionsError] = useState(false);
@@ -143,21 +166,7 @@ export default function Video(props) {
 
       if (!valid) return;
 
-      let settings = {
-        insertMode: 'append',
-        width: '100%',
-        height: '100%',
-        mirror: true,
-        showControls: false,
-        insertDefaultUI: true,
-        publishAudio: false,
-        publishVideo: true,
-        resolution: "320x240",
-        frameRate: 30,
-        audioBitrate: 20000,
-        enableStereo: false,
-        maxResolution: {width: 640, height: 480},
-      };
+      let settings = pubSettings;
 
       if (user.id === course.instructor.id) {
         settings.audioBitrate = 96000;
@@ -214,9 +223,7 @@ export default function Video(props) {
       session.off('signal');
 
       setSubs(subs.map(sub => {
-        sub.subscriber.subscribeToVideo(false);
-        sub.subscriber.subscribeToAudio(false);
-        session.unsubscribe(sub.subscriber);
+        if (sub.subscriber) session.unsubscribe(sub.subscriber);
         return sub;
       }));
 
@@ -233,6 +240,23 @@ export default function Video(props) {
 
   function connectionCreated(event) {
     log.info("OPENTOK:: connection created", event);
+
+    let data = JSON.parse(event.connection.data);
+
+    if (data.id === user.id) return;
+
+    let subData = {
+      user: data,
+      video: false,
+      audio: false,
+      disabled: false,
+    };
+
+    if (data.instructor) {
+      setSubs(subs => [subData, ...subs]);
+    } else {
+      setSubs(subs => [...subs, subData]);
+    }
   }
 
   function connectionDestroyed(event) {
@@ -244,100 +268,115 @@ export default function Video(props) {
   function streamDestroyed(event) {
     log.debug('OPENTOK:: stream destroyed', event);
     let data = JSON.parse(event.stream.connection.data);
-    setSubs(subs => subs.filter(item => item.user.id !== data.id));
+    setSubs(subs => subs.map(item => {
+      if (item.user.id === data.id) {
+        item.subscriber = null;
+        item.stream = null;
+      }
+      return item;
+    }));
+  }
+
+  function videoElementCreated(event, id) {
+    log.debug("OPENTOK:: subscriber video element created", event);
+
+    let videoElement = event.element;
+    videoElement.style.height = "100%";
+    videoElement.style.width = "100%";
+    videoElement.style.objectFit = "cover";
+    videoElement.style.objectPosition = "center";
+
+    setSubs(subs => subs.map(item => {
+      if (item.user.id === id) {
+        item.videoElement = videoElement;
+      }
+      return item;
+    }));
+  }
+
+  function videoDisabled(event, id) {
+    log.debug("OPENTOK:: subscriber video disabled", event);
+
+    if (event.reason === "publishVideo") {
+      setSubs(subs => subs.map(item => {
+        if (item.user.id === id) {
+          item.disabled = true;
+        }
+        return item;
+      }));
+    }
+  }
+
+  function videoEnabled(event, id) {
+    log.debug("OPENTOK:: subscriber video enabled", event);
+
+    if (event.reason === "publishVideo") {
+      setSubs(subs => subs.map(item => {
+        if (item.user.id === id) {
+          item.disabled = false;
+        }
+        return item;
+      }));
+    }
   }
 
   async function streamCreated(event) {
 
+    log.debug('OPENTOK:: stream created event', event);
     let data = JSON.parse(event.stream.connection.data);
-    log.debug('OPENTOK:: stream created event', event, data);
-    let subscriber = null;
 
-    let props = {
-      insertMode: 'append',
-      width: '100%',
-      height: '100%',
-      preferredFrameRate: 30,
-      preferredResolution: {width: 320, height: 240},
-      showControls: false,
-      insertDefaultUI: false,
-      subscribeToAudio: true,
-      subscribeToVideo: true,
-    };
+    if (data.id === user.id) return;
 
-    if (data.instructor) {
-      props.preferredFrameRate = 30;
-      props.subscribeToVideo = true;
-      props.preferredResolution = {width: 1280, height: 720};
-    }
-
-    try {
-      subscriber = await session.subscribe(event.stream, null, props, handleError);
-    } catch (err) {
-      log.error("Subscribe to stream", err);
-    }
-
-    log.debug("OPENTOK:: created subscriber", subscriber);
-
+    let props = vidProps;
+    let current = subsRef.current.filter(i => { return i.video });
     let subData = {
-      user: data, 
-      subscriber: subscriber,
-      audio: props.subscribeToAudio,
-      video: props.subscribeToVideo,
-      videoElement: null,
-      disabled: false,
+      stream: event.stream,
     };
 
-    if (data.instructor) {
-      setSubs(subs => [subData, ...subs]);
-    } else {
-      setSubs(subs => [...subs, subData]);
+    if (data.instructor && current.length >= maxStreams) {
+      let old = subsRef.current.filter(i => { return i.video }).slice(maxStreams - 1);
+      old.map(item => {
+        item.video = false;
+        item.audio = false;
+        session.unsubscribe(item.subscriber);
+        return item;
+      });
     }
 
-    subscriber.on('videoElementCreated', (event) => {
+    if ((current.length <= maxStreams && loopMode) || data.instructor) {
+      let subscriber = null;
 
-      log.debug("OPENTOK:: subscriber video element created", event);
-
-      let videoElement = event.element;
-      videoElement.style.height = "100%";
-      videoElement.style.width = "100%";
-      videoElement.style.objectFit = "cover";
-      videoElement.style.objectPosition = "center";
-
-      setSubs(subs => subs.map(item => {
-        if (item.user.id === data.id) {
-          item.videoElement = videoElement;
-        }
-        return item;
-      }));
-    });
-
-    subscriber.on('videoDisabled', (event) => {
-      log.debug("OPENTOK:: subscriber video disabled", event);
-      if (event.reason === "publishVideo") {
-        setSubs(subs => subs.map(item => {
-          if (item.user.id === data.id) {
-            item.disabled = true;
-          }
-          return item;
-        }));
+      props.subscribeToVideo = true;
+      props.subscribeToAudio = true;
+      if (data.instructor) {
+        props.preferredResolution = {width: 1280, height: 720};
       }
-    });
 
-    subscriber.on('videoEnabled', (event) => {
-      log.debug("OPENTOK:: subscriber video enabled", event);
-      if (event.reason === "publishVideo") {
-        setSubs(subs => subs.map(item => {
-          if (item.user.id === data.id) {
-            item.disabled = false;
-          }
-          return item;
-        }));
+      try {
+        subscriber = await session.subscribe(event.stream, null, props, handleError);
+      } catch (err) {
+        log.error("Subscribe to stream", err);
       }
-    });
+
+      log.debug("OPENTOK:: created subscriber", subscriber);
+      subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, data.id) });
+      subscriber.on('videoDisabled', (event) => { videoDisabled(event, data.id) });
+      subscriber.on('videoEnabled', (event) => { videoEnabled(event, data.id)});
+      subData.video = true;
+      subData.audio = true;
+      subData.subscriber = subscriber;
+    }
+
+    setSubs(subs => subs.map(item => {
+      if (item.user.id === data.id) {
+        let updated = Object.assign(item, subData);
+        return updated;
+      }
+      return item;
+    }));
   }
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (subs.length && subs.length > 0) {
 
       let enabled = [];
@@ -368,7 +407,6 @@ export default function Video(props) {
       enabled.map(item => {
         if (!item.video) {
           item.video = true;
-          //item.subscriber.subscribeToVideo(true);
         }
         return item;
       });
@@ -377,34 +415,18 @@ export default function Video(props) {
       dis.map(item => {
         if (item.video) {
           item.video = false;
-          //item.subscriber.subscribeToVideo(false);
         }
         return item;
       });
 
       setSubsShown([...enabled]);
     }
-  }, [subs, loopMode, maxStreams]);
+  }, [subs, loopMode, maxStreams, session]);*/
 
   useEffect(() => {
     if (loopMode) {
       looper = setInterval(() => {
-        if (subs && subs.length > 1) {
-          let expired = null;
-
-          if (user.id === course.instructor.id) {
-            expired = subs[0];
-          } else {
-            expired = subs[1];
-          }
-    
-          if (expired) {
-            setSubs([
-              ...subs.filter(i => i.user.id !== expired.user.id),
-              expired
-            ])
-          }
-        }
+        loopVideo(subs, course, user)
       }, loopTime);
     } else {
       clearInterval(looper);
@@ -415,11 +437,30 @@ export default function Video(props) {
     };
   }, [subs, loopMode, user, course]);
 
+  async function loopVideo(subs, course, user) {
+    if (subs && subs.length > 1) {
+      let expired = null;
+
+      if (user.id === course.instructor.id) {
+        expired = subs[0];
+      } else {
+        expired = subs[1];
+      }
+
+      if (expired) {
+        setSubs([
+          ...subs.filter(i => i.user.id !== expired.user.id),
+          expired
+        ])
+      }
+    }
+  }
+
   async function toggleLayout(evt) {
     if (evt === "fullscreen") {
       setMaxStreams(1);
     } else {
-      setMaxStreams(4);
+      setMaxStreams(max);
     }
     setVideoLayout(evt);
   }
@@ -443,11 +484,33 @@ export default function Video(props) {
 
       if (item.video) {
         item.video = false;
-        item.subscriber.subscribeToVideo(false);
-        setSubs([...subsRef.current.filter(i => i.user.id !== item.user.id), item]);
+        item.subscriber.off('videoElementCreated');
+        item.subscriber.off('videoDisabled');
+        item.subscriber.off('videoEnabled');
+        session.unsubscribe(item.subscriber);
+        item.subscriber = null;
+        setSubs([
+          ...subsRef.current.filter(i => i.user.id !== item.user.id),
+          item
+        ]);
+
       } else {
+
         item.video = true;
-        item.subscriber.subscribeToVideo(true);
+        let subscriber = null;
+
+        try {
+          subscriber = await session.subscribe(item.stream, null, vidProps, handleError);
+        } catch (err) {
+          log.error("Subscribe to stream", err);
+          return;
+        }
+        
+        subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, data); });
+        subscriber.on('videoDisabled', (event) => { videoDisabled(event, data) });
+        subscriber.on('videoEnabled', (event) => { videoEnabled(event, data)});
+        item.subscriber = subscriber;
+        
 
         if (user.id === course.instructor.id) {
           setSubs([item, ...subsRef.current.filter(i => i.user.id !== item.user.id)]);
@@ -469,10 +532,10 @@ export default function Video(props) {
       if (item.user.id === data) {
         if (item.audio) {
           item.audio = false;
-          item.subscriber.subscribeToAudio(false);
+          if (item.subscriber) item.subscriber.subscribeToAudio(false);
         } else {
           item.audio = true;
-          item.subscriber.subscribeToAudio(true);
+          if (item.subscriber) item.subscriber.subscribeToAudio(true);
         }
       }
       return item;
@@ -595,7 +658,7 @@ export default function Video(props) {
       {displayMsgContent}
       <Grid container direction="row" justify="flex-start" style={{height:"100%", overflow: "hidden"}}>
         <Grid container direction="row" spacing={0} justify="flex-start" style={{height: "100%", overflow: "hidden"}} >
-          <Default user={user} subs={subsShown} session={session} max={maxStreams} layout={videoLayout} />
+          <Default user={user} subs={subs} session={session} max={maxStreams} layout={videoLayout} />
           <Drawer>
             <PublisherControls publisher={publisher} user={user} course={course} />
             {accor}
