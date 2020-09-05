@@ -238,7 +238,17 @@ export default function CourseInfo() {
         let end = new Date(course.start_date);
         end.setMinutes(end.getMinutes() + course.duration);
         const cal = createCalenderEvent(course.title, 'indoorphins.fit', course.id, s, end, false)
-        classJoined(start, course.id, btoa(cal.toString()));
+
+        let emailAttachment = null;
+
+        try {
+          emailAttachment = btoa(cal.toString());
+        } catch(e) {
+          log.error("create buffer error", e);
+        }
+        
+        classJoined(start, course.id, emailAttachment);
+
       }).catch(err => {
         setPaymentProcessing(false);
         showSignupForm();

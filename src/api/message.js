@@ -6,8 +6,12 @@ const url = config.host + '/message/';
 export async function classJoined(datetime, classId, calendar) {
   let data = {
     class_date: datetime,
-    cal_link: calendar
   };
+
+  if (calendar) {
+    data.cal_link = calendar;
+  }
+
   const options = {
     method: 'POST',
 
