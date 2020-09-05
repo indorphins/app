@@ -231,7 +231,13 @@ export default function CourseInfo() {
         setPaymentProcessing(false);
         setNeedsPaymentMethod(false);
         setErrMessage({severity: "success", message: result.message});
-
+      })
+      .catch(err => {
+        setPaymentProcessing(false);
+        showSignupForm();
+        setErrMessage({severity: "error", message: err.message});
+      })
+      .then(() => {
         // Send class joined email
         const start = format(new Date(course.start_date), "iiii, MMMM do");
         const s = new Date(course.start_date);
@@ -247,13 +253,11 @@ export default function CourseInfo() {
           log.error("create buffer error", e);
         }
         
-        classJoined(start, course.id, emailAttachment);
-
+        return classJoined(start, course.id, emailAttachment);
       }).catch(err => {
-        setPaymentProcessing(false);
-        showSignupForm();
         setErrMessage({severity: "error", message: err.message});
-      });
+      })
+
   }
 
   const courseLeaveHandler = async function () {
