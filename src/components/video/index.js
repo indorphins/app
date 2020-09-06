@@ -268,13 +268,23 @@ export default function Video(props) {
   function streamDestroyed(event) {
     log.debug('OPENTOK:: stream destroyed', event);
     let data = JSON.parse(event.stream.connection.data);
+
     setSubs(subs => subs.map(item => {
       if (item.user.id === data.id) {
         item.subscriber = null;
         item.stream = null;
+
+        if (item.video) {
+          item.video = false;
+          item.audio = false;
+        }
       }
       return item;
     }));
+
+    //let current = subsRef.current.filter(i => { return i.video });
+
+    //if (current && current.length < maxStreams) {}
   }
 
   function videoElementCreated(event, id) {
@@ -333,25 +343,6 @@ export default function Video(props) {
       stream: event.stream,
     };
 
-    if (data.instructor && current.length >= maxStreams) {
-      let old = subsRef.current.filter(i => { return i.video }).slice(maxStreams - 1);
-
-      setSubs(subs => subs.map(item => {
-
-        let match = old.findIndex(oldItem => {
-          return oldItem.user.id === item.user.id 
-        });
-        
-        if (match > -1) {
-          old[match].video = false;
-          old[match].audio = false;
-          session.unsubscribe(old[match].subscriber);
-          return old[match];
-        }
-        return item;
-      }))
-    }
-
     if ((current.length < maxStreams && loopMode) || data.instructor) {
 
       let subscriber = null;
@@ -381,6 +372,10 @@ export default function Video(props) {
       subscriber.on('videoDisabled', (event) => { videoDisabled(event, data.id) });
       subscriber.on('videoEnabled', (event) => { videoEnabled(event, data.id)});
       subData.subscriber = subscriber;
+    }
+
+    if (data.instructor && current.length > maxStreams) {
+      killExcessVideos();
     }
 
     setSubs(subs => subs.map(item => {
@@ -485,6 +480,28 @@ export default function Video(props) {
     setLoopMode(!loopMode);
   }
 
+  function killExcessVideos() {
+    let old = subsRef.current.filter(i => { return i.video && !i.disabled }).slice(maxStreams - 1);
+
+    if (old && old.length > 0) {
+      setSubs(subs => subs.map(item => {
+
+        let match = old.findIndex(oldItem => {
+          return oldItem.user.id === item.user.id 
+        });
+        
+        if (match > -1) {
+          old[match].video = false;
+          old[match].audio = false;
+          if (old[match].subscriber) session.unsubscribe(old[match].subscriber);
+          return old[match];
+        }
+
+        return item;
+      }));
+    }
+  }
+
   async function toggleSubscriberVideo(evt) {
     let data = evt.target.name;
     let index = subsRef.current.findIndex(item => {
@@ -500,6 +517,7 @@ export default function Video(props) {
 
       if (item.video) {
         item.video = false;
+        item.audio = false;
         item.subscriber.off('videoElementCreated');
         item.subscriber.off('videoDisabled');
         item.subscriber.off('videoEnabled');
@@ -512,7 +530,10 @@ export default function Video(props) {
 
       } else {
 
+        killExcessVideos()
+
         item.video = true;
+        item.audio = true;
         let subscriber = null;
 
         try {
@@ -522,11 +543,12 @@ export default function Video(props) {
           return;
         }
         
-        subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, data); });
-        subscriber.on('videoDisabled', (event) => { videoDisabled(event, data) });
-        subscriber.on('videoEnabled', (event) => { videoEnabled(event, data)});
-        item.subscriber = subscriber;
-        
+        if (subscriber) {
+          subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, data); });
+          subscriber.on('videoDisabled', (event) => { videoDisabled(event, data) });
+          subscriber.on('videoEnabled', (event) => { videoEnabled(event, data)});
+          item.subscriber = subscriber;
+        }
 
         if (user.id === course.instructor.id) {
           setSubs([item, ...subsRef.current.filter(i => i.user.id !== item.user.id)]);
