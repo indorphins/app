@@ -231,13 +231,24 @@ export default function CourseInfo() {
         setPaymentProcessing(false);
         setNeedsPaymentMethod(false);
         setErrMessage({severity: "success", message: result.message});
+      })
+      .catch(err => {
+        setPaymentProcessing(false);
+        showSignupForm();
+        setErrMessage({severity: "error", message: err.message});
+        return err;
+      })
+      .then((err) => {
+        if (err) return;
 
         // Send class joined email
         const start = format(new Date(course.start_date), "iiii, MMMM do");
         const s = new Date(course.start_date);
         let end = new Date(course.start_date);
         end.setMinutes(end.getMinutes() + course.duration);
-        const cal = createCalenderEvent(course.title, 'indoorphins.fit', course.id, s, end, false)
+
+        const regex = /[^\w\s\d-!*$#()&^@]/g;
+        const cal = createCalenderEvent(course.title.replace(regex, ""), 'indoorphins.fit', course.id, s, end, false)
 
         let emailAttachment = null;
 
@@ -247,13 +258,11 @@ export default function CourseInfo() {
           log.error("create buffer error", e);
         }
         
-        classJoined(start, course.id, emailAttachment);
-
+        return classJoined(start, course.id, emailAttachment);
       }).catch(err => {
-        setPaymentProcessing(false);
-        showSignupForm();
         setErrMessage({severity: "error", message: err.message});
-      });
+      })
+
   }
 
   const courseLeaveHandler = async function () {
