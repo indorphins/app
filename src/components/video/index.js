@@ -352,14 +352,25 @@ export default function Video(props) {
   function videoDisabled(event, id) {
     log.debug("OPENTOK:: subscriber video disabled", event);
 
-    if (event.reason === "publishVideo") {
-      setSubs(subs => subs.map(item => {
-        if (item.user.id === id) {
-          item.disabled = true;
-        }
-        return item;
-      }));
-    }
+    if (event.reason !== "publishVideo") return;
+
+    /*let index = subsRef.current.findIndex(item => {
+      return item.user.id === id
+    });
+
+    let match = subsRef.current[index];
+
+    if (!match) return;
+    
+    match.disabled = true;
+    if (match.video && match.subscriber) session.unsubscribe(match.subscriber);*/
+
+    setSubs(subs => subs.map(item => {
+      if (item.user.id === id) {
+        item.disabled = true;
+      }
+      return item;
+    }));
   }
 
   function videoEnabled(event, id) {
