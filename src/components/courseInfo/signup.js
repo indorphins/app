@@ -32,7 +32,6 @@ export default function Signup(props) {
   const [ confirmLeave, setConfirmLeave ] = useState(false);
   const [ isEnrolled, setIsEnrolled ] = useState(false);
 
-
   useEffect(() => {
 
     if(!currentUser.id || !course.id) {
@@ -52,42 +51,19 @@ export default function Signup(props) {
   }, [currentUser, course]);
 
   useEffect(() => {
-    if (isEnrolled) {
-      setSignup(
-        <Button
-          variant="contained"
-          color="secondary"
-          onClick={() => { setConfirmLeave(true); setSignup(null);}}
-          style={{width:"100%"}}
-        >
-          Leave Class
-        </Button>
-      );
-    }
-  }, [isEnrolled])
 
-  useEffect(() => {
-
-    if (!course.id) return;
+    if (!course || !currentUser.id || isEnrolled) return;
 
     let handler = null;
     let label = null;
 
-    if (!currentUser.id && course.available_spots > 0) {
+    if (course.available_spots > 0 || currentUser.type !== "standard") {
+      label = "Book Class";
 
-      handler = goToLogin;
-      label = "Login to Book Class";
-
-    } else {
-
-      if (course.available_spots > 0 || currentUser.type === "instructor" || currentUser.type === "admin") {
-        label = "Book Class";
-
-        if (course.cost && course.cost > 0 && currentUser.type === "standard") {
-          handler = props.paidHandler
-        } else {
-          handler = props.freeHandler
-        }
+      if (course.cost && course.cost > 0 && currentUser.type === "standard") {
+        handler = props.paidHandler
+      } else {
+        handler = props.freeHandler
       }
     }
 
@@ -103,7 +79,43 @@ export default function Signup(props) {
         </Button>
       );
     }
-  }, [currentUser, course, confirmLeave]);
+  }, [currentUser, course, isEnrolled]);
+
+  useEffect(() => {
+    if (isEnrolled) {
+      setSignup(
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => { setConfirmLeave(true); }}
+          style={{width:"100%"}}
+        >
+          Leave Class
+        </Button>
+      );
+    }
+  }, [isEnrolled]);
+
+  useEffect(() => {
+
+    if (!currentUser.id && course.available_spots > 0) {
+      setSignup(
+        <Button
+          variant="contained"
+          color="secondary"
+          onClick={() => { goToLogin(); }}
+          style={{width:"100%"}}
+        >
+          Login to Book Class
+        </Button>
+      );
+    }
+
+    if (currentUser && course && currentUser.id === course.instructor.id) {
+      setSignup(null);
+    }
+
+  }, [currentUser, course]);
 
   const leaveHandler = async function() {
     closeHandler()
