@@ -265,12 +265,48 @@ export default function Video(props) {
     setSubs(subs => subs.filter(item => item.user.id !== data.id));
   }
 
-  function streamDestroyed(event) {
+  async function enableCandidate(candidate) {
+    let props = vidProps;
+    candidate.video = true;
+    candidate.audio = true;
+
+    let subscriber = null;
+
+    setSubs(subs => subs.map(i => {
+      if (i.user.id === candidate.user.id) {
+        return candidate;
+      }
+      return i;
+    }));
+
+    try {
+      subscriber = await session.subscribe(candidate.stream, null, props, handleError);
+    } catch (err) {
+      log.error("Subscribe to stream", err);
+    }
+
+    if (subscriber) {
+      log.debug("OPENTOK:: created subscriber", subscriber);
+      subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, candidate.user.id) });
+      subscriber.on('videoDisabled', (event) => { videoDisabled(event, candidate.user.id) });
+      subscriber.on('videoEnabled', (event) => { videoEnabled(event, candidate.user.id)});
+
+      setSubs(subs => subs.map(item => {
+        if (item.user.id === candidate.user.id) {
+          item.subscriber = subscriber;
+        }
+        return item;
+      }));
+    }
+  }
+
+  async function streamDestroyed(event) {
     log.debug('OPENTOK:: stream destroyed', event);
     let data = JSON.parse(event.stream.connection.data);
 
     setSubs(subs => subs.map(item => {
       if (item.user.id === data.id) {
+        if (item.subscriber) session.unsubscribe(item.subscriber);
         item.subscriber = null;
         item.stream = null;
 
@@ -282,9 +318,18 @@ export default function Video(props) {
       return item;
     }));
 
-    //let current = subsRef.current.filter(i => { return i.video });
+    if (loopMode) {
+      let current = subsRef.current.filter(i => { return i.video });
 
-    //if (current && current.length < maxStreams) {}
+      if (current && current.length < maxStreams) {
+        let diff = maxStreams - current.length;
+        let candidates = subsRef.current.filter(i => { return !i.video && !i.disabled }).slice(0, diff);
+
+        candidates.forEach(item => {
+          enableCandidate(item);
+        })
+      }
+    }
   }
 
   function videoElementCreated(event, id) {
@@ -343,6 +388,10 @@ export default function Video(props) {
       stream: event.stream,
     };
 
+    if (data.instructor && current.length >= maxStreams) {
+      killExcessVideos();
+    }
+
     if ((current.length < maxStreams && loopMode) || data.instructor) {
 
       let subscriber = null;
@@ -374,10 +423,6 @@ export default function Video(props) {
       subData.subscriber = subscriber;
     }
 
-    if (data.instructor && current.length > maxStreams) {
-      killExcessVideos();
-    }
-
     setSubs(subs => subs.map(item => {
       if (item.user.id === data.id) {
         let updated = Object.assign(item, subData);
@@ -386,53 +431,6 @@ export default function Video(props) {
       return item;
     }));
   }
-
-  /*useEffect(() => {
-    if (subs.length && subs.length > 0) {
-
-      let enabled = [];
-      let dis = [];
-
-      if (loopMode) {
-
-        enabled = subs.filter(item => {
-          return !item.disabled;
-        }).slice(0, maxStreams);
-
-        dis = subs.filter(item => {
-          return !item.disabled;
-        }).slice(maxStreams);
-
-      } else {
-
-        enabled = subs.filter(item => {
-          return !item.disabled && item.video;
-        }).slice(0, maxStreams);
-
-        dis = subs.filter(item => {
-          return !item.disabled && item.video;
-        }).slice(maxStreams);
-      }
-      
-      log.debug("enabled", enabled);
-      enabled.map(item => {
-        if (!item.video) {
-          item.video = true;
-        }
-        return item;
-      });
-
-      log.debug("disabled", dis);
-      dis.map(item => {
-        if (item.video) {
-          item.video = false;
-        }
-        return item;
-      });
-
-      setSubsShown([...enabled]);
-    }
-  }, [subs, loopMode, maxStreams, session]);*/
 
   /*useEffect(() => {
     if (loopMode) {
