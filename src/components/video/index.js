@@ -39,15 +39,15 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const loopTime = 5000;
+//const loopTime = 5000;
 const max = 2;
 const vidProps = {
   preferredFrameRate: 30,
   preferredResolution: {width: 320, height: 240},
   showControls: false,
   insertDefaultUI: false,
-  subscribeToAudio: false,
-  subscribeToVideo: false,
+  subscribeToAudio: true,
+  subscribeToVideo: true,
 };
 
 const pubSettings = {
@@ -66,7 +66,7 @@ const pubSettings = {
 export default function Video(props) {
 
   const classes = useStyles();
-  let looper = null;
+  //let looper = null;
   const { enqueueSnackbar } = useSnackbar();
   const [maxStreams, setMaxStreams] = useState(max);
   const [user, setUser] = useState(null);
@@ -335,22 +335,40 @@ export default function Video(props) {
 
     if (data.instructor && current.length >= maxStreams) {
       let old = subsRef.current.filter(i => { return i.video }).slice(maxStreams - 1);
-      old.map(item => {
-        item.video = false;
-        item.audio = false;
-        session.unsubscribe(item.subscriber);
+
+      setSubs(subs => subs.map(item => {
+
+        let match = old.findIndex(oldItem => {
+          return oldItem.user.id === item.user.id 
+        });
+        
+        if (match > -1) {
+          old[match].video = false;
+          old[match].audio = false;
+          session.unsubscribe(old[match].subscriber);
+          return old[match];
+        }
         return item;
-      });
+      }))
     }
 
-    if ((current.length <= maxStreams && loopMode) || data.instructor) {
-      let subscriber = null;
+    if ((current.length < maxStreams && loopMode) || data.instructor) {
 
-      props.subscribeToVideo = true;
-      props.subscribeToAudio = true;
+      let subscriber = null;
+      subData.video = true;
+      subData.audio = true;
+
       if (data.instructor) {
         props.preferredResolution = {width: 1280, height: 720};
       }
+
+      setSubs(subs => subs.map(item => {
+        if (item.user.id === data.id) {
+          let updated = Object.assign(item, subData);
+          return updated;
+        }
+        return item;
+      }));
 
       try {
         subscriber = await session.subscribe(event.stream, null, props, handleError);
@@ -362,8 +380,6 @@ export default function Video(props) {
       subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, data.id) });
       subscriber.on('videoDisabled', (event) => { videoDisabled(event, data.id) });
       subscriber.on('videoEnabled', (event) => { videoEnabled(event, data.id)});
-      subData.video = true;
-      subData.audio = true;
       subData.subscriber = subscriber;
     }
 
@@ -423,7 +439,7 @@ export default function Video(props) {
     }
   }, [subs, loopMode, maxStreams, session]);*/
 
-  useEffect(() => {
+  /*useEffect(() => {
     if (loopMode) {
       looper = setInterval(() => {
         loopVideo(subs, course, user)
@@ -454,7 +470,7 @@ export default function Video(props) {
         ])
       }
     }
-  }
+  }*/
 
   async function toggleLayout(evt) {
     if (evt === "fullscreen") {
