@@ -236,14 +236,19 @@ export default function CourseInfo() {
         setPaymentProcessing(false);
         showSignupForm();
         setErrMessage({severity: "error", message: err.message});
+        return err;
       })
-      .then(() => {
+      .then((err) => {
+        if (err) return;
+
         // Send class joined email
         const start = format(new Date(course.start_date), "iiii, MMMM do");
         const s = new Date(course.start_date);
         let end = new Date(course.start_date);
         end.setMinutes(end.getMinutes() + course.duration);
-        const cal = createCalenderEvent(course.title, 'indoorphins.fit', course.id, s, end, false)
+
+        const regex = /[^\w\s\d-!*$#()&^@]/g;
+        const cal = createCalenderEvent(course.title.replace(regex, ""), 'indoorphins.fit', course.id, s, end, false)
 
         let emailAttachment = null;
 

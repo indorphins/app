@@ -22,23 +22,26 @@ export default async function callAPI(url, options, sendToken) {
 
   log.info("API:: request", url, options);
 
-  return fetch(url, options).then((response) => {
-    log.info("API:: response status code", response.status);
-    return response.json();
-  })
-  .then((data) => {
-    if (data.error) {
-      if (data.message.raw && data.message.raw.message) {
-        throw Error(data.message.raw.message);
+  return fetch(url, options)
+		.then((response) => {
+  log.info("API:: response status code", response.status);
+  if (response.status !== 201 && response.status !== 200) {
+    return response.json().then(result => {
+
+      if (result.message.raw && result.message.raw.message) {
+        throw Error(result.message.raw.message);
       }
 
-      throw Error(data.message);
-    } else {
-      return data;
-    }
-  })
-  .catch((error) => {
-    log.error("API:: response", url, error);
-    throw error;
-  });
+      throw Error(result.message);
+    })
+  }
+  return response.json();
+})
+		.then((data) => {
+  return data;
+})
+		.catch((error) => {
+  log.error("API:: response", url, error);
+  throw error;
+});
 }
