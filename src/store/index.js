@@ -73,7 +73,7 @@ const feedbackSlice = createSlice({
 });
 
 const instructorSlice = createSlice({
-  name: 'instructors',
+  name: 'instructor',
   initialState: [],
   reducers: {
     set(state, action) {
@@ -82,7 +82,19 @@ const instructorSlice = createSlice({
       return state;
     }
   }
-})
+});
+
+const courseSlice = createSlice({
+  name: 'course',
+  initialState: [],
+  reducers: {
+    set(state, action) {
+      log.debug("STORE:: set course data", action.payload);
+      state = [...action.payload];
+      return state;
+    }
+  }
+});
 
 const themeSlice = createSlice({
   name: 'theme',
@@ -106,6 +118,7 @@ const rootReducer = combineReducers({
   theme: themeSlice.reducer,
   feedback: feedbackSlice.reducer,
   instructor: instructorSlice.reducer,
+  course: courseSlice.reducer,
 });
 
 export const actions = {
@@ -113,6 +126,7 @@ export const actions = {
   theme: themeSlice.actions,
   feedback: feedbackSlice.actions,
   instructor: instructorSlice.actions,
+  course: courseSlice.actions,
 };
 
 export const store = configureStore({
