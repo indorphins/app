@@ -10,8 +10,11 @@ import {
   useMediaQuery
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { useSelector } from 'react-redux';
+import { createSelector } from 'reselect';
 
 import * as Instructor from '../api/instructor';
+import { store, actions } from '../store';
 import log from '../log';
 import path from '../routes/path';
 
@@ -43,8 +46,13 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+const instructorSelector = createSelector([state => state.instructor], (items) => {
+  return items;
+});
+
 export default function InstructorFeature(props) {
 
+  const cached = useSelector((state) => instructorSelector(state));
   const small = useMediaQuery('(max-width:600px)');
   const med = useMediaQuery('(max-width:950px)');
   const classes = useStyles();
@@ -86,32 +94,63 @@ export default function InstructorFeature(props) {
 
   useEffect(() => {
 
-    const init = async function() {
+    if (cached && cached.length > 0) {
+      let items = [];
+      let result = [].concat([...cached]);
 
-      let result = null;
-      let limit = 100;
-
-      if (props.limit) {
-        limit = props.limit;
+      for(let i = (result.length - 1); i > 0; i--) {
+        const j = Math.floor(Math.random() * i)
+        const temp = result[i]
+        result[i] = result[j]
+        result[j] = temp
       }
 
-      try {
-        result = await Instructor.getAll(limit);
-      } catch(err) {
-        setLoader(false);
-        return log.error("INSTRUCTOR WIDGET:: query", err);
-      }
+      result.forEach(item => {
+        let n = {
+          photo: item.photo_url,
+          firstName: item.first_name,
+          url: path.instructor + "/" + item.id,
+          id: item.id,
+        };
+        items.push(n);
+      });
 
-      if (result && result.total > 0) {
-        setData(result);
-      }
+      log.debug("INSTRUCTOR WIDGET:: set random instructor order", items);
 
       setLoader(false);
-      log.debug("INSTRUCTOR WIDGET:: got result", result);
+      setData(items);
+    }
+  }, [cached]);
+  
+  useEffect(() => {
+    if (!data && cached.length < 1) {
+      init();
+    }
+  }, [data, cached]);
+
+  const init = async function() {
+
+    let result = null;
+    let limit = 100;
+
+    if (props.limit) {
+      limit = props.limit;
     }
 
-    init();
-  }, []);
+    try {
+      result = await Instructor.getAll(limit);
+    } catch(err) {
+      setLoader(false);
+      return log.error("INSTRUCTOR WIDGET:: query", err);
+    }
+
+    if (result && result.total > 0) {
+      log.debug("INSTRUCTOR WIDGET:: set instructors", result);
+      store.dispatch(actions.instructor.set(result.data));
+    }
+
+    setLoader(false);
+  }
 
 
   if(header) {
@@ -124,35 +163,14 @@ export default function InstructorFeature(props) {
     )
   }
 
-  if (data) {
-    let items = [];
-    let result = data.data;
-
-    for(let i = (result.length - 1); i > 0; i--) {
-      const j = Math.floor(Math.random() * i)
-      const temp = result[i]
-      result[i] = result[j]
-      result[j] = temp
-    }
-
-    result.forEach(function(i) {
-      let info = {
-        photo: i.photo_url,
-        firstName: i.first_name,
-        url: path.instructor + "/" + i.id,
-        id: i.id,
-      };
-
-      items.push(info);
-    });
-   
+  if (data && data.length > 0) {
     formContent = (
       <Grid>
         <Grid>
           {headerContent}
         </Grid>
         <GridList cellHeight={height} cols={cols} spacing={spacing}>
-          {items.map(instructor => (
+          {data.map(instructor => (
             <GridListTile key={instructor.id} cols={1}>
               <Link className={classes.anchor} to={instructor.url}>
                 <Grid container>
