@@ -266,6 +266,9 @@ export default function Video(props) {
   }
 
   async function enableCandidate(candidate) {
+
+    if (!candidate.stream) return;
+
     let props = vidProps;
     candidate.video = true;
     candidate.audio = true;
@@ -349,41 +352,76 @@ export default function Video(props) {
     }));
   }
 
-  function videoDisabled(event, id) {
+  function videoDisabled(event) {
     log.debug("OPENTOK:: subscriber video disabled", event);
 
-    if (event.reason !== "publishVideo") return;
-
-    /*let index = subsRef.current.findIndex(item => {
-      return item.user.id === id
+    let index = subsRef.current.findIndex(item => {
+      return item.user.id === event.id
     });
 
     let match = subsRef.current[index];
 
     if (!match) return;
     
-    match.disabled = true;
-    if (match.video && match.subscriber) session.unsubscribe(match.subscriber);*/
+    if (match.video && match.subscriber) session.unsubscribe(match.subscriber);
 
     setSubs(subs => subs.map(item => {
-      if (item.user.id === id) {
+      if (item.user.id === event.id) {
         item.disabled = true;
+        item.audio = false;
       }
       return item;
     }));
   }
 
-  function videoEnabled(event, id) {
+  async function videoEnabled(event) {
     log.debug("OPENTOK:: subscriber video enabled", event);
+    let id = event.id
 
-    if (event.reason === "publishVideo") {
-      setSubs(subs => subs.map(item => {
-        if (item.user.id === id) {
-          item.disabled = false;
+    let index = subsRef.current.findIndex(item => {
+      return item.user.id === id
+    });
+
+    let match = subsRef.current[index];
+    match.disabled = false;
+
+    if (!match) return;
+    
+    if (match.video) {
+      let current = subsRef.current.filter(item => { return item.video });
+
+      if (current.length < maxStreams) {
+        match.video = true;
+        match.audio = true;
+        let subscriber = null;
+
+        try {
+          subscriber = await session.subscribe(match.stream, null, vidProps, handleError);
+        } catch (err) {
+          log.error("Subscribe to stream", err);
         }
-        return item;
-      }));
+  
+        log.debug("OPENTOK:: created subscriber", subscriber);
+        subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, id) });
+
+        setSubs(subs => subs.map(item => {
+          if (item.user.id === id) {
+            item.subscriber = subscriber;
+          }
+          return item;
+        }));
+
+      } else {
+        match.video = false;
+      }
     }
+
+    setSubs(subs => subs.map(item => {
+      if (item.user.id === id) {
+        return match;
+      }
+      return item;
+    }));
   }
 
   async function streamCreated(event) {
@@ -429,8 +467,6 @@ export default function Video(props) {
 
       log.debug("OPENTOK:: created subscriber", subscriber);
       subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, data.id) });
-      subscriber.on('videoDisabled', (event) => { videoDisabled(event, data.id) });
-      subscriber.on('videoEnabled', (event) => { videoEnabled(event, data.id)});
       subData.subscriber = subscriber;
     }
 
@@ -527,9 +563,6 @@ export default function Video(props) {
       if (item.video) {
         item.video = false;
         item.audio = false;
-        item.subscriber.off('videoElementCreated');
-        item.subscriber.off('videoDisabled');
-        item.subscriber.off('videoEnabled');
         session.unsubscribe(item.subscriber);
         item.subscriber = null;
         setSubs([
@@ -554,8 +587,6 @@ export default function Video(props) {
         
         if (subscriber) {
           subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, data); });
-          subscriber.on('videoDisabled', (event) => { videoDisabled(event, data) });
-          subscriber.on('videoEnabled', (event) => { videoEnabled(event, data)});
           item.subscriber = subscriber;
         }
 
@@ -599,6 +630,24 @@ export default function Video(props) {
           anchorOrigin: { horizontal: "left", vertical: "top" }
         });
       }
+    }
+
+    if (event.type === "signal:camera") {
+      let data = JSON.parse(event.data);
+      log.debug("camera event", data);
+
+      if (data.id !== user.id) {
+        if (data.disabled) {
+          videoDisabled(data);
+        } else {
+          videoEnabled(data);
+        }
+      }
+    }
+
+    if (event.type === "signal:microphone") {
+      let data = JSON.parse(event.data);
+      log.debug("mic event", data);
     }
   }
 
@@ -707,7 +756,7 @@ export default function Video(props) {
         <Grid container direction="row" spacing={0} justify="flex-start" style={{height: "100%", overflow: "hidden"}} >
           <Default user={user} subs={subs} session={session} max={maxStreams} layout={videoLayout} />
           <Drawer>
-            <PublisherControls publisher={publisher} user={user} course={course} />
+            <PublisherControls publisher={publisher} user={user} course={course} session={session} />
             {accor}
           </Drawer>
         </Grid>

@@ -12,6 +12,8 @@ import {
   MicOffOutlined, 
 } from '@material-ui/icons';
 
+import log from '../../log';
+
 const useStyles = makeStyles((theme) => ({
   publisher: {
     height: 240,
@@ -22,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function PublisherControls(props) {
 
+  const { session, user, course } = props
   const classes = useStyles();
   const [publisher, setPublisher] = useState(null);
   const [publishVideo, setPublishVideo] = useState(true);
@@ -32,10 +35,10 @@ export default function PublisherControls(props) {
       setPublisher(props.publisher);
     }
 
-    if (props.user && props.course && props.user.id === props.course.instructor.id) {
+    if (user && course && user.id === course.instructor.id) {
       setPublishAudio(true);
     }
-  }, [props]);
+  }, [props, user, course]);
 
   useEffect(() => {
     if (publisher) publisher.publishVideo(publishVideo);
@@ -46,11 +49,53 @@ export default function PublisherControls(props) {
   }, [publishAudio]);
 
   function toggleAudio() {
+    let disabled = false;
+    if (publishAudio) {
+      disabled = true;
+    }
+
     setPublishAudio(!publishAudio);
+
+    session.signal(
+      {
+        type: "microphone",
+        data: JSON.stringify({
+          id: user.id,
+          disabled: disabled,
+          date: new Date().toISOString(),
+        }),
+      },
+      function(error) {
+        if (error) {
+          log.error("OPENTOK:: user signal error" + error.message);
+        }
+      }
+    );
   }
 
   function toggleVideo() {
+    let disabled = false;
+    if (publishVideo) {
+      disabled = true;
+    }
+
     setPublishVideo(!publishVideo);
+
+    session.signal(
+      {
+        type: "camera",
+        data: JSON.stringify({
+          id: user.id,
+          disabled: disabled,
+          date: new Date().toISOString(),
+        }),
+      },
+      function(error) {
+        if (error) {
+          log.error("OPENTOK:: user signal error" + error.message);
+        }
+      }
+    );
   }
 
   let videoBtn = (<VideocamOffOutlined />);
