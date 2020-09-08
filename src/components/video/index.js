@@ -40,9 +40,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const loopTime = 5000;
-const max = 2;
+const max = 1;
 const vidProps = {
-  preferredFrameRate: 30,
+  preferredFrameRate: 7,
   preferredResolution: {width: 320, height: 240},
   showControls: false,
   insertDefaultUI: false,
@@ -57,7 +57,7 @@ const pubSettings = {
   publishAudio: false,
   publishVideo: true,
   resolution: "320x240",
-  frameRate: 30,
+  frameRate: 7,
   audioBitrate: 20000,
   enableStereo: false,
   maxResolution: {width: 320, height: 240},
@@ -281,6 +281,8 @@ export default function Video(props) {
       return i;
     }));
 
+    log.debug("OPENTOK:: enable candidate stream", candidate);
+
     try {
       subscriber = await session.subscribe(candidate.stream, null, props, handleError);
     } catch (err) {
@@ -290,8 +292,6 @@ export default function Video(props) {
     if (subscriber) {
       log.debug("OPENTOK:: created subscriber", subscriber);
       subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, candidate.user.id) });
-      subscriber.on('videoDisabled', (event) => { videoDisabled(event, candidate.user.id) });
-      subscriber.on('videoEnabled', (event) => { videoEnabled(event, candidate.user.id)});
 
       setSubs(subs => subs.map(item => {
         if (item.user.id === candidate.user.id) {
@@ -325,7 +325,9 @@ export default function Video(props) {
 
       if (current && current.length < maxStreams) {
         let diff = maxStreams - current.length;
-        let candidates = subsRef.current.filter(i => { return !i.video && !i.disabled }).slice(0, diff);
+        let candidates = subsRef.current.filter(i => { return !i.video && !i.disabled && i.stream }).slice(0, diff);
+
+        log.debug("OPENTOK:: candidate videos", candidates);
 
         candidates.forEach(item => {
           enableCandidate(item);
@@ -368,9 +370,25 @@ export default function Video(props) {
       if (item.user.id === event.id) {
         item.disabled = true;
         item.audio = false;
+        item.subscriber = null;
       }
       return item;
     }));
+
+    if (loopMode) {
+      let current = subsRef.current.filter(i => { return i.video });
+
+      if (current && current.length < maxStreams) {
+        let diff = maxStreams - current.length;
+        let candidates = subsRef.current.filter(i => { return !i.video && !i.disabled && i.stream }).slice(0, diff);
+
+        log.debug("OPENTOK:: candidate videos", candidates);
+
+        candidates.forEach(item => {
+          enableCandidate(item);
+        })
+      }
+    }
   }
 
   async function videoEnabled(event) {
@@ -387,7 +405,7 @@ export default function Video(props) {
     if (!match) return;
     
     if (match.video) {
-      let current = subsRef.current.filter(item => { return item.video });
+      let current = subsRef.current.filter(item => { return item.video && !item.disabled });
 
       if (current.length < maxStreams) {
         match.video = true;
@@ -494,7 +512,7 @@ export default function Video(props) {
 
   async function loopVideo(subs, course, user) {
     if (subs && subs.length <= 1) return;
-    
+
     let current = subs.filter(item => { return item.video && !item.disabled });
     let expired = null;
 
@@ -504,11 +522,13 @@ export default function Video(props) {
       expired = current[1];
     }
     
-    if (current.length > maxStreams) {
+    if (subs.length > maxStreams) {
 
-      let next = subs.filter(i => { return !i.video && !i.disabled && i.stream })[0];
+      let next = subs.filter(i => { return !i.video && !i.disabled && i.stream})[0];
 
       if (next && expired) {
+        log.debug("OPENTOK:: set new video and expire old", next, expired);
+
         next.audio = true;
         next.video = true;
 
@@ -519,16 +539,18 @@ export default function Video(props) {
           log.error("Subscribe to stream", err);
         }
 
-        log.debug("OPENTOK:: created subscriber", subscriber);
-        subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, next.user.id) });
-        next.subscriber = subscriber;          
+        if (subscriber) {
+          log.debug("OPENTOK:: created subscriber", subscriber);
+          subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, next.user.id) });
+          next.subscriber = subscriber;          
 
-        setSubs(subs => subs.map(item => {
-          if (item.user.id === next.userid) {
-            return next;
-          }
-          return item;
-        }));
+          setSubs(subs => subs.map(item => {
+            if (item.user.id === next.userid) {
+              return next;
+            }
+            return item;
+          }));
+        }
 
         if (expired.subscriber) session.unsubscribe(expired.subscriber);
         expired.audio = false;
@@ -569,13 +591,18 @@ export default function Video(props) {
   }
 
   function killExcessVideos() {
-    let old = subsRef.current.filter(i => { return i.video && !i.disabled }).slice(maxStreams - 1);
+    let start = maxStreams - 1
+    if (start === 0) {
+      start = 1;
+    }
+
+    let old = subsRef.current.filter(i => { return i.video && !i.disabled }).slice(start);
 
     if (old && old.length > 0) {
       setSubs(subs => subs.map(item => {
 
         let match = old.findIndex(oldItem => {
-          return oldItem.user.id === item.user.id 
+          return oldItem.user.id === item.user.id && item.user.id !== course.instructor.id
         });
         
         if (match > -1) {
@@ -615,7 +642,7 @@ export default function Video(props) {
 
       } else {
 
-        killExcessVideos()
+        killExcessVideos();
 
         item.video = true;
         item.audio = true;
@@ -643,6 +670,8 @@ export default function Video(props) {
           ])
         }
       }
+
+      killExcessVideos();
     }
   }
 
