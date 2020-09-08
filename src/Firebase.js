@@ -103,23 +103,23 @@ class Firebase {
       return null;
     }
 
-    let now = new Date();
+    let now = new Date().getTime();
     if (this.token && this.token.value && (now - this.token.date)/1000 < 1800) {
       return this.token.value;
     }
 
     let self = this;
     return this.auth.currentUser
-			.getIdToken(/* forceRefresh */ false)
-			.then(function(idToken) {
-  let now = new Date();
-  self.token.value = idToken;
-  self.token.date = now;
-  return idToken;
-})
-			.catch(function(error) {
-  throw error;
-});
+    .getIdToken(/* forceRefresh */ false)
+    .then(function(idToken) {
+      let now = new Date();
+      self.token.value = idToken;
+      self.token.date = now;
+      return idToken;
+    })
+    .catch(function(error) {
+      throw error;
+    });
   };
 }
 
