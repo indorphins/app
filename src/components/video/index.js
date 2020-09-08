@@ -60,7 +60,7 @@ const pubSettings = {
   frameRate: 30,
   audioBitrate: 20000,
   enableStereo: false,
-  maxResolution: {width: 640, height: 480},
+  maxResolution: {width: 320, height: 240},
 };
 
 export default function Video(props) {
@@ -171,9 +171,9 @@ export default function Video(props) {
         settings.audioBitrate = 96000;
         settings.disableAudioProcessing = false;
         settings.publishAudio = true;
-        settings.frameRate = 30;
-        settings.resolution = "640x480";
-        settings.maxResolution = {width: 1280, height: 720};
+        //settings.frameRate = 30;
+        //settings.resolution = "640x480";
+        //settings.maxResolution = {width: 1280, height: 720};
       }
 
       if (credentials.apiKey && credentials.sessionId) {
@@ -493,29 +493,65 @@ export default function Video(props) {
   }, [subs, loopMode, user, course]);
 
   async function loopVideo(subs, course, user) {
-    if (subs && subs.length > 1) {
-      let current = subs.filter(item => { return item.video && !item.disabled });
+    if (subs && subs.length <= 1) return;
+    
+    let current = subs.filter(item => { return item.video && !item.disabled });
+    let expired = null;
 
-      if (current.length <= maxStreams) {
-        let expired = null;
+    if (user.id === course.instructor.id) {
+      expired = current[0];
+    } else {
+      expired = current[1];
+    }
+    
+    if (current.length > maxStreams) {
 
-        if (user.id === course.instructor.id) {
-          expired = subs[0];
-        } else {
-          expired = subs[1];
+      let next = subs.filter(i => { return !i.video && !i.disabled && i.stream })[0];
+
+      if (next && expired) {
+        next.audio = true;
+        next.video = true;
+
+        let subscriber = null;
+        try {
+          subscriber = await session.subscribe(next.stream, null, vidProps, handleError);
+        } catch (err) {
+          log.error("Subscribe to stream", err);
         }
 
-        if (current.length < maxStreams) {
-          // Check if there are other streams we can enable
-        }
+        log.debug("OPENTOK:: created subscriber", subscriber);
+        subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, next.user.id) });
+        next.subscriber = subscriber;          
 
-        if (expired) {
-          setSubs([
-            ...subs.filter(i => i.user.id !== expired.user.id),
-            expired
-          ])
-        }
+        setSubs(subs => subs.map(item => {
+          if (item.user.id === next.userid) {
+            return next;
+          }
+          return item;
+        }));
+
+        if (expired.subscriber) session.unsubscribe(expired.subscriber);
+        expired.audio = false;
+        expired.video = false;
+        expired.subscriber = null;
       }
+    }
+
+    if (current.length < maxStreams) {
+      // Check if there are other streams we can enable
+      let diff = maxStreams - current.length;
+      let candidates = subs.filter(i => { return !i.video && !i.disabled }).slice(0, diff);
+
+      candidates.forEach(item => {
+        enableCandidate(item);
+      })
+    }
+
+    if (expired) {
+      setSubs([
+        ...subs.filter(i => i.user.id !== expired.user.id),
+        expired
+      ]);
     }
   }
 
