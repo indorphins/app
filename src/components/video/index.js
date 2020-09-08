@@ -63,6 +63,18 @@ const pubSettings = {
   maxResolution: {width: 320, height: 240},
 };
 
+const instructorPubSettings = {
+  mirror: true,
+  showControls: false,
+  insertDefaultUI: true,
+  publishAudio: true,
+  publishVideo: true,
+  audioBitrate: 96000,
+  frameRate: 30,
+  resolution: "640x480",
+  maxResolution: {width: 1280, height: 720},
+}
+
 export default function Video(props) {
 
   const classes = useStyles();
@@ -80,7 +92,11 @@ export default function Video(props) {
   const [permissionsError, setPermissionsError] = useState(false);
   const [videoLayout, setVideoLayout] = useState("horizontal");
   const subsRef = useRef();
+  const loopModeRef = useRef();
+  const maxStreamsRef = useRef();
   subsRef.current = subs;
+  loopModeRef.current = loopMode;
+  maxStreamsRef.current = maxStreams;
 
   async function handleError(err) {
     if (err) {
@@ -167,14 +183,7 @@ export default function Video(props) {
 
       let settings = pubSettings;
 
-      if (user.id === course.instructor.id) {
-        settings.audioBitrate = 96000;
-        settings.disableAudioProcessing = false;
-        settings.publishAudio = true;
-        //settings.frameRate = 30;
-        //settings.resolution = "640x480";
-        //settings.maxResolution = {width: 1280, height: 720};
-      }
+      if (user.id === course.instructor.id) settings = instructorPubSettings;
 
       if (credentials.apiKey && credentials.sessionId) {
         initializeSession(credentials.apiKey, credentials.sessionId, settings);
@@ -320,11 +329,11 @@ export default function Video(props) {
       return item;
     }));
 
-    if (loopMode) {
+    if (loopModeRef.current) {
       let current = subsRef.current.filter(i => { return i.video });
 
-      if (current && current.length < maxStreams) {
-        let diff = maxStreams - current.length;
+      if (current && current.length < maxStreamsRef.current) {
+        let diff = maxStreamsRef.current - current.length;
         let candidates = subsRef.current.filter(i => { return !i.video && !i.disabled && i.stream }).slice(0, diff);
 
         log.debug("OPENTOK:: candidate videos", candidates);
@@ -375,11 +384,11 @@ export default function Video(props) {
       return item;
     }));
 
-    if (loopMode) {
+    if (loopModeRef.current) {
       let current = subsRef.current.filter(i => { return i.video });
 
-      if (current && current.length < maxStreams) {
-        let diff = maxStreams - current.length;
+      if (current && current.length < maxStreamsRef.current) {
+        let diff = maxStreamsRef.current - current.length;
         let candidates = subsRef.current.filter(i => { return !i.video && !i.disabled && i.stream }).slice(0, diff);
 
         log.debug("OPENTOK:: candidate videos", candidates);
@@ -407,7 +416,7 @@ export default function Video(props) {
     if (match.video) {
       let current = subsRef.current.filter(item => { return item.video && !item.disabled });
 
-      if (current.length < maxStreams) {
+      if (current.length < maxStreamsRef.current) {
         match.video = true;
         match.audio = true;
         let subscriber = null;
@@ -454,11 +463,7 @@ export default function Video(props) {
       stream: event.stream,
     };
 
-    if (data.instructor && current.length >= maxStreams) {
-      killExcessVideos();
-    }
-
-    if ((current.length < maxStreams && loopMode) || data.instructor) {
+    if ((current.length < maxStreamsRef.current && loopModeRef.current) || data.instructor) {
 
       let subscriber = null;
       subData.video = true;
@@ -494,6 +499,10 @@ export default function Video(props) {
       }
       return item;
     }));
+
+    if (data.instructor && current.length >= maxStreamsRef.current) {
+      killExcessVideos();
+    }
   }
 
   useEffect(() => {
@@ -522,7 +531,7 @@ export default function Video(props) {
       expired = current[1];
     }
     
-    if (subs.length > maxStreams) {
+    if (subs.length > maxStreamsRef.current) {
 
       let next = subs.filter(i => { return !i.video && !i.disabled && i.stream})[0];
 
@@ -559,9 +568,9 @@ export default function Video(props) {
       }
     }
 
-    if (current.length < maxStreams) {
+    if (current.length < maxStreamsRef.current) {
       // Check if there are other streams we can enable
-      let diff = maxStreams - current.length;
+      let diff = maxStreamsRef.current - current.length;
       let candidates = subs.filter(i => { return !i.video && !i.disabled }).slice(0, diff);
 
       candidates.forEach(item => {
@@ -591,10 +600,7 @@ export default function Video(props) {
   }
 
   function killExcessVideos() {
-    let start = maxStreams - 1
-    if (start === 0) {
-      start = 1;
-    }
+    let start = maxStreamsRef.current;
 
     let old = subsRef.current.filter(i => { return i.video && !i.disabled }).slice(start);
 
@@ -642,8 +648,6 @@ export default function Video(props) {
 
       } else {
 
-        killExcessVideos();
-
         item.video = true;
         item.audio = true;
         let subscriber = null;
@@ -669,9 +673,10 @@ export default function Video(props) {
             ...subsRef.current.filter(i => i.user.id !== item.user.id && i.user.id !== course.instructor.id)
           ])
         }
-      }
 
-      killExcessVideos();
+
+        killExcessVideos();
+      }
     }
   }
 
