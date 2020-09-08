@@ -110,7 +110,7 @@ class Firebase {
 
     let self = this;
     return this.auth.currentUser
-    .getIdToken(/* forceRefresh */ false)
+    .getIdToken(/* forceRefresh */ true)
     .then(function(idToken) {
       let now = new Date();
       self.token.value = idToken;
