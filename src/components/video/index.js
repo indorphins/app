@@ -39,7 +39,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-//const loopTime = 5000;
+const loopTime = 5000;
 const max = 2;
 const vidProps = {
   preferredFrameRate: 30,
@@ -66,7 +66,7 @@ const pubSettings = {
 export default function Video(props) {
 
   const classes = useStyles();
-  //let looper = null;
+  let looper = null;
   const { enqueueSnackbar } = useSnackbar();
   const [maxStreams, setMaxStreams] = useState(max);
   const [user, setUser] = useState(null);
@@ -75,7 +75,6 @@ export default function Video(props) {
   const [session, setSession] = useState(null);
   const [publisher, setPublisher] = useState(null);
   const [subs, setSubs] = useState([]);
-  //const [subsShown, setSubsShown] = useState([]);
   const [loopMode, setLoopMode] = useState(true);
   const [displayMsg, setDisplayMsg] = useState(null);
   const [permissionsError, setPermissionsError] = useState(false);
@@ -479,7 +478,7 @@ export default function Video(props) {
     }));
   }
 
-  /*useEffect(() => {
+  useEffect(() => {
     if (loopMode) {
       looper = setInterval(() => {
         loopVideo(subs, course, user)
@@ -495,22 +494,30 @@ export default function Video(props) {
 
   async function loopVideo(subs, course, user) {
     if (subs && subs.length > 1) {
-      let expired = null;
+      let current = subs.filter(item => { return item.video && !item.disabled });
 
-      if (user.id === course.instructor.id) {
-        expired = subs[0];
-      } else {
-        expired = subs[1];
-      }
+      if (current.length <= maxStreams) {
+        let expired = null;
 
-      if (expired) {
-        setSubs([
-          ...subs.filter(i => i.user.id !== expired.user.id),
-          expired
-        ])
+        if (user.id === course.instructor.id) {
+          expired = subs[0];
+        } else {
+          expired = subs[1];
+        }
+
+        if (current.length < maxStreams) {
+          // Check if there are other streams we can enable
+        }
+
+        if (expired) {
+          setSubs([
+            ...subs.filter(i => i.user.id !== expired.user.id),
+            expired
+          ])
+        }
       }
     }
-  }*/
+  }
 
   async function toggleLayout(evt) {
     if (evt === "fullscreen") {
