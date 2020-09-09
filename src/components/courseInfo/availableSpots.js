@@ -10,11 +10,11 @@ export default function AvailableSpots(props) {
   const { course, classes } = props;
   let spotsContent = null;
 
-  const takenSpots = course.participants ? course.participants.length : 0;
+  const takenSpots = course ? course.participants.length : 0;
   let spotsCount = `${takenSpots}/${course.total_spots}`;
   if (course.available_spots <= 0) spotsCount = "FULL";
   
-  if (spotsCount) {
+  if (course && spotsCount) {
     spotsContent = (
       <Card className={classes.spotsContainer} title="Spaces remaining">
         <Grid container direction="column" justify="center" alignItems="center">
