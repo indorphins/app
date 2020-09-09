@@ -58,7 +58,7 @@ const pubSettings = {
   publishVideo: true,
   resolution: "320x240",
   frameRate: 7,
-  audioBitrate: 20000,
+  audioBitrate: 44000,
   enableStereo: false,
   maxResolution: {width: 320, height: 240},
 };
@@ -372,20 +372,24 @@ export default function Video(props) {
     let match = subsRef.current[index];
 
     if (!match) return;
+
+    match.disabled = true;
+    match.audio = false;
     
-    if (match.video && match.subscriber) session.unsubscribe(match.subscriber);
+    if (match.video && match.subscriber) {
+      session.unsubscribe(match.subscriber);
+      match.subscriber = null;
+    }
 
     setSubs(subs => subs.map(item => {
       if (item.user.id === event.id) {
-        item.disabled = true;
-        item.audio = false;
-        item.subscriber = null;
+        return match;
       }
       return item;
     }));
 
     if (loopModeRef.current) {
-      let current = subsRef.current.filter(i => { return i.video });
+      let current = subsRef.current.filter(i => { return i.video && !i.disabled });
 
       if (current && current.length < maxStreamsRef.current) {
         let diff = maxStreamsRef.current - current.length;
@@ -411,12 +415,14 @@ export default function Video(props) {
     let match = subsRef.current[index];
     match.disabled = false;
 
-    if (!match) return;
+    if (!match) return log.warn("OPENTOK:: enabled video not matched");
     
     if (match.video) {
-      let current = subsRef.current.filter(item => { return item.video && !item.disabled });
+      let current = subsRef.current.filter(item => { return item.video && !item.disabled && item.subscriber });
 
-      if (current.length < maxStreamsRef.current) {
+      log.debug("OPENTOK:: current subscribed videos", current);
+
+      if (!current || current.length < maxStreamsRef.current) {
         match.video = true;
         match.audio = true;
         let subscriber = null;
