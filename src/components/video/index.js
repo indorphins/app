@@ -602,7 +602,7 @@ export default function Video(props) {
       killExcessVideos();
     }
 
-    if (current.length < maxStreams) {
+    if (current.length < maxStreams && loopMode) {
       let diff = maxStreams - current.length;
       let candidates = subs.filter(i => { return !i.video && !i.disabled }).slice(0, diff);
 
@@ -611,7 +611,7 @@ export default function Video(props) {
       })
     }
     
-  }, [maxStreams])
+  }, [maxStreams, loopMode])
 
   async function toggleLayout(evt) {
     if (evt === "fullscreen") {
