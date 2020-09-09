@@ -7,6 +7,7 @@ const userSlice = createSlice({
     data: {},
     paymentData: {methods: []},
     schedule: [],
+    sessions: []
   },
   reducers: {
     set(state, action) {
@@ -34,6 +35,16 @@ const userSlice = createSlice({
       state.schedule = state.schedule.filter(item => {
         return item.id !== action.payload.id;
       });
+      return state;
+    },
+    setSessions(state, action) {
+      log.debug("STORE:: set user sessions", action.payload);
+      state.sessions = state.sessions.concat(action.payload);
+      return state;
+    },
+    addSession(state, action) {
+      log.debug("STORE:: add user session", action.payload);
+      state.sessions = [action.payload, ...state.sessions];
       return state;
     },
     clear(state) {

@@ -31,13 +31,16 @@ export default function(props) {
   const history = useHistory();
   let home = useRouteMatch({ path: path.home, strict: true});
   let schedule = useRouteMatch(path.schedule);
+  let milestone = useRouteMatch(path.milestone)
 
   useEffect(() => {
     if (home && home.isExact) {
       setTab(1);
-    } else if (currentUser.id && schedule) {
+    } else if (milestone) {
       setTab(2);
-    } else {
+    } else if (currentUser.id && schedule) {
+      setTab(3);
+    }  else {
       setTab(0);
     }
   }, [home]);
@@ -50,11 +53,15 @@ export default function(props) {
     history.push(path.schedule);
   }
 
+  async function navMilestones() {
+    history.push(path.milestone);
+  }
+
   let scheduleTab = null;
 
   if (currentUser.id) {
     scheduleTab = (
-      <Tab value={2} label="My Schedule" onClick={navSchedule} className={classes.tab} />
+      <Tab value={3} label="My Schedule" onClick={navSchedule} className={classes.tab} />
     )
   }
 
@@ -66,6 +73,7 @@ export default function(props) {
     >
       <Tab value={0} className={classes.hidden} />
       <Tab value={1} label="Classes" onClick={navHome} className={classes.tab} />
+      <Tab value={2} label="Milestones" onClick={navMilestones} className={classes.tab} />
       {scheduleTab}
     </Tabs>
   )
