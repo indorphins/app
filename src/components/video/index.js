@@ -594,9 +594,28 @@ export default function Video(props) {
     }
   }
 
+  useEffect(() => {
+
+    let current = subs.filter(item => { return item.video && !item.disabled });
+
+    if (current.length > maxStreams) {
+      killExcessVideos();
+    }
+
+    if (current.length < maxStreams) {
+      let diff = maxStreams - current.length;
+      let candidates = subs.filter(i => { return !i.video && !i.disabled }).slice(0, diff);
+
+      candidates.forEach(item => {
+        enableCandidate(item);
+      })
+    }
+    
+  }, [maxStreams])
+
   async function toggleLayout(evt) {
     if (evt === "fullscreen") {
-      setMaxStreams(1);
+      setMaxStreams(1)
     } else {
       setMaxStreams(max);
     }
@@ -609,6 +628,8 @@ export default function Video(props) {
 
   function killExcessVideos() {
     let start = maxStreamsRef.current;
+
+    log.debug("slice start", start);
 
     let old = subsRef.current.filter(i => { return i.video && !i.disabled }).slice(start);
 
@@ -681,7 +702,6 @@ export default function Video(props) {
             ...subsRef.current.filter(i => i.user.id !== item.user.id && i.user.id !== course.instructor.id)
           ])
         }
-
 
         killExcessVideos();
       }
