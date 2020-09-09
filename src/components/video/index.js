@@ -40,7 +40,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const loopTime = 5000;
-const max = 1;
+const max = 2;
 const vidProps = {
   preferredFrameRate: 7,
   preferredResolution: {width: 320, height: 240},
@@ -60,7 +60,7 @@ const pubSettings = {
   frameRate: 7,
   audioBitrate: 44000,
   enableStereo: false,
-  maxResolution: {width: 320, height: 240},
+  maxResolution: {width: 640, height: 480},
 };
 
 const instructorPubSettings = {
@@ -647,7 +647,7 @@ export default function Video(props) {
       if (item.video) {
         item.video = false;
         item.audio = false;
-        session.unsubscribe(item.subscriber);
+        if (item.subscriber) session.unsubscribe(item.subscriber);
         item.subscriber = null;
         setSubs([
           ...subsRef.current.filter(i => i.user.id !== item.user.id),
