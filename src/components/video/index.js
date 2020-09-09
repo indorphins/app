@@ -39,10 +39,10 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const loopTime = 5000;
-const max = 2;
+const loopTime = 15000;
+const max = 4;
 const vidProps = {
-  preferredFrameRate: 7,
+  preferredFrameRate: 30,
   preferredResolution: {width: 320, height: 240},
   showControls: false,
   insertDefaultUI: false,
@@ -57,7 +57,7 @@ const pubSettings = {
   publishAudio: false,
   publishVideo: true,
   resolution: "320x240",
-  frameRate: 7,
+  frameRate: 30,
   audioBitrate: 44000,
   enableStereo: false,
   maxResolution: {width: 640, height: 480},
@@ -103,26 +103,22 @@ export default function Video(props) {
       log.error("OPENTOK::", err);
 
       if (err.name === 'OT_HARDWARE_UNAVAILABLE') {
-        setDisplayMsg({
+        return setDisplayMsg({
           severity: "error",
           message: "We cannot access your camera or microphone, they are already in use by another application."
         });
-        return;
       }
 
       if (err.name === 'OT_NOT_SUPPORTED') {
-        setDisplayMsg({severity: "error", message: "Device not supported."});
-        return;
+        return setDisplayMsg({severity: "error", message: "Device not supported."});
       }
 
       if (err.name === 'OT_TIMEOUT' || err.name === 'OT_MEDIA_ERR_NETWORK') {
-        setDisplayMsg({
+        return setDisplayMsg({
           severity: "warning",
-          message: `Network connection slow. Disabling participant video. 
+          message: `Network connection slow.
           Try moving closer to your router if possible, or check your internet speed, and then refresh this page.`
         });
-        setMaxStreams(1);
-        return;
       }
     }
   }
@@ -426,9 +422,14 @@ export default function Video(props) {
         match.video = true;
         match.audio = true;
         let subscriber = null;
+        let props = vidProps;
+
+        if (match.user.id === course.instructor.id) {
+          props.preferredResolution = {width: 1280, height: 720};
+        }
 
         try {
-          subscriber = await session.subscribe(match.stream, null, vidProps, handleError);
+          subscriber = await session.subscribe(match.stream, null, props, handleError);
         } catch (err) {
           log.error("Subscribe to stream", err);
         }
