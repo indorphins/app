@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { Container, Grid, CircularProgress, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core';
+import { useSelector } from 'react-redux';
+import { createSelector } from 'reselect';
 
 import CourseSchedule from '../components/courseSchedule';
 import UserData from '../components/userData';
@@ -9,6 +11,10 @@ import * as InstructorAPI from '../api/instructor';
 import * as Course from '../api/course';
 import log from '../log';
 import path from '../routes/path';
+
+const instructorDataSelector = createSelector([state => state.instructor], (data) => {
+  return data;
+});
 
 const useStyles = makeStyles((theme) => ({
   divider: {
@@ -42,6 +48,7 @@ export default function Instructor() {
   const history = useHistory();
   const classes = useStyles();
   const params = useParams();
+  const instructorData = useSelector(state => instructorDataSelector(state))
   const [photo, setPhoto] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -60,6 +67,27 @@ export default function Instructor() {
       getInstructor(params.id);
     }
   }, [params]);
+
+  useEffect(() => {
+
+    if (params.id && instructorData.length > 0) {
+      let existing = instructorData.filter(item => {
+        return item.id === params.id;
+      })[0];
+
+      if (existing) {
+        if (existing.photo_url) setPhoto(existing.photo_url);
+        if (existing.username) setUsername(existing.username);
+        if (existing.email) setEmail(existing.email);
+        if (existing.first_name) setFirstName(existing.first_name);
+        if (existing.last_name) setLastName(existing.last_name);
+        if (existing.bio) setBio(existing.bio);
+        if (existing.social && existing.social.instagram) setInsta(existing.social.instagram);
+        setLoader(false);
+      }
+    }
+
+  }, [instructorData, params])
 
 
   async function getInstructor(id) {
