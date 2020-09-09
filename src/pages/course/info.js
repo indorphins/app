@@ -112,6 +112,10 @@ const selectDefaultPaymentMethod = createSelector(
   pd => pd.methods.filter(item => item.default)
 );
 
+const courseDataSelector = createSelector([state => state.course], (data) => {
+  return data;
+});
+
 export default function CourseInfo() {
 
   const classes = useStyles();
@@ -119,6 +123,7 @@ export default function CourseInfo() {
   const params = useParams();
   const currentUser = useSelector(state => getUserSelector(state));
   const paymentData = useSelector(state => paymentDataSelector(state));
+  const courseData = useSelector(state => courseDataSelector(state))
   const defaultPaymentMethod = useSelector(state => selectDefaultPaymentMethod(state));
   const paymentMethod = useRef(defaultPaymentMethod);
   const [course, setCourse] = useState('');
@@ -132,6 +137,18 @@ export default function CourseInfo() {
   useEffect(() => {
     document.querySelector('body').scrollTo(0, 0);
   }, []);
+
+  useEffect(() => {
+
+    if (params.id && courseData.length > 0) {
+      let existing = courseData.filter(item => {
+        return item.id === params.id;
+      })[0];
+
+      if (existing) setCourse(existing);
+    }
+
+  }, [courseData, params]);
 
   useEffect(() => {
     getCourse(params.id);
