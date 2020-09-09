@@ -422,7 +422,7 @@ export default function Video(props) {
 
       log.debug("OPENTOK:: current subscribed videos", current);
 
-      if (!current || current.length < maxStreamsRef.current) {
+      if (!current || current.length < maxStreamsRef.current || match.user.id === course.instructor.id) {
         match.video = true;
         match.audio = true;
         let subscriber = null;
@@ -442,6 +442,8 @@ export default function Video(props) {
           }
           return item;
         }));
+
+        killExcessVideos();
 
       } else {
         match.video = false;
