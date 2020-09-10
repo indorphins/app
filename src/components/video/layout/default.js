@@ -161,6 +161,18 @@ const gridStyles = makeStyles((theme) => ({
   }
 }));
 
+/*const breaks = {
+  2: [2,1],
+  3: [2,2],
+  5: [3,2],
+  7: [3,3],
+  10: [4,3],
+  13: [4,4],
+  17: [5,4],
+  21: [5,5],
+  26: [6,5],
+}*/
+
 function VideoContainer(props) {
   const { classes } = props;
 
@@ -215,6 +227,10 @@ export default function Default(props) {
       }
     }
   }, [subs]);
+
+  /*useEffect(() => {
+
+  }, [max]);*/
 
   useEffect(() => {
     if (props.max) {
