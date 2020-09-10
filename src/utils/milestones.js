@@ -3,23 +3,30 @@ import { differenceInDays, differenceInWeeks, differenceInCalendarWeeks,
    isEqual, isWeekend, isSunday, isMonday, isTuesday, isWednesday,
     isThursday, isFriday, isSaturday, getHours } from 'date-fns';
 
+import log from '../log';
+
 /* Classes Taken */
 function getClasses(sessions, user) {
   return sessions.filter(session => {
-    return session.users_joined && session.users_joined.includes(user);
+    return session.users_joined && session.users_joined.includes(user.id);
   });
 }
 
 /* Classes taken count */
 function getClassesTaken(sessions, user) {
-  return getClasses(sessions, user).length;
+  let list = getClasses(sessions, user);
+  return list.length;
 }
 
 /* Class Types Taken */
 function getClassTypesTaken(sessions, user) {
-  return getClasses(sessions, user).map(item => {
+  let list = getClasses(sessions, user);
+  
+  let mapped = list.map(item => {
     return item.type;
   });
+
+  return mapped;
 }
 
 /* Combo classes taken in select time frames */
@@ -138,35 +145,25 @@ function isAllDayEveryDay(sessions, user) {
 
 // Take one class 5 times
 function isRideOrDie(sessions, user) {
-
-  let match = getClasses(sessions, user).filter(item => {
-    return getInstructorCount(sessions, item.instructor_id) >= 5
-  })[0];
+  let temp = getClasses(sessions, user);
   
-  if (match) {
-    return true;
-  }
-
-  return false;
+  let filtered = temp.filter(item => {
+    return getInstructorCount(sessions, item.instructor_id) >= 5
+  })
+  
+  let mapped = filtered.map(item => {
+    return getInstructorCount(sessions, item.instructor_id);
+  });
+  
+  return mapped.sort().reverse();
 }
 
 function getInstructorCount(sessions, instructorId) {
-  return sessions.filter(item => {
+  let items = sessions.filter(item => {
     return item.instructor_id === instructorId
-  }).length
-}
+  });
 
-/**
- * Returns the number of sessions tied to the input class ID that the user took
- * @param {Array} sessions 
- * @param {String} classId 
- * @param {Object} user
- * @returns {Number}
- */
-function numberOfClassSessions(sessions, classId, user) {
-  return getClasses(sessions, user).filter(item => {
-    return item.class_id === classId;
-  }).length
+  return items.length;
 }
 
 /**
@@ -298,17 +295,6 @@ function getLongestStreak(sessions, user) {
   })
 
   return longest
-}
-
-// Returns the number of times the user has taken their last class, by class id
-function numberOfLastClassTaken(sessions, user) {
-  let count = 0;
-  for (let i = 0; i < sessions.length; i++) {
-    if (sessions[i].users_joined.includes(user.id)) {
-      return numberOfClassSessions(sessions, sessions[i].class_id, user);
-    }
-  }
-  return count;
 }
 
 // Return the number of unique days of the week the user has taken class on
@@ -1007,20 +993,31 @@ export function getTwoADaysLevel(sessions, user) {
 // Get the ride-or-die progress. If user hasn't reached it, 
 // count the number of times they took the last class
 export function getRideOrDieLevel(sessions, user) {
-  if (isRideOrDie(sessions, user)) {
+
+  let counts = isRideOrDie(sessions, user);
+
+  log.debug("Ride or die counts", sessions, counts);
+
+  if (counts && counts[0] > 0 && counts <= 5) {
     return {
       title: 'Ride or Die',
-      label: 'Take the same class 5 times',
+      label: 'Take a class from the same instructor 5 times',
+      max: 5,
+      value: counts[0]
+    }
+  } else if (counts && counts[0] > 5) {
+    return {
+      title: 'Ride or Die',
+      label: 'Take a class from the same instructor 5 times',
       max: 5,
       value: 5
     }
   } else {
-    const count = numberOfLastClassTaken(sessions, user);
     return {
       title: 'Ride or Die',
-      label: 'Take the same class 5 times',
+      label: 'Take a class from the same instructor 5 times',
       max: 5,
-      value: count
+      value: 0
     }
   }
 }
