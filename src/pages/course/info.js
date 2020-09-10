@@ -387,7 +387,7 @@ export default function CourseInfo() {
     let insta = null;
     if (course.instructor.social && course.instructor.social.instagram) {
       insta = (
-        <Grid item>
+        <Grid item style={{width: "100%"}}>
           <Instagram instagram={course.instructor.social.instagram} />
         </Grid>
       );
