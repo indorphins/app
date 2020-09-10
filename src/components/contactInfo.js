@@ -5,18 +5,22 @@ import { EmailOutlined, PhoneOutlined } from '@material-ui/icons';
 import Instagram from './instagram';
 
 const useStyles = makeStyles((theme) => ({
-  icon: {
-    color: theme.palette.primary.main,
-    fontSize: "1.5rem",
-  },
   container: {
     cursor: 'pointer',
   },
   contactInfo: {
     backgroundColor: theme.palette.grey[200],
-    padding: theme.spacing(3),
+    padding: theme.spacing(1),
     width: "100%",
-  }
+  },
+  icon: {
+    color: theme.palette.primary.main,
+    fontSize: "1.5rem",
+    display: 'flex',
+    alignContent: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 }));
 
 
@@ -40,24 +44,26 @@ export default function ContactInfo(props) {
   let emailContent = null;
   if (email) {
     emailContent = (
-      <Grid
-        container
-        direction="row"
-        justify="flex-start"
-        alignItems="center"
-        alignContent="center"
-        spacing={2}
-        className={classes.container}
-        onClick={sendEmail}
-        title="Send email"
-      >
-        <Grid item>
-          <EmailOutlined color="primary" />
-        </Grid>
-        <Grid item>
-          <Typography variant="h5">
-            {email}
-          </Typography>
+      <Grid item>
+        <Grid
+          container
+          direction="row"
+          justify="flex-start"
+          alignItems="center"
+          alignContent="center"
+          spacing={2}
+          className={classes.container}
+          onClick={sendEmail}
+          title="Send email"
+        >
+          <Grid item className={classes.icon}>
+            <EmailOutlined color="primary" />
+          </Grid>
+          <Grid item>
+            <Typography variant="h5">
+              {email}
+            </Typography>
+          </Grid>
         </Grid>
       </Grid>
     );
@@ -66,22 +72,24 @@ export default function ContactInfo(props) {
   let phoneContent = null;
   if (props.phone) {
     phoneContent = (
-      <Grid
-        container
-        direction="row"
-        justify="flex-start"
-        alignItems="center"
-        alignContent="center"
-        spacing={2}
-        className={classes.container}
-      >
-        <Grid item>
-          <PhoneOutlined color="primary" />
-        </Grid>
-        <Grid item>
-          <Typography variant="h5">
-            {props.phone}
-          </Typography>
+      <Grid item>
+        <Grid
+          container
+          direction="row"
+          justify="flex-start"
+          alignItems="center"
+          alignContent="center"
+          spacing={2}
+          className={classes.container}
+        >
+          <Grid item className={classes.icon}>
+            <PhoneOutlined color="primary" />
+          </Grid>
+          <Grid item>
+            <Typography variant="h5">
+              {props.phone}
+            </Typography>
+          </Grid>
         </Grid>
       </Grid>
     );
@@ -91,13 +99,15 @@ export default function ContactInfo(props) {
   let instaContent = null;
   if (props.instagram) {
     instaContent = (
-      <Instagram instagram={props.instagram} />
+      <Grid item>
+        <Instagram instagram={props.instagram} />
+      </Grid>
     );    
   }
 
   let content = (
     <Card className={classes.contactInfo}>
-      <Grid container direction="column" spacing={2}>
+      <Grid container direction="column" spacing={2} justify="flex-start">
         {emailContent}
         {phoneContent}
         {instaContent}

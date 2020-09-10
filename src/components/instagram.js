@@ -14,6 +14,12 @@ const useStyles = makeStyles((theme) => ({
   container: {
     cursor: 'pointer',
   },
+  icon: {
+    display: 'flex',
+    alignContent: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
 }));
 
 export default function Instagram(props) {
@@ -44,7 +50,7 @@ export default function Instagram(props) {
       onClick={navigate}
       title="Instagram"
     >
-      <Grid item>
+      <Grid item className={classes.icon}>
         <InstagramIcon />
       </Grid>
       <Grid item>

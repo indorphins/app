@@ -106,6 +106,12 @@ const useStyles = makeStyles((theme) => ({
     fontStyle: "italic",
     fontSize: "0.9rem",
   },
+  icon: {
+    display: 'flex',
+    alignContent: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   link: {
     cursor: "pointer",
     textDecoration: "none",
@@ -330,7 +336,7 @@ export default function CourseInfo() {
       actionBtnDirection: "column",
       actionBtnSize: "auto",
       instructorDetailsDirection: "column",
-      instructorDetailsSize: "auto",
+      instructorDetailsSize: 12,
     };
   } else if (med) {
     layout = {
@@ -362,7 +368,7 @@ export default function CourseInfo() {
       actionBtnDirection: "row",
       actionBtnSize: 3,
       instructorDetailsDirection: "column",
-      instructorDetailsSize: "auto",
+      instructorDetailsSize: 12,
     }
   }
 
@@ -397,17 +403,27 @@ export default function CourseInfo() {
 
     instructorContent = (
       <Card className={classes.instructorContainer}>
-        <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={2}>
-          <Grid item>
-            <RecordVoiceOver color="primary" />
+        <Grid container direction="column" spacing={2}>
+          <Grid 
+            item 
+            container 
+            direction="row"
+            justify="flex-start"
+            alignItems="center"
+            alignContent="center"
+            spacing={2}
+          >
+            <Grid item className={classes.icon}>
+              <RecordVoiceOver color="primary" />
+            </Grid>
+            <Grid item>
+              <Typography variant="h5">
+                {course.instructor.username}
+              </Typography>
+            </Grid>
           </Grid>
-          <Grid item>
-            <Typography variant="h5">
-              {course.instructor.username}
-            </Typography>
-          </Grid>
+          {insta}
         </Grid>
-        {insta}
       </Card>
     )
   }
@@ -443,24 +459,24 @@ export default function CourseInfo() {
 
   let courseMetaData = (
     <Grid container direction="column" spacing={2}>
-      <Grid item container>
-        <Grid container direction="row" justify="flex-end" spacing={2}>
-          <Grid item xs={layout.costSize}>
-            <Cost course={course} classes={classes} />
-          </Grid>
-          <Grid item xs={layout.costSize}>
-            <Duration course={course} classes={classes} />
-          </Grid>
-          <Grid item xs={layout.spotsSize}>
-            <AvailableSpots course={course} classes={classes} />
-          </Grid>               
+      <Grid item container direction="row" justify="flex-end" spacing={2}>
+        <Grid item xs={layout.costSize}>
+          <Cost course={course} classes={classes} />
         </Grid>
+        <Grid item xs={layout.costSize}>
+          <Duration course={course} classes={classes} />
+        </Grid>
+        <Grid item xs={layout.spotsSize}>
+          <AvailableSpots course={course} classes={classes} />
+        </Grid>               
       </Grid>
-      <Grid item xs={layout.instructorDetailsSize}>
-        {instructorContent}
-      </Grid>
-      <Grid item xs={layout.instructorDetailsSize}>
-        <Participants currentUser={currentUser} course={course} />
+      <Grid item container direction={layout.instructorDetailsDirection} spacing={2}>
+        <Grid item xs={layout.instructorDetailsSize} style={{width: "100%"}}>
+          {instructorContent}
+        </Grid>
+        <Grid item xs={layout.instructorDetailsSize} style={{width: "100%"}}>
+          <Participants currentUser={currentUser} course={course} />
+        </Grid>
       </Grid>
     </Grid>
   );
