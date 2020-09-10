@@ -38,6 +38,10 @@ const useStyles = makeStyles((theme) => ({
   },
   noClassContainer: {
     marginBottom: theme.spacing(2),
+  },
+  emptySched: {
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
   }
 }));
 
@@ -246,9 +250,12 @@ export default function CourseList() {
   } else {
     myClassesContent = (
       <Grid item>
+        <Typography variant="h5">
+          My Classes
+        </Typography>
         <Grid container direction="column" justify="center" alignItems="center" spacing={1}>
           <Grid item>
-            <Typography variant='h3'>Book a class below to get started</Typography>
+            <Typography className={classes.emptySched} variant='h3'>Book a class below to get started</Typography>
           </Grid>
         </Grid>
       </Grid>
