@@ -472,7 +472,7 @@ export default function CourseInfo() {
           </Grid>
         </Grid>
       </Grid>
-      <Grid item xs={layout.courseCostSize}>
+      <Grid item xs={layout.courseCostSize} style={{width:"100%"}}>
         {courseMetaData}
       </Grid>
     </Grid>
