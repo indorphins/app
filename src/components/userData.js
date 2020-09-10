@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Card, Grid, Typography, useMediaQuery } from '@material-ui/core';
+import { Box, Grid, Typography, useMediaQuery } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core';
 import { Photo } from '@material-ui/icons';
 
@@ -79,10 +79,6 @@ const useStyles = makeStyles((theme) => ({
       color: theme.palette.grey[400],
     }
   },
-  contactInfo: {
-    backgroundColor: theme.palette.grey[200],
-    width: "100%",
-  }
 }));
 
 export default function (props) {
@@ -187,9 +183,7 @@ export default function (props) {
         </Grid>
       </Grid>
       <Grid item container xs={layout.contactSize}>
-        <Card className={classes.contactInfo}>
-          <ContactInfo wrap={true} phone={props.phone} email={props.email} instagram={props.instagram} />
-        </Card>
+        <ContactInfo phone={props.phone} email={props.email} instagram={props.instagram} />
       </Grid> 
     </Grid>
   );
