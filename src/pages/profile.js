@@ -233,7 +233,7 @@ export default function Profile() {
             <Typography variant="h2">Cards</Typography>
           </Grid>
           <Grid item>
-            <Cards />
+            <Cards collapseAdd={true} />
           </Grid>
         </Grid>
       </Grid>
