@@ -70,11 +70,19 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.grey[200],
   },
   photo: {
+    minHeight: 400,
+    maxHeight: 550,
     width: "100%",
     objectFit: "cover",
     borderRadius: "4px",
-    minHeight: 300,
-    maxHeight: 500,
+    '@media (max-width: 900px)': {
+      minHeight: 350,
+      maxHeight: 500,
+    },
+    '@media (max-width: 600px)': {
+      minHeight: 300,
+      maxHeight: 450,
+    },
   },
   nophoto: {
     width: "100%",
@@ -499,7 +507,7 @@ export default function CourseInfo() {
   return (
     <Container className={classes.root}>
       <Grid container direction={layout.main} spacing={2}>
-        <Grid item>
+        <Grid item container>
           {courseDetails}
         </Grid>
         <Grid item>
