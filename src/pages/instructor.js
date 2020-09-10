@@ -17,6 +17,12 @@ const instructorDataSelector = createSelector([state => state.instructor], (data
 });
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(4),
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+  },
   divider: {
     margin: theme.spacing(2),
   },
@@ -192,7 +198,7 @@ export default function Instructor() {
   }
 
   return (
-    <Container>
+    <Container className={classes.root}>
       {content}
     </Container>
   );
