@@ -11,6 +11,7 @@ import Firebase from './Firebase';
 import Routes from './routes/index';
 import * as User from './api/user';
 import * as Course from './api/course';
+import * as Session from './api/session';
 import Notification from './components/notification';
 import { store, actions } from './store';
 import config from './config'
@@ -144,6 +145,20 @@ export default function App() {
     return getSchedule(schedFilter);
   }
 
+  async function getUserSessions() {
+    let result;
+
+    try {
+      result = await Session.getAll();
+    } catch (err) {
+      throw err;
+    }
+
+    if (result && result.sessions) {
+      store.dispatch(actions.user.setSessions(result.sessions));
+    }
+  }
+
   useEffect(() => {
     Firebase.clearListeners();
     Firebase.addListener(listener);
@@ -152,6 +167,7 @@ export default function App() {
   useEffect(() => {
     if (currentUser.id) {
       getUserSchedule(currentUser.id);
+      getUserSessions();
     }
   }, [currentUser]);
 

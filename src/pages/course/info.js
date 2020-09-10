@@ -254,7 +254,7 @@ export default function CourseInfo() {
     let defaultPaymentMethod = paymentMethod.current[0];
     let paymentMethodId = defaultPaymentMethod ? defaultPaymentMethod.id : "none";
 
-    if (course.cost && course.cost > 0 && !defaultPaymentMethod) {
+    if (course.cost && course.cost > 0 && !defaultPaymentMethod && currentUser.type === "standard") {
       setPaymentProcessing(false);
       setNeedsPaymentMethod(true);
       setErrMessage({severity: "error", message: "No default payment method. Please add one below."});
