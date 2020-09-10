@@ -1,34 +1,52 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Grid } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 import Milestone from '../components/milestone';
 import * as utils from '../utils/milestones';
+import log from '../log';
 
 const getSessionsSelector = createSelector([state => state.user.sessions], (sessions) => {
   return sessions;
 });
 
-const getUserSelector = createSelector([state => state.user], (user) => {
+const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
 })
 
 export default function Milestones(props) {
   const sessions = useSelector(state => getSessionsSelector(state));
   const user = useSelector(state => getUserSelector(state));
+  const [ milestones, setMilestones ] = useState(utils.getMilestonesHit([], null));
+  const [ warriorStone, setWarriorStone ] = useState(utils.getWarriorLevel([], null));
+  const [ typesTakenStone, setTypesTakenStone ] = useState(utils.getTypesTakenLevel([], null));
+  const [ weekStreakStone, setWeekStreakStone ] = useState(utils.getWeekStreakLevel([], null));
+  const [ uniqueInstructorStone, setUniqueInstructorStone ] = useState(utils.getUniqueInstructorsLevel([], null));
+  const [ doubleUpStone, setDoubleUpStone ] = useState(utils.getDoubleUpLevel([], null));
+  const [ triItStone, setTriItStone ] = useState(utils.getTriItLevel([], null));
+  const [ allDayStone, setAllDayStone ] = useState(utils.getAllDayEveryDayLevel([], null));
+  const [ twoADaysStone, setTwoADaysStone ] = useState(utils.getTwoADaysLevel([], null));
+  const [ rideOrDieStone, setRideOrDieStone ] = useState(utils.getRideOrDieLevel([], null));
+  const [ everyDayStone, setEveryDayStone ] = useState(utils.getEveryDayLevel([], null));
+  const [ indoorphinsHighStone, setIndoorphinsHighStone ] = useState(utils.getIndoorphinsHighLevel([]));
 
-  const milestones = utils.getMilestonesHit(sessions, user);
-  const warriorStone = utils.getWarriorLevel(sessions, user);
-  const typesTakenStone = utils.getTypesTakenLevel(sessions, user);
-  const weekStreakStone = utils.getWeekStreakLevel(sessions, user);
-  const uniqueInstructorStone = utils.getUniqueInstructorsLevel(sessions, user);
-  const doubleUpStone = utils.getDoubleUpLevel(sessions, user);
-  const triItStone = utils.getTriItLevel(sessions, user);
-  const allDayStone = utils.getAllDayEveryDayLevel(sessions, user);
-  const twoADaysStone = utils.getTwoADaysLevel(sessions, user);
-  const rideOrDieStone = utils.getRideOrDieLevel(sessions, user)
-  const everyDayStone = utils.getEveryDayLevel(sessions, user);
-  const indoorphinsHighStone = utils.getIndoorphinsHighLevel(milestones);
+  useEffect(() => {
+    if (user && sessions.length > 0) {
+      log.debug("MILESTONES:: user and sessions history", user, sessions)
+      setMilestones(utils.getMilestonesHit(sessions, user));
+      setWarriorStone(utils.getWarriorLevel(sessions, user));
+      setTypesTakenStone(utils.getTypesTakenLevel(sessions, user));
+      setWeekStreakStone(utils.getWeekStreakLevel(sessions, user));
+      setUniqueInstructorStone(utils.getUniqueInstructorsLevel(sessions, user));
+      setDoubleUpStone(utils.getDoubleUpLevel(sessions, user));
+      setTriItStone(utils.getTriItLevel(sessions, user));
+      setAllDayStone(utils.getAllDayEveryDayLevel(sessions, user));
+      setTwoADaysStone(utils.getTwoADaysLevel(sessions, user));
+      setRideOrDieStone(utils.getRideOrDieLevel(sessions, user));
+      setEveryDayStone(utils.getEveryDayLevel(sessions, user));
+      setIndoorphinsHighStone(utils.getIndoorphinsHighLevel(milestones));
+    }
+  }, [user, sessions]);
 
   let classesTaughtStone, daysChangedStone, livesChangedStone,
     classesTaughtContent, daysChangedContent, livesChangedContent;

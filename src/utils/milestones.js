@@ -4,27 +4,22 @@ import { differenceInDays, differenceInWeeks, differenceInCalendarWeeks,
     isThursday, isFriday, isSaturday, getHours } from 'date-fns';
 
 /* Classes Taken */
+function getClasses(sessions, user) {
+  return sessions.filter(session => {
+    return session.users_joined && session.users_joined.includes(user);
+  });
+}
 
+/* Classes taken count */
 function getClassesTaken(sessions, user) {
-  let count = 0;
-  sessions.forEach(session => {
-    if (session.users_joined.includes(user)) {
-      count++;
-    }
-  })
-  return count;
+  return getClasses(sessions, user).length;
 }
 
 /* Class Types Taken */
-
 function getClassTypesTaken(sessions, user) {
-  let types = [];
-  sessions.forEach(session => {
-    if (!types.includes(session.type) && session.users_joined.includes(user)) {
-      types.push(session.type);
-    }
-  })
-  return types.length;
+  return getClasses(sessions, user).map(item => {
+    return item.type;
+  });
 }
 
 /* Combo classes taken in select time frames */
@@ -143,14 +138,22 @@ function isAllDayEveryDay(sessions, user) {
 
 // Take one class 5 times
 function isRideOrDie(sessions, user) {
-  for (let i = 0; i < sessions.length; i++) {
-    if (sessions[i].users_joined.includes(user.id)) {
-      if (numberOfClassSessions(sessions, sessions[i].class_id) >= 5) {
-        return true;
-      }
-    }
+
+  let match = getClasses(sessions, user).filter(item => {
+    return getInstructorCount(sessions, item.instructor_id) >= 5
+  })[0];
+  
+  if (match) {
+    return true;
   }
+
   return false;
+}
+
+function getInstructorCount(sessions, instructorId) {
+  return sessions.filter(item => {
+    return item.instructor_id === instructorId
+  }).length
 }
 
 /**
@@ -161,13 +164,9 @@ function isRideOrDie(sessions, user) {
  * @returns {Number}
  */
 function numberOfClassSessions(sessions, classId, user) {
-  let count = 0;
-  for (let i = 0; i < sessions.length; i++) {
-    if (sessions[i].class_id === classId && sessions[i].users_joined.inclues(user.id)) {
-      count++;
-    }
-  }
-  return count;
+  return getClasses(sessions, user).filter(item => {
+    return item.class_id === classId;
+  }).length
 }
 
 /**
@@ -577,7 +576,7 @@ export function getMilestonesHit(sessions, user) {
 
   milestones.indoorphinsHigh = hasAllMilestones(milestones);
 
-  if (user.type === 'instructor') {
+  if (user && user.type === 'instructor') {
     const classesTaught = getClassesTaught(sessions, user.id);
     const daysChanged = getDaysChanged(sessions, user.id);
     const livesChanged = getUniqueUsersInstructed(sessions, user.id);
