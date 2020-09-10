@@ -498,7 +498,7 @@ export default function CourseInfo() {
           </Grid>
         </Grid>
       </Grid>
-      <Grid item xs={layout.courseCostSize}>
+      <Grid item xs={layout.courseCostSize} style={{width:"100%"}}>
         {courseMetaData}
       </Grid>
     </Grid>
@@ -507,7 +507,7 @@ export default function CourseInfo() {
   return (
     <Container className={classes.root}>
       <Grid container direction={layout.main} spacing={2}>
-        <Grid item container>
+        <Grid item>
           {courseDetails}
         </Grid>
         <Grid item>
