@@ -1,121 +1,58 @@
 import React from 'react';
-import { Typography, Grid, makeStyles, Tooltip } from '@material-ui/core';
+import { Typography, Grid, makeStyles } from '@material-ui/core';
+import { withStyles } from '@material-ui/core/styles';
+import LinearProgress from '@material-ui/core/LinearProgress';
+
+const BorderLinearProgress = withStyles((theme) => ({
+  root: {
+    height: 15,
+    borderRadius: 5,
+    width: '100%'
+  },
+  colorPrimary: {
+    backgroundColor: theme.palette.grey[200],
+  },
+  bar: {
+    borderRadius: 5,
+    backgroundColor: theme.palette.grey[400],
+  },
+}))(LinearProgress);
 
 const useStyles = makeStyles((theme) => ({
-  milestone: {
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2),
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-    borderColor: theme.palette.grey[500],
-    border: "solid 2px",
+  container: {
+    borderColor: theme.palette.grey[400] + ' !important',
+    borderBottom: '1px solid',
+    paddingBottom: theme.spacing(3),
+    paddingTop: theme.spacing(3)
   },
-  number: {
-    minWidth: 60,
-    textAlign: "center",
-    '@media (max-width: 900px)': {
-      minWidth: 40,
-    },
+  barContainer: {
+    width: '75%',
+    flexWrap: 'nowrap'
   },
-  hit: {
-    backgroundColor: theme.palette.secondary.main,
-    color: theme.palette.common.white,
+  bar: {
+    width: '90%',
   },
-  style1: {
-    borderRadius: "20% / 50%"
+  barText: {
+    width: '10%',
+    marginLeft: theme.spacing(4)
   },
-  style2: {
-    borderRadius: "50% / 35%"
-  },
-  style3: {
-    borderRadius: "10% / 50%"
-  },
-  style4: {
-    borderRadius: "65% / 40%"
-  },
-  style5: {
-    borderRadius: "75% / 15%"
-  },
-  style6: {
-    borderRadius: "20% / 20%"
-  },
-  style7: {
-    borderRadius: "80% / 30%"
-  },
-  style8: {
-    borderRadius: "90% / 50%"
-  },
-  style9: {
-    borderRadius: "100% / 10%"
-  },
-  style10: {
-    borderRadius: "25% / 25%"
-  },
+  text: {
+    paddingBottom: theme.spacing(1)
+  }
 }));
 
 export default function Milestone(props) {
   const classes = useStyles();
 
-  let contentStyle = `${classes.milestone}`;
-
-  if (props.hit) {
-    contentStyle += ` ${classes.hit}`;
-  }
-  
-  if (props.format) {
-    // switch (props.format) {
-    //   case 1:
-    //     contentStyle += ` ${classes.style1}`;
-    //     break;
-    //   case 2:
-    //     contentStyle += ` ${classes.style2}`;
-    //   case 3:
-    //     contentStyle += ` ${classes.style3}`;
-    //     break;
-    //   case 4:
-    //     contentStyle += ` ${classes.style4}`;
-    //     break;
-    //   case 5:
-    //     contentStyle += ` ${classes.style5}`;
-    //     break;
-    //   case 6:
-    //     contentStyle += ` ${classes.style6}`;
-    //     break;
-    //   case 7:
-    //     contentStyle += ` ${classes.style7}`;
-    //     break;
-    //   case 8:
-    //     contentStyle += ` ${classes.style8}`;
-    //     break;
-    //   case 9:
-    //     contentStyle += ` ${classes.style9}`;
-    //     break;
-    //   case 10:
-    //     contentStyle += ` ${classes.style10}`;
-    //     break;
-    //   default:
-    //     break;
-    // }
-  }
+  const normalise = value => (value) * 100 / (props.max);
 
   return (
-    <Grid container direction='column' alignItems='center' justify='center' spacing={2}>
-      <Grid item className={contentStyle}>
-        <Tooltip title={props.tooltip} placement='top'>
-          <Grid container direction="column" justify='center' alignItems="center" spacing={1}>
-            <Grid item>
-              <Typography variant='h3' className={classes.number} style={{color: "inherit"}}>
-                {props.iconText}
-              </Typography>
-            </Grid>
-            <Grid item>
-              {props.children}
-            </Grid>
-          </Grid>      
-        </Tooltip>
-      </Grid>
-      <Grid item>
-        <Typography variant='body2' align='center'>{props.label}</Typography>
+    <Grid container direction='column' alignItems='left' className={classes.container}>
+      <Typography variant='h4' className={classes.text}>{props.title}</Typography>
+      <Typography variant='body1' className={classes.text}>{props.label}</Typography>
+      <Grid container direction='row' alignItems='center' className={classes.barContainer}>
+        <BorderLinearProgress variant="determinate" value={normalise(props.value)} className={classes.bar} />
+        <Typography className={classes.barText}>{`${props.value}/${props.max}`}</Typography>
       </Grid>
     </Grid>
   )

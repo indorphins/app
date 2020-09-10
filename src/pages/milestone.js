@@ -2,177 +2,125 @@ import React from 'react';
 import { Container, Grid } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { makeStyles } from '@material-ui/core/styles';
 import Milestone from '../components/milestone';
-import FitnessCenterIcon from '@material-ui/icons/FitnessCenter';
-import DirectionsRunIcon from '@material-ui/icons/DirectionsRun';
-import WhatshotIcon from '@material-ui/icons/Whatshot';
-import StarIcon from '@material-ui/icons/Star';
-import WeekendIcon from '@material-ui/icons/Weekend';
-import RepeatIcon from '@material-ui/icons/Repeat';
-import Looks4Icon from '@material-ui/icons/Looks4';
-import Filter3Icon from '@material-ui/icons/Filter3';
-import Filter2Icon from '@material-ui/icons/Filter2';
-import Brightness4Icon from '@material-ui/icons/Brightness4';
-import Brightness7Icon from '@material-ui/icons/Brightness7';
-import Brightness5Icon from '@material-ui/icons/Brightness5';
-import BusinessCenterIcon from '@material-ui/icons/BusinessCenter';
-import BookmarksIcon from '@material-ui/icons/Bookmarks';
-import ChildCareIcon from '@material-ui/icons/ChildCare';
-import ContactsIcon from '@material-ui/icons/Contacts';
-import DoneAllIcon from '@material-ui/icons/DoneAll';
-import FaceIcon from '@material-ui/icons/Face';
-
-const useStyles = makeStyles((theme) => ({
-  column: {
-    paddingTop: theme.spacing(3),
-  }, 
-  row: {
-    paddingTop: theme.spacing(3),
-    paddingBottom: theme.spacing(3),
-  }
-}));
+import * as utils from '../utils/milestones';
 
 const getSessionsSelector = createSelector([state => state.user.sessions], (sessions) => {
   return sessions;
 });
 
+const getUserSelector = createSelector([state => state.user], (user) => {
+  return user;
+})
+
 export default function Milestones(props) {
-  // const sessions = useSelector(state => getSessionsSelector(state));
-  const classes = useStyles();
+  const sessions = useSelector(state => getSessionsSelector(state));
+  const user = useSelector(state => getUserSelector(state));
+
+  const milestones = utils.getMilestonesHit(sessions, user);
+  const warriorStone = utils.getWarriorLevel(sessions, user);
+  const typesTakenStone = utils.getTypesTakenLevel(sessions, user);
+  const weekStreakStone = utils.getWeekStreakLevel(sessions, user);
+  const uniqueInstructorStone = utils.getUniqueInstructorsLevel(sessions, user);
+  const doubleUpStone = utils.getDoubleUpLevel(sessions, user);
+  const triItStone = utils.getTriItLevel(sessions, user);
+  const allDayStone = utils.getAllDayEveryDayLevel(sessions, user);
+  const twoADaysStone = utils.getTwoADaysLevel(sessions, user);
+  const rideOrDieStone = utils.getRideOrDieLevel(sessions, user)
+  const everyDayStone = utils.getEveryDayLevel(sessions, user);
+  const indoorphinsHighStone = utils.getIndoorphinsHighLevel(milestones);
+
+  let classesTaughtStone, daysChangedStone, livesChangedStone,
+    classesTaughtContent, daysChangedContent, livesChangedContent;
+
+  if (user && user.type === 'instructor') {
+    classesTaughtStone = utils.getClassesTaughtLevel(sessions, user);
+    daysChangedStone = utils.getDaysChangedLevel(sessions, user);
+    livesChangedStone = utils.getLivesChangedLevel(sessions, user);
+    
+    classesTaughtContent = (
+      <Grid container direction="column" >
+        <Milestone title={classesTaughtStone.title} label={classesTaughtStone.label}
+          max={classesTaughtStone.max} value={classesTaughtStone.value}
+        />
+      </Grid>
+    )
+    daysChangedContent = (
+      <Grid container direction="column" >
+        <Milestone title={daysChangedStone.title} label={daysChangedStone.label} 
+          max={daysChangedStone.max} value={daysChangedStone.value}
+        />
+      </Grid>
+    )
+    livesChangedContent = (
+      <Grid container direction="column" >
+        <Milestone title={livesChangedStone.title} label={livesChangedStone.label} 
+          max={livesChangedStone.max} value={livesChangedStone.value}
+        />
+      </Grid>
+    )
+  }
+
 
   return (
     <Container>
-      <Grid container direction="column" className={classes.column} spacing={6}>
-        <Grid container direction='row' justify='space-evenly' className={classes.row} spacing={2}>
-          <Grid item>
-            <Milestone label='Rookie' iconText='1' tooltip='Taken 1 Class' format={1} hit>
-              <ChildCareIcon />
-            </Milestone>
-          </Grid>
-          <Grid item>
-            <Milestone label='Starter' iconText='5' tooltip='Taken 5 Classes' format={1} hit>
-              <FaceIcon />
-            </Milestone>
-          </Grid>
-          <Grid item>
-            <Milestone label='Pro' iconText='10' tooltip='Taken 10 Classes' format={1} hit>
-              <DirectionsRunIcon />
-            </Milestone>
-          </Grid>
-          <Grid item>
-            <Milestone label='Expert' iconText='25' tooltip='Taken 25 Classes' format={1} >
-              <DirectionsRunIcon />
-            </Milestone>
-          </Grid>
-        </Grid>
-        <Grid container direction='row' justify='space-evenly' className={classes.row} spacing={2}>
-          <Grid item>
-            <Milestone label='Double Discipline' iconText='2' tooltip='Take 2 Different Class Types' format={2} hit>
-              <BookmarksIcon />
-            </Milestone>
-          </Grid>
-          <Grid item>
-            <Milestone label='Multi Discipline' iconText='3+' tooltip='Take 3+ Different Class Types' format={2} >
-              <ContactsIcon />
-            </Milestone>
-          </Grid>
-        </Grid>
-        <Grid container direction='row' justify='space-evenly' className={classes.row} spacing={2}>
-          <Grid item>
-            <Milestone label='Double Up' iconText='2x' tooltip='2 Classes in 1 Day' format={3} >
-              <DoneAllIcon />
-            </Milestone>
-          </Grid>
-          <Grid item>
-            <Milestone label='Quad Week' iconText='4' tooltip='4 Classes in 1 Week' format={4} hit >
-              <Looks4Icon />
-            </Milestone>
-          </Grid>
-          <Grid item>
-            <Milestone label='Daily Double' iconText='2x7' tooltip='2 Classes per day for a Week' format={5} >
-              <FitnessCenterIcon />
-            </Milestone>
-          </Grid>
-        </Grid>
-        <Grid container direction='row' justify='space-evenly' className={classes.row} spacing={2}>
-          <Grid item>
-            <Milestone label='2 Week Streak' iconText='2' tooltip='Took class back to back weeks' format={6} hit >
-              <WhatshotIcon />
-            </Milestone>
-          </Grid>
-          <Grid item>
-            <Milestone label='5 Week Streak' iconText='5'
-              tooltip='Took 1 Class each week for 5 weeks in a row' format={6} hit
-            >
-              <WhatshotIcon />
-            </Milestone>
-          </Grid>
-          <Grid item>
-            <Milestone label='10 Week Streak' iconText='10' 
-              tooltip='Took 1 Class each week for 10 weeks in a row' format={6} 
-            >
-              <WhatshotIcon />
-            </Milestone>
-          </Grid>
-        </Grid>
-        <Grid container direction='row' justify='space-evenly' className={classes.row} spacing={2}>
-          <Grid item>
-            <Milestone label='Double Dipper' iconText='DD' 
-              tooltip='Taken class with 2 different instructors' format={6} hit
-            >
-              <Filter2Icon />
-            </Milestone>
-          </Grid>
-          <Grid item>
-            <Milestone label='Triple Scooper' iconText='3x' 
-              tooltip='Taken class with 3 different instructors' format={6} 
-            >
-              <Filter3Icon />
-            </Milestone>
-          </Grid>
-        </Grid>
-        <Grid container direction='row' justify='space-evenly' className={classes.row} spacing={2}>
-          <Grid item>
-            <Milestone label='Early Bird' iconText='Bird' tooltip='Take a morning class' format={7} >
-              <Brightness5Icon />
-            </Milestone>
-          </Grid>
-          <Grid item>
-            <Milestone label="It's High Noon" iconText='Noon' tooltip='Take a midday class' format={7} hit>
-              <Brightness7Icon />
-            </Milestone>
-          </Grid>
-          <Grid item>
-            <Milestone label='Night Owl' iconText='Owl' tooltip='Take an evening class' format={7} >
-              <Brightness4Icon />
-            </Milestone>
-          </Grid>
-        </Grid>
-        <Grid container direction='row' justify='space-evenly' className={classes.row} spacing={2}>
-          <Grid item>
-            <Milestone label='Weekend Warrior' iconText='WW' tooltip='Take a weekend class' format={8} hit >
-              <WeekendIcon />
-            </Milestone>
-          </Grid>
-          <Grid item>
-            <Milestone label='Weekday Warrior' iconText='WW' tooltip='Take a weekday class' format={8} >
-              <BusinessCenterIcon />
-            </Milestone>
-          </Grid>
-        </Grid>
-        <Grid container direction='row' justify='space-evenly' className={classes.row} spacing={2}>
-          <Grid item>
-            <Milestone label='Righteous Repeater' iconText='RR' tooltip='Took 1 class 5 times' format={9} hit>
-              <RepeatIcon />
-            </Milestone>
-          </Grid>
-          <Grid item>
-            <Milestone label='Master Indoorphiner' iconText='10' tooltip='Collected Every Milestone!' format={10} >
-              <StarIcon />
-            </Milestone>
-          </Grid>
-        </Grid>
+      {classesTaughtContent}
+      {daysChangedContent}
+      {livesChangedContent}
+      <Grid container direction="column" >
+        <Milestone title={warriorStone.title} label={warriorStone.label} 
+          max={warriorStone.max} value={warriorStone.value}
+        />
+      </Grid>
+      <Grid container direction="column" >
+        <Milestone title={typesTakenStone.title} label={typesTakenStone.label} 
+          max={typesTakenStone.max} value={typesTakenStone.value}
+        />
+      </Grid>
+      <Grid container direction="column" >
+        <Milestone title={weekStreakStone.title} label={weekStreakStone.label} 
+          max={weekStreakStone.max} value={weekStreakStone.value}
+        />
+      </Grid>
+      <Grid container direction="column" >
+        <Milestone title={uniqueInstructorStone.title} label={uniqueInstructorStone.label}
+          max={uniqueInstructorStone.max} value={uniqueInstructorStone.value}
+        />
+      </Grid>
+      <Grid container direction="column" >
+        <Milestone title={doubleUpStone.title} label={doubleUpStone.label} 
+          max={doubleUpStone.max} value={doubleUpStone.value}
+        />
+      </Grid>
+      <Grid container direction="column" >
+        <Milestone title={triItStone.title} label={triItStone.label} 
+          max={triItStone.max} value={triItStone.value}
+        />
+      </Grid>
+      <Grid container direction="column" >
+        <Milestone title={allDayStone.title} label={allDayStone.label}
+          max={allDayStone.max} value={allDayStone.value}
+        />
+      </Grid>
+      <Grid container direction="column" >
+        <Milestone title={twoADaysStone.title} label={twoADaysStone.label} 
+          max={twoADaysStone.max} value={twoADaysStone.value}
+        />
+      </Grid>
+      <Grid container direction="column" >
+        <Milestone title={rideOrDieStone.title} label={rideOrDieStone.label} 
+          max={rideOrDieStone.max} value={rideOrDieStone.value}
+        />
+      </Grid>
+      <Grid container direction="column" >
+        <Milestone title={everyDayStone.title} label={everyDayStone.label} 
+          max={everyDayStone.max} value={everyDayStone.value}
+        />
+      </Grid>
+      <Grid container direction="column" >
+        <Milestone title={indoorphinsHighStone.title} label={indoorphinsHighStone.label} 
+          max={indoorphinsHighStone.max} value={indoorphinsHighStone.value}
+        />
       </Grid>
     </Container>
   );
