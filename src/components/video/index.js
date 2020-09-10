@@ -1,3 +1,4 @@
+/* eslint max-len: 0*/
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Box, 
