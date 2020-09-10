@@ -44,7 +44,7 @@ export default function ContactInfo(props) {
   let emailContent = null;
   if (email) {
     emailContent = (
-      <Grid item>
+      <Grid item style={{width:"100%"}}>
         <Grid
           container
           direction="row"
@@ -72,7 +72,7 @@ export default function ContactInfo(props) {
   let phoneContent = null;
   if (props.phone) {
     phoneContent = (
-      <Grid item>
+      <Grid item style={{width:"100%"}}>
         <Grid
           container
           direction="row"
@@ -99,7 +99,7 @@ export default function ContactInfo(props) {
   let instaContent = null;
   if (props.instagram) {
     instaContent = (
-      <Grid item>
+      <Grid item style={{width:"100%"}}>
         <Instagram instagram={props.instagram} />
       </Grid>
     );    
