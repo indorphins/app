@@ -1,5 +1,5 @@
 import React from 'react';
-import { Divider, Grid, Typography} from '@material-ui/core';
+import { Grid, Typography} from '@material-ui/core';
 import { makeStyles } from '@material-ui/core';
 import { EmailOutlined, PhoneOutlined } from '@material-ui/icons';
 import Instagram from './instagram';
@@ -50,22 +50,24 @@ export default function ContactInfo(props) {
     const mailTo = "mailto:" + props.email;
     emailContent = (
       <a title="Send an email" className={classes.link} target="_blank" rel="noopener noreferrer" href={mailTo}>
-        <Grid
-          container
-          direction="row"
-          justify="flex-start"
-          alignItems="center"
-          alignContent="center"
-          spacing={1}
-          className={classes.container}
-        >
-          <Grid item className={classes.iconCnt}>
-            <EmailOutlined className={classes.icon} />
-          </Grid>
-          <Grid item>
-            <Typography className={classes.contactLabel}>
-              {props.email}
-            </Typography>
+        <Grid item style={{width:"100%"}}>
+          <Grid
+            container
+            direction="row"
+            justify="flex-start"
+            alignItems="center"
+            alignContent="center"
+            spacing={1}
+            className={classes.container}
+          >
+            <Grid item className={classes.iconCnt}>
+              <EmailOutlined className={classes.icon} />
+            </Grid>
+            <Grid item>
+              <Typography className={classes.contactLabel}>
+                {props.email}
+              </Typography>
+            </Grid>
           </Grid>
         </Grid>
       </a>
@@ -75,8 +77,7 @@ export default function ContactInfo(props) {
   let phoneContent = null;
   if (props.phone) {
     phoneContent = (
-      <React.Fragment>
-        <Divider  style={{width:"100%"}} />
+      <Grid item style={{width:"100%"}}>
         <Grid
           container
           direction="row"
@@ -95,7 +96,7 @@ export default function ContactInfo(props) {
             </Typography>
           </Grid>
         </Grid>
-      </React.Fragment>
+      </Grid>
     );
   }
 
@@ -103,10 +104,9 @@ export default function ContactInfo(props) {
   let instaContent = null;
   if (props.instagram) {
     instaContent = (
-      <React.Fragment>
-        <Divider style={{width:"100%"}} />
+      <Grid item style={{width:"100%"}}>
         <Instagram instagram={props.instagram} />
-      </React.Fragment>
+      </Grid>
     );    
   }
 
