@@ -9,6 +9,8 @@ const colors = {
   offwhite: "#f5f5f0",
   salmon: "#ff877e",
   cream: "#ffc772",
+  white: "#ffffff",
+  darkGrey: '#757575'
 }
 
 const lightPalette = {
@@ -16,14 +18,15 @@ const lightPalette = {
   common: {
     white: colors.offwhite,
     black: colors.black,
+    background: colors.white,
   },
   primary: {
-    main: colors.cream,
+    main: colors.white,
     contrastText: colors.black,
   },
   secondary: {
-    main: colors.salmon,
-    contrastText: colors.offwhite,
+    main: colors.white,
+    contrastText: colors.black,
   },
   header: {
     background: colors.black,
@@ -89,13 +92,14 @@ const darkPalette = {
   common: {
     white: colors.offwhite,
     black: colors.black,
+    background: colors.darkGrey,
   },
   primary: {
-    main: colors.salmon,
+    main: colors.white,
     contrastText: colors.black,
   },
   secondary: {
-    main: colors.cream,
+    main: colors.white,
     contrastText: colors.black,
   },
   background: {
@@ -122,7 +126,7 @@ const darkPalette = {
     200: '#616161',
     100: '#424242',
     50: '#212121',
-  }
+  },
 }; 
 
 const darkTypography = {

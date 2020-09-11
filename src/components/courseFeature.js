@@ -65,6 +65,10 @@ const useStyles = makeStyles((theme) => ({
     flexWrap: 'nowrap',
     transform: 'translateZ(0)',
   },
+  gridListTile: {
+    marginRight: theme.spacing(1),
+    marginLeft: theme.spacing(1)
+  },
   loader: {
     minHeight: 300,
   },
@@ -321,7 +325,7 @@ export default function CourseFeature(props) {
         {prevBtn}
         <GridList cellHeight={height} className={classes.gridList} cols={cols} spacing={0}>
           {displayData.map(course => (
-            <GridListTile key={course.id} cols={1}>
+            <GridListTile key={course.id} cols={1} className={classes.gridListTile}>
               <Link className={classes.anchor} to={course.url}>
                 <Grid container>
                   <img alt={course.title} className={classes.photo} src={course.photo_url} />

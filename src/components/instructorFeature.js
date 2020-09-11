@@ -31,6 +31,10 @@ const useStyles = makeStyles((theme) => ({
       height: 325,
     },
   },
+  gridListTile: {
+    marginRight: theme.spacing(1),
+    marginLeft: theme.spacing(1)
+  },
   desc: {
     fontWeight: "bold",
   },
@@ -153,7 +157,7 @@ export default function InstructorFeature(props) {
         </Grid>
         <GridList cellHeight={height} cols={cols} spacing={spacing}>
           {items.map(instructor => (
-            <GridListTile key={instructor.id} cols={1}>
+            <GridListTile key={instructor.id} cols={1} className={classes.gridListTile}>
               <Link className={classes.anchor} to={instructor.url}>
                 <Grid container>
                   <img alt={instructor.firstName} className={classes.photo} src={instructor.photo} />

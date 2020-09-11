@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Grid } from '@material-ui/core';
+import { Container, Grid, makeStyles } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 import Milestone from '../components/milestone';
@@ -13,9 +13,18 @@ const getUserSelector = createSelector([state => state.user], (user) => {
   return user;
 })
 
+const useStyles = makeStyles((theme) => ({
+  container: {
+    backgroundColor: theme.palette.common.background,
+    borderRadius: 5,
+    width: '90%'
+  }
+}))
+
 export default function Milestones(props) {
   const sessions = useSelector(state => getSessionsSelector(state));
   const user = useSelector(state => getUserSelector(state));
+  const classes = useStyles();
 
   const milestones = utils.getMilestonesHit(sessions, user);
   const warriorStone = utils.getWarriorLevel(sessions, user);
@@ -63,7 +72,7 @@ export default function Milestones(props) {
 
 
   return (
-    <Container>
+    <Container className={classes.container}>
       {classesTaughtContent}
       {daysChangedContent}
       {livesChangedContent}
