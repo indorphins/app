@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Grid, TextField, Button, Link, Typography, LinearProgress } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
@@ -17,22 +17,47 @@ const getUserSelector = createSelector([state => state.user.data], (user) => {
 });
 
 const useStyles = makeStyles((theme) => ({
+  container: {
+    color: theme.palette.common.white
+  },
   btnContainer: {
     display: "block",
-    width: "100%",
     overflow: "hidden",
   },
   lgnBtn: {
-    float: "right",
-    marginTop: theme.spacing(2),
+    background: theme.palette.secondary.color,
+    color: theme.palette.primary.main,
+    width: '100%',
+    marginBottom: theme.spacing(2)
+  },
+  medBtn: {
+    marginTop: theme.spacing(4),
     marginBottom: theme.spacing(2),
+    background: theme.palette.primary.color,
+    color: theme.palette.primary.main,
   },
   txtField: {
     minWidth: 300,
     width: "100%",
+    color: theme.palette.primary.contrastText,
+    backgroundColor: theme.palette.common.background,
+  },
+  borderItem: {
+    borderBottom: '1px solid',
+    color: theme.palette.grey[500],
+  },
+  label: {
+    color: theme.palette.primary.contrastText,
+  },
+  text: {
+    color: theme.palette.primary.contrastText
   },
   googBtn: {
-    marginTop: theme.spacing(3),
+    backgroundColor: theme.palette.primary.main,
+    marginBottom: theme.spacing(2),
+    marginTop: theme.spacing(2),
+    color: theme.palette.primary.contrastText,
+    width: '100%'
   }
 }));
 
@@ -140,15 +165,14 @@ export default function(props) {
       <Grid>
         <TextField
       disabled={loader}
-      color="secondary"
       value={password}
       autoComplete="current-password"
       className={classes.txtField}
       required
       id="password"
       type="password"
-      label="Password"
       variant="outlined"
+      placeholder='Password'
       onChange={passwordHandler}
         />
       </Grid>
@@ -205,8 +229,43 @@ export default function(props) {
 		)
   }
 
+  let createAcctContent = null;
+  if (loginMode) {
+    createAcctContent = (
+      <Grid item className={classes.btnContainer}>
+        <Button
+          disabled={loader}
+          className={classes.medBtn}
+          onClick={loadSignUpForm}
+          type="submit"
+          variant="contained"
+        >
+          Create New Account
+        </Button>
+      </Grid>
+    )
+  }
+
+  let googleContent;
+  if (loginMode) {
+    googleContent = (
+      <Fragment>
+        <Grid container justify='center'>
+          <Grid item>
+            <Typography className={classes.text} variant='body1'>or</Typography>
+          </Grid>
+        </Grid>
+        <Grid item className={classes.borderItem}>
+          <Button disableElevation className={classes.googBtn} onClick={googleSignInFlow}>
+            Sign in with Google
+          </Button>
+        </Grid>
+      </Fragment>
+    )
+  }
+
   let formcontent = (
-    <Grid>
+    <Grid className={classes.container}>
       <form id='login-form' onSubmit={formHandler}>
         <input autoComplete="username" id="_email" type="hidden" value={userName} />
         <input autoComplete="current-password" id="_password" type="hidden" value={password} />
@@ -217,14 +276,16 @@ export default function(props) {
             <TextField
             disabled={loader}
             autoFocus={true}
-            color="secondary"
             value={userName}
             autoComplete="username"
             className={classes.txtField}
+            classes={{
+              label: classes.label
+            }}
             required
             id="email"
             type="email"
-            label="Email"
+            placeholder="Email"
             variant="outlined"
             onChange={usernameHandler}
             />
@@ -237,32 +298,22 @@ export default function(props) {
             <Button
             disabled={loader}
             className={classes.lgnBtn}
-            color="primary"
             type="submit"
             variant="contained"
             >
               {submitText}
             </Button>
           </Grid>
+          {googleContent}
         </Grid>
       </form>
-      <Grid container direction="row" justify="space-between">
+      
+      <Grid container direction="column" alignItems='center' justify="center"> 
+        {createAcctContent}
         <Grid item>
           <Typography>
-            <Link color="secondary" onClick={loadSignUpForm}>Need an account?</Link>
+            <Link color="secondary" className={classes.text} onClick={switchMode}>{linkText}</Link>
           </Typography>
-        </Grid>
-        <Grid item>
-          <Typography>
-            <Link color="secondary" onClick={switchMode}>{linkText}</Link>
-          </Typography>
-        </Grid>
-      </Grid>
-      <Grid container direction="row" justify="center">
-        <Grid item>
-          <Button color="inherit" disableElevation className={classes.googBtn} onClick={googleSignInFlow}>
-            Sign in with Google
-          </Button>
         </Grid>
       </Grid>
     </Grid>

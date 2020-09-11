@@ -23,10 +23,24 @@ const lightPalette = {
   primary: {
     main: colors.white,
     contrastText: colors.black,
+    color: colors.cream,
   },
   secondary: {
     main: colors.white,
     contrastText: colors.black,
+    color: colors.salmon
+  },
+  primaryColor: {
+    main: colors.cream,
+    contrastText: colors.white
+  },
+  secondaryColor: {
+    main: colors.salmon,
+    contrastText: colors.white
+  },
+  textField: {
+    main: colors.offwhite,
+    contrastText: colors.black
   },
   header: {
     background: colors.black,
@@ -97,10 +111,24 @@ const darkPalette = {
   primary: {
     main: colors.white,
     contrastText: colors.black,
+    color: colors.cream,
   },
   secondary: {
     main: colors.white,
     contrastText: colors.black,
+    color: colors.salmon,
+  },
+  primaryColor: {
+    main: colors.cream,
+    contrastText: colors.white
+  },
+  secondaryColor: {
+    main: colors.salmon,
+    contrastText: colors.white
+  },
+  textField: {
+    main: colors.offwhite,
+    contrastText: colors.black
   },
   background: {
     paper: colors.black1,

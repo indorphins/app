@@ -5,14 +5,24 @@ import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    backgroundColor: theme.palette.header.background,
+    backgroundColor: theme.palette.common.background,
+    marginRight: theme.spacing(2),
+    marginLeft: theme.spacing(2)
+  },
+  textContainer: {
+    width: '45%',
   },
   paperContainer: {
+    backgroundColor: theme.palette.common.white,
+    borderColor: theme.palette.grey[500],
+    border: '1px solid',
     paddingLeft: theme.spacing(4),
     paddingRight: theme.spacing(4),
     paddingTop: theme.spacing(6),
     paddingBottom: theme.spacing(2),
-    width: 500,
+    marginLeft: theme.spacing(2),
+    marginRight: theme.spacing(2),
+    width: '45%',
     '@media (max-width: 600px)': {
       paddingLeft: theme.spacing(1),
       paddingRight: theme.spacing(1),
@@ -21,20 +31,13 @@ const useStyles = makeStyles((theme) => ({
       borderRadius: 0,
     },
   },
-  logo: {
-    fontSize: "2.2rem",
-    display: 'inline',
-    marginTop: theme.spacing(3),
-    marginBottom: theme.spacing(3),
-    color: theme.palette.secondary.main
+  header: {
+    marginBottom: theme.spacing(2)
   },
-  logo2: {
-    fontSize: "2.2rem",
-    display: 'inline',
-    marginTop: theme.spacing(3),
-    marginBottom: theme.spacing(3),
-    marginRight: theme.spacing(5),
-    color: theme.palette.primary.main
+  logo: {
+    fontSize: "2rem",
+    paddingLeft: theme.spacing(1),
+    color: theme.palette.secondary.color
   },
   link: {
     color: theme.palette.primary.main,
@@ -66,29 +69,36 @@ export default function LoginContainer(props) {
       <Grid 
 				container
 				spacing={0}
-				direction="column"
+				direction="row"
 				alignItems="center"
 				justify="center"
 				style={{ minHeight: '100vh' }}
       >
+        <Grid item className={classes.textContainer}>
+          <Grid container direction='column' >
+            <Grid item>
+              <Typography variant='h1' className={classes.header}>Bye Bye Zoom</Typography>
+            </Grid>
+            <Grid item>
+              <Typography variant='body1'>Connect and move with friends and </Typography>
+            </Grid>
+            <Grid item>
+              <Grid container direction='row' alignItems='center' justify='flex-start'>
+                <Grid item>
+                  <Typography variant='body1'>community on </Typography>
+                </Grid>
+                <Grid item>
+                  <Typography variant='h5' className={classes.logo}>Indoorphins</Typography>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
         <Zoom in={true}>
           <Paper elevation={2} className={classes.paperContainer}>
             <Grid container direction="column" spacing={2}>
               <Grid item>
-                <Grid container direction="row" justify="center">
-                  <Grid item>
-                    <Typography variant="h2" className={classes.logo}>indoor</Typography>
-                    <Typography variant="h2" className={classes.logo2}>phins</Typography>
-                  </Grid>
-                </Grid>
-              </Grid>
-              <Grid item>
                 {props.children}
-              </Grid>
-              <Grid item>
-                <Grid container style={{paddingTop: 30}}>
-                  <Legal />
-                </Grid>
               </Grid>
             </Grid>
           </Paper>
