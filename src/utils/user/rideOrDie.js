@@ -1,0 +1,54 @@
+import log from '../../log';
+
+function getClasses(sessions, user) {
+  return sessions.filter(session => {
+    return session.users_joined && session.users_joined.includes(user.id) &&
+    session.instructor_id !== user.id;
+  });
+}
+
+function getRideOrDie(sessions, user) {
+  let temp = getClasses(sessions, user);
+  
+  let filtered = temp.filter(item => {
+    return getInstructorCount(sessions, item.instructor_id) >= 5
+  });
+
+  let mapped = filtered.map(item => {
+    return getInstructorCount(sessions, item.instructor_id);
+  });
+  
+  return mapped.sort().reverse();
+}
+
+function getInstructorCount(sessions, instructorId) {
+  let items = sessions.filter(item => {
+    return item.instructor_id === instructorId
+  });
+
+  return items.length;
+}
+
+export default function(sessions, user) {
+
+  let counts = getRideOrDie(sessions, user);
+
+  log.debug("Ride or die counts", sessions, counts);
+
+  let data = {
+    title: 'Ride or Die',
+    label: 'Take a class from the same instructor 5 times',
+    max: 5,
+    value: 0
+  }
+
+  if (counts && counts[0] > 0 && counts <= 5) {
+    data.value = counts[0];
+  }
+  
+  if (counts && counts[0] > 5) {
+    data.value = 5
+  }
+
+  return data;
+}
