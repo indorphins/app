@@ -2,118 +2,20 @@
 import { 
   differenceInDays,
   differenceInWeeks,
-  differenceInCalendarWeeks,
   isEqual,
-  isSameDay,
 } from 'date-fns';
 
+import ClassesPerWeek from './user/classesPerWeek';
+import ClassesPerDay from './user/classesPerDay';
+import UniqueInstructor from './user/uniqueInstructor';
 import FiveDaysConsecutive from './user/fiveDaysConsecutive';
 import EveryWeekday from './user/everyWeekday';
-import Warrior from './user/warrior';
-import RideOrDie from './user/rideOrDie';
+import ClassesTaken from './user/classesTaken';
+import InstructorClassesTaken from './user/instructorClassesTaken';
 import ClassTypes from './user/classTypes';
 //import log from '../log';
 
-/* Classes Taken */
-function getClasses(sessions, user) {
-  return sessions.filter(session => {
-    return session.users_joined && session.users_joined.includes(user.id) &&
-    session.instructor_id !== user.id;
-  });
-}
-
-/* Combo classes taken in select time frames */
-
-// 2 classes in 1 day
-function isDoubleUp(sessions, user) {
-  let last;
-  let hit = false;
-  sessions.forEach(session => {
-    if (session.users_joined.includes(user.id)) {
-      if (!last) {
-        last = new Date(session.start_date);
-      } else {
-        const sessionDate = new Date(session);
-        if (isEqual(last, sessionDate)) {
-          hit = true;
-        } else {
-          last = sessionDate;
-        }
-      }
-    }
-  })
-  return hit;
-}
-
-// 3 classes in the same week
-function isTriIt(sessions, user) {
-  let first;
-  let count = 0;
-  let hit = false;
-  sessions.forEach(session => {
-    if (session.users_joined.includes(user.id)) {
-      if (!first) {
-        count = 1;
-        first = new Date(session.start_date);
-      } else {
-        const sessionDate = new Date(session);
-        if (differenceInCalendarWeeks(first, sessionDate) < 1) {
-          count += 1;
-          if (count >= 3) {
-            hit = true;
-          }
-        } else {
-          first = sessionDate;
-          count = 1;
-        }
-      }
-    }
-  })
-  return hit;
-}
-
-/**
- * Returns the number of sessions on a given day the user took
- * @param {Array} sessions 
- * @param {Date} date 
- * @returns {Number}
- */
-function sessionsPerDay(sessions, date, user) {
-  let temp = getClasses(sessions, user);
-
-  let filtered = temp.filter(item => {
-    return isSameDay(date, new Date(item.start_date));
-  });
-
-  return filtered.length;
-}
-
-// Gets the number of classes taken since the user's last session
-function classesPerWeekSinceLastSession(sessions, user) {
-  let count = 0;
-  let first;
-
-  for (let i = 0; i < sessions.length; i++) {
-    const session = sessions[i];
-    if (session.users_joined.includes(user.id)) {
-      if (!first) {
-        count = 1;
-        first = new Date(session.start_date);
-      } else {
-        const sessionDate = new Date(session);
-        if (differenceInCalendarWeeks(first, sessionDate) < 1) {
-          count += 1;
-        } else {
-          return count
-        }
-      }
-    }
-  }
-  return count;
-}
-
 /* Weekly Streaks */
-
 function getLongestStreak(sessions, user) {
   if (sessions.length < 2) {
     return 0;
@@ -148,17 +50,6 @@ function getLongestStreak(sessions, user) {
   })
 
   return longest
-}
-
-/* Unique instructors taken milestones */
-function getUniqueInstructorsTaken(sessions, user) {
-  const instructors = [];
-  sessions.forEach(session => {
-    if (!instructors.includes(session.instructor_id) && session.users_joined.includes(user.id)) {
-      instructors.push(session.instructor_id);
-    }
-  })
-  return instructors.length;
 }
 
 /**
@@ -256,33 +147,6 @@ export function getWeekStreakLevel(sessions, user) {
       label: 'Take classes 2 weeks in a row',
       max: 2,
       value: longestWeeklyStreak
-    }
-  }
-}
-
-export function getUniqueInstructorsLevel(sessions, user) {
-  const uniqueInstructorsTaken = getUniqueInstructorsTaken(sessions, user);
-
-  if (uniqueInstructorsTaken > 3) {
-    return {
-      title: 'The more the merrier',
-      label: 'Take classes with 4 different instructors',
-      max: 4,
-      value: uniqueInstructorsTaken
-    }
-  } if (uniqueInstructorsTaken > 2) {
-    return {
-      title: "Three's a crows",
-      label: 'Take classes with 3 different instructors',
-      max: 3,
-      value: uniqueInstructorsTaken
-    }
-  } else {
-    return {
-      title: 'Love Triangle',
-      label: 'Take classes with 2 different instructors',
-      max: 2,
-      value: uniqueInstructorsTaken
     }
   }
 }
@@ -410,69 +274,34 @@ export function getLivesChangedLevel(sessions, user) {
   }
 }
 
-// Get the double-up progress. If user hasn't reached it, 
-// count the number of classes they took today and display in progress
-export function getDoubleUpLevel(sessions, user) {
-  if (isDoubleUp(sessions, user)) {
-    return {
-      title: 'Double Up',
-      label: 'Take 2 classes in 1 day',
-      max: 2,
-      value: 2
-    }
-  } else {
-    const now = new Date()
-    const sessionsToday = sessionsPerDay(sessions, now, user);
-    return {
-      title: 'Double Up',
-      label: 'Take 2 classes in 1 day',
-      max: 2,
-      value: sessionsToday
-    }
-  }
-}
-
 // Get the tri-it progress. If user hasn't reached it, 
 // count the number of classes taken in the week of their last session
 export function getTriItLevel(sessions, user) {
-  if (isTriIt(sessions, user)) {
-    return {
-      title: 'Tri It',
-      label: 'Take 3 classes in the same week',
-      max: 3,
-      value: 3
-    }
-  } else {
-    const count = classesPerWeekSinceLastSession(sessions, user);
-    return {
-      title: 'Tri It',
-      label: 'Take 3 classes in the same week',
-      max: 3,
-      value: count
-    }
-  }
+  return ClassesPerWeek(sessions, user);
 }
 
-// Get the all-day-every-day progress. If user hasn't reached it, 
-// count the number of classes taken in a row in the week of their last session
+export function getDoubleUpLevel(sessions, user) {
+  return ClassesPerDay(sessions, user);
+}
+
+export function getUniqueInstructorsLevel(sessions, user) {
+  return UniqueInstructor(sessions, user);
+}
+
 export function getAllDayEveryDayLevel(sessions, user) {
   return FiveDaysConsecutive(sessions, user);
 }
 
-// Get the ride-or-die progress. If user hasn't reached it, 
-// count the number of times they took the last class
 export function getRideOrDieLevel(sessions, user) {
-  return RideOrDie(sessions, user);
+  return InstructorClassesTaken(sessions, user);
 }
 
-// Get the every-day progress. If user hasn't reached it, 
-// count the number of classes taken on unique days of the week
 export function getEveryDayLevel(sessions, user) {
   return EveryWeekday(sessions, user);
 }
 
 export function getWarriorLevel(sessions, user) {
-  return Warrior(sessions, user);
+  return ClassesTaken(sessions, user);
 }
 
 export function getTypesTakenLevel(sessions, user) {

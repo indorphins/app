@@ -7,7 +7,15 @@ function getClasses(sessions, user) {
   });
 }
 
-function getRideOrDie(sessions, user) {
+function getInstructorCount(sessions, instructorId) {
+  let items = sessions.filter(item => {
+    return item.instructor_id === instructorId
+  });
+
+  return items.length;
+}
+
+function classesByInstructor(sessions, user) {
   let temp = getClasses(sessions, user);
   
   let filtered = temp.filter(item => {
@@ -21,17 +29,9 @@ function getRideOrDie(sessions, user) {
   return mapped.sort().reverse();
 }
 
-function getInstructorCount(sessions, instructorId) {
-  let items = sessions.filter(item => {
-    return item.instructor_id === instructorId
-  });
-
-  return items.length;
-}
-
 export default function(sessions, user) {
 
-  let counts = getRideOrDie(sessions, user);
+  let counts = classesByInstructor(sessions, user);
 
   log.debug("Ride or die counts", sessions, counts);
 
