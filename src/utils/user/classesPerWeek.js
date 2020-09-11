@@ -1,72 +1,63 @@
-/* eslint max-depth: 0*/
-import { 
-  differenceInCalendarWeeks,
-} from 'date-fns';
+import { getISOWeek } from 'date-fns';
+import log from '../../log';
 
-function isTriIt(sessions, user) {
-  let first;
-  let count = 0;
-  let hit = false;
-  sessions.forEach(session => {
-    if (session.users_joined.includes(user.id)) {
-      if (!first) {
-        count = 1;
-        first = new Date(session.start_date);
-      } else {
-        const sessionDate = new Date(session);
-        if (differenceInCalendarWeeks(first, sessionDate) < 1) {
-          count += 1;
-          if (count >= 3) {
-            hit = true;
-          }
-        } else {
-          first = sessionDate;
-          count = 1;
-        }
-      }
-    }
-  })
-  return hit;
+function getClasses(sessions, user) {
+  return sessions.filter(session => {
+    return session.users_joined && session.users_joined.includes(user.id) &&
+    session.instructor_id !== user.id;
+  });
 }
 
-function classesPerWeekSinceLastSession(sessions, user) {
-  let count = 0;
-  let first;
+function getClassWeeks(sessions, user) {
+  let items = getClasses(sessions, user);
+  
+  return items.map(item => {
+    return getISOWeek(new Date(item.start_date));
+  });
+}
 
-  for (let i = 0; i < sessions.length; i++) {
-    const session = sessions[i];
-    if (session.users_joined.includes(user.id)) {
-      if (!first) {
-        count = 1;
-        first = new Date(session.start_date);
-      } else {
-        const sessionDate = new Date(session);
-        if (differenceInCalendarWeeks(first, sessionDate) < 1) {
-          count += 1;
-        } else {
-          return count
-        }
-      }
+function getClassCountByWeek(sessions, user) {
+  let items = getClassWeeks(sessions, user);
+  let total = {};
+  let final = [];
+
+  items.forEach(item => {
+    if (!total[item]) {
+      total[item] = 1;
+    } else {
+      total[item] += 1;
     }
+  });
+
+  for (const key in total) {
+    final.push(total[key]);
   }
-  return count;
+
+  return final.sort((a, b) => b - a);
 }
 
 export default function(sessions, user) {
-  if (isTriIt(sessions, user)) {
-    return {
-      title: 'Tri It',
-      label: 'Take 3 classes in the same week',
-      max: 3,
-      value: 3
-    }
-  } else {
-    const count = classesPerWeekSinceLastSession(sessions, user);
-    return {
-      title: 'Tri It',
-      label: 'Take 3 classes in the same week',
-      max: 3,
-      value: count
+
+  let weeksCount = getClassCountByWeek(sessions, user)
+
+  log.debug("classes by week counts", weeksCount);
+
+  let count = weeksCount[0];
+
+  let data = {
+    title: 'Tri It',
+    label: 'Take 3 classes in the same week',
+    max: 3,
+    value: 0
+  }
+
+  if (count) {
+    data.value = count;
+
+    if (count >= 3) {
+      data.value = 3;
     }
   }
+
+  return data;
 }

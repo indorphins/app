@@ -40,7 +40,7 @@ export default function(sessions, user) {
 
   let classCount = getClassCountByDay(sessions, user);
 
-  log.debug("class count", classCount);
+  log.debug("class by day counts", classCount);
 
   let count = classCount[0];
   let data = {

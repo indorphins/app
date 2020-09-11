@@ -33,7 +33,7 @@ export default function(sessions, user) {
 
   let counts = classesByInstructor(sessions, user);
 
-  log.debug("Ride or die counts", sessions, counts);
+  log.debug("classes taken by instructor counts", counts);
 
   let data = {
     title: 'Ride or Die',

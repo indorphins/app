@@ -1,5 +1,4 @@
 import { getDayOfYear } from 'date-fns';
-import log from '../../log';
 
 function getClasses(sessions, user) {
   return sessions.filter(session => {
@@ -22,8 +21,6 @@ function getDailyStreak(sessions, user) {
   let streak = 0;
   let prevStreak = 0;
 
-  log.debug("days of year list", list);
-
   list.forEach(item => {
 
     if (!prev || prev - item === 1 || item - prev === 364) {
@@ -31,7 +28,6 @@ function getDailyStreak(sessions, user) {
     } else if (prev - item === 0) {
       // do nothing in the case class was on the same day
     } else {
-      log.debug("reset streak count")
       prevStreak = Number(streak);
       streak = 1;
     }
