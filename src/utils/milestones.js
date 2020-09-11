@@ -1,14 +1,15 @@
 /* eslint max-depth: 0*/
 import { differenceInDays, differenceInWeeks, differenceInCalendarWeeks,
    isEqual, isWeekend, isSunday, isMonday, isTuesday, isWednesday,
-    isThursday, isFriday, isSaturday, getHours } from 'date-fns';
+    isThursday, isFriday, isSaturday, getHours, isSameDay, getDay } from 'date-fns';
 
 import log from '../log';
 
 /* Classes Taken */
 function getClasses(sessions, user) {
   return sessions.filter(session => {
-    return session.users_joined && session.users_joined.includes(user.id);
+    return session.users_joined && session.users_joined.includes(user.id) &&
+    session.instructor_id !== user.id;
   });
 }
 
@@ -173,16 +174,13 @@ function getInstructorCount(sessions, instructorId) {
  * @returns {Number}
  */
 function sessionsPerDay(sessions, date, user) {
-  let count = 0;
-  sessions.forEach(session => {
-    if (session.users_joined.includes(user.id)) {
-      let sessionDate = new Date(session.start_date);
-      if (isEqual(sessionDate, date)) {
-        count += 1;
-      }
-    }
-  })
-  return count;
+  let temp = getClasses(sessions, user);
+
+  let filtered = temp.filter(item => {
+    return isSameDay(date, new Date(item.start_date));
+  });
+
+  return filtered.length;
 }
 
 // Gets the number of classes taken since the user's last session
@@ -297,54 +295,14 @@ function getLongestStreak(sessions, user) {
   return longest
 }
 
-// Return the number of unique days of the week the user has taken class on
-function numberOfDaysOfTheWeekTaken(sessions, user) {
-  let hitSun = false;
-  let hitMon = false;
-  let hitTues = false;
-  let hitWed = false;
-  let hitThurs = false;
-  let hitFri = false;
-  let hitSat = false;
+function classDaysOfWeek(sessions, user) {
+  let temp = getClasses(sessions, user);
 
-  sessions.forEach(session => {
-    if (session.users_joined.includes(user.id)) {
-      const sessionDate = new Date(session.start_date);
-      if (isSunday(sessionDate)) {
-        hitSun = true;
-      } else if (isMonday(sessionDate)) {
-        hitMon = true;
-      } else if (isTuesday(sessionDate)) {
-        hitTues = true;
-      } else if (isWednesday(sessionDate)) {
-        hitWed = true;
-      } else if (isThursday(sessionDate)) {
-        hitThurs = true;
-      } else if (isFriday(sessionDate)) {
-        hitFri = true;
-      } else if (isSaturday(sessionDate)) {
-        hitSat = true;
-      }
-    }
-  })
+  let dayList = temp.map(item => {
+    return getDay(new Date(item.start_date));
+  });
 
-  let count = 0;
-  if (hitSun) {
-    count ++;
-  } if (hitMon) {
-    count++;
-  } if (hitTues) {
-    count++;
-  } if (hitWed) {
-    count++;
-  } if (hitThurs) {
-    count++;
-  } if (hitFri) {
-    count++;
-  } if (hitSat) {
-    count++;
-  }
-  return count;
+  return Array.from(new Set(dayList))
 }
 
 /* Unique instructors taken milestones */
@@ -1025,20 +983,31 @@ export function getRideOrDieLevel(sessions, user) {
 // Get the every-day progress. If user hasn't reached it, 
 // count the number of classes taken on unique days of the week
 export function getEveryDayLevel(sessions, user) {
-  if (isEveryDay(sessions, user)) {
+
+  let days = classDaysOfWeek(sessions, user);
+
+  log.debug("class days of week", days)
+
+  if (days && days.length === 7) {
     return {
       title: 'Every Day',
       label: 'Take class each day of the week',
       max: 7,
       value: 7
     }
-  } else {
-    const count = numberOfDaysOfTheWeekTaken(sessions, user);
+  } else if (days && days.length < 7) {
     return {
       title: 'Every Day',
       label: 'Take class each day of the week',
       max: 7,
-      value: count
+      value: days.length
+    }
+  } else {
+    return {
+      title: 'Every Day',
+      label: 'Take class each day of the week',
+      max: 7,
+      value: 0
     }
   }
 }
