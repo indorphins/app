@@ -1,4 +1,4 @@
-import log from '../../log';
+import log from '../../../log';
 
 function getClasses(sessions, user) {
   return sessions.filter(session => {

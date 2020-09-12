@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Container, Grid } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import Milestone from '../components/milestone';
-import * as utils from '../utils/milestones';
+import MilestoneItem from '../components/milestoneItem';
+import { getAllMilestones } from '../components/milestone';
 import log from '../log';
 import { store, actions } from '../store';
 
@@ -27,7 +27,7 @@ export default function() {
 
   useEffect(() => {
     log.debug("MILESTONES:: user and sessions history", user, sessions);
-    let all = utils.getAll(sessions, user);
+    let all = getAllMilestones(sessions, user);
     store.dispatch(actions.milestone.setHits(all));
   }, [user, sessions]);
 
@@ -62,7 +62,7 @@ export default function() {
       <Grid container direction="column">
         {milestonesData.map(item => (
           <Grid item key={item.title}>
-            <Milestone title={item.title} label={item.label}
+            <MilestoneItem title={item.title} label={item.label}
               max={item.max} value={item.value}
             />
           </Grid>

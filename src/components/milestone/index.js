@@ -12,7 +12,7 @@ import ClassesTaken from './user/classesTaken';
 import InstructorClassesTaken from './user/instructorClassesTaken';
 import ClassTypes from './user/classTypes';
 
-export function getAll(sessions, user) {
+export function getAllMilestones(sessions, user) {
   return [
     ClassesTaught(sessions, user),
     UniqueUsers(sessions, user),

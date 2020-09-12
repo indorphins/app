@@ -41,7 +41,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function Milestone(props) {
+export default function MilestoneItem(props) {
   const classes = useStyles();
   const { label, max, title, value } = props;
 
