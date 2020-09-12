@@ -26,7 +26,7 @@ export default function(sessions, user) {
   }
 
   if (uniqueInstructorsTaken >= 2) {
-    data.title = "Three's a crows";
+    data.title = "Three's a crowd";
     data.label = 'Take a class with 3 different instructors';
     data.max = 3;
     data.lvl = 1;
