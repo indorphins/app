@@ -1,23 +1,9 @@
-import { getDayOfYear } from 'date-fns';
+import { GetClasses, GetDaysOfYear } from '../common';
 import log from '../../../log';
 
-function getClasses(sessions, user) {
-  return sessions.filter(session => {
-    return session.users_joined && session.users_joined.includes(user.id) &&
-    session.instructor_id !== user.id;
-  });
-}
-
-function getDaysOfYear(sessions, user) {
-  let items = getClasses(sessions, user);
-  
-  return items.map(item => {
-    return getDayOfYear(new Date(item.start_date));
-  });
-}
-
 function getClassCountByDay(sessions, user) {
-  let items = getDaysOfYear(sessions, user);
+  let classes = GetClasses(sessions, user);
+  let items = GetDaysOfYear(classes);
   let total = {};
   let final = [];
 

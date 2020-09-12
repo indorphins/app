@@ -1,13 +1,8 @@
-function getClasses(sessions, user) {
-  return sessions.filter(session => {
-    return session.users_joined && session.users_joined.includes(user.id) &&
-    session.instructor_id !== user.id;
-  });
-}
+import { GetClasses } from '../common';
 
 function getUniqueInstructorsTaken(sessions, user) {
 
-  let items = getClasses(sessions, user)
+  let items = GetClasses(sessions, user)
 
   let instructors = items.map(item => {
     return item.instructor_id;

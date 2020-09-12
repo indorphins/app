@@ -1,12 +1,7 @@
-function getClasses(sessions, user) {
-  return sessions.filter(session => {
-    return session.users_joined && session.users_joined.includes(user.id) &&
-    session.instructor_id !== user.id;
-  });
-}
+import { GetClasses } from '../common';
 
 function classTypesTaken(sessions, user) {
-  let list = getClasses(sessions, user);
+  let list = GetClasses(sessions, user);
   
   let mapped = list.map(item => {
     return item.type;

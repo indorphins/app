@@ -1,14 +1,8 @@
 import { getDayOfYear } from 'date-fns';
-
-function getClasses(sessions, user) {
-  return sessions.filter(session => {
-    return session.users_joined && session.users_joined.includes(user.id) &&
-    session.instructor_id !== user.id;
-  });
-}
+import { GetClasses } from '../common';
 
 function getDaysOfYear(sessions, user) {
-  let items = getClasses(sessions, user);
+  let items = GetClasses(sessions, user);
   
   return items.map(item => {
     return getDayOfYear(new Date(item.start_date));

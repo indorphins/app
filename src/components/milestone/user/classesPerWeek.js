@@ -1,15 +1,9 @@
 import { getISOWeek } from 'date-fns';
+import { GetClasses } from '../common';
 import log from '../../../log';
 
-function getClasses(sessions, user) {
-  return sessions.filter(session => {
-    return session.users_joined && session.users_joined.includes(user.id) &&
-    session.instructor_id !== user.id;
-  });
-}
-
 function getClassWeeks(sessions, user) {
-  let items = getClasses(sessions, user);
+  let items = GetClasses(sessions, user);
   
   return items.map(item => {
     return getISOWeek(new Date(item.start_date));

@@ -1,15 +1,9 @@
 import { getDay } from 'date-fns';
+import { GetClasses } from '../common';
 import log from '../../../log';
 
-function getClasses(sessions, user) {
-  return sessions.filter(session => {
-    return session.users_joined && session.users_joined.includes(user.id) &&
-    session.instructor_id !== user.id;
-  });
-}
-
 function classDaysOfWeek(sessions, user) {
-  let temp = getClasses(sessions, user);
+  let temp = GetClasses(sessions, user);
 
   let dayList = temp.map(item => {
     return getDay(new Date(item.start_date));

@@ -1,11 +1,5 @@
+import { GetClasses } from '../common';
 import log from '../../../log';
-
-function getClasses(sessions, user) {
-  return sessions.filter(session => {
-    return session.users_joined && session.users_joined.includes(user.id) &&
-    session.instructor_id !== user.id;
-  });
-}
 
 function getInstructorCount(sessions, instructorId) {
   let items = sessions.filter(item => {
@@ -16,7 +10,7 @@ function getInstructorCount(sessions, instructorId) {
 }
 
 function classesByInstructor(sessions, user) {
-  let temp = getClasses(sessions, user);
+  let temp = GetClasses(sessions, user);
 
   let mapped = temp.map(item => {
     return getInstructorCount(sessions, item.instructor_id);
