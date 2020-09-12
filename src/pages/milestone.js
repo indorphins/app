@@ -3,13 +3,6 @@ import { Container, Grid } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 import MilestoneItem from '../components/milestoneItem';
-import { getAllMilestones } from '../components/milestone';
-import log from '../log';
-import { store, actions } from '../store';
-
-const getSessionsSelector = createSelector([state => state.milestone.sessions], (sessions) => {
-  return sessions;
-});
 
 const milestonesSelector = createSelector([state => state.milestone.hits], (sessions) => {
   return sessions;
@@ -20,16 +13,9 @@ const getUserSelector = createSelector([state => state.user.data], (user) => {
 });
 
 export default function() {
-  const sessions = useSelector(state => getSessionsSelector(state));
   const user = useSelector(state => getUserSelector(state));
   const milestoneHits = useSelector(state => milestonesSelector(state));
   const [ milestonesData, setMilestonesData ] = useState([]);
-
-  useEffect(() => {
-    log.debug("MILESTONES:: user and sessions history", user, sessions);
-    let all = getAllMilestones(sessions, user);
-    store.dispatch(actions.milestone.setHits(all));
-  }, [user, sessions]);
 
   useEffect(() => {
 
@@ -42,8 +28,8 @@ export default function() {
     });
 
     let allMilestone = {
-      title: 'Master Indoorphiner',
-      label: 'Achieve all milestones',
+      title: 'Indoorphins High',
+      label: 'Complete all milestones',
       max: standard.length,
       value: completed.length,
       type: "standard"
