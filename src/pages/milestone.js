@@ -33,7 +33,7 @@ export default function() {
 
   useEffect(() => {
 
-    if (user.type === 'standard') {
+    if (!user.type || user.type === 'standard') {
       setMilestonesData([...milestoneHits.filter(item => {
         return item.type === 'standard'
       })]);
