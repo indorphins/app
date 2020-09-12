@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Container, Grid } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import MilestoneItem from '../components/milestoneItem';
+import MilestoneItem from '../components/milestone/milestoneItem';
 
 const milestonesSelector = createSelector([state => state.milestone.hits], (sessions) => {
   return sessions;
