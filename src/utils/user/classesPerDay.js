@@ -48,6 +48,8 @@ export default function(sessions, user) {
     label: 'Take 2 classes in 1 day',
     max: 2,
     value: 0,
+    lvl: 0,
+    type: "standard"
   }
 
   if (count) {
@@ -61,6 +63,7 @@ export default function(sessions, user) {
 
     if (count >= 2) {
       data.value = 2;
+      data.lvl = "max";
     }
   }
 

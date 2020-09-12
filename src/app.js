@@ -155,7 +155,7 @@ export default function App() {
     }
 
     if (result && result.sessions) {
-      store.dispatch(actions.user.setSessions(result.sessions));
+      store.dispatch(actions.milestone.setSessions(result.sessions));
     }
   }
 

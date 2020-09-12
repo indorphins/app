@@ -12,51 +12,19 @@ import ClassesTaken from './user/classesTaken';
 import InstructorClassesTaken from './user/instructorClassesTaken';
 import ClassTypes from './user/classTypes';
 
-export function getDaysChangedLevel(sessions, user) {
-  return UniqueUsersByDay(sessions, user)
-}
-
-export function getLivesChangedLevel(sessions, user) {
-  return UniqueUsers(sessions, user);
-}
-
-export function getClassesTaughtLevel(sessions, user) {
-  return ClassesTaught(sessions, user);
-}
-
-
-export function getWeekStreakLevel(sessions, user) {
-  return WeeklyConsecutive(sessions, user);
-}
-
-export function getTriItLevel(sessions, user) {
-  return ClassesPerWeek(sessions, user);
-}
-
-export function getDoubleUpLevel(sessions, user) {
-  return ClassesPerDay(sessions, user);
-}
-
-export function getUniqueInstructorsLevel(sessions, user) {
-  return UniqueInstructor(sessions, user);
-}
-
-export function getAllDayEveryDayLevel(sessions, user) {
-  return DaysConsecutive(sessions, user);
-}
-
-export function getRideOrDieLevel(sessions, user) {
-  return InstructorClassesTaken(sessions, user);
-}
-
-export function getEveryDayLevel(sessions, user) {
-  return EveryWeekday(sessions, user);
-}
-
-export function getWarriorLevel(sessions, user) {
-  return ClassesTaken(sessions, user);
-}
-
-export function getTypesTakenLevel(sessions, user) {
-  return ClassTypes(sessions, user);
+export function getAll(sessions, user) {
+  return [
+    ClassesTaught(sessions, user),
+    UniqueUsers(sessions, user),
+    UniqueUsersByDay(sessions, user),
+    ClassesTaken(sessions, user),
+    ClassTypes(sessions, user),
+    WeeklyConsecutive(sessions, user),
+    UniqueInstructor(sessions, user),
+    ClassesPerDay(sessions, user),
+    ClassesPerWeek(sessions, user),
+    DaysConsecutive(sessions, user),
+    InstructorClassesTaken(sessions, user),
+    EveryWeekday(sessions, user)
+  ]
 }

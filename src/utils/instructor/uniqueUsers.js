@@ -20,13 +20,20 @@ export default function(sessions, user) {
     title: 'Impact',
     label: "Change someone's life through connection",
     max: 1,
-    value: livesChanged
+    value: livesChanged,
+    lvl: 0,
+    type: "instructor"
+  }
+
+  if (livesChanged >= 200) {
+    data.lvl = "max"
   }
 
   if (livesChanged > 100) {
     data.title = 'Life Changer';
     data.label = "Change 200 people's lives through connection";
     data.max = 200;
+    data.lvl = 4;
     return data;
   } 
   
@@ -34,6 +41,7 @@ export default function(sessions, user) {
     data.title = 'Leader';
     data.label = "Change 100 people's lives through connection";
     data.max = 100;
+    data.lvl = 3;
     return data;
   } 
   
@@ -41,6 +49,7 @@ export default function(sessions, user) {
     data.title = 'Influence';
     data.label = "Change 50 people's lives through connection";
     data.max = 50;
+    data.lvl = 2;
     return data;
   } 
   
@@ -48,6 +57,7 @@ export default function(sessions, user) {
     data.title = 'Sway';
     data.label = "Change 25 people's lives through connection";
     data.max = 25;
+    data.lvl = 1;
   }
 
   return data;

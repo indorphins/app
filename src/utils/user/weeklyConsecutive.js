@@ -53,22 +53,27 @@ export default function(sessions, user) {
     label: 'Take classes 2 weeks in a row',
     max: 2,
     value: streak,
+    lvl: 0,
+    type: "standard"
   };
 
   if (streak > 2) {
     data.title = 'Fivepeat';
     data.label = 'Take classes 5 weeks in a row';
     data.max = 5;
+    data.lvl = 1;
   }
 
   if (streak > 5) {
     data.title = '10 Weeks? you wild';
     data.label = "You're a real one. Go for 10 weeks in a row";
     data.max = 10;
+    data.lvl = 2;
   } 
 
   if (streak >= 10) {
     data.value = 10
+    data.lvl = "max"
   }
 
   return data;

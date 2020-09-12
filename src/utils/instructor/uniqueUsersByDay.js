@@ -34,7 +34,9 @@ export default function(sessions, user) {
     title: 'Rock',
     label: "Change 10 people's days through movement",
     max: 10,
-    value: 0
+    value: 0,
+    lvl: 0,
+    type: "instructor"
   }
 
   if (daysChanged) {
@@ -45,28 +47,33 @@ export default function(sessions, user) {
     data.title = 'Pillar';
     data.label = "Change 25 people's days through movement";
     data.max = 25;
+    data.lvl = 1;
   }
     
   if (daysChanged > 25) {
     data.title = 'Backbone';
     data.label = "Change 50 people's days through movement";
     data.max = 50;
+    data.lvl = 2;
   } 
   
   if (daysChanged > 50) {
     data.title = 'Upholder';
     data.label = "Change 100 people's days through movement";
     data.max = 100;
+    data.lvl = 3;
   } 
 
   if (daysChanged > 100) {
     data.title = 'Champion';
     data.label = "Change 250 people's days through movement";
     data.max = 250;
+    data.lvl = 4;
   } 
 
   if (daysChanged >= 250) {
     data.value = 250;
+    data.lvl = "max";
   }
 
   return data;

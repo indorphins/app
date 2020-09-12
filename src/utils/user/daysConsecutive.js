@@ -50,11 +50,14 @@ export default function(sessions, user) {
     title: 'All Day Every Day',
     label: 'Take a class for 5 days straight',
     max: 5,
-    value: streak
+    value: streak,
+    lvl: 0,
+    type: "standard"
   }
 
   if (streak >= 5) {
     data.value = 5;
+    data.lvl = "max";
   }
 
   return data;

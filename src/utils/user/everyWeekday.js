@@ -28,11 +28,14 @@ export default function(sessions, user) {
     title: 'Every Day',
     label: 'Take a class each day of the week',
     max: 7,
-    value: 0
+    value: 0,
+    lvl: 0,
+    type: "standard"
   }
 
   if (days && days.length === 7) {
     data.value = 7;
+    data.lvl = "max";
   }
   
   if (days && days.length < 7) {

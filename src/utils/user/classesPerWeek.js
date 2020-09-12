@@ -48,7 +48,9 @@ export default function(sessions, user) {
     title: 'Tri It',
     label: 'Take 3 classes in the same week',
     max: 3,
-    value: 0
+    value: 0,
+    lvl: 0,
+    type: "standard"
   }
 
   if (count) {
@@ -56,6 +58,7 @@ export default function(sessions, user) {
 
     if (count >= 3) {
       data.value = 3;
+      data.lvl = "max"
     }
   }
 

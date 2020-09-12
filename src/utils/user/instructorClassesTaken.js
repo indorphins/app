@@ -39,7 +39,9 @@ export default function(sessions, user) {
     title: 'Ride or Die',
     label: 'Take a class from the same instructor 5 times',
     max: 5,
-    value: 0
+    value: 0,
+    lvl: 0,
+    type: "standard"
   }
 
   if (counts && counts[0] > 0 && counts <= 5) {
@@ -48,6 +50,7 @@ export default function(sessions, user) {
   
   if (counts && counts[0] > 5) {
     data.value = 5
+    data.lvl = "max";
   }
 
   return data;
