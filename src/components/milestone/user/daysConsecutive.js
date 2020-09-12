@@ -1,16 +1,8 @@
-import { getDayOfYear } from 'date-fns';
-import { GetClasses } from '../common';
-
-function getDaysOfYear(sessions, user) {
-  let items = GetClasses(sessions, user);
-  
-  return items.map(item => {
-    return getDayOfYear(new Date(item.start_date));
-  });
-}
+import { GetClasses, GetDaysOfYear } from '../common';
 
 function getDailyStreak(sessions, user) {
-  let list = getDaysOfYear(sessions, user);
+  let classes = GetClasses(sessions, user)
+  let list = GetDaysOfYear(classes);
   let prev;
   let streak = 0;
   let prevStreak = 0;
