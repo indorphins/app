@@ -17,7 +17,7 @@ const milestonesSelector = createSelector([state => state.milestone.hits], (sess
 
 const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
-})
+});
 
 export default function() {
   const sessions = useSelector(state => getSessionsSelector(state));
@@ -33,12 +33,26 @@ export default function() {
 
   useEffect(() => {
 
+    let standard = milestoneHits.filter(item => {
+      return item.type === 'standard'
+    });
+
+    let completed = standard.filter(item => {
+      return item.lvl === 'max';
+    });
+
+    let allMilestone = {
+      title: 'Master Indoorphiner',
+      label: 'Achieve all milestones',
+      max: standard.length,
+      value: completed.length,
+      type: "standard"
+    }
+
     if (!user.type || user.type === 'standard') {
-      setMilestonesData([...milestoneHits.filter(item => {
-        return item.type === 'standard'
-      })]);
+      setMilestonesData([...standard, allMilestone]);
     } else {
-      setMilestonesData([...milestoneHits]);
+      setMilestonesData([...milestoneHits, allMilestone]);
     }
 
   }, [milestoneHits, user])

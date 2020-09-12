@@ -30,14 +30,14 @@ export default function(sessions, user) {
     type: "standard"
   }
 
-  if (uniqueInstructorsTaken > 2) {
+  if (uniqueInstructorsTaken >= 2) {
     data.title = "Three's a crows";
     data.label = 'Take a class with 3 different instructors';
     data.max = 3;
     data.lvl = 1;
   }
   
-  if (uniqueInstructorsTaken > 3) {
+  if (uniqueInstructorsTaken >= 3) {
     data.title = 'The more the merrier';
     data.label = 'Take a class with 4 different instructors';
     data.max = 4;

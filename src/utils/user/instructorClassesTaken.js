@@ -17,12 +17,8 @@ function getInstructorCount(sessions, instructorId) {
 
 function classesByInstructor(sessions, user) {
   let temp = getClasses(sessions, user);
-  
-  let filtered = temp.filter(item => {
-    return getInstructorCount(sessions, item.instructor_id) >= 5
-  });
 
-  let mapped = filtered.map(item => {
+  let mapped = temp.map(item => {
     return getInstructorCount(sessions, item.instructor_id);
   });
   
@@ -44,7 +40,7 @@ export default function(sessions, user) {
     type: "standard"
   }
 
-  if (counts && counts[0] > 0 && counts <= 5) {
+  if (counts && counts[0] > 0 && counts[0] <= 5) {
     data.value = counts[0];
   }
   

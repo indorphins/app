@@ -83,7 +83,8 @@ export default function App() {
     if (!firebaseUserData) {
       log.debug('AUTH:: firebase user null');
       if (currentUser.id) {
-        await store.dispatch(actions.user.clear());
+        store.dispatch(actions.milestone.clear());
+        store.dispatch(actions.user.clear());
       }
       return;
     }

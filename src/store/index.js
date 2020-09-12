@@ -67,6 +67,11 @@ const milestoneSlice = createSlice({
       log.debug("STORE:: set milestones hits", action.payload);
       state.hits = [...action.payload];
       return state;
+    },
+    clear(state) {
+      state.sessions = [];
+      state.hits = [];
+      return state;
     }
   }
 })
