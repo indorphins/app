@@ -66,8 +66,6 @@ export default function Styles(props) {
     MuiButton: {
       root: {
         fontWeight: "bold",
-        backgroundImage: `url("/img/buttonWave.svg")`,
-        backgroundRepeat: "no-repeat",
       },
       containedSecondary: {
         "&:hover": {

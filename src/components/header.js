@@ -18,7 +18,7 @@ let useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(3),
     marginBottom: theme.spacing(3),
     marginLeft: theme.spacing(8),
-    color: theme.palette.primary.main,
+    color: theme.palette.secondary.main,
     '@media (max-width: 900px)': {
       marginLeft: theme.spacing(1),
     }
@@ -113,7 +113,7 @@ export default function Header(props) {
           <Container className={classes.container}>
             <Grid container direction="row" justify={headerJustify}>
               <Grid item>
-                <Typography variant="h2" color="primary" className={classes.logo}>indoorphins</Typography>
+                <Typography variant="h2" color="secondary" className={classes.logo}>indoorphins</Typography>
               </Grid>
             </Grid>
             <Grid container direction="row" justify="space-between" alignItems="flex-end">

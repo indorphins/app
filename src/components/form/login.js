@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
   },
   lgnBtn: {
     background: theme.palette.secondary.color,
-    color: theme.palette.primary.main,
+    color: theme.palette.secondary.main,
     width: '100%',
     marginBottom: theme.spacing(2)
   },
@@ -34,29 +34,24 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(4),
     marginBottom: theme.spacing(2),
     background: theme.palette.primary.color,
-    color: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
   },
   txtField: {
     minWidth: 300,
     width: "100%",
-    color: theme.palette.primary.contrastText,
-    backgroundColor: theme.palette.common.background,
   },
   borderItem: {
     borderBottom: '1px solid',
     color: theme.palette.grey[500],
   },
-  label: {
-    color: theme.palette.primary.contrastText,
-  },
   text: {
-    color: theme.palette.primary.contrastText
+    color: theme.palette.secondary.contrastText
   },
   googBtn: {
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.secondary.main,
     marginBottom: theme.spacing(2),
     marginTop: theme.spacing(2),
-    color: theme.palette.primary.contrastText,
+    color: theme.palette.secondary.contrastText,
     width: '100%'
   }
 }));
@@ -172,7 +167,7 @@ export default function(props) {
       id="password"
       type="password"
       variant="outlined"
-      placeholder='Password'
+      label='Password'
       onChange={passwordHandler}
         />
       </Grid>
@@ -279,13 +274,10 @@ export default function(props) {
             value={userName}
             autoComplete="username"
             className={classes.txtField}
-            classes={{
-              label: classes.label
-            }}
             required
             id="email"
             type="email"
-            placeholder="Email"
+            label="Email"
             variant="outlined"
             onChange={usernameHandler}
             />

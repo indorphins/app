@@ -32,10 +32,19 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   header: {
-    marginBottom: theme.spacing(2)
+    marginBottom: theme.spacing(2),
+    fontSize: '4.0rem',
+    fontWeight: 800,
+    color: theme.palette.secondary.contrastText
+  },
+  text: {
+    fontWeight: 400,
+    wordSpacing: 3,
+    color: theme.palette.secondary.contrastText
   },
   logo: {
     fontSize: "2rem",
+    fontWeight: 800,
     paddingLeft: theme.spacing(1),
     color: theme.palette.secondary.color
   },
@@ -77,15 +86,15 @@ export default function LoginContainer(props) {
         <Grid item className={classes.textContainer}>
           <Grid container direction='column' >
             <Grid item>
-              <Typography variant='h1' className={classes.header}>Bye Bye Zoom</Typography>
+              <Typography className={classes.header}>Bye Bye Zoom</Typography>
             </Grid>
             <Grid item>
-              <Typography variant='body1'>Connect and move with friends and </Typography>
+              <Typography variant='h3' className={classes.text}>Connect and move with friends and </Typography>
             </Grid>
             <Grid item>
               <Grid container direction='row' alignItems='center' justify='flex-start'>
                 <Grid item>
-                  <Typography variant='body1'>community on </Typography>
+                  <Typography variant='h3' className={classes.text}>community on </Typography>
                 </Grid>
                 <Grid item>
                   <Typography variant='h5' className={classes.logo}>Indoorphins</Typography>

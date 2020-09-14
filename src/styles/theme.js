@@ -21,8 +21,8 @@ const lightPalette = {
     background: colors.white,
   },
   primary: {
-    main: colors.white,
-    contrastText: colors.black,
+    main: colors.black,
+    contrastText: colors.white,
     color: colors.cream,
   },
   secondary: {
@@ -98,7 +98,7 @@ const lightTypography = {
     fontStyle: 'italic',
     fontWeight: 100,
     color: lightPalette.grey[900],
-  }
+  },
 };
 
 const darkPalette = {
@@ -109,8 +109,8 @@ const darkPalette = {
     background: colors.darkGrey,
   },
   primary: {
-    main: colors.white,
-    contrastText: colors.black,
+    main: colors.black,
+    contrastText: colors.white,
     color: colors.cream,
   },
   secondary: {
