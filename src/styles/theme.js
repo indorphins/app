@@ -68,6 +68,7 @@ const lightPalette = {
 const lightTypography = {
   direction: 'ltr',
   fontSize: 16,
+  fontFamily: 'Lato',
   h1: {
     fontSize: '2.5rem',
     fontWeight: 300,
@@ -160,6 +161,7 @@ const darkPalette = {
 const darkTypography = {
   direction: 'ltr',
   fontSize: 16,
+  fontFamily: 'Lato',
   h1: {
     fontSize: '2.5rem',
     fontWeight: 300,

@@ -13,6 +13,10 @@ let darkTheme = dark;
 const useStyles = makeStyles((theme) => ({
   root: {},
   '@global': {
+    '@font-face': {
+      fontFamily: "Lato",
+      src: 'url(/Lato-Regular.ttf) format("truetype")'
+    },    
     html: {
       overflow: 'hidden',
       height: '100%',
