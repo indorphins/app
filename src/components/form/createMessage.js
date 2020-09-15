@@ -69,7 +69,7 @@ export default function CreateMessage(props) {
   if (loader) {
     progress = (
       <Grid>
-        <LinearProgress color="secondary" />
+        <LinearProgress color="primary" />
       </Grid>
     );
   }

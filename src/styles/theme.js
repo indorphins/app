@@ -9,6 +9,8 @@ const colors = {
   offwhite: "#f5f5f0",
   salmon: "#ff877e",
   cream: "#ffc772",
+  white: "#ffffff",
+  darkGrey: '#757575'
 }
 
 const lightPalette = {
@@ -16,14 +18,27 @@ const lightPalette = {
   common: {
     white: colors.offwhite,
     black: colors.black,
+    background: colors.white,
   },
   primary: {
-    main: colors.cream,
-    contrastText: colors.black,
+    main: colors.black,
+    contrastText: colors.offwhite,
   },
   secondary: {
+    main: colors.white,
+    contrastText: colors.black2,
+  },
+  primaryColor: {
+    main: colors.cream,
+    contrastText: colors.offwhite
+  },
+  secondaryColor: {
     main: colors.salmon,
-    contrastText: colors.offwhite,
+    contrastText: colors.offwhite
+  },
+  textField: {
+    main: colors.offwhite,
+    contrastText: colors.black
   },
   header: {
     background: colors.black,
@@ -51,6 +66,7 @@ const lightPalette = {
 const lightTypography = {
   direction: 'ltr',
   fontSize: 16,
+  fontFamily: 'Lato',
   h1: {
     fontSize: '2.5rem',
     fontWeight: 300,
@@ -81,7 +97,7 @@ const lightTypography = {
     fontStyle: 'italic',
     fontWeight: 100,
     color: lightPalette.grey[900],
-  }
+  },
 };
 
 const darkPalette = {
@@ -89,14 +105,27 @@ const darkPalette = {
   common: {
     white: colors.offwhite,
     black: colors.black,
+    background: colors.black2,
   },
   primary: {
-    main: colors.salmon,
-    contrastText: colors.black,
+    main: colors.offwhite,
+    contrastText: colors.black2
   },
   secondary: {
+    main: colors.black,
+    contrastText: colors.offwhite,
+  },
+  primaryColor: {
     main: colors.cream,
-    contrastText: colors.black,
+    contrastText: colors.white
+  },
+  secondaryColor: {
+    main: colors.salmon,
+    contrastText: colors.white
+  },
+  textField: {
+    main: colors.offwhite,
+    contrastText: colors.black
   },
   background: {
     paper: colors.black1,
@@ -122,12 +151,13 @@ const darkPalette = {
     200: '#616161',
     100: '#424242',
     50: '#212121',
-  }
+  },
 }; 
 
 const darkTypography = {
   direction: 'ltr',
   fontSize: 16,
+  fontFamily: 'Lato',
   h1: {
     fontSize: '2.5rem',
     fontWeight: 300,

@@ -71,7 +71,7 @@ export default function Signup(props) {
       setSignup(
         <Button
           variant="contained"
-          color="secondary"
+          color="primary"
           onClick={() => { handler(); setSignup(null);}}
           style={{width:"100%"}}
         >
@@ -86,7 +86,7 @@ export default function Signup(props) {
       setSignup(
         <Button
           variant="contained"
-          color="secondary"
+          color="primary"
           onClick={() => { setConfirmLeave(true); }}
           style={{width:"100%"}}
         >
@@ -102,7 +102,7 @@ export default function Signup(props) {
       setSignup(
         <Button
           variant="contained"
-          color="secondary"
+          color="primary"
           onClick={() => { goToLogin(); }}
           style={{width:"100%"}}
         >
@@ -147,7 +147,7 @@ export default function Signup(props) {
             <Button
               onClick={closeHandler}
               variant="contained"
-              color="secondary"
+              color="primary"
               className={classes.modalBtn}
             >
               No

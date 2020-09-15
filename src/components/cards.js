@@ -83,6 +83,9 @@ const styles = theme => ({
       fontSize: "0.5rem",
     }
   },
+  radioBtn: {
+    color: theme.palette.secondary.contrastText + ' !important'
+  }
 });
 
 function CardLogo(props) {
@@ -235,7 +238,7 @@ class Cards extends React.Component {
               <Grid key={item.id} item className={classes.cardItem}>
                 <Grid container direction="row" justify="center" alignItems="center" spacing={2}>
                   <Grid item>
-                    <Radio checked={item.default} name={item.id} />
+                    <Radio color='secondary' className={classes.radioBtn} checked={item.default} name={item.id} />
                   </Grid>
                   <Grid item>
                     <Card className={classes.cardData}>

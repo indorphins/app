@@ -338,7 +338,7 @@ export default function CourseInfo() {
   let paymentProcessingContent = null;
   if (paymentProcessing) {
     paymentProcessingContent = ( 
-      <LinearProgress color="secondary" />
+      <LinearProgress color="primary" />
     );
   }
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Grid } from '@material-ui/core';
+import { Container, Grid, makeStyles } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 import MilestoneItem from '../components/milestone/milestoneItem';
@@ -12,7 +12,16 @@ const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
 });
 
+const useStyles = makeStyles((theme) => ({
+  container: {
+    backgroundColor: theme.palette.common.background,
+    borderRadius: 5,
+    width: '90%'
+  }
+}))
+
 export default function() {
+  const classes = useStyles();
   const user = useSelector(state => getUserSelector(state));
   const milestoneHits = useSelector(state => milestonesSelector(state));
   const [ milestonesData, setMilestonesData ] = useState([]);
@@ -44,7 +53,7 @@ export default function() {
   }, [milestoneHits, user])
 
   let content = (
-    <Container>
+    <Container className={classes.container}>
       <Grid container direction="column">
         {milestonesData.map(item => (
           <Grid item key={item.title}>

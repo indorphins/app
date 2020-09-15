@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Grid, TextField, Button, Link, Typography, LinearProgress } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
@@ -11,28 +11,67 @@ import Firebase from '../../Firebase';
 import log from '../../log';
 import path from '../../routes/path';
 import { store, actions } from '../../store';
+import GoogleIcon from '../icon/google';
 
 const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
 });
 
 const useStyles = makeStyles((theme) => ({
+  container: {
+    color: theme.palette.common.white,
+  },
   btnContainer: {
     display: "block",
-    width: "100%",
     overflow: "hidden",
   },
   lgnBtn: {
-    float: "right",
-    marginTop: theme.spacing(2),
+    width: '100%',
     marginBottom: theme.spacing(2),
+    color: theme.palette.secondaryColor.contrastText,
+    backgroundColor: theme.palette.secondaryColor.main,
+    "&:hover": {
+      color: theme.palette.primary.contrastText,
+      backgroundColor: theme.palette.primary.main,
+    }
+  },
+  medBtn: {
+    marginTop: theme.spacing(4),
+    marginBottom: theme.spacing(2),
+    color: theme.palette.primaryColor.contrastText,
+    backgroundColor: theme.palette.primaryColor.main,
+    "&:hover": {
+      color: theme.palette.primary.contrastText,
+      backgroundColor: theme.palette.primary.main,
+    }
   },
   txtField: {
     minWidth: 300,
     width: "100%",
   },
+  borderItem: {
+    borderBottom: '1px solid',
+    color: theme.palette.grey[500],
+  },
+  text: {
+    color: theme.palette.primary.main
+  },
   googBtn: {
-    marginTop: theme.spacing(3),
+    cursor: 'pointer',
+    backgroundColor: theme.palette.secondary.main,
+    marginBottom: theme.spacing(2),
+    marginTop: theme.spacing(2),
+    color: theme.palette.primary.main,
+    width: '100%',
+    borderRadius: 5,
+    boxShadow: `0 0 4px -1px ${theme.palette.grey[500]}`,
+    "&:hover": { 
+      backgroundColor: theme.palette.grey[300],
+    }
+  },
+  googIcon: {
+    paddingRight: theme.spacing(2),
+    marginTop: 3
   }
 }));
 
@@ -140,15 +179,14 @@ export default function(props) {
       <Grid>
         <TextField
       disabled={loader}
-      color="secondary"
       value={password}
       autoComplete="current-password"
       className={classes.txtField}
       required
       id="password"
       type="password"
-      label="Password"
       variant="outlined"
+      label='Password'
       onChange={passwordHandler}
         />
       </Grid>
@@ -192,7 +230,7 @@ export default function(props) {
 
   if (loader) {
     progress = (
-      <LinearProgress color="secondary" />
+      <LinearProgress color="primary" />
 		)
   }
 
@@ -205,8 +243,51 @@ export default function(props) {
 		)
   }
 
+  let createAcctContent = null;
+  if (loginMode) {
+    createAcctContent = (
+      <Grid item className={classes.btnContainer}>
+        <Button
+          disabled={loader}
+          className={classes.medBtn}
+          onClick={loadSignUpForm}
+          type="submit"
+          variant="contained"
+          color="primary"
+        >
+          Create New Account
+        </Button>
+      </Grid>
+    )
+  }
+
+  let googleContent;
+  if (loginMode) {
+    googleContent = (
+      <Fragment>
+        <Grid container justify='center'>
+          <Grid item>
+            <Typography className={classes.text} variant='body1'>or</Typography>
+          </Grid>
+        </Grid>
+        <Grid item className={classes.borderItem}>
+          <Grid container direciton="row" justify="center" 
+            alignItems='center' className={classes.googBtn} onClick={googleSignInFlow}
+          >
+            <Grid item className={classes.googIcon}>
+              <GoogleIcon />
+            </Grid>
+            <Grid item>
+              <Typography variant='button'>Sign in with Google</Typography>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Fragment>
+    )
+  }
+
   let formcontent = (
-    <Grid>
+    <Grid className={classes.container}>
       <form id='login-form' onSubmit={formHandler}>
         <input autoComplete="username" id="_email" type="hidden" value={userName} />
         <input autoComplete="current-password" id="_password" type="hidden" value={password} />
@@ -217,7 +298,6 @@ export default function(props) {
             <TextField
             disabled={loader}
             autoFocus={true}
-            color="secondary"
             value={userName}
             autoComplete="username"
             className={classes.txtField}
@@ -235,34 +315,25 @@ export default function(props) {
           </Grid>
           <Grid item className={classes.btnContainer}>
             <Button
-            disabled={loader}
-            className={classes.lgnBtn}
-            color="primary"
-            type="submit"
-            variant="contained"
+              disabled={loader}
+              className={classes.lgnBtn}
+              type="submit"
+              variant="contained"
+              color="primary"
             >
               {submitText}
             </Button>
           </Grid>
+          {googleContent}
         </Grid>
       </form>
-      <Grid container direction="row" justify="space-between">
+      
+      <Grid container direction="column" alignItems='center' justify="center"> 
+        {createAcctContent}
         <Grid item>
           <Typography>
-            <Link color="secondary" onClick={loadSignUpForm}>Need an account?</Link>
+            <Link color="secondary" className={classes.text} onClick={switchMode}>{linkText}</Link>
           </Typography>
-        </Grid>
-        <Grid item>
-          <Typography>
-            <Link color="secondary" onClick={switchMode}>{linkText}</Link>
-          </Typography>
-        </Grid>
-      </Grid>
-      <Grid container direction="row" justify="center">
-        <Grid item>
-          <Button color="inherit" disableElevation className={classes.googBtn} onClick={googleSignInFlow}>
-            Sign in with Google
-          </Button>
         </Grid>
       </Grid>
     </Grid>

@@ -329,7 +329,7 @@ export default function (props) {
             <TextField
               disabled={loader}
               className={classes.type}
-              color="secondary"
+              color="primary"
               required
               id="type"
               type="text"
@@ -343,7 +343,7 @@ export default function (props) {
             <TextField
               disabled={loader}
               className={classes.title}
-              color="secondary"
+              color="primary"
               required
               id="title"
               type="text"
@@ -367,6 +367,7 @@ export default function (props) {
             <Grid container direction="row" justify="flex-start" alignItems="center" spacing={1}>
               <Grid item>
                 <Switch
+                    color='primary'
                     checked={recurring}
                     onChange={recurringHandler}
                 />
@@ -382,7 +383,7 @@ export default function (props) {
               className={classes.btn} 
               type="submit"
               variant="contained"
-              color="secondary"
+              color="primary"
             >
               Create
             </Button>
