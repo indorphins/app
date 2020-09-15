@@ -113,7 +113,7 @@ export default function Header(props) {
           <Container className={classes.container}>
             <Grid container direction="row" justify={headerJustify}>
               <Grid item>
-                <Typography variant="h2" color="secondary" className={classes.logo}>indoorphins</Typography>
+                <Typography variant="h2" color="secondary" className={classes.logo}>INDOORPHINS</Typography>
               </Grid>
             </Grid>
             <Grid container direction="row" justify="space-between" alignItems="flex-end">

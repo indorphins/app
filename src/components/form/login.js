@@ -18,7 +18,7 @@ const getUserSelector = createSelector([state => state.user.data], (user) => {
 
 const useStyles = makeStyles((theme) => ({
   container: {
-    color: theme.palette.common.white
+    color: theme.palette.common.white,
   },
   btnContainer: {
     display: "block",

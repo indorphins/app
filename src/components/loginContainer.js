@@ -10,7 +10,11 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(2)
   },
   textContainer: {
-    width: '45%',
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    '@media (max-width: 900px)': {
+      display: 'none'
+    }
   },
   paperContainer: {
     backgroundColor: theme.palette.common.white,
@@ -18,39 +22,59 @@ const useStyles = makeStyles((theme) => ({
     border: '1px solid',
     paddingLeft: theme.spacing(4),
     paddingRight: theme.spacing(4),
-    paddingTop: theme.spacing(6),
+    paddingTop: theme.spacing(4),
     paddingBottom: theme.spacing(2),
     marginLeft: theme.spacing(2),
-    marginRight: theme.spacing(2),
-    width: '45%',
+    marginRight: 'auto',
+    width: '40%',
+    '@media (max-width: 900px)': {
+      marginLeft: 'auto',
+      width: '90%',
+      paddingTop: theme.spacing(2),
+    },
     '@media (max-width: 600px)': {
       paddingLeft: theme.spacing(1),
       paddingRight: theme.spacing(1),
-      paddingTop: theme.spacing(3),
       width: "100%",
       borderRadius: 0,
     },
   },
   header: {
-    marginBottom: theme.spacing(2),
-    fontSize: '4.0rem',
-    fontWeight: 800,
+    marginBottom: theme.spacing(1),
+    fontSize: '4.2rem',
+    fontWeight: 900,
+    wordSpacing: '.75rem',
+    letterSpacing: 1.5,
     color: theme.palette.secondary.contrastText
   },
   text: {
     fontWeight: 400,
-    wordSpacing: 3,
+    wordSpacing: '.5rem',
+    letterSpacing: 1.5,
     color: theme.palette.secondary.contrastText
   },
   logo: {
     fontSize: "2rem",
-    fontWeight: 800,
-    paddingLeft: theme.spacing(1),
+    fontWeight: 900,
+    paddingLeft: theme.spacing(2),
     color: theme.palette.secondary.color
+  },
+  logo2: {
+    fontSize: "2rem",
+    fontWeight: 900,
+    color: theme.palette.secondary.color,
+    display: 'none',
+    paddingBottom: theme.spacing(1),
+    '@media (max-width: 900px)': {
+      display: 'flex'
+    }
   },
   link: {
     color: theme.palette.primary.main,
     textDecoration: "none",
+  },
+  children: {
+    width: '100%'
   }
 }));
 
@@ -86,7 +110,7 @@ export default function LoginContainer(props) {
         <Grid item className={classes.textContainer}>
           <Grid container direction='column' >
             <Grid item>
-              <Typography className={classes.header}>Bye Bye Zoom</Typography>
+              <Typography className={classes.header}>Bye bye Zoom</Typography>
             </Grid>
             <Grid item>
               <Typography variant='h3' className={classes.text}>Connect and move with friends and </Typography>
@@ -97,16 +121,19 @@ export default function LoginContainer(props) {
                   <Typography variant='h3' className={classes.text}>community on </Typography>
                 </Grid>
                 <Grid item>
-                  <Typography variant='h5' className={classes.logo}>Indoorphins</Typography>
+                  <Typography variant='h5' className={classes.logo}>INDOORPHINS</Typography>
                 </Grid>
               </Grid>
             </Grid>
           </Grid>
         </Grid>
-        <Zoom in={true}>
+        <Zoom in={true}>      
           <Paper elevation={2} className={classes.paperContainer}>
-            <Grid container direction="column" spacing={2}>
+            <Grid container direction="column" alignItems='center' spacing={2}>
               <Grid item>
+                <Typography variant='h5' className={classes.logo2}>INDOORPHINS</Typography>
+              </Grid>
+              <Grid item className={classes.children}>
                 {props.children}
               </Grid>
             </Grid>
