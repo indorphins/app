@@ -43,28 +43,28 @@ export default function(sessions, user) {
     data.value = daysChanged;
   }
 
-  if (daysChanged > 10) {
+  if (daysChanged >= 10) {
     data.title = 'Pillar';
     data.label = "Change 25 people's days through movement";
     data.max = 25;
     data.lvl = 1;
   }
     
-  if (daysChanged > 25) {
+  if (daysChanged >= 25) {
     data.title = 'Backbone';
     data.label = "Change 50 people's days through movement";
     data.max = 50;
     data.lvl = 2;
   } 
   
-  if (daysChanged > 50) {
+  if (daysChanged >= 50) {
     data.title = 'Upholder';
     data.label = "Change 100 people's days through movement";
     data.max = 100;
     data.lvl = 3;
   } 
 
-  if (daysChanged > 100) {
+  if (daysChanged >= 100) {
     data.title = 'Champion';
     data.label = "Change 250 people's days through movement";
     data.max = 250;
