@@ -49,7 +49,7 @@ export default function() {
         {milestonesData.map(item => (
           <Grid item key={item.title}>
             <MilestoneItem title={item.title} label={item.label}
-              max={item.max} value={item.value}
+              max={item.max} value={item.value} lvl={item.lvl}
             />
           </Grid>
         ))}
