@@ -32,7 +32,12 @@ export default function() {
       label: 'Complete all milestones',
       max: standard.length,
       value: completed.length,
-      type: "standard"
+      type: "standard",
+      lvl: 0,
+    }
+
+    if (standard.length === completed.length) {
+      allMilestone.lvl = "max";
     }
 
     if (!user.type || user.type === 'standard') {
