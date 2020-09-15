@@ -5,7 +5,7 @@ function getUniqueUsersInstructed(sessions, instructor) {
   });
 
   instructed.forEach(item => {
-    combined = combined.concat(item.users_joined);
+    combined = combined.concat(item.users_joined.filter(item => item !== instructor));
   });
 
   let unique = Array.from(new Set(combined));
