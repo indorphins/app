@@ -30,7 +30,7 @@ const useStyles = makeStyles((theme) => ({
   },
   progressBar: {
     borderRadius: 5,
-    backgroundColor: theme.palette.grey[400],
+    backgroundColor: theme.palette.grey[500],
   }   
 }));
 
