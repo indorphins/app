@@ -27,11 +27,23 @@ const useStyles = makeStyles((theme) => ({
   },
   lgnBtn: {
     width: '100%',
-    marginBottom: theme.spacing(2)
+    marginBottom: theme.spacing(2),
+    color: theme.palette.secondaryColor.contrastText,
+    backgroundColor: theme.palette.secondaryColor.main,
+    "&:hover": {
+      color: theme.palette.primary.contrastText,
+      backgroundColor: theme.palette.primary.main,
+    }
   },
   medBtn: {
     marginTop: theme.spacing(4),
     marginBottom: theme.spacing(2),
+    color: theme.palette.primaryColor.contrastText,
+    backgroundColor: theme.palette.primaryColor.main,
+    "&:hover": {
+      color: theme.palette.primary.contrastText,
+      backgroundColor: theme.palette.primary.main,
+    }
   },
   txtField: {
     minWidth: 300,

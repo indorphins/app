@@ -17,8 +17,8 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   paperContainer: {
-    backgroundColor: theme.palette.common.white,
-    borderColor: theme.palette.grey[500],
+    backgroundColor: theme.palette.grey[100],
+    borderColor: theme.palette.grey[50],
     border: '1px solid',
     paddingLeft: theme.spacing(4),
     paddingRight: theme.spacing(4),

@@ -26,7 +26,7 @@ const lightPalette = {
   },
   secondary: {
     main: colors.white,
-    contrastText: colors.darkGrey,
+    contrastText: colors.black2,
   },
   primaryColor: {
     main: colors.cream,
@@ -105,11 +105,11 @@ const darkPalette = {
   common: {
     white: colors.offwhite,
     black: colors.black,
-    background: colors.darkGrey,
+    background: colors.black2,
   },
   primary: {
     main: colors.offwhite,
-    contrastText: colors.darkGrey,
+    contrastText: colors.black2
   },
   secondary: {
     main: colors.black,
