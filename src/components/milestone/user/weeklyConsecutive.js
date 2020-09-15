@@ -51,14 +51,14 @@ export default function(sessions, user) {
     type: "standard"
   };
 
-  if (streak > 2) {
+  if (streak >= 2) {
     data.title = 'Fivepeat';
     data.label = 'Take classes 5 weeks in a row';
     data.max = 5;
     data.lvl = 1;
   }
 
-  if (streak > 5) {
+  if (streak >= 5) {
     data.title = '10 Weeks? you wild';
     data.label = "You're a real one. Go for 10 weeks in a row";
     data.max = 10;
