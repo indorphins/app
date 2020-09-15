@@ -43,6 +43,10 @@ const useStyles = makeStyles((theme) => ({
   subtitle: {
     color: "white",
     fontWeight: 300,
+  },
+  padding: {
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
   }
 }));
 
@@ -67,7 +71,7 @@ export default function InstructorFeature(props) {
   let headerContent = null;
   let formContent = null;
   let loaderContent = (
-    <Grid  className={classes.loader} container direction="row" justify="center" alignItems="center">
+    <Grid className={classes.loader} container direction="row" justify="center" alignItems="center">
       <CircularProgress color="secondary" />
     </Grid>
   );
@@ -155,37 +159,37 @@ export default function InstructorFeature(props) {
 
   if(header) {
     headerContent = (
-      <Grid>
-        <Typography className={classes.header} variant="h5">
-          {header}
-        </Typography>
-      </Grid>
+      <Typography className={classes.header} variant="h5">
+        {header}
+      </Typography>
     )
   }
 
   if (data && data.length > 0) {
     formContent = (
-      <Grid>
-        <Grid>
+      <Grid container direction="column">
+        <Grid item>
           {headerContent}
         </Grid>
-        <GridList cellHeight={height} cols={cols} spacing={spacing}>
-          {data.map(instructor => (
-            <GridListTile key={instructor.id} cols={1}>
-              <Link className={classes.anchor} to={instructor.url}>
-                <Grid container>
-                  <img alt={instructor.firstName} className={classes.photo} src={instructor.photo} />
-                  <GridListTileBar
-                  title={instructor.firstName}
-                  subtitle="See Schedule"
-                  className={classes.desc}
-                  classes={{subtitle: classes.subtitle}}
-                  />
-                </Grid>
-              </Link>
-            </GridListTile>
-        ))}
-        </GridList>
+        <Grid item className={classes.padding}>
+          <GridList cellHeight={height} cols={cols} spacing={spacing}>
+            {data.map(instructor => (
+              <GridListTile key={instructor.id} cols={1}>
+                <Link className={classes.anchor} to={instructor.url}>
+                  <Grid container>
+                    <img alt={instructor.firstName} className={classes.photo} src={instructor.photo} />
+                    <GridListTileBar
+                    title={instructor.firstName}
+                    subtitle="See Schedule"
+                    className={classes.desc}
+                    classes={{subtitle: classes.subtitle}}
+                    />
+                  </Grid>
+                </Link>
+              </GridListTile>
+            ))}
+          </GridList>
+        </Grid>
       </Grid>
     );
   } else {
