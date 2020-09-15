@@ -26,16 +26,12 @@ const useStyles = makeStyles((theme) => ({
     overflow: "hidden",
   },
   lgnBtn: {
-    background: theme.palette.secondary.color,
-    color: theme.palette.secondary.main,
     width: '100%',
     marginBottom: theme.spacing(2)
   },
   medBtn: {
     marginTop: theme.spacing(4),
     marginBottom: theme.spacing(2),
-    background: theme.palette.primary.color,
-    color: theme.palette.secondary.main,
   },
   txtField: {
     minWidth: 300,
@@ -222,7 +218,7 @@ export default function(props) {
 
   if (loader) {
     progress = (
-      <LinearProgress color="secondary" />
+      <LinearProgress color="primary" />
 		)
   }
 
@@ -245,6 +241,7 @@ export default function(props) {
           onClick={loadSignUpForm}
           type="submit"
           variant="contained"
+          color="primary"
         >
           Create New Account
         </Button>
@@ -306,10 +303,11 @@ export default function(props) {
           </Grid>
           <Grid item className={classes.btnContainer}>
             <Button
-            disabled={loader}
-            className={classes.lgnBtn}
-            type="submit"
-            variant="contained"
+              disabled={loader}
+              className={classes.lgnBtn}
+              type="submit"
+              variant="contained"
+              color="primary"
             >
               {submitText}
             </Button>

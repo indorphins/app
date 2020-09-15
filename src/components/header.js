@@ -19,7 +19,7 @@ let useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(3),
     marginBottom: theme.spacing(3),
     marginLeft: theme.spacing(8),
-    color: theme.palette.secondary.main,
+    color: theme.palette.common.white,
     '@media (max-width: 900px)': {
       marginLeft: theme.spacing(1),
     }
@@ -29,7 +29,7 @@ let useStyles = makeStyles((theme) => ({
     paddingLeft: theme.spacing(2),
     paddingTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
-    backgroundColor: theme.palette.header.background,
+    backgroundColor: theme.palette.common.black,
     '@media (max-width: 900px)': {
       paddingRight: theme.spacing(1),
       paddingLeft: theme.spacing(0),
@@ -48,16 +48,8 @@ let useStyles = makeStyles((theme) => ({
       padding: 0,
     },
   },
-  beta: {
-    display: 'inline',
-    position: 'absolute',
-    border: "solid 1px",
-    borderColor: theme.palette.secondary.main,
-    color: theme.palette.primary.main,
-    padding: theme.spacing(.5),
-    borderRadius: '10px',
-    marginLeft: theme.spacing(1),
-    fontSize: '14px'
+  themeButton: {
+    color: theme.palette.common.white,
   }
 }));
 
@@ -114,7 +106,7 @@ export default function Header(props) {
           <Container className={classes.container}>
             <Grid container direction="row" justify={headerJustify}>
               <Grid item>
-                <Typography variant="h2" color="secondary" className={classes.logo}>INDOORPHINS</Typography>
+                <Typography variant="h2" className={classes.logo}>INDOORPHINS</Typography>
               </Grid>
             </Grid>
             <Grid container direction="row" justify="space-between" alignItems="flex-end">
@@ -126,7 +118,7 @@ export default function Header(props) {
               <Grid container>
                 <Grid container direction='row' alignItems="center">
                   <Grid item>
-                    <IconButton edge="end" onClick={toggleTheme} color="secondary">
+                    <IconButton edge="end" onClick={toggleTheme} className={classes.themeButton}>
                       {themeButton}
                     </IconButton>
                   </Grid>

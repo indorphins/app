@@ -320,7 +320,7 @@ export default function EditProfile() {
             className={classes.btn}
             disabled={loader}
             variant="contained"
-            color="secondary"
+            color="primary"
             type="submit"
           >
             Update

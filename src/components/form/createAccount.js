@@ -474,7 +474,7 @@ export default function(props) {
           disabled={!userConsent}
           variant="contained"
           type="submit"
-          color="secondary"
+          color="primary"
           className={classes.submitBtn}
           >
             Create Account

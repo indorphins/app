@@ -383,7 +383,7 @@ export default function (props) {
               className={classes.btn} 
               type="submit"
               variant="contained"
-              color="secondary"
+              color="primary"
             >
               Create
             </Button>

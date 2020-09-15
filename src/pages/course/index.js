@@ -179,7 +179,7 @@ export default function CourseList() {
   if (allowCreate) {
     let btn = (
       <Fab
-        color="secondary"
+        color="primary"
         variant="extended"
         aria-label="create class"
         className={classes.fab}

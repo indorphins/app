@@ -37,7 +37,7 @@ export default function Cancel(props) {
       setCancelBtn(
         <Button
           variant="contained"
-          color="secondary"
+          color="primary"
           onClick={confirmCancelHandler}
           style={{width:"100%"}}
         >
@@ -71,7 +71,7 @@ export default function Cancel(props) {
             <Button
               onClick={closeModalHandler}
               variant="contained"
-              color="secondary"
+              color="primary"
               className={classes.modalBtn}
             >
               No
