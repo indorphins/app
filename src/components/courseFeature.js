@@ -323,7 +323,7 @@ export default function CourseFeature(props) {
       </Grid>
       <div className={classes.root}>
         {prevBtn}
-        <GridList cellHeight={height} className={classes.gridList} cols={cols} spacing={2}>
+        <GridList cellHeight={height} className={classes.gridList} cols={cols} spacing={10}>
           {displayData.map(course => (
             <GridListTile key={course.id} cols={1}>
               <Link className={classes.anchor} to={course.url}>
