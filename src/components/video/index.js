@@ -153,7 +153,7 @@ export default function Video(props) {
         publishAudio: false,
         publishVideo: true,
         resolution: "320x240",
-        frameRate: 15,
+        frameRate: 30,
         audioBitrate: 20000,
         enableStereo: false,
         maxResolution: {width: 640, height: 480},
@@ -164,7 +164,7 @@ export default function Video(props) {
         settings.disableAudioProcessing = false;
         settings.publishAudio = true;
         settings.frameRate = 30;
-        settings.resolution = "1280x720";
+        settings.resolution = "640x480";
         settings.maxResolution = {width: 1280, height: 720};
       }
 
@@ -257,12 +257,12 @@ export default function Video(props) {
       insertMode: 'append',
       width: '100%',
       height: '100%',
-      preferredFrameRate: 15,
+      preferredFrameRate: 30,
       preferredResolution: {width: 320, height: 240},
       showControls: false,
       insertDefaultUI: false,
       subscribeToAudio: true,
-      subscribeToVideo: false,
+      subscribeToVideo: true,
     };
 
     if (data.instructor) {
@@ -366,15 +366,19 @@ export default function Video(props) {
       
       log.debug("enabled", enabled);
       enabled.map(item => {
-        item.video = true;
-        item.subscriber.subscribeToVideo(true);
+        if (!item.video) {
+          item.video = true;
+          //item.subscriber.subscribeToVideo(true);
+        }
         return item;
       });
 
       log.debug("disabled", dis);
       dis.map(item => {
-        item.video = false;
-        item.subscriber.subscribeToVideo(false);
+        if (item.video) {
+          item.video = false;
+          //item.subscriber.subscribeToVideo(false);
+        }
         return item;
       });
 
@@ -385,7 +389,22 @@ export default function Video(props) {
   useEffect(() => {
     if (loopMode) {
       looper = setInterval(() => {
-        loop(subs, user, course);
+        if (subs && subs.length > 1) {
+          let expired = null;
+
+          if (user.id === course.instructor.id) {
+            expired = subs[0];
+          } else {
+            expired = subs[1];
+          }
+    
+          if (expired) {
+            setSubs([
+              ...subs.filter(i => i.user.id !== expired.user.id),
+              expired
+            ])
+          }
+        }
       }, loopTime);
     } else {
       clearInterval(looper);
@@ -395,22 +414,6 @@ export default function Video(props) {
       clearInterval(looper);
     };
   }, [subs, loopMode, user, course]);
-
-  async function loop(subs, user, course) {
-    if (subs && subs.length > 1) {
-      let expired = null;
-      if (user.id === course.instructor.id) {
-        expired = subs.splice(0,1)[0];
-      } else {
-        expired = subs.splice(1,1)[0];
-      }
-
-      if (expired) {
-        log.debug("set new loop order", [...subs, expired]);
-        setSubs([...subs, expired]);
-      }
-    }
-  }
 
   async function toggleLayout(evt) {
     if (evt === "fullscreen") {
@@ -433,8 +436,7 @@ export default function Video(props) {
 
     if (index < 0) return;
 
-    let items = subsRef.current;
-    let item = items.splice(index, 1)[0];
+    let item = subsRef.current[index];
 
     if (item) {
       log.debug("toggle item", item);
@@ -442,13 +444,13 @@ export default function Video(props) {
       if (item.video) {
         item.video = false;
         item.subscriber.subscribeToVideo(false);
-        setSubs([...items, item]);
+        setSubs([...subsRef.current.filter(i => i.user.id !== item.user.id), item]);
       } else {
         item.video = true;
         item.subscriber.subscribeToVideo(true);
 
         if (user.id === course.instructor.id) {
-          setSubs([item, ...items]);
+          setSubs([item, ...subsRef.current.filter(i => i.user.id !== item.user.id)]);
         } else {
           setSubs([
             ...subsRef.current.filter(i => i.user.id === course.instructor.id),

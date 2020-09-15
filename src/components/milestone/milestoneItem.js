@@ -41,19 +41,25 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function Milestone(props) {
+export default function MilestoneItem(props) {
   const classes = useStyles();
+  const { label, max, title, value } = props;
 
-  const normalise = value => (value) * 100 / (props.max);
+  const normalise = value => (value) * 100 / (max);
 
-  return (
-    <Grid container direction='column' alignItems='left' className={classes.container}>
-      <Typography variant='h4' className={classes.text}>{props.title}</Typography>
-      <Typography variant='body1' className={classes.text}>{props.label}</Typography>
-      <Grid container direction='row' alignItems='center' className={classes.barContainer}>
-        <BorderLinearProgress variant="determinate" value={normalise(props.value)} className={classes.bar} />
-        <Typography className={classes.barText}>{`${props.value}/${props.max}`}</Typography>
+  
+  if (title && label) {
+    return (
+      <Grid container direction='column' alignItems='flex-start' className={classes.container}>
+        <Typography variant='h4' className={classes.text}>{title}</Typography>
+        <Typography variant='body1' className={classes.text}>{label}</Typography>
+        <Grid container direction='row' alignItems='center' className={classes.barContainer}>
+          <BorderLinearProgress variant="determinate" value={normalise(value)} className={classes.bar} />
+          <Typography className={classes.barText}>{`${value}/${max}`}</Typography>
+        </Grid>
       </Grid>
-    </Grid>
-  )
+    )
+  }
+
+  return null;
 }

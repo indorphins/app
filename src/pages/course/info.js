@@ -217,7 +217,7 @@ export default function CourseInfo() {
     let defaultPaymentMethod = paymentMethod.current[0];
     let paymentMethodId = defaultPaymentMethod ? defaultPaymentMethod.id : "none";
 
-    if (course.cost && course.cost > 0 && !defaultPaymentMethod) {
+    if (course.cost && course.cost > 0 && !defaultPaymentMethod && currentUser.type === "standard") {
       setPaymentProcessing(false);
       setNeedsPaymentMethod(true);
       setErrMessage({severity: "error", message: "No default payment method. Please add one below."});
@@ -225,25 +225,44 @@ export default function CourseInfo() {
     }
 
     Stripe.createPaymentIntent(paymentMethodId, course.id)
-      .then(async result => {
+      .then(result => {
         setCourse({...result.course});
         store.dispatch(actions.user.addScheduleItem(result.course));
         setPaymentProcessing(false);
         setNeedsPaymentMethod(false);
         setErrMessage({severity: "success", message: result.message});
+      })
+      .catch(err => {
+        setPaymentProcessing(false);
+        showSignupForm();
+        setErrMessage({severity: "error", message: err.message});
+        return err;
+      })
+      .then((err) => {
+        if (err) return;
 
         // Send class joined email
         const start = format(new Date(course.start_date), "iiii, MMMM do");
         const s = new Date(course.start_date);
         let end = new Date(course.start_date);
         end.setMinutes(end.getMinutes() + course.duration);
-        const cal = createCalenderEvent(course.title, 'indoorphins.fit', course.id, s, end, false)
-        classJoined(start, course.id, btoa(cal.toString()));
+
+        const regex = /[^\w\s\d-!*$#()&^@]/g;
+        const cal = createCalenderEvent(course.title.replace(regex, ""), 'indoorphins.fit', course.id, s, end, false)
+
+        let emailAttachment = null;
+
+        try {
+          emailAttachment = btoa(cal.toString());
+        } catch(e) {
+          log.error("create buffer error", e);
+        }
+        
+        return classJoined(start, course.id, emailAttachment);
       }).catch(err => {
-        setPaymentProcessing(false);
-        showSignupForm();
         setErrMessage({severity: "error", message: err.message});
-      });
+      })
+
   }
 
   const courseLeaveHandler = async function () {

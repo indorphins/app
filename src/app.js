@@ -4,6 +4,7 @@ import { createSelector } from 'reselect';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
 
+import Feedback from './components/feedback';
 import AppTheme from './styles';
 import log from './log';
 import Firebase from './Firebase';
@@ -12,6 +13,7 @@ import * as User from './api/user';
 import * as Course from './api/course';
 import * as Session from './api/session';
 import Notification from './components/notification';
+import { getAllMilestones } from './components/milestone';
 import { store, actions } from './store';
 import config from './config'
 
@@ -19,10 +21,15 @@ const getUserSelector = createSelector([(state) => state.user.data], (user) => {
   return user;
 });
 
+const getSessionsSelector = createSelector([state => state.milestone.sessions], (sessions) => {
+  return sessions;
+});
+
 const stripePromise = loadStripe(config.stripe_public_key);
 
 export default function App() {
   const currentUser = useSelector((state) => getUserSelector(state));
+  const sessions = useSelector(state => getSessionsSelector(state));
 
   async function getUser(firebaseUserData) {
     let user;
@@ -82,7 +89,8 @@ export default function App() {
     if (!firebaseUserData) {
       log.debug('AUTH:: firebase user null');
       if (currentUser.id) {
-        await store.dispatch(actions.user.clear());
+        store.dispatch(actions.milestone.clear());
+        store.dispatch(actions.user.clear());
       }
       return;
     }
@@ -154,9 +162,16 @@ export default function App() {
     }
 
     if (result && result.sessions) {
-      store.dispatch(actions.user.setSessions(result.sessions));
+      store.dispatch(actions.milestone.setSessions(result.sessions));
     }
   }
+
+  useEffect(() => {
+    log.debug("MILESTONES:: session history", sessions);
+    let all = getAllMilestones(sessions, currentUser);
+    store.dispatch(actions.milestone.setHits(all));
+  }, [currentUser, sessions]);
+
 
   useEffect(() => {
     Firebase.clearListeners();
@@ -174,6 +189,7 @@ export default function App() {
     <Elements stripe={stripePromise}>
       <AppTheme>
         <Notification />
+        <Feedback />
         <Routes />
       </AppTheme>
     </Elements>

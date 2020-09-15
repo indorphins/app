@@ -11,12 +11,17 @@ import { getNextSession } from '../../utils';
 import CreateCourse from '../../components/form/editCourse';
 import CourseFeature from '../../components/courseFeature';
 import InstructorFeature from '../../components/instructorFeature';
+import { store, actions } from '../../store';
 
 const getUserSelector = createSelector([(state) => state.user.data], (user) => {
   return user;
 });
 
 const userSchedSelector = createSelector([state => state.user.schedule], (items) => {
+  return items;
+});
+
+const courseSelector = createSelector([state => state.course], (items) => {
   return items;
 });
 
@@ -40,6 +45,7 @@ export default function CourseList() {
   const classes = useStyles();
   const currentUser = useSelector((state) => getUserSelector(state));
   const schedule = useSelector(state => userSchedSelector(state));
+  const courseList = useSelector(state => courseSelector(state));
   const [allowCreate, setAllowCreate] = useState(false);
   const [courseData, setCourseData] = useState([]);
   const [upcomingData, setUpcomingData] = useState([]);
@@ -70,8 +76,14 @@ export default function CourseList() {
       return log.error("COURSE WIDGET:: query for courses", filter, order, err);
     }
 
-    setCourseData([].concat(result.data));
+    store.dispatch(actions.course.set(result.data))
   }
+
+  useEffect(() => {
+    if (courseList.length > 0) {
+      setCourseData(courseList);
+    }
+  }, [courseList, courseData]);
 
   useEffect(() => {
     init();

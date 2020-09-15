@@ -7,7 +7,6 @@ const userSlice = createSlice({
     data: {},
     paymentData: {methods: []},
     schedule: [],
-    sessions: []
   },
   reducers: {
     set(state, action) {
@@ -22,7 +21,7 @@ const userSlice = createSlice({
     },
     setSchedule(state, action) {
       log.debug("STORE:: set user schedule", action.payload);
-      state.schedule = state.schedule.concat(action.payload);
+      state.schedule = [...action.payload];
       return state;
     },
     addScheduleItem(state, action) {
@@ -37,6 +36,23 @@ const userSlice = createSlice({
       });
       return state;
     },
+    clear(state) {
+      log.debug("STORE:: clear user data");
+      state.data = {};
+      state.paymentData = { methods: []};
+      state.schedule = [];
+      return state;
+    }
+  }
+});
+
+const milestoneSlice = createSlice({
+  name: "milestone",
+  initialState: {
+    sessions: [],
+    hits: [],
+  },
+  reducers: {
     setSessions(state, action) {
       log.debug("STORE:: set user sessions", action.payload);
       state.sessions = state.sessions.concat(action.payload);
@@ -47,11 +63,64 @@ const userSlice = createSlice({
       state.sessions = [action.payload, ...state.sessions];
       return state;
     },
+    setHits(state, action) {
+      log.debug("STORE:: set milestones hits", action.payload);
+      state.hits = [...action.payload];
+      return state;
+    },
     clear(state) {
-      log.debug("STORE:: clear user data");
-      state.data = {};
-      state.paymentData = { methods: []};
-      state.schedule = [];
+      state.sessions = [];
+      state.hits = [];
+      return state;
+    }
+  }
+})
+
+const feedbackSlice = createSlice({
+  name: 'feedback',
+  initialState: {
+    show: false,
+    course: {},
+    sessionId: null,
+  },
+  reducers: {
+    setShow(state, action) {
+      log.debug("STORE:: set feedback show", action.payload);
+      state.show = action.payload;
+      return state;
+    },
+    setCourse(state, action) {
+      log.debug("STORE:: set feedback course", action.payload);
+      state.course = Object.assign(state.course, action.payload);
+      return state;
+    },
+    setSessionId(state, action) {
+      log.debug("STORE:: set feedback sessionID", action.payload);
+      state.sessionId = action.payload;
+      return state;
+    }
+  }
+});
+
+const instructorSlice = createSlice({
+  name: 'instructor',
+  initialState: [],
+  reducers: {
+    set(state, action) {
+      log.debug("STORE:: set instructors", action.payload);
+      state = [...action.payload];
+      return state;
+    }
+  }
+});
+
+const courseSlice = createSlice({
+  name: 'course',
+  initialState: [],
+  reducers: {
+    set(state, action) {
+      log.debug("STORE:: set course data", action.payload);
+      state = [...action.payload];
       return state;
     }
   }
@@ -77,11 +146,19 @@ const themeSlice = createSlice({
 const rootReducer = combineReducers({
   user: userSlice.reducer,
   theme: themeSlice.reducer,
+  feedback: feedbackSlice.reducer,
+  instructor: instructorSlice.reducer,
+  course: courseSlice.reducer,
+  milestone: milestoneSlice.reducer,
 });
 
 export const actions = {
   user: userSlice.actions,
-  theme: themeSlice.actions
+  theme: themeSlice.actions,
+  feedback: feedbackSlice.actions,
+  instructor: instructorSlice.actions,
+  course: courseSlice.actions,
+  milestone: milestoneSlice.actions
 };
 
 export const store = configureStore({
