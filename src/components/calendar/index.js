@@ -275,7 +275,7 @@ class Calendar extends React.Component {
     let controls = (
       <Grid container direction="row">
         <Grid item>
-          <ButtonGroup variant="contained" color="secondary">
+          <ButtonGroup variant="contained" color="primary">
             <Button onClick={this.prev} title="Previous" classes={{root: classes.button}}>
               <ChevronLeft />
             </Button>

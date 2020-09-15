@@ -20,6 +20,8 @@ const useStyles = makeStyles((theme) => ({
   root: {
     overflow: 'hidden',
     width: "100%",
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
   },
   container: {
     position: 'relative',
@@ -64,6 +66,10 @@ const useStyles = makeStyles((theme) => ({
   gridList: {
     flexWrap: 'nowrap',
     transform: 'translateZ(0)',
+  },
+  gridListTile: {
+    paddingRight: theme.spacing(1),
+    paddingLeft: theme.spacing(1)
   },
   loader: {
     minHeight: 300,
@@ -111,6 +117,10 @@ const useStyles = makeStyles((theme) => ({
       height: 67,
       lineHeight: '1.1em'
     }
+  },
+  padding: {
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
   }
 }));
 
@@ -313,13 +323,13 @@ export default function CourseFeature(props) {
   }
 
   formContent = (
-    <Grid container style={{width: "100%"}}>
-      <Grid>
+    <Grid container direction="column" style={{width: "100%"}}>
+      <Grid item>
         {headerContent}
       </Grid>
-      <div className={classes.root}>
+      <Grid item className={classes.root}>
         {prevBtn}
-        <GridList cellHeight={height} className={classes.gridList} cols={cols} spacing={0}>
+        <GridList cellHeight={height} className={classes.gridList} cols={cols} spacing={10}>
           {displayData.map(course => (
             <GridListTile key={course.id} cols={1}>
               <Link className={classes.anchor} to={course.url}>
@@ -337,7 +347,7 @@ export default function CourseFeature(props) {
         ))}
         </GridList>
         {nextBtn}
-      </div>
+      </Grid>
     </Grid>
   );
 

@@ -13,9 +13,16 @@ const useStyles = makeStyles((theme) => ({
     visibility: "hidden",
   },
   tab: {
+    color: theme.palette.common.white,
     '@media (max-width: 900px)': {
       fontSize: ".8rem",
     },
+  },
+  color: {
+    color: theme.palette.common.white,
+  },
+  indicator: {
+    backgroundColor: theme.palette.common.white,
   },
 }));
 
@@ -61,19 +68,38 @@ export default function(props) {
 
   if (currentUser.id) {
     scheduleTab = (
-      <Tab value={3} label="My Schedule" onClick={navSchedule} className={classes.tab} />
+      <Tab 
+        value={3}
+        label="My Schedule"
+        onClick={navSchedule}
+        className={classes.tab}
+        classes={{selected: classes.color}}
+      />
     )
   }
 
   return (
     <Tabs
     value={tab}
-    indicatorColor="primary"
-    textColor="secondary"
+    classes={{
+      indicator: classes.indicator,
+    }}
     >
-      <Tab value={0} className={classes.hidden} />
-      <Tab value={1} label="Classes" onClick={navHome} className={classes.tab} />
-      <Tab value={2} label="Milestones" onClick={navMilestones} className={classes.tab} />
+      <Tab value={0} className={classes.hidden} classes={{selected: classes.color}} />
+      <Tab
+        value={1}
+        label="Classes"
+        onClick={navHome}
+        className={classes.tab}
+        classes={{selected: classes.color}}
+      />
+      <Tab
+        value={2}
+        label="Milestones"
+        onClick={navMilestones}
+        className={classes.tab}
+        classes={{selected: classes.color}}
+      />
       {scheduleTab}
     </Tabs>
   )

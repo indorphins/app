@@ -13,6 +13,10 @@ let darkTheme = dark;
 const useStyles = makeStyles((theme) => ({
   root: {},
   '@global': {
+    '@font-face': {
+      fontFamily: "Lato",
+      src: 'url(/Lato-Black.ttf) format("truetype")'
+    },    
     html: {
       overflow: 'hidden',
       height: '100%',
@@ -66,27 +70,25 @@ export default function Styles(props) {
     MuiButton: {
       root: {
         fontWeight: "bold",
-        backgroundImage: `url("/img/buttonWave.svg")`,
-        backgroundRepeat: "no-repeat",
       },
       containedSecondary: {
         "&:hover": {
           backgroundColor: theme.palette.primary.main,
-          color: theme.palette.primary.textContrast,
+          color: theme.palette.primary.contrastText,
         },
       },
       containedPrimary: {
         "&:hover": {
           backgroundColor: theme.palette.secondary.main,
-          color: theme.palette.secondary.textContrast,
+          color: theme.palette.secondary.contrastText,
         },
       },
     },
     MuiFab: {
-      secondary: {
+      primary: {
         '&:hover': {
-          backgroundColor: theme.palette.primary.main,
-          color: theme.palette.primary.contrastText,
+          backgroundColor: theme.palette.secondary.main,
+          color: theme.palette.secondary.contrastText,
         }
       },
     },

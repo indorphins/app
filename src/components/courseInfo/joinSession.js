@@ -53,7 +53,7 @@ export default function JoinSession(props) {
         <Button
           disabled={disabled}
           variant="contained"
-          color="secondary"
+          color="primary"
           onClick={joinHandler}
           style={{width:"100%"}}
         >
@@ -78,7 +78,7 @@ export default function JoinSession(props) {
           <Button
             disabled={disabled}
             variant="contained"
-            color="secondary"
+            color="primary"
             onClick={joinHandler}
             style={{width:"100%"}}
           >
