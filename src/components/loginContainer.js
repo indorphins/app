@@ -57,7 +57,7 @@ const useStyles = makeStyles((theme) => ({
     fontSize: "2rem",
     fontWeight: 900,
     paddingLeft: theme.spacing(2),
-    color: theme.palette.secondary.color
+    color: theme.palette.secondaryColor.main,
   },
   logo2: {
     fontSize: "2rem",
