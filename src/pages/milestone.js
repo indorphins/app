@@ -41,7 +41,12 @@ export default function() {
       label: 'Complete all milestones',
       max: standard.length,
       value: completed.length,
-      type: "standard"
+      type: "standard",
+      lvl: 0,
+    }
+
+    if (standard.length === completed.length) {
+      allMilestone.lvl = "max";
     }
 
     if (!user.type || user.type === 'standard') {
@@ -58,7 +63,7 @@ export default function() {
         {milestonesData.map(item => (
           <Grid item key={item.title}>
             <MilestoneItem title={item.title} label={item.label}
-              max={item.max} value={item.value}
+              max={item.max} value={item.value} lvl={item.lvl}
             />
           </Grid>
         ))}

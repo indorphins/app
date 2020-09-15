@@ -19,28 +19,28 @@ export default function(sessions, user) {
     type: "instructor"
   }
 
-  if (classesTaught > 1) {
+  if (classesTaught >= 1) {
     data.title = 'Sweating Balls';
     data.label = 'Teach 5 classes';
     data.max = 5;
     data.lvl = 1;
   }
 
-  if (classesTaught > 5) {
+  if (classesTaught >= 5) {
     data.title = '10/10';
     data.label = 'Teach 10 classes';
     data.max = 10;
     data.lvl = 2;
   }
 
-  if (classesTaught > 10) {
+  if (classesTaught >= 10) {
     data.title = 'shamWow';
     data.label = 'Teach 25 classes';
     data.max = 25;
     data.lvl = 3;
   }
 
-  if (classesTaught > 25) {
+  if (classesTaught >= 25) {
     data.title = '💯';
     data.label = 'Teach 100 classes';
     data.max = 100;

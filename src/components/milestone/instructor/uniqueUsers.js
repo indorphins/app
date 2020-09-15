@@ -29,7 +29,7 @@ export default function(sessions, user) {
     data.lvl = "max"
   }
 
-  if (livesChanged > 100) {
+  if (livesChanged >= 100) {
     data.title = 'Life Changer';
     data.label = "Change 200 people's lives through connection";
     data.max = 200;
@@ -37,7 +37,7 @@ export default function(sessions, user) {
     return data;
   } 
   
-  if (livesChanged > 50) {
+  if (livesChanged >= 50) {
     data.title = 'Leader';
     data.label = "Change 100 people's lives through connection";
     data.max = 100;
@@ -45,7 +45,7 @@ export default function(sessions, user) {
     return data;
   } 
   
-  if (livesChanged > 25) {
+  if (livesChanged >= 25) {
     data.title = 'Influence';
     data.label = "Change 50 people's lives through connection";
     data.max = 50;
@@ -53,7 +53,7 @@ export default function(sessions, user) {
     return data;
   } 
   
-  if (livesChanged > 1) {
+  if (livesChanged >= 1) {
     data.title = 'Sway';
     data.label = "Change 25 people's lives through connection";
     data.max = 25;

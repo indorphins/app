@@ -170,7 +170,7 @@ export default function App() {
     log.debug("MILESTONES:: session history", sessions);
     let all = getAllMilestones(sessions, currentUser);
     store.dispatch(actions.milestone.setHits(all));
-  }, [currentUser, sessions]);
+  }, [sessions]);
 
 
   useEffect(() => {

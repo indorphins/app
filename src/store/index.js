@@ -60,7 +60,12 @@ const milestoneSlice = createSlice({
     },
     addSession(state, action) {
       log.debug("STORE:: add user session", action.payload);
-      state.sessions = [action.payload, ...state.sessions];
+      state.sessions = [
+        action.payload, 
+        ...state.sessions.filter(item => {
+          return item.session_id !== action.payload.session_id
+        })
+      ];
       return state;
     },
     setHits(state, action) {

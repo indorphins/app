@@ -1,22 +1,7 @@
 import React from 'react';
 import { Typography, Grid, makeStyles } from '@material-ui/core';
-import { withStyles } from '@material-ui/core/styles';
+import { Check } from '@material-ui/icons';
 import LinearProgress from '@material-ui/core/LinearProgress';
-
-const BorderLinearProgress = withStyles((theme) => ({
-  root: {
-    height: 15,
-    borderRadius: 5,
-    width: '100%'
-  },
-  colorPrimary: {
-    backgroundColor: theme.palette.grey[200],
-  },
-  bar: {
-    borderRadius: 5,
-    backgroundColor: theme.palette.grey[400],
-  },
-}))(LinearProgress);
 
 const useStyles = makeStyles((theme) => ({
   container: {
@@ -25,38 +10,87 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(3),
     paddingTop: theme.spacing(3)
   },
-  barContainer: {
-    width: '75%',
-    flexWrap: 'nowrap'
-  },
-  bar: {
-    width: '90%',
-  },
-  barText: {
-    width: '10%',
-    marginLeft: theme.spacing(4)
-  },
   text: {
     paddingBottom: theme.spacing(1)
-  }
+  },
+  complete: {
+    color: theme.palette.success.light,
+  },
+  progressRoot: {
+    height: 15,
+    borderRadius: 5,
+    width: '100%'
+  },
+  progressColor: {
+    backgroundColor: theme.palette.grey[200],
+  },
+  progressComplete: {
+    borderRadius: 5,
+    backgroundColor: theme.palette.success.light,
+  },
+  progressBar: {
+    borderRadius: 5,
+    backgroundColor: theme.palette.grey[500],
+  }   
 }));
 
 export default function MilestoneItem(props) {
   const classes = useStyles();
-  const { label, max, title, value } = props;
-
+  const { label, max, title, value, lvl } = props;
   const normalise = value => (value) * 100 / (max);
 
+  let progress = (
+    <Grid item container direction='row' alignItems='center' spacing={2}>
+      <Grid item xs={9}>
+        <LinearProgress 
+          variant="determinate"
+          value={normalise(value)}
+          classes={{
+            root: classes.progressRoot, 
+            colorPrimary: classes.progressColor,
+            bar: classes.progressBar,
+          }}
+        />
+      </Grid>
+      <Grid item xs={1}>
+        <Typography align="center">{`${value}/${max}`}</Typography>
+      </Grid>
+    </Grid>
+  );
+
+  if (lvl === 'max') {
+    progress = (
+      <Grid item container direction='row' alignItems='center' spacing={2}>
+        <Grid item xs={9}>
+          <LinearProgress 
+            variant="determinate"
+            value={normalise(value)}
+            classes={{
+              root: classes.progressRoot, 
+              colorPrimary: classes.progressColor,
+              bar: classes.progressComplete,
+            }}
+          />
+        </Grid>
+        <Grid item xs={1}>
+          <Typography align="center">
+            <Check className={classes.complete} />
+          </Typography>
+        </Grid>
+      </Grid>
+    );
+  }
   
   if (title && label) {
     return (
-      <Grid container direction='column' alignItems='flex-start' className={classes.container}>
-        <Typography variant='h4' className={classes.text}>{title}</Typography>
-        <Typography variant='body1' className={classes.text}>{label}</Typography>
-        <Grid container direction='row' alignItems='center' className={classes.barContainer}>
-          <BorderLinearProgress variant="determinate" value={normalise(value)} className={classes.bar} />
-          <Typography className={classes.barText}>{`${value}/${max}`}</Typography>
+      <Grid container direction='column' className={classes.container} spacing={1}>
+        <Grid item>
+          <Typography variant='h4'>{title}</Typography>
         </Grid>
+        <Grid item>
+          <Typography variant='body1' className={classes.text}>{label}</Typography>
+        </Grid>
+        {progress}
       </Grid>
     )
   }
