@@ -15,6 +15,7 @@ let useStyles = makeStyles((theme) => ({
   },
   logo: {
     display: 'inline',
+    fontWeight: 900,
     marginTop: theme.spacing(3),
     marginBottom: theme.spacing(3),
     marginLeft: theme.spacing(8),

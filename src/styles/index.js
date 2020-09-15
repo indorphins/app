@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
   '@global': {
     '@font-face': {
       fontFamily: "Lato",
-      src: 'url(/Lato-Regular.ttf) format("truetype")'
+      src: 'url(/Lato-Black.ttf) format("truetype")'
     },    
     html: {
       overflow: 'hidden',

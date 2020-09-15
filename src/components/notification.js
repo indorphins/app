@@ -147,7 +147,7 @@ export default function Notification() {
               <Paper elevation={4} className={classes.card}>
                 <Grid container direction="row" justify="space-between" spacing={1}>
                   <Grid item xs={1}>
-                    <InfoOutlined color="secondary" onClick={() => {doLink(item)}} style={{cursor: "pointer"}} />
+                    <InfoOutlined  onClick={() => {doLink(item)}} style={{cursor: "pointer"}} />
                   </Grid>
                   <Grid item xs={10}>
                     <Typography className={classes.msg} onClick={() => {doLink(item)}}>{item.message}</Typography>

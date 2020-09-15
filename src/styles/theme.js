@@ -22,12 +22,12 @@ const lightPalette = {
   },
   primary: {
     main: colors.black,
-    contrastText: colors.white,
+    contrastText: colors.darkGrey,
     color: colors.cream,
   },
   secondary: {
     main: colors.white,
-    contrastText: colors.black,
+    contrastText: colors.darkGrey,
     color: colors.salmon
   },
   primaryColor: {
@@ -111,12 +111,12 @@ const darkPalette = {
   },
   primary: {
     main: colors.black,
-    contrastText: colors.white,
+    contrastText: colors.darkGrey,
     color: colors.cream,
   },
   secondary: {
     main: colors.white,
-    contrastText: colors.black,
+    contrastText: colors.darkGrey,
     color: colors.salmon,
   },
   primaryColor: {

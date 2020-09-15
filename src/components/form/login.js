@@ -11,6 +11,7 @@ import Firebase from '../../Firebase';
 import log from '../../log';
 import path from '../../routes/path';
 import { store, actions } from '../../store';
+import GoogleIcon from '../icon/google';
 
 const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
@@ -34,7 +35,7 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(4),
     marginBottom: theme.spacing(2),
     background: theme.palette.primary.color,
-    color: theme.palette.primary.contrastText,
+    color: theme.palette.secondary.main,
   },
   txtField: {
     minWidth: 300,
@@ -45,14 +46,24 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.grey[500],
   },
   text: {
-    color: theme.palette.secondary.contrastText
+    color: theme.palette.primary.main
   },
   googBtn: {
+    cursor: 'pointer',
     backgroundColor: theme.palette.secondary.main,
     marginBottom: theme.spacing(2),
     marginTop: theme.spacing(2),
-    color: theme.palette.secondary.contrastText,
-    width: '100%'
+    color: theme.palette.primary.main,
+    width: '100%',
+    borderRadius: 5,
+    boxShadow: `0 0 4px -1px ${theme.palette.grey[500]}`,
+    "&:hover": { 
+      backgroundColor: theme.palette.grey[300],
+    }
+  },
+  googIcon: {
+    paddingRight: theme.spacing(2),
+    marginTop: 3
   }
 }));
 
@@ -251,9 +262,16 @@ export default function(props) {
           </Grid>
         </Grid>
         <Grid item className={classes.borderItem}>
-          <Button disableElevation className={classes.googBtn} onClick={googleSignInFlow}>
-            Sign in with Google
-          </Button>
+          <Grid container direciton="row" justify="center" 
+            alignItems='center' className={classes.googBtn} onClick={googleSignInFlow}
+          >
+            <Grid item className={classes.googIcon}>
+              <GoogleIcon />
+            </Grid>
+            <Grid item>
+              <Typography variant='button'>Sign in with Google</Typography>
+            </Grid>
+          </Grid>
         </Grid>
       </Fragment>
     )

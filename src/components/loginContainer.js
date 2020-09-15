@@ -45,13 +45,13 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 900,
     wordSpacing: '.75rem',
     letterSpacing: 1.5,
-    color: theme.palette.secondary.contrastText
+    color: theme.palette.primary.main
   },
   text: {
     fontWeight: 400,
     wordSpacing: '.5rem',
     letterSpacing: 1.5,
-    color: theme.palette.secondary.contrastText
+    color: theme.palette.primary.main
   },
   logo: {
     fontSize: "2rem",

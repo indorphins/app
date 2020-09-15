@@ -68,7 +68,7 @@ export default function(props) {
   return (
     <Tabs
     value={tab}
-    indicatorColor="primary"
+    indicatorColor="secondary"
     textColor="secondary"
     >
       <Tab value={0} className={classes.hidden} />
