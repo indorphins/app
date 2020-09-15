@@ -19,9 +19,13 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
     width: '100%',
-    color: theme.palette.primary.contrastText,
-    backgroundColor: theme.palette.primary.color,
-    borderRadius: 5
+    borderRadius: 5,
+    color: theme.palette.primaryColor.contrastText,
+    backgroundColor: theme.palette.primaryColor.main,
+    "&:hover": {
+      color: theme.palette.primary.contrastText,
+      backgroundColor: theme.palette.primary.main,
+    }
   },
   consentContainer: {
     flexWrap: "nowrap",

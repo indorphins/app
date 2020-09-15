@@ -19,7 +19,7 @@ export default function CoursePayment(props) {
   let userConsentContent = (
     <Grid container direction="row" alignItems="center" className={classes.consentContainer}>
       <Grid item>
-        <Checkbox checked={userConsent} onChange={handleConsent} />
+        <Checkbox checked={userConsent} color="primary" onChange={handleConsent} />
       </Grid>
       <Grid item>
         <Typography
