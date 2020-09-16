@@ -137,7 +137,7 @@ export default function Header(props) {
     <Toolbar className={classes.toolbar} variant="regular">
       <Container className={classes.container}>
         <Grid container direction="row" justify="space-between">
-          <Grid item>
+          <Grid item style={{alignItems: "flex-end", display: "flex"}}>
             {nav}
           </Grid>
           <Grid item>
