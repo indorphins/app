@@ -1,4 +1,4 @@
-import { getDayOfYear } from 'date-fns';
+import { getDayOfYear, getYear } from 'date-fns';
 
 function getUniqueUsersByDay(sessions, instructor) {
   let total = {};
@@ -8,8 +8,9 @@ function getUniqueUsersByDay(sessions, instructor) {
   });
 
   let items = instructed.map(item => {
+    let d = new Date(item.start_date)
     return {
-      index: getDayOfYear(new Date(item.start_date)),
+      index: getDayOfYear(d) + getYear(d),
       users_joined: item.users_joined.filter(item => item !== instructor),
     };
   });

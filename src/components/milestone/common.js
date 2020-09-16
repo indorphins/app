@@ -1,4 +1,4 @@
-import { getDayOfYear } from 'date-fns';
+import { getDayOfYear, getYear } from 'date-fns';
 
 export function GetClasses(sessions, user) {
   return sessions.filter(session => {
@@ -9,6 +9,7 @@ export function GetClasses(sessions, user) {
 
 export function GetDaysOfYear(items) {
   return items.map(item => {
-    return getDayOfYear(new Date(item.start_date));
+    let d = new Date(item.start_date);
+    return getDayOfYear(d) + getYear(d);
   });
 }

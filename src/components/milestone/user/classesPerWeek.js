@@ -1,4 +1,4 @@
-import { getISOWeek } from 'date-fns';
+import { getISOWeek, getYear } from 'date-fns';
 import { GetClasses } from '../common';
 import log from '../../../log';
 
@@ -6,7 +6,8 @@ function getClassWeeks(sessions, user) {
   let items = GetClasses(sessions, user);
   
   return items.map(item => {
-    return getISOWeek(new Date(item.start_date));
+    let d = new Date(item.start_date);
+    return getISOWeek(d) + getYear(d);
   });
 }
 
