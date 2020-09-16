@@ -94,7 +94,7 @@ export default function CourseFeedback(props) {
 
   if (loader) {
     progress = (
-      <LinearProgress color="secondary" />
+      <LinearProgress color="primary" />
     );
   }
 
@@ -172,7 +172,7 @@ export default function CourseFeedback(props) {
           {progress}
         </Grid>
         <Grid item>
-          <Button variant="contained" type="submit" color="secondary" style={{width:"100%"}}>Submit</Button>
+          <Button variant="contained" type="submit" color="primary" style={{width:"100%"}}>Submit</Button>
         </Grid>
       </Grid>
     </form>

@@ -208,7 +208,7 @@ export default function (props) {
     <Grid item xs>
       <TextField
         disabled={loader}
-        color="secondary"
+        color="primary"
         required
         id="cost"
         type="text"
