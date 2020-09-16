@@ -119,7 +119,7 @@ export default function() {
   );
 
   let content = (
-    <LinearProgress color="secondary" />
+    <LinearProgress color="primary" />
   );
 
   if (!loader) {

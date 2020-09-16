@@ -3,7 +3,7 @@ import { useHistory } from "react-router-dom";
 import { Avatar, Button, Box, Menu, MenuItem, Typography, Zoom } from "@material-ui/core";
 import { makeStyles } from '@material-ui/core/styles';
 
-import Firebase from "../Firebase";
+import Firebase from "../../Firebase";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -13,8 +13,8 @@ const useStyles = makeStyles((theme) => ({
     width: "2.5rem",
     height: "2.5rem",
     '@media (max-width: 600px)': {
-      width: "1.8rem",
-      height: "1.8rem",
+      width: "2rem",
+      height: "2rem",
     }
   },
   loginBtn: {

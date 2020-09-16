@@ -1,3 +1,4 @@
+/* eslint no-dupe-keys: 0*/
 import React, { useEffect, useState } from 'react';
 import { Box, CssBaseline } from '@material-ui/core';
 import { ThemeProvider, responsiveFontSizes, makeStyles } from '@material-ui/core/styles';
@@ -13,66 +14,18 @@ let darkTheme = dark;
 const useStyles = makeStyles((theme) => ({
   root: {},
   '@global': {
-    // '@font-face': {
-    //   fontFamily: "Lato",
-    //   src: 'url(/font/Lato-Black.ttf) format("truetype")',
-    //   fontWeight: 900,
-    //   fontStyle: 'normal'
-    // },    
-    // '@font-face': {
-    //   fontFamily: "Lato",
-    //   src: 'url(/font/Lato-BlackItalic.ttf) format("truetype")',
-    //   fontWeight: 900,
-    //   fontStyle: 'italic'
-    // },
-    // '@font-face': {
-    //   fontFamily: "Lato",
-    //   src: 'url(/font/Lato-Bold.ttf) format("truetype")',
-    //   fontWeight: 700,
-    //   fontStyle: 'normal'
-    // },
-    // '@font-face': {
-    //   fontFamily: "Lato",
-    //   src: 'url(/font/Lato-BoldItalic.ttf) format("truetype")',
-    //   fontWeight: 700,
-    //   fontStyle: 'italic'
-    // },
-    // '@font-face': {
-    //   fontFamily: "Lato",
-    //   src: 'url(/font/Lato-Italic.ttf) format("truetype")',
-    //   fontWeight: 400,
-    //   fontStyle: 'italic',
-    // },
     '@font-face': {
       fontFamily: "Lato",
-      src: 'url(/font/Lato-Regular.ttf) format("truetype")',
-      fontWeight: 400,
-      fontStyle: 'normal'
-    },  
-    // '@font-face': {
-    //   fontFamily: "Lato",
-    //   src: 'url(/font/Lato-Light.ttf) format("truetype")',
-    //   fontWeight: 300,
-    //   fontStyle: 'normal'
-    // },  
-    // '@font-face': {
-    //   fontFamily: "Lato",
-    //   src: 'url(/font/Lato-LightItalic.ttf) format("truetype")',
-    //   fontWeight: 300,
-    //   fontStyle: 'italic'
-    // },  
-    // '@font-face': {
-    //   fontFamily: "Lato",
-    //   src: 'url(/font/Lato-Thin.ttf) format("truetype")',
-    //   fontWeight: 100,
-    //   fontStyle: 'normal'
-    // },  
-    // '@font-face': {
-    //   fontFamily: "Lato",
-    //   src: 'url(/font/Lato-ThinItalic.ttf) format("truetype")',
-    //   fontWeight: 100,
-    //   fontStyle: 'italic'
-    // },  
+      src: 'url(/Lato-Regular.ttf) format("truetype")',
+      fontWeight: 'normal',
+      fontStyle: 'normal',
+    },
+    '@font-face': {
+      fontFamily: "LatoBold",
+      src: 'url(/Lato-Bold.ttf) format("truetype")',
+      fontWeight: 'bold',
+      fontStyle: 'normal',
+    },
     html: {
       overflow: 'hidden',
       height: '100%',
