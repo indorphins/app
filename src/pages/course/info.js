@@ -482,7 +482,13 @@ export default function CourseInfo() {
   );
 
   let courseDetails = (
-    <Grid container direction={layout.courseDetailsDirection} justify={layout.courseDetailsJustify} spacing={2}>
+    <Grid 
+      container
+      direction={layout.courseDetailsDirection}
+      justify={layout.courseDetailsJustify}
+      spacing={2}
+      style={{flexWrap: "nowrap"}}
+    >
       <Grid item xs={layout.courseDetailsSize}>
         <Grid container direction={layout.coursePhotoDirection} justify="flex-start" spacing={2}>
           <Grid item xs={layout.coursePhotoSize}>
