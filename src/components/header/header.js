@@ -99,7 +99,17 @@ export default function Header(props) {
 
   let nav = (
     <React.Fragment>
-      <Grid container direction={layout.direction} justify="flex-start" alignItems="baseline" spacing={layout.spacing}>
+      <Grid 
+        container
+        direction={layout.direction}
+        justify="flex-start"
+        alignItems="baseline"
+        spacing={layout.spacing}
+        style={{
+          flexWrap: "nowrap",
+          flexDirection: layout.direction,
+        }}
+      >
         <Grid item>
           <Typography variant="h2" className={classes.logo}>INDOORPHINS</Typography>
         </Grid>
