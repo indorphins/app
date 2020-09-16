@@ -18,7 +18,8 @@ let useStyles = makeStyles((theme) => ({
     fontWeight: 900,
     marginTop: theme.spacing(3),
     marginBottom: theme.spacing(3),
-    marginLeft: theme.spacing(8),
+    marginRight: theme.spacing(2),
+    marginLeft: theme.spacing(1.5),
     color: theme.palette.common.white,
     '@media (max-width: 900px)': {
       marginLeft: theme.spacing(1),
@@ -108,12 +109,11 @@ export default function Header(props) {
               <Grid item>
                 <Typography variant="h2" className={classes.logo}>INDOORPHINS</Typography>
               </Grid>
-            </Grid>
-            <Grid container direction="row" justify="space-between" alignItems="flex-end">
               <Grid item>
                 <Navigation user={currentUser} />
               </Grid>
             </Grid>
+            
             <Grid style={{display:"inline-block", position: "absolute", top: 0, right: 0}}>
               <Grid container>
                 <Grid container direction='row' alignItems="center">
