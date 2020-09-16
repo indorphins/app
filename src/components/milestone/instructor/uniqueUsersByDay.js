@@ -1,4 +1,4 @@
-import { getDayOfYear } from 'date-fns';
+import { getDayOfYear, getYear } from 'date-fns';
 
 function getUniqueUsersByDay(sessions, instructor) {
   let total = {};
@@ -8,19 +8,24 @@ function getUniqueUsersByDay(sessions, instructor) {
   });
 
   let items = instructed.map(item => {
-    return getDayOfYear(new Date(item.start_date));
+    let d = new Date(item.start_date)
+    return {
+      index: getDayOfYear(d) + getYear(d),
+      users_joined: item.users_joined.filter(item => item !== instructor),
+    };
   });
 
   items.forEach(item => {
-    if (!total[item]) {
-      total[item] = 1;
+    if (!total[item.index]) {
+      total[item.index] = item.users_joined;
     } else {
-      total[item] += 1;
+      total[item.index] = [...total[item.index], ...item.users_joined];
     }
   });
 
   for (const key in total) {
-    final.push(total[key]);
+    let unique = Array.from(new Set(total[key]));
+    final.push(unique.length);
   }
 
   return final.sort((a, b) => b - a);
