@@ -15,8 +15,13 @@ let useStyles = makeStyles((theme) => ({
   },
   logo: {
     display: 'inline',
-    fontWeight: 900,
+    marginTop: theme.spacing(3),
+    marginBottom: theme.spacing(3),
+    marginRight: theme.spacing(2),
     color: theme.palette.common.white,
+    '@media (max-width: 900px)': {
+      marginLeft: theme.spacing(2),
+    }
   },
   appbar: {
     marginBottom: theme.spacing(2),
@@ -27,6 +32,7 @@ let useStyles = makeStyles((theme) => ({
   },
   toolbar: {
     alignItems: "flex-end",
+    paddingLeft: 0,
   },
   container: {
     position: "relative",

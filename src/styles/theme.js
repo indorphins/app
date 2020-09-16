@@ -69,12 +69,12 @@ const lightTypography = {
   fontFamily: '"Lato", sans-serif',
   h1: {
     fontSize: '2.5rem',
-    fontWeight: 300,
+    fontWeight: 900,
     color: lightPalette.grey[700],
   },
   h2: {
     fontSize: '2.2rem',
-    fontWeight: 300,
+    fontWeight: 900,
     color: lightPalette.grey[700],
   },
   h3: {
@@ -84,7 +84,7 @@ const lightTypography = {
   },
   h4: {
     fontSize: '1.5rem',
-    fontWeight: 300,
+    fontWeight: 900,
     color: lightPalette.grey[800],
   },
   h5: {

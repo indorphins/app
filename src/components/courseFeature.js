@@ -24,8 +24,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     overflow: 'hidden',
     width: "100%",
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1),
+    paddingRight: theme.spacing(2),
   },
   container: {
     position: 'relative',
@@ -70,10 +69,7 @@ const useStyles = makeStyles((theme) => ({
   gridList: {
     flexWrap: 'nowrap',
     transform: 'translateZ(0)',
-  },
-  gridListTile: {
-    paddingRight: theme.spacing(1),
-    paddingLeft: theme.spacing(1)
+
   },
   loader: {
     minHeight: 300,
@@ -125,6 +121,9 @@ const useStyles = makeStyles((theme) => ({
   padding: {
     paddingLeft: theme.spacing(1),
     paddingRight: theme.spacing(1),
+  },
+  header: {
+    paddingBottom: theme.spacing(2)
   }
 }));
 
