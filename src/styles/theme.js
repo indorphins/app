@@ -66,7 +66,12 @@ const lightPalette = {
 const lightTypography = {
   direction: 'ltr',
   fontSize: 16,
-  fontFamily: 'Lato',
+  fontFamily: 'Lato', 
+  fontFamilyBold: 'Lato-Black',
+  fontWeightLight: 300,
+  fontWeightRegular: 400,
+  fontWeightMedium: 700,
+  fontWeightBold: 900,
   h1: {
     fontSize: '2.5rem',
     fontWeight: 300,

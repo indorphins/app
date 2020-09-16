@@ -43,20 +43,18 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(1),
     fontSize: '4.2rem',
     fontWeight: 900,
-    wordSpacing: '.75rem',
-    letterSpacing: 1.5,
-    color: theme.palette.primary.main
+    letterSpacing: 2,
+    color: theme.palette.primary.main,
+    fontFamily: theme.fontFamilyBold
   },
   text: {
     fontWeight: 400,
-    wordSpacing: '.5rem',
-    letterSpacing: 1.5,
     color: theme.palette.primary.main
   },
   logo: {
     fontSize: "2rem",
     fontWeight: 900,
-    paddingLeft: theme.spacing(2),
+    paddingLeft: theme.spacing(1),
     color: theme.palette.secondaryColor.main,
   },
   logo2: {
@@ -110,10 +108,10 @@ export default function LoginContainer(props) {
         <Grid item className={classes.textContainer}>
           <Grid container direction='column' >
             <Grid item>
-              <Typography className={classes.header}>Bye bye Zoom</Typography>
+              <Typography className={classes.header}>Move Together</Typography>
             </Grid>
             <Grid item>
-              <Typography variant='h3' className={classes.text}>Connect and move with friends and </Typography>
+              <Typography variant='h3' className={classes.text}>Say bye to Zoom - move with friends & </Typography>
             </Grid>
             <Grid item>
               <Grid container direction='row' alignItems='center' justify='flex-start'>
