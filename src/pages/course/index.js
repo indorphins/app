@@ -87,7 +87,7 @@ export default function CourseList() {
     if (courseList.length > 0) {
       setCourseData(courseList);
     }
-  }, [courseList, courseData]);
+  }, [courseList]);
 
   useEffect(() => {
     init();
@@ -244,7 +244,7 @@ export default function CourseList() {
   if (scheduleData && scheduleData.length > 0) {
     myClassesContent = (
       <Grid item>
-        <CourseFeature header="My Classes" items={scheduleData} />
+        <CourseFeature id="schedule" header="My Classes" items={scheduleData} />
       </Grid>
     );    
   } else {
@@ -269,19 +269,19 @@ export default function CourseList() {
       <Grid container direction="column" className={classes.content} spacing={3}>
         {myClassesContent}
         <Grid item>
-          <CourseFeature header="Upcoming Classes" items={upcomingData} />
+          <CourseFeature id="upcoming" header="Upcoming Classes" items={upcomingData} />
         </Grid>
         <Grid item>
-          <CourseFeature header="Morning Classes" items={morningData} />
+          <CourseFeature id="morning" header="Morning Classes" items={morningData} />
         </Grid>
         <Grid item>
-          <CourseFeature header="Mid Day Classes" items={middayData} />
+          <CourseFeature id="midday" header="Mid Day Classes" items={middayData} />
         </Grid>
         <Grid item>
-          <CourseFeature header="Evening Classes" items={eveningData} />
+          <CourseFeature id="evening" header="Evening Classes" items={eveningData} />
         </Grid>
         <Grid item>
-          <CourseFeature header="Weekly Classes" items={weeklyData} />
+          <CourseFeature id="weekly" header="Weekly Classes" items={weeklyData} />
         </Grid>
         <Grid item>
           <InstructorFeature

@@ -206,20 +206,14 @@ export default function CourseInfo() {
       cls = await Course.get(id);
     } catch (err) {
       log.error("COURSE INFO:: get course details", err);
-      history.push(path.home);
     }
 
     if (!cls || !cls.id) {
       log.debug("COURSE INFO:: course not found")
-      history.push(path.home);
       return;
     }
 
     log.debug("COURSE INFO:: got course details", cls);
-
-    if (typeof cls.instructor === String) {
-      cls.instructor = JSON.parse(cls.instructor);
-    }
     log.info("SET COURSE ", cls);
     setCourse(cls);
   }
