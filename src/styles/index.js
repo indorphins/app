@@ -1,3 +1,4 @@
+/* eslint no-dupe-keys: 0*/
 import React, { useEffect, useState } from 'react';
 import { Box, CssBaseline } from '@material-ui/core';
 import { ThemeProvider, responsiveFontSizes, makeStyles } from '@material-ui/core/styles';
@@ -15,8 +16,16 @@ const useStyles = makeStyles((theme) => ({
   '@global': {
     '@font-face': {
       fontFamily: "Lato",
-      src: 'url(/Lato-Black.ttf) format("truetype")'
-    },    
+      src: 'url(/Lato-Regular.ttf) format("truetype")',
+      fontWeight: 'normal',
+      fontStyle: 'normal',
+    },
+    '@font-face': {
+      fontFamily: "LatoBold",
+      src: 'url(/Lato-Bold.ttf) format("truetype")',
+      fontWeight: 'bold',
+      fontStyle: 'normal',
+    },
     html: {
       overflow: 'hidden',
       height: '100%',
