@@ -5,9 +5,11 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 
+import AppDrawer from './appDrawer';
 import UserAvatar from "./userAvatar";
 import Navigation from './nav';
 import { store, actions } from '../../store';
+
 
 let useStyles = makeStyles((theme) => ({
   root: {
@@ -42,7 +44,7 @@ let useStyles = makeStyles((theme) => ({
   },
   themeButton: {
     color: theme.palette.common.white,
-  }
+  },
 }));
 
 const getThemeSelector = createSelector([state => state.theme], (theme) => {
@@ -81,26 +83,46 @@ export default function Header(props) {
     } else {
       setThemeButton(darkButton);
     }
-  }, [theme])
+  }, [theme]);
 
   let layout = {
     appBarPosition: "sticky",
     direction: "row",
     spacing: 2,
+    alignItems: "baseline"
   }
   
   if (med) {
     layout = {
       appBarPosition: "sticky",
-      direction: "column",
+      direction: "row",
       spacing: 0,
+      alignItems: "center"
     }
   } else {
     layout = {
       appBarPosition: "sticky",
       direction: "row",
       spacing: 2,
+      alignItems: "baseline"
     }
+  }
+
+  let drawer = null;
+  let tabs = null;
+
+  if (med) {
+    drawer = (
+      <Grid item>
+        <AppDrawer />
+      </Grid>
+    );
+  } else {
+    tabs = (
+      <Grid item>
+        <Navigation user={currentUser} />
+      </Grid>
+    );
   }
 
   let nav = (
@@ -116,12 +138,11 @@ export default function Header(props) {
           flexDirection: layout.direction,
         }}
       >
+        {drawer}
         <Grid item>
           <Typography variant="h2" className={classes.logo}>INDOORPHINS</Typography>
         </Grid>
-        <Grid item>
-          <Navigation user={currentUser} />
-        </Grid>
+        {tabs}
       </Grid>
     </React.Fragment>
   );
