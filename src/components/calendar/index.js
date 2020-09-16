@@ -58,16 +58,11 @@ const styles = (theme) => ({
   eventIndicator: {
     width: 8,
     height: 8,
-    background: theme.palette.secondary.main,
+    background: theme.palette.secondaryColor.main,
     borderRadius: "50%",
     display: "inline-block",
     position: "relative",
     bottom: 2,
-    '@media (max-width: 600px)': {
-      width: 5,
-      height: 5,
-      bottom: 1,
-    },
   },
   eventCard: {
     padding: theme.spacing(1),
