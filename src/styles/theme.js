@@ -157,7 +157,7 @@ const darkPalette = {
 const darkTypography = {
   direction: 'ltr',
   fontSize: 16,
-  fontFamily: 'Lato',
+  fontFamily: '"Lato", sans-serif',
   h1: {
     fontSize: '2.5rem',
     fontWeight: 300,
