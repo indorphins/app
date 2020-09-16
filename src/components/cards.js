@@ -80,9 +80,7 @@ const styles = theme => ({
       fontSize: "0.5rem",
     }
   },
-  radioBtn: {
-    color: theme.palette.secondary.contrastText + ' !important'
-  }
+  radioBtn: {}
 });
 
 function CardLogo(props) {
@@ -229,13 +227,12 @@ class Cards extends React.Component {
       paymentMethodsContent = (
         <Grid container className={classes.savedCardsContent}>
           {errorContent}
-          
           <RadioGroup onChange={this.changeDefaultPaymentMethod} className={classes.radioGroup}>
             {this.state.paymentData.methods.map(item => (
               <Grid key={item.id} item className={classes.cardItem}>
                 <Grid container direction="row" alignItems="center" justify="flext-start" spacing={2}>
                   <Grid item xs={2}>
-                    <Radio checked={item.default} name={item.id} />
+                    <Radio color="primary" checked={item.default} name={item.id} />
                   </Grid>
                   <Grid item xs={8}>
                     <Card className={classes.cardData}>
