@@ -18,7 +18,6 @@ import { createSelector } from 'reselect';
 import path from '../routes/path';
 import { getNextDate } from '../utils';
 import { store, actions } from '../store';
-import log from '../log';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -191,24 +190,21 @@ export default function CourseFeature(props) {
   }, [formatted, displayIndex, displayNumber]);
 
   useEffect(() => {
-    if (!cached.filter) return;
+    if (!cached.filter || formatted.length > 0) return;
     
     let c = cached.filter(item => item.id === id)[0];
-    log.debug('cached result', c);
     if (c && c.data && c.index) {
       setFormatted(c.data);
       setDisplayIndex(c.index);
     }
-  }, [cached]);
+  }, [formatted, cached]);
 
   useEffect(() => {
-    if (displayData.length > 0) {
-      store.dispatch(actions.courseFeature.set({
-        id: id,
-        data: formatted,
-        index: displayIndex,
-      }));
-    }
+    store.dispatch(actions.courseFeature.set({
+      id: id,
+      data: formatted,
+      index: displayIndex,
+    }));
   }, [formatted, displayIndex]);
 
   useEffect(() => {
