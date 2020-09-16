@@ -7,7 +7,7 @@ import { createSelector } from 'reselect';
 
 import UserAvatar from "./userAvatar";
 import Navigation from './nav';
-import { store, actions } from '../store';
+import { store, actions } from '../../store';
 
 let useStyles = makeStyles((theme) => ({
   root: {

@@ -3,7 +3,7 @@ import { useHistory } from "react-router-dom";
 import { Avatar, Button, Box, Menu, MenuItem, Typography, Zoom } from "@material-ui/core";
 import { makeStyles } from '@material-ui/core/styles';
 
-import Firebase from "../Firebase";
+import Firebase from "../../Firebase";
 
 const useStyles = makeStyles((theme) => ({
   root: {

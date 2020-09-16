@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 
-import path from '../routes/path';
+import path from '../../routes/path';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
