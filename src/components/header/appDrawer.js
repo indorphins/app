@@ -14,8 +14,9 @@ let useStyles = makeStyles((theme) => ({
   }
 }));
 
-export default function AppDrawer() {
+export default function AppDrawer(props) {
 
+  const { user } = props;
   const classes = useStyles();
   const history = useHistory();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -28,6 +29,16 @@ export default function AppDrawer() {
   const toggleDrawer = () => {
     setDrawerOpen(!drawerOpen);
   };
+
+  let schedule = null;
+
+  if (user && user.id) {
+    schedule = (
+      <Grid item onClick={() => navigate(path.schedule)}>
+        <Typography variant='h5' className={classes.drawerLink}>My Schedule</Typography>
+      </Grid>
+    )
+  }
 
   return (
     <React.Fragment>
@@ -42,9 +53,7 @@ export default function AppDrawer() {
           <Grid item onClick={() => navigate(path.milestone)}>
             <Typography variant='h5' className={classes.drawerLink}>Milestones</Typography>
           </Grid>
-          <Grid item onClick={() => navigate(path.schedule)}>
-            <Typography variant='h5' className={classes.drawerLink}>My Schedule</Typography>
-          </Grid>                        
+          {schedule}
         </Grid>
       </Drawer>
     </React.Fragment>

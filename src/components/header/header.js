@@ -17,13 +17,10 @@ let useStyles = makeStyles((theme) => ({
   },
   logo: {
     display: 'inline',
-    marginTop: theme.spacing(3),
-    marginBottom: theme.spacing(3),
-    marginRight: theme.spacing(2),
     color: theme.palette.common.white,
-    '@media (max-width: 900px)': {
-      marginLeft: theme.spacing(2),
-    }
+    '@media (max-width: 400px)': {
+      fontSize: '1.1rem',
+    },
   },
   appbar: {
     marginBottom: theme.spacing(2),
@@ -114,7 +111,7 @@ export default function Header(props) {
   if (med) {
     drawer = (
       <Grid item>
-        <AppDrawer />
+        <AppDrawer user={currentUser} />
       </Grid>
     );
   } else {
@@ -131,7 +128,7 @@ export default function Header(props) {
         container
         direction={layout.direction}
         justify="flex-start"
-        alignItems="baseline"
+        alignItems={layout.alignItems}
         spacing={layout.spacing}
         style={{
           flexWrap: "nowrap",
@@ -163,7 +160,7 @@ export default function Header(props) {
   let toolbar = (
     <Toolbar className={classes.toolbar} variant="regular">
       <Container className={classes.container}>
-        <Grid container direction="row" justify="space-between">
+        <Grid container direction="row" justify="space-between" alignItems={layout.alignItems}>
           <Grid item style={{alignItems: "flex-end", display: "flex"}}>
             {nav}
           </Grid>
