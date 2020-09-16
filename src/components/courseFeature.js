@@ -23,7 +23,6 @@ const useStyles = makeStyles((theme) => ({
   root: {
     overflow: 'hidden',
     width: "100%",
-    paddingRight: theme.spacing(2),
   },
   container: {
     position: 'relative',
@@ -117,10 +116,7 @@ const useStyles = makeStyles((theme) => ({
       lineHeight: '1.1em'
     }
   },
-  padding: {
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1),
-  },
+  padding: {},
   header: {
     paddingBottom: theme.spacing(2)
   }
