@@ -29,11 +29,11 @@ export default function Cancel(props) {
 
   useEffect(() => {
 
-    if (!course.id) return;
+    if (!currentUser.id) return setCancelBtn(null);
 
     let instructor = course.instructor;
 
-    if (currentUser.id === instructor.id || currentUser.type === 'admin') {
+    if ((instructor && currentUser.id === instructor.id) || currentUser.type === 'admin') {
       setCancelBtn(
         <Button
           variant="contained"
@@ -44,6 +44,8 @@ export default function Cancel(props) {
           Cancel Class
         </Button>
       )
+    } else {
+      setCancelBtn(null);
     }
 
   }, [currentUser, course]);

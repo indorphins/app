@@ -131,6 +131,23 @@ const courseSlice = createSlice({
   }
 });
 
+const courseFeatureSlice = createSlice({
+  name: 'courseFeature',
+  initialState: [],
+  reducers: {
+    set(state, action) {
+      log.debug("STORE:: set course data", action.payload);
+      state = [
+        action.payload, 
+        ...state.filter(item => {
+          return item.id !== action.payload.id
+        })
+      ];
+      return state;
+    }
+  }
+})
+
 const themeSlice = createSlice({
   name: 'theme',
   initialState: 'light',
@@ -154,6 +171,7 @@ const rootReducer = combineReducers({
   feedback: feedbackSlice.reducer,
   instructor: instructorSlice.reducer,
   course: courseSlice.reducer,
+  courseFeature: courseFeatureSlice.reducer,
   milestone: milestoneSlice.reducer,
 });
 
@@ -163,6 +181,7 @@ export const actions = {
   feedback: feedbackSlice.actions,
   instructor: instructorSlice.actions,
   course: courseSlice.actions,
+  courseFeature: courseFeatureSlice.actions,
   milestone: milestoneSlice.actions
 };
 

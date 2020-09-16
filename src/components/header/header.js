@@ -1,13 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { AppBar, IconButton, Box, Grid, Toolbar, Typography, Container, useMediaQuery } from '@material-ui/core';
+import { AppBar, IconButton, Box, Grid, Typography, Container, useMediaQuery } from '@material-ui/core';
 import { Brightness5Rounded, Brightness4Rounded } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 
+import AppDrawer from './appDrawer';
 import UserAvatar from "./userAvatar";
 import Navigation from './nav';
 import { store, actions } from '../../store';
+
 
 let useStyles = makeStyles((theme) => ({
   root: {
@@ -15,13 +17,10 @@ let useStyles = makeStyles((theme) => ({
   },
   logo: {
     display: 'inline',
-    marginTop: theme.spacing(3),
-    marginBottom: theme.spacing(3),
-    marginRight: theme.spacing(2),
     color: theme.palette.common.white,
-    '@media (max-width: 900px)': {
-      marginLeft: theme.spacing(2),
-    }
+    '@media (max-width: 400px)': {
+      fontSize: '1.1rem',
+    },
   },
   appbar: {
     marginBottom: theme.spacing(2),
@@ -35,14 +34,11 @@ let useStyles = makeStyles((theme) => ({
     paddingLeft: 0,
   },
   container: {
-    position: "relative",
-    '@media (max-width: 900px)': {
-      padding: 0,
-    },
+
   },
   themeButton: {
     color: theme.palette.common.white,
-  }
+  },
 }));
 
 const getThemeSelector = createSelector([state => state.theme], (theme) => {
@@ -81,37 +77,65 @@ export default function Header(props) {
     } else {
       setThemeButton(darkButton);
     }
-  }, [theme])
+  }, [theme]);
 
   let layout = {
     appBarPosition: "sticky",
     direction: "row",
     spacing: 2,
+    alignItems: "flex-end"
   }
   
   if (med) {
     layout = {
       appBarPosition: "sticky",
-      direction: "column",
+      direction: "row",
       spacing: 0,
+      alignItems: "center"
     }
   } else {
     layout = {
       appBarPosition: "sticky",
       direction: "row",
       spacing: 2,
+      alignItems: "flex-end"
     }
+  }
+
+  let drawer = null;
+  let tabs = null;
+
+  if (med) {
+    drawer = (
+      <Grid item>
+        <AppDrawer user={currentUser} />
+      </Grid>
+    );
+  } else {
+    tabs = (
+      <Grid item>
+        <Navigation user={currentUser} />
+      </Grid>
+    );
   }
 
   let nav = (
     <React.Fragment>
-      <Grid container direction={layout.direction} justify="flex-start" alignItems="baseline" spacing={layout.spacing}>
+      <Grid 
+        container
+        direction={layout.direction}
+        justify="flex-start"
+        alignItems={layout.alignItems}
+        spacing={layout.spacing}
+        style={{
+          flexWrap: "nowrap"
+        }}
+      >
+        {drawer}
         <Grid item>
           <Typography variant="h2" className={classes.logo}>INDOORPHINS</Typography>
         </Grid>
-        <Grid item>
-          <Navigation user={currentUser} />
-        </Grid>
+        {tabs}
       </Grid>
     </React.Fragment>
   );
@@ -130,18 +154,16 @@ export default function Header(props) {
   );
 
   let toolbar = (
-    <Toolbar className={classes.toolbar} variant="regular">
-      <Container className={classes.container}>
-        <Grid container direction="row" justify="space-between">
-          <Grid item>
-            {nav}
-          </Grid>
-          <Grid item>
-            {avatar}
-          </Grid>
+    <Container className={classes.container}>
+      <Grid container direction="row" justify="space-between" alignItems={layout.alignItems} >
+        <Grid item>
+          {nav}
         </Grid>
-      </Container>
-    </Toolbar>
+        <Grid item>
+          {avatar}
+        </Grid>
+      </Grid>
+    </Container>
   );
 
   return (

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Container, Grid, CircularProgress, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core';
 import { useSelector } from 'react-redux';
@@ -10,13 +10,18 @@ import UserData from '../components/userData';
 import * as InstructorAPI from '../api/instructor';
 import * as Course from '../api/course';
 import log from '../log';
-import path from '../routes/path';
 
 const instructorDataSelector = createSelector([state => state.instructor], (data) => {
   return data;
 });
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(4),
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+  },
   divider: {
     margin: theme.spacing(2),
   },
@@ -45,7 +50,6 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Instructor() {
 
-  const history = useHistory();
   const classes = useStyles();
   const params = useParams();
   const instructorData = useSelector(state => instructorDataSelector(state))
@@ -60,9 +64,6 @@ export default function Instructor() {
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
-    
-    setCourses([]);
-
     if (params.id) {
       getInstructor(params.id);
     }
@@ -70,7 +71,9 @@ export default function Instructor() {
 
   useEffect(() => {
 
-    if (params.id && instructorData.length > 0) {
+    if (!params.id) return;
+
+    if (instructorData.length > 0) {
       let existing = instructorData.filter(item => {
         return item.id === params.id;
       })[0];
@@ -86,7 +89,6 @@ export default function Instructor() {
         setLoader(false);
       }
     }
-
   }, [instructorData, params])
 
 
@@ -96,15 +98,7 @@ export default function Instructor() {
     try {
       instructor = await InstructorAPI.get(id);
     } catch (err) {
-      // redirect to user's profile
       log.error("PROFILE::", err);
-      history.push(path.profile);
-      return;
-    }
-
-    if (!instructor || !instructor.data) {
-      // redirect to user's profile
-      history.push(path.profile);
       return;
     }
 
@@ -192,7 +186,7 @@ export default function Instructor() {
   }
 
   return (
-    <Container>
+    <Container className={classes.root}>
       {content}
     </Container>
   );
