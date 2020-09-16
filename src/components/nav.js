@@ -14,6 +14,10 @@ const useStyles = makeStyles((theme) => ({
   },
   tab: {
     color: theme.palette.common.white,
+    minWidth: 0,
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    fontSize: '1rem',
     '@media (max-width: 900px)': {
       fontSize: ".8rem",
     },

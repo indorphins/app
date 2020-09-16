@@ -13,8 +13,8 @@ const useStyles = makeStyles((theme) => ({
     width: "2.5rem",
     height: "2.5rem",
     '@media (max-width: 600px)': {
-      width: "1.8rem",
-      height: "1.8rem",
+      width: "2rem",
+      height: "2rem",
     }
   },
   loginBtn: {
