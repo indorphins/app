@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { AppBar, IconButton, Box, Grid, Toolbar, Typography, Container, useMediaQuery } from '@material-ui/core';
+import { AppBar, IconButton, Box, Grid, Typography, Container, useMediaQuery } from '@material-ui/core';
 import { Brightness5Rounded, Brightness4Rounded } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
@@ -34,10 +34,7 @@ let useStyles = makeStyles((theme) => ({
     paddingLeft: 0,
   },
   container: {
-    position: "relative",
-    '@media (max-width: 900px)': {
-      padding: 0,
-    },
+
   },
   themeButton: {
     color: theme.palette.common.white,
@@ -86,7 +83,7 @@ export default function Header(props) {
     appBarPosition: "sticky",
     direction: "row",
     spacing: 2,
-    alignItems: "baseline"
+    alignItems: "flex-end"
   }
   
   if (med) {
@@ -101,7 +98,7 @@ export default function Header(props) {
       appBarPosition: "sticky",
       direction: "row",
       spacing: 2,
-      alignItems: "baseline"
+      alignItems: "flex-end"
     }
   }
 
@@ -131,8 +128,7 @@ export default function Header(props) {
         alignItems={layout.alignItems}
         spacing={layout.spacing}
         style={{
-          flexWrap: "nowrap",
-          flexDirection: layout.direction,
+          flexWrap: "nowrap"
         }}
       >
         {drawer}
@@ -158,18 +154,16 @@ export default function Header(props) {
   );
 
   let toolbar = (
-    <Toolbar className={classes.toolbar} variant="regular">
-      <Container className={classes.container}>
-        <Grid container direction="row" justify="space-between" alignItems={layout.alignItems}>
-          <Grid item style={{alignItems: "flex-end", display: "flex"}}>
-            {nav}
-          </Grid>
-          <Grid item>
-            {avatar}
-          </Grid>
+    <Container className={classes.container}>
+      <Grid container direction="row" justify="space-between" alignItems={layout.alignItems} >
+        <Grid item>
+          {nav}
         </Grid>
-      </Container>
-    </Toolbar>
+        <Grid item>
+          {avatar}
+        </Grid>
+      </Grid>
+    </Container>
   );
 
   return (

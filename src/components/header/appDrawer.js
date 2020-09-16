@@ -11,6 +11,9 @@ let useStyles = makeStyles((theme) => ({
   },
   drawerLink: {
     fontWeight: 400,
+  },
+  clickable: {
+    cursor: "pointer",
   }
 }));
 
@@ -34,7 +37,7 @@ export default function AppDrawer(props) {
 
   if (user && user.id) {
     schedule = (
-      <Grid item onClick={() => navigate(path.schedule)}>
+      <Grid item className={classes.clickable} onClick={() => navigate(path.schedule)}>
         <Typography variant='h5' className={classes.drawerLink}>My Schedule</Typography>
       </Grid>
     )
@@ -47,10 +50,10 @@ export default function AppDrawer(props) {
       </IconButton>
       <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer}>
         <Grid container direction="column" spacing={3} style={{padding:"24px 8px", minWidth: 220}}>
-          <Grid item onClick={() => navigate(path.home)}>
+          <Grid item className={classes.clickable} onClick={() => navigate(path.home)}>
             <Typography variant='h5' className={classes.drawerLink}>Classes</Typography>
           </Grid>
-          <Grid item onClick={() => navigate(path.milestone)}>
+          <Grid item className={classes.clickable} onClick={() => navigate(path.milestone)}>
             <Typography variant='h5' className={classes.drawerLink}>Milestones</Typography>
           </Grid>
           {schedule}
