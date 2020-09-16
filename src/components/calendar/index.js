@@ -14,7 +14,7 @@ const styles = (theme) => ({
     textAlign: "center",
   },
   number: {
-    color: theme.palette.grey[600],
+    color: 'inherit',
     paddingLeft: theme.spacing(1),
     '@media (max-width: 600px)': {
       fontSize: '1.5rem',
@@ -43,7 +43,8 @@ const styles = (theme) => ({
     background: theme.palette.grey[300],
   },
   today: {
-    background: theme.palette.primary.light,
+    color: theme.palette.grey[50],
+    background: theme.palette.grey[400],
   },
   month: {
     background: theme.palette.grey[300],
@@ -57,16 +58,11 @@ const styles = (theme) => ({
   eventIndicator: {
     width: 8,
     height: 8,
-    background: theme.palette.secondary.main,
+    background: theme.palette.secondaryColor.main,
     borderRadius: "50%",
     display: "inline-block",
     position: "relative",
     bottom: 2,
-    '@media (max-width: 600px)': {
-      width: 5,
-      height: 5,
-      bottom: 1,
-    },
   },
   eventCard: {
     padding: theme.spacing(1),
@@ -123,7 +119,7 @@ const styles = (theme) => ({
     display: "none",
   },
   selected: {
-    backgroundColor: theme.palette.grey[400],
+    //backgroundColor: theme.palette.grey[600],
   }
 });
 

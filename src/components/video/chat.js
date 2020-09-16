@@ -13,11 +13,11 @@ const useStyles = makeStyles((theme) => ({
   },
   chatMsg: {
     display: "inline",
+    paddingLeft: theme.spacing(1),
   },
   chatUsername: {
     display: "inline",
     fontWeight: "bold",
-    color: theme.palette.secondary.main
   },
   chatContainer: {
     width: '100%',
@@ -92,7 +92,7 @@ export default function Chat(props) {
           <Grid container direction="row" justify="flex-start" alignContent="center" alignItems="flex-end">
             <Grid item xs>
               <TextField 
-                color="secondary" 
+                color="primary" 
                 type="text" 
                 label="Message" 
                 variant="standard" 
@@ -102,7 +102,7 @@ export default function Chat(props) {
               />
             </Grid>
             <Grid item>
-              <Button type="submit" color="secondary">Send</Button>
+              <Button type="submit" color="primary">Send</Button>
             </Grid>
           </Grid>
         </form>

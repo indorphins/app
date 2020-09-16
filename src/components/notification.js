@@ -33,7 +33,11 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.grey[700],
     fontWeight: "bold",
     cursor: "pointer",
-  }
+  },
+  icon: {
+    cursor: "pointer",
+    color: theme.palette.secondaryColor.main,
+  },
 }));
 
 const userSchedSelector = createSelector([state => state.user.schedule], (items) => {
@@ -66,7 +70,7 @@ export default function Notification() {
 
   function sendClassMessage(msg) {
     let exists = messagesRef.current.filter(item => {
-      return item.message === msg.message;
+      return item.url === msg.url;
     });
 
     if (!exists[0]) {
@@ -107,7 +111,7 @@ export default function Notification() {
 
   function handleClose(event) {
     setMessages(messages.map(item => {
-      if (item.message === event.message) {
+      if (item.id === event.id) {
         item.open = false;
       }
       return item;
@@ -116,7 +120,7 @@ export default function Notification() {
 
   function doLink(event) {
     setMessages(messages.map(item => {
-      if (item.message === event.message) {
+      if (item.id === event.id) {
         item.open = false;
       }
       return item;
@@ -147,7 +151,7 @@ export default function Notification() {
               <Paper elevation={4} className={classes.card}>
                 <Grid container direction="row" justify="space-between" spacing={1}>
                   <Grid item xs={1}>
-                    <InfoOutlined  onClick={() => {doLink(item)}} style={{cursor: "pointer"}} />
+                    <InfoOutlined  onClick={() => {doLink(item)}} className={classes.icon} />
                   </Grid>
                   <Grid item xs={10}>
                     <Typography className={classes.msg} onClick={() => {doLink(item)}}>{item.message}</Typography>

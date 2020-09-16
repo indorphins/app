@@ -7,6 +7,9 @@ import log from '../../log';
 const useStyles = makeStyles((theme) => ({
   emoteMenu: {
     columns: 2,
+  },
+  emoteBtn: {
+    color: theme.palette.secondaryColor.main,
   }
 }));
 
@@ -52,7 +55,13 @@ export default function Emote(props) {
 
   return (
     <Grid style={{display: "inline"}}>
-      <IconButton ref={btn} onClick={handleClick} title="Send an emote"><InsertEmoticon color="primary" /></IconButton>
+      <IconButton
+        ref={btn}
+        onClick={handleClick}
+        title="Send an emote"
+      >
+        <InsertEmoticon className={classes.emoteBtn} />
+      </IconButton>
       <Menu
         keepMounted
         open={Boolean(anchorEl)}
