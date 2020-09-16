@@ -45,8 +45,10 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 300,
   },
   padding: {
-    paddingLeft: theme.spacing(1),
-    paddingRight: theme.spacing(1),
+    paddingRight: theme.spacing(2),
+  },
+  header: {
+    paddingBottom: theme.spacing(2)
   }
 }));
 

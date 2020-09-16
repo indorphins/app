@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 
-import path from '../routes/path';
+import path from '../../routes/path';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -14,6 +14,10 @@ const useStyles = makeStyles((theme) => ({
   },
   tab: {
     color: theme.palette.common.white,
+    minWidth: 0,
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    fontSize: '1rem',
     '@media (max-width: 900px)': {
       fontSize: ".8rem",
     },
