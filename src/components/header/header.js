@@ -34,7 +34,12 @@ let useStyles = makeStyles((theme) => ({
     paddingLeft: 0,
   },
   container: {
-
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    '@media (max-width: 900px)': {
+      paddingRight: theme.spacing(1),
+      paddingLeft: 0,
+    },
   },
   themeButton: {
     color: theme.palette.common.white,
