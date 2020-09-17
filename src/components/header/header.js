@@ -34,8 +34,8 @@ let useStyles = makeStyles((theme) => ({
     paddingLeft: 0,
   },
   container: {
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2),
+    paddingLeft: theme.spacing(3),
+    paddingRight: theme.spacing(3),
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
     '@media (max-width: 900px)': {
