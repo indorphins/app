@@ -26,7 +26,7 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.common.white,
   },
   indicator: {
-    backgroundColor: theme.palette.common.white,
+    backgroundColor: 'transparent',
   },
 }));
 
