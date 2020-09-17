@@ -30,15 +30,19 @@ let useStyles = makeStyles((theme) => ({
     }
   },
   toolbar: {
-    alignItems: "flex-end",
+    alignItems: "center",
     paddingLeft: 0,
   },
   container: {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
     '@media (max-width: 900px)': {
       paddingRight: theme.spacing(1),
       paddingLeft: 0,
+      paddingTop: 0,
+      paddingBottom: 0
     },
   },
   themeButton: {
@@ -88,7 +92,7 @@ export default function Header(props) {
     appBarPosition: "sticky",
     direction: "row",
     spacing: 2,
-    alignItems: "flex-end"
+    alignItems: "center"
   }
   
   if (med) {
@@ -103,7 +107,7 @@ export default function Header(props) {
       appBarPosition: "sticky",
       direction: "row",
       spacing: 2,
-      alignItems: "flex-end"
+      alignItems: "center"
     }
   }
 
