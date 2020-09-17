@@ -30,11 +30,16 @@ let useStyles = makeStyles((theme) => ({
     }
   },
   toolbar: {
-    alignItems: "flex-end",
+    alignItems: "center",
     paddingLeft: 0,
   },
   container: {
-
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    '@media (max-width: 900px)': {
+      paddingTop: 0,
+      paddingBottom: 0
+    }
   },
   themeButton: {
     color: theme.palette.common.white,
@@ -83,7 +88,7 @@ export default function Header(props) {
     appBarPosition: "sticky",
     direction: "row",
     spacing: 2,
-    alignItems: "flex-end"
+    alignItems: "center"
   }
   
   if (med) {
@@ -98,7 +103,7 @@ export default function Header(props) {
       appBarPosition: "sticky",
       direction: "row",
       spacing: 2,
-      alignItems: "flex-end"
+      alignItems: "center"
     }
   }
 
