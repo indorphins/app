@@ -192,7 +192,7 @@ export default function EditProfile() {
   if (loader) {
     progress = (
       <Grid>
-        <LinearProgress color="secondary" />
+        <LinearProgress color="primary" />
       </Grid>
     );
   }

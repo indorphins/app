@@ -14,9 +14,7 @@ const getUserSelector = createSelector([state => state.user.data], (user) => {
 
 const useStyles = makeStyles((theme) => ({
   container: {
-    backgroundColor: theme.palette.common.background,
-    borderRadius: 5,
-    width: '90%'
+    paddingBottom: theme.spacing(4)
   }
 }))
 
@@ -59,7 +57,7 @@ export default function() {
 
   let content = (
     <Container className={classes.container}>
-      <Grid container direction="column">
+      <Grid container direction="column" spacing={2}>
         {milestonesData.map(item => (
           <Grid item key={item.title}>
             <MilestoneItem title={item.title} label={item.label}

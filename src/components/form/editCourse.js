@@ -264,7 +264,7 @@ export default function (props) {
   if (loader) {
     loaderContent = (
       <Grid item xs={12}>
-        <LinearProgress color="secondary" />
+        <LinearProgress color="primary" />
       </Grid>
     )
   }
