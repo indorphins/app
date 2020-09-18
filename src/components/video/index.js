@@ -498,6 +498,12 @@ export default function Video(props) {
     if (props.user) setUser(props.user);
   }, [props]);
 
+  let settingsText = "Rotate videos";
+
+  if (!loopMode) {
+    settingsText = "Pin friends to view";
+  }
+  
   let settings = (
     <Grid container direction="column">
       <Grid item container direction="row" alignItems="center" alignContent="center">
@@ -520,14 +526,14 @@ export default function Video(props) {
           <Loop />
         </Grid>
         <Grid item xs>
-          <Typography>Rotate Videos</Typography>
+          <Typography>{settingsText}</Typography>
         </Grid>
         <Grid item>
           <Switch 
             checked={loopMode}
             color="primary"
             onChange={toggleLoopMode}
-            title="Rotate participants viewed"
+            title={settingsText}
             name="loop"
           />
         </Grid>
