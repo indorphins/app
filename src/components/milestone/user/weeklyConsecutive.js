@@ -25,7 +25,7 @@ function getWeeklyStreak(sessions, user) {
     } else if (prev - item === 0) {
       // do nothing in the case class was on the same day
     } else {
-      prevStreak = Number(streak);
+      if (streak > prevStreak) prevStreak = streak;
       streak = 1;
     }
 
