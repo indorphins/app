@@ -523,7 +523,13 @@ export default function Video(props) {
           <Typography>Rotate Videos</Typography>
         </Grid>
         <Grid item>
-          <Switch checked={loopMode} onChange={toggleLoopMode} title="Rotate participants viewed" name="loop" />
+          <Switch 
+            checked={loopMode}
+            color="primary"
+            onChange={toggleLoopMode}
+            title="Rotate participants viewed"
+            name="loop"
+          />
         </Grid>
       </Grid>
     </Grid>

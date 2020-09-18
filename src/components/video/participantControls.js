@@ -36,7 +36,7 @@ export default function ParticipantControls(props) {
           item.icon = (<Star />);
           item.buttonDisabled = true;
         } else {
-          item.color = "default";
+          item.color = "primary";
           item.icon = null;
 
           if (loopMode) {
@@ -54,7 +54,13 @@ export default function ParticipantControls(props) {
           )
         } else {
           item.videoCheckbox = (
-            <Checkbox disabled={item.buttonDisabled} name={item.user.id} checked={item.video} onClick={videoHandler} />
+            <Checkbox
+              color="primary"
+              disabled={item.buttonDisabled}
+              name={item.user.id}
+              checked={item.video}
+              onClick={videoHandler}
+            />
           );
         }
 
