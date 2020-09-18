@@ -1,7 +1,7 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { IconButton, makeStyles } from '@material-ui/core';
-import { CallEnd } from '@material-ui/icons';
+import { ExitToApp } from '@material-ui/icons';
 
 import path from '../../routes/path';
 
@@ -25,7 +25,7 @@ export default function LeaveSession(props) {
 
   return (
     <IconButton title="Leave class" onClick={end} className={classes.btn}>
-      <CallEnd />
+      <ExitToApp />
     </IconButton>
   )
 }
