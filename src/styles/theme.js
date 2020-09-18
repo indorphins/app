@@ -175,7 +175,7 @@ const darkTypography = {
   },
   h4: {
     fontSize: '1.5rem',
-    fontWeight: 300,
+    fontWeight: 900,
     color: darkPalette.grey[800],
   },
   h5: {

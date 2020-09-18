@@ -84,7 +84,8 @@ const useStyles = makeStyles((theme) => ({
     },
   },
   desc: {
-    fontWeight: "bold"
+    fontWeight: "bold",
+    background: "rgb(0,0,0,0.7)",
   },
   anchor: {
     textDecoration: "none",
@@ -362,7 +363,10 @@ export default function CourseFeature(props) {
                   title={course.title}
                   subtitle={course.label}
                   className={classes.desc}
-                  classes={{title: classes.noWrap, subtitle: classes.textWrap}}
+                  classes={{
+                    title: classes.noWrap,
+                    subtitle: classes.textWrap
+                  }}
                   />
                 </Grid>
               </Link>
