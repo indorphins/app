@@ -12,12 +12,18 @@ import {
   MicOffOutlined, 
 } from '@material-ui/icons';
 
+import LeaveSession from './leaveSession';
+
 const useStyles = makeStyles((theme) => ({
   publisher: {
     height: 240,
     width: 320,
     background: theme.palette.grey[100],
   },
+  buttons: {
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+  }
 }));
 
 export default function PublisherControls(props) {
@@ -70,12 +76,21 @@ export default function PublisherControls(props) {
   let content = (
     <Box>
       <Grid id="publisher" className={classes.publisher}></Grid>
-      <IconButton title={videoTitle} onClick={toggleVideo}>
-        {videoBtn}
-      </IconButton>
-      <IconButton title={micTitle} onClick={toggleAudio}>
-        {micBtn}
-      </IconButton>
+      <Grid container direction="row" spacing={1} className={classes.buttons}>
+        <Grid item>
+          <IconButton title={videoTitle} onClick={toggleVideo}>
+            {videoBtn}
+          </IconButton>
+        </Grid>
+        <Grid item>
+          <IconButton title={micTitle} onClick={toggleAudio}>
+            {micBtn}
+          </IconButton>
+        </Grid>
+        <Grid item>
+          <LeaveSession course={props.course} />
+        </Grid>
+      </Grid>
     </Box>
   );
 
