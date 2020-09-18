@@ -5,7 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 
-import path from '../routes/path';
+import path from '../../routes/path';
 
 const useStyles = makeStyles((theme) => ({
   hidden: {
@@ -13,9 +13,20 @@ const useStyles = makeStyles((theme) => ({
     visibility: "hidden",
   },
   tab: {
+    color: theme.palette.common.white,
+    minWidth: 0,
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    fontSize: '1rem',
     '@media (max-width: 900px)': {
       fontSize: ".8rem",
     },
+  },
+  color: {
+    color: theme.palette.common.white,
+  },
+  indicator: {
+    display: 'none',
   },
 }));
 
@@ -61,19 +72,38 @@ export default function(props) {
 
   if (currentUser.id) {
     scheduleTab = (
-      <Tab value={3} label="My Schedule" onClick={navSchedule} className={classes.tab} />
+      <Tab 
+        value={3}
+        label="My Schedule"
+        onClick={navSchedule}
+        className={classes.tab}
+        classes={{selected: classes.color}}
+      />
     )
   }
 
   return (
     <Tabs
     value={tab}
-    indicatorColor="primary"
-    textColor="secondary"
+    classes={{
+      indicator: classes.indicator,
+    }}
     >
-      <Tab value={0} className={classes.hidden} />
-      <Tab value={1} label="Classes" onClick={navHome} className={classes.tab} />
-      <Tab value={2} label="Milestones" onClick={navMilestones} className={classes.tab} />
+      <Tab value={0} className={classes.hidden} classes={{selected: classes.color}} />
+      <Tab
+        value={1}
+        label="Classes"
+        onClick={navHome}
+        className={classes.tab}
+        classes={{selected: classes.color}}
+      />
+      <Tab
+        value={2}
+        label="Milestones"
+        onClick={navMilestones}
+        className={classes.tab}
+        classes={{selected: classes.color}}
+      />
       {scheduleTab}
     </Tabs>
   )

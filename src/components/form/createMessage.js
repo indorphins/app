@@ -69,7 +69,7 @@ export default function CreateMessage(props) {
   if (loader) {
     progress = (
       <Grid>
-        <LinearProgress color="secondary" />
+        <LinearProgress color="primary" />
       </Grid>
     );
   }
@@ -91,7 +91,7 @@ export default function CreateMessage(props) {
       <Button
         className={classes.actionBtn}
         variant='contained'
-        color='secondary'
+        color='primary'
         onClick={editorSaveHandler}
       >
         Send Email

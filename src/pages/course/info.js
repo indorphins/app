@@ -206,20 +206,14 @@ export default function CourseInfo() {
       cls = await Course.get(id);
     } catch (err) {
       log.error("COURSE INFO:: get course details", err);
-      history.push(path.home);
     }
 
     if (!cls || !cls.id) {
       log.debug("COURSE INFO:: course not found")
-      history.push(path.home);
       return;
     }
 
     log.debug("COURSE INFO:: got course details", cls);
-
-    if (typeof cls.instructor === String) {
-      cls.instructor = JSON.parse(cls.instructor);
-    }
     log.info("SET COURSE ", cls);
     setCourse(cls);
   }
@@ -375,7 +369,7 @@ export default function CourseInfo() {
   let paymentProcessingContent = null;
   if (paymentProcessing) {
     paymentProcessingContent = ( 
-      <LinearProgress color="secondary" />
+      <LinearProgress color="primary" />
     );
   }
 
@@ -482,7 +476,13 @@ export default function CourseInfo() {
   );
 
   let courseDetails = (
-    <Grid container direction={layout.courseDetailsDirection} justify={layout.courseDetailsJustify} spacing={2}>
+    <Grid 
+      container
+      direction={layout.courseDetailsDirection}
+      justify={layout.courseDetailsJustify}
+      spacing={2}
+      style={{flexWrap: "nowrap"}}
+    >
       <Grid item xs={layout.courseDetailsSize}>
         <Grid container direction={layout.coursePhotoDirection} justify="flex-start" spacing={2}>
           <Grid item xs={layout.coursePhotoSize}>
@@ -507,7 +507,7 @@ export default function CourseInfo() {
   return (
     <Container className={classes.root}>
       <Grid container direction={layout.main} spacing={2}>
-        <Grid item>
+        <Grid item container>
           {courseDetails}
         </Grid>
         <Grid item>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Switch, Route, useLocation } from 'react-router-dom';
 import path from './path';
-import Header from '../components/header';
+import Header from '../components/header/header';
 import loadable from '@loadable/component';
 import queryString from 'query-string';
 import Login from '../pages/login';

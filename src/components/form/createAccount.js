@@ -18,6 +18,14 @@ const useStyles = makeStyles((theme) => ({
   submitBtn: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
+    width: '100%',
+    borderRadius: 5,
+    color: theme.palette.primaryColor.contrastText,
+    backgroundColor: theme.palette.primaryColor.main,
+    "&:hover": {
+      color: theme.palette.primary.contrastText,
+      backgroundColor: theme.palette.primary.main,
+    }
   },
   consentContainer: {
     flexWrap: "nowrap",
@@ -27,7 +35,8 @@ const useStyles = makeStyles((theme) => ({
   },
   consentCheck: {
     paddingRight: theme.spacing(1),
-    paddingLeft: theme.spacing(0)
+    paddingLeft: theme.spacing(0),
+    color: theme.palette.secondary.color
   },
   box: {
     marginTop: theme.spacing(2),
@@ -37,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: '4px'
   },
   bdayInput: {
-    width: '100%'
+    width: '100%',
   }
 }));
 
@@ -268,7 +277,7 @@ export default function(props) {
 	
   let phoneField = (
     <TextField 
-			color="secondary" 
+			color="primary" 
 			required
 			disabled={loader} 
 			className={classes.txtField} 
@@ -286,7 +295,7 @@ export default function(props) {
       <TextField 
 				error
 				required
-				color="secondary" 
+				color="primary" 
 				disabled={loader} 
 				className={classes.txtField} 
 				title={tooltips.phone} 
@@ -303,7 +312,7 @@ export default function(props) {
 
   let passwordField = (
     <TextField 
-			color="secondary" 
+			color="primary" 
 			disabled={loader} 
 			className={classes.txtField} 
 			required id="password" 
@@ -319,7 +328,7 @@ export default function(props) {
     passwordField = (
       <TextField 
 				error
-				color="secondary"
+				color="primary"
 				disabled={loader}
 				className={classes.txtField} 
 				required id="password"
@@ -335,7 +344,7 @@ export default function(props) {
 
   let passwordConfirmField = (
     <TextField 
-			color="secondary" 
+			color="primary" 
 			disabled={loader} 
 			className={classes.txtField} 
 			required id="passwordConfirm" 
@@ -351,7 +360,7 @@ export default function(props) {
     passwordConfirmField = (
       <TextField 
 				error
-				color="secondary" 
+				color="primary" 
 				disabled={loader} 
 				className={classes.txtField} 
 				required id="passwordConfirm" 
@@ -390,13 +399,13 @@ export default function(props) {
           <TextField
           disabled={loader}
           autoFocus={true}
-          color="secondary"
+          color="primary"
           autoComplete="nickname" 
           className={classes.txtField}
           title={tooltips.username}
           required id="username"
           type="text"
-          label="Nickname"
+          label="Preferred Name"
           variant="outlined"
           onChange={usernameHandler}
           />
@@ -404,7 +413,7 @@ export default function(props) {
         <Grid item>
           <TextField
           disabled={loader}
-          color="secondary"
+          color="primary"
           autoComplete="username"
           className={classes.txtField}
           required
@@ -424,7 +433,7 @@ export default function(props) {
         <Grid item>
           <TextField
           disabled={loader}
-          color="secondary"
+          color="primary"
           autoComplete="given-name"
           className={classes.txtField}
           id="firstName"
@@ -437,7 +446,7 @@ export default function(props) {
         <Grid item>
           <TextField
           disabled={loader}
-          color="secondary"
+          color="primary"
           autoComplete="family-name"
           className={classes.txtField}
           id="lastName"
@@ -454,7 +463,7 @@ export default function(props) {
           <Birthday required={true} loader={loader} val={birthday} onChange={birthdayHandler} error={bdayErr} />
         </Grid>
         <Grid container direction='row' alignItems='center' className={classes.consentContainer}>
-          <Checkbox checked={userConsent} onChange={consentHandler} className={classes.consentCheck} />
+          <Checkbox color='primary' checked={userConsent} onChange={consentHandler} className={classes.consentCheck} />
           <Typography variant='body2'>
             <span>By signing in or signing up, I agree to Indoorphins.fit&apos;s </span>
             <span><a className={classes.link} href="/TOS.html" target="_blank">Terms of Service</a> and </span>
@@ -472,7 +481,7 @@ export default function(props) {
           color="primary"
           className={classes.submitBtn}
           >
-            Create
+            Create Account
           </Button>
         </Grid>
       </Grid>

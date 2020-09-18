@@ -7,7 +7,6 @@ const userSlice = createSlice({
     data: {},
     paymentData: {methods: []},
     schedule: [],
-    sessions: []
   },
   reducers: {
     set(state, action) {
@@ -37,16 +36,6 @@ const userSlice = createSlice({
       });
       return state;
     },
-    setSessions(state, action) {
-      log.debug("STORE:: set user sessions", action.payload);
-      state.sessions = state.sessions.concat(action.payload);
-      return state;
-    },
-    addSession(state, action) {
-      log.debug("STORE:: add user session", action.payload);
-      state.sessions = [action.payload, ...state.sessions];
-      return state;
-    },
     clear(state) {
       log.debug("STORE:: clear user data");
       state.data = {};
@@ -56,6 +45,41 @@ const userSlice = createSlice({
     }
   }
 });
+
+const milestoneSlice = createSlice({
+  name: "milestone",
+  initialState: {
+    sessions: [],
+    hits: [],
+  },
+  reducers: {
+    setSessions(state, action) {
+      log.debug("STORE:: set user sessions", action.payload);
+      state.sessions = state.sessions.concat(action.payload);
+      return state;
+    },
+    addSession(state, action) {
+      log.debug("STORE:: add user session", action.payload);
+      state.sessions = [
+        action.payload, 
+        ...state.sessions.filter(item => {
+          return item.session_id !== action.payload.session_id
+        })
+      ];
+      return state;
+    },
+    setHits(state, action) {
+      log.debug("STORE:: set milestones hits", action.payload);
+      state.hits = [...action.payload];
+      return state;
+    },
+    clear(state) {
+      state.sessions = [];
+      state.hits = [];
+      return state;
+    }
+  }
+})
 
 const feedbackSlice = createSlice({
   name: 'feedback',
@@ -107,6 +131,23 @@ const courseSlice = createSlice({
   }
 });
 
+const courseFeatureSlice = createSlice({
+  name: 'courseFeature',
+  initialState: [],
+  reducers: {
+    set(state, action) {
+      log.debug("STORE:: set course data", action.payload);
+      state = [
+        action.payload, 
+        ...state.filter(item => {
+          return item.id !== action.payload.id
+        })
+      ];
+      return state;
+    }
+  }
+})
+
 const themeSlice = createSlice({
   name: 'theme',
   initialState: 'light',
@@ -130,6 +171,8 @@ const rootReducer = combineReducers({
   feedback: feedbackSlice.reducer,
   instructor: instructorSlice.reducer,
   course: courseSlice.reducer,
+  courseFeature: courseFeatureSlice.reducer,
+  milestone: milestoneSlice.reducer,
 });
 
 export const actions = {
@@ -138,6 +181,8 @@ export const actions = {
   feedback: feedbackSlice.actions,
   instructor: instructorSlice.actions,
   course: courseSlice.actions,
+  courseFeature: courseFeatureSlice.actions,
+  milestone: milestoneSlice.actions
 };
 
 export const store = configureStore({
