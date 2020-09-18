@@ -34,11 +34,11 @@ export default function(sessions, user) {
     type: "standard"
   }
 
-  if (counts && counts[0] > 0 && counts[0] <= 5) {
+  if (counts && counts[0] > 0 && counts[0] < 5) {
     data.value = counts[0];
   }
   
-  if (counts && counts[0] > 5) {
+  if (counts && counts[0] >= 5) {
     data.value = 5
     data.lvl = "max";
   }
