@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useSelector } from 'react-redux';
+import { useRouteMatch } from 'react-router-dom';
 import { createSelector } from 'reselect';
 import { differenceInMinutes } from 'date-fns';
 import { Grid, Paper, Typography, Slide, makeStyles, useMediaQuery } from '@material-ui/core';
@@ -11,7 +12,6 @@ import path from '../routes/path';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    width: "100%",
     position: "absolute",
     bottom: 0,
     left: 0,
@@ -53,10 +53,16 @@ export default function Notification() {
   const schedule = useSelector(state => userSchedSelector(state));
   const sm = useMediaQuery('(max-width:600px)');
   const md = useMediaQuery('(max-width:900px)');
+  let match = useRouteMatch({
+    path: path.courseJoinSession,
+    strict: true,
+  });
 
   messagesRef.current = messages;
 
   useEffect(() => {
+
+    if (match) return;
 
     if (schedule && schedule.length > 0) {
       checkUpcomingClass(schedule);
@@ -66,7 +72,7 @@ export default function Notification() {
       return () => clearInterval(interval);
     }
 
-  }, [schedule]);
+  }, [schedule, match]);
 
   function sendClassMessage(msg) {
     let exists = messagesRef.current.filter(item => {
@@ -142,29 +148,33 @@ export default function Notification() {
     layout.containerWidth = 12;
   }
 
-  return (
-    <Grid className={classes.root}>
-      <Grid xs={layout.containerWidth} item container direction="column" spacing={2}>
-        {displayMsg.map(item => (
-          <Slide key={item.message + item.id} direction="right" in={true} mountOnEnter unmountOnExit>
-            <Grid item>
-              <Paper elevation={4} className={classes.card}>
-                <Grid container direction="row" justify="space-between" spacing={1}>
-                  <Grid item xs={1}>
-                    <InfoOutlined  onClick={() => {doLink(item)}} className={classes.icon} />
+  if (!match) {
+    return (
+      <Grid className={classes.root}>
+        <Grid item container direction="column" spacing={2} style={{position: "relative"}}>
+          {displayMsg.map(item => (
+            <Slide key={item.message + item.id} direction="right" in={true} mountOnEnter unmountOnExit>
+              <Grid item>
+                <Paper elevation={4} className={classes.card}>
+                  <Grid container direction="row" justify="space-between" spacing={1}>
+                    <Grid item xs={1}>
+                      <InfoOutlined  onClick={() => {doLink(item)}} className={classes.icon} />
+                    </Grid>
+                    <Grid item xs={10}>
+                      <Typography className={classes.msg} onClick={() => {doLink(item)}}>{item.message}</Typography>
+                    </Grid>
+                    <Grid item xs={1}>
+                      <Close className={classes.close} onClick={() => {handleClose(item)}} />
+                    </Grid>
                   </Grid>
-                  <Grid item xs={10}>
-                    <Typography className={classes.msg} onClick={() => {doLink(item)}}>{item.message}</Typography>
-                  </Grid>
-                  <Grid item xs={1}>
-                    <Close className={classes.close} onClick={() => {handleClose(item)}} />
-                  </Grid>
-                </Grid>
-              </Paper>
-            </Grid>
-          </Slide>
-        ))}
+                </Paper>
+              </Grid>
+            </Slide>
+          ))}
+        </Grid>
       </Grid>
-    </Grid>
-  );
+    );
+  }
+
+  return null;
 }
