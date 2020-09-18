@@ -36,6 +36,7 @@ const useStyles = makeStyles((theme) => ({
   },
   desc: {
     fontWeight: "bold",
+    background: "rgb(0,0,0,0.7)",
   },
   anchor: {
     textDecoration: "none",
