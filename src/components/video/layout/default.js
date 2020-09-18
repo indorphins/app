@@ -150,7 +150,7 @@ const gridStyles = makeStyles((theme) => ({
     bottom: '50px',
   },
   subscriberLabel: {
-    fontSize: "2rem",
+    fontSize: "2.2rem",
     color: theme.palette.grey[800],
   },
   emoteBtn: {
@@ -182,7 +182,7 @@ function VideoContainer(props) {
       <Box className={classes.subscriberLabelBox}>
         <Typography
           align="center"
-          variant="h5"
+          variant="h4"
           className={classes.subscriberLabel}
         >
           {props.username}
