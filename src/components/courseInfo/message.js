@@ -7,7 +7,8 @@ export default function Message(props) {
   const { currentUser, course } = props;
   let content = null;
 
-  if ((course.instructor && currentUser.id === course.instructor.id) || currentUser.type === "admin") {
+  if ((course && currentUser.id && currentUser.id === course.instructor.id) || 
+      currentUser.type === "admin") {
     content = (
       <Grid container direction="column">
         <Grid item>

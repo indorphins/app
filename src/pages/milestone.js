@@ -1,45 +1,73 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Grid } from '@material-ui/core';
+import React, { useEffect, useState } from 'react';
+import { Container, Grid, makeStyles } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import ClassesTaken from '../components/milestones/classesTaken';
-import WeeklyStreak from '../components/milestones/weeklyStreak';
-import * as Session from '../api/session';
-import log from '../log';
+import MilestoneItem from '../components/milestone/milestoneItem';
+
+const milestonesSelector = createSelector([state => state.milestone.hits], (sessions) => {
+  return sessions;
+});
 
 const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
 });
 
-export default function Milestones(props) {
+const useStyles = makeStyles((theme) => ({
+  container: {
+    paddingBottom: theme.spacing(4)
+  }
+}))
+
+export default function() {
+  const classes = useStyles();
   const user = useSelector(state => getUserSelector(state));
-  const [sessions, setSessions] = useState();
+  const milestoneHits = useSelector(state => milestonesSelector(state));
+  const [ milestonesData, setMilestonesData ] = useState([]);
 
   useEffect(() => {
-    getSessions();
-  }, [user])
 
-  async function getSessions() {
-    Session.getAll()
-      .then(all => {
-        if (all && all.sessions){
-          setSessions(all.sessions);
-        }
-      }).catch(err => {
-        log.error("MILESTONES:: fetching all sessions ", err);
-      })
-  }
+    let standard = milestoneHits.filter(item => {
+      return item.type === 'standard'
+    });
 
-  return (
-    <Container>
-      <Grid container direction="column" spacing={4}>
-        <Grid item>
-          <ClassesTaken sessions={sessions} />
-        </Grid>
-        <Grid item>
-          <WeeklyStreak sessions={sessions} />
-        </Grid>
+    let completed = standard.filter(item => {
+      return item.lvl === 'max';
+    });
+
+    let allMilestone = {
+      title: 'Indoorphins High',
+      label: 'Complete all milestones',
+      max: standard.length,
+      value: completed.length,
+      type: "standard",
+      lvl: 0,
+    }
+
+    if (standard.length === completed.length) {
+      allMilestone.lvl = "max";
+    }
+
+    if (!user.type || user.type === 'standard') {
+      setMilestonesData([...standard, allMilestone]);
+    } else {
+      setMilestonesData([...milestoneHits, allMilestone]);
+    }
+
+  }, [milestoneHits, user])
+
+  let content = (
+    <Container className={classes.container}>
+      <Grid container direction="column" spacing={2}>
+        {milestonesData.map(item => (
+          <Grid item key={item.title}>
+            <MilestoneItem title={item.title} label={item.label}
+              max={item.max} value={item.value} lvl={item.lvl}
+            />
+          </Grid>
+        ))}
       </Grid>
     </Container>
-  );
+  )
+
+  return content;
 }

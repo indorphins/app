@@ -151,14 +151,14 @@ export default function Profile() {
   let createStripeButtonContent = null;
   let loaderContent = (
     <Grid container direction="row" justify="center" alignItems="center" className={classes.loader}>
-      <CircularProgress color="secondary" />
+      <CircularProgress color="primary" />
     </Grid>
   );
 
   if (editButton) {
     editButtonContent = (
       <Fab 
-        color="secondary"
+        color="primary"
         aria-label="edit profile"
         className={classes.fab}
         onClick={toggleEditForm}
@@ -179,7 +179,7 @@ export default function Profile() {
 
   if (createStripe) {
     createStripeButtonContent = (
-      <Fab color="secondary" aria-label="add bank account" onClick={linkBankAccount} title="Link your bank account">
+      <Fab color="primary" aria-label="add bank account" onClick={linkBankAccount} title="Link your bank account">
         <AccountBalanceOutlined />
       </Fab>
     )
@@ -233,7 +233,7 @@ export default function Profile() {
             <Typography variant="h2">Cards</Typography>
           </Grid>
           <Grid item>
-            <Cards />
+            <Cards collapseAdd={true} />
           </Grid>
         </Grid>
       </Grid>

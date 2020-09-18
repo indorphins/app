@@ -29,21 +29,23 @@ export default function Cancel(props) {
 
   useEffect(() => {
 
-    if (!course.id) return;
+    if (!currentUser.id) return setCancelBtn(null);
 
     let instructor = course.instructor;
 
-    if (currentUser.id === instructor.id || currentUser.type === 'admin') {
+    if ((instructor && currentUser.id === instructor.id) || currentUser.type === 'admin') {
       setCancelBtn(
         <Button
           variant="contained"
-          color="secondary"
+          color="primary"
           onClick={confirmCancelHandler}
           style={{width:"100%"}}
         >
           Cancel Class
         </Button>
       )
+    } else {
+      setCancelBtn(null);
     }
 
   }, [currentUser, course]);
@@ -71,7 +73,7 @@ export default function Cancel(props) {
             <Button
               onClick={closeModalHandler}
               variant="contained"
-              color="secondary"
+              color="primary"
               className={classes.modalBtn}
             >
               No

@@ -11,10 +11,13 @@ import {
 } from '@material-ui/core';
 import { ArrowForward, ArrowBack } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
-import { format, isTomorrow, isToday, differenceInDays } from 'date-fns'
+import { format, isTomorrow, isToday, differenceInDays } from 'date-fns';
+import { useSelector } from 'react-redux';
+import { createSelector } from 'reselect';
 
 import path from '../routes/path';
 import { getNextDate } from '../utils';
+import { store, actions } from '../store';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -64,6 +67,7 @@ const useStyles = makeStyles((theme) => ({
   gridList: {
     flexWrap: 'nowrap',
     transform: 'translateZ(0)',
+
   },
   loader: {
     minHeight: 300,
@@ -111,14 +115,25 @@ const useStyles = makeStyles((theme) => ({
       height: 67,
       lineHeight: '1.1em'
     }
+  },
+  padding: {},
+  header: {
+    paddingBottom: theme.spacing(2)
   }
 }));
 
+
+const dataSelector = createSelector([(state) => state.courseFeature], (data) => {
+  return data;
+});
+
 export default function CourseFeature(props) {
 
+  const { id } = props;
   const small = useMediaQuery('(max-width:600px)');
   const med = useMediaQuery('(max-width:950px)');
   const classes = useStyles();
+  const cached = useSelector((state) => dataSelector(state));
   const [data, setData] = useState(null);
   const [formatted, setFormatted] = useState([]);
   const [header, setHeader] = useState(null);
@@ -171,6 +186,24 @@ export default function CourseFeature(props) {
   }, [formatted, displayIndex, displayNumber]);
 
   useEffect(() => {
+    if (!cached.filter || formatted.length > 0) return;
+    
+    let c = cached.filter(item => item.id === id)[0];
+    if (c && c.data && c.index) {
+      setFormatted(c.data);
+      setDisplayIndex(c.index);
+    }
+  }, [formatted, cached]);
+
+  useEffect(() => {
+    store.dispatch(actions.courseFeature.set({
+      id: id,
+      data: formatted,
+      index: displayIndex,
+    }));
+  }, [formatted, displayIndex]);
+
+  useEffect(() => {
     if (data && data.length > 0) {
       let items = []
       data.forEach(function(course) {
@@ -191,7 +224,7 @@ export default function CourseFeature(props) {
           d = getNextDate(course.recurring, 1);
         }
 
-        data.date = d;
+        data.date = d.getTime();
 
         let dt = format(d, "iiii");
         let time = format(d, "h:mma");
@@ -222,7 +255,7 @@ export default function CourseFeature(props) {
       });
 
       setFormatted(items.sort(function(a,b) {
-        return a.date.getTime() - b.date.getTime();
+        return a.date - b.date;
       }).concat([]));
     }
   }, [data]);
@@ -313,13 +346,13 @@ export default function CourseFeature(props) {
   }
 
   formContent = (
-    <Grid container style={{width: "100%"}}>
-      <Grid>
+    <Grid container direction="column" style={{width: "100%"}}>
+      <Grid item>
         {headerContent}
       </Grid>
-      <div className={classes.root}>
+      <Grid item className={classes.root}>
         {prevBtn}
-        <GridList cellHeight={height} className={classes.gridList} cols={cols} spacing={0}>
+        <GridList cellHeight={height} className={classes.gridList} cols={cols} spacing={10}>
           {displayData.map(course => (
             <GridListTile key={course.id} cols={1}>
               <Link className={classes.anchor} to={course.url}>
@@ -337,7 +370,7 @@ export default function CourseFeature(props) {
         ))}
         </GridList>
         {nextBtn}
-      </div>
+      </Grid>
     </Grid>
   );
 

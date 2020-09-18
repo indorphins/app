@@ -80,12 +80,16 @@ export default function() {
       return;
     }
 
+    let sessionData;
     try {
-      await Session.update(courseData.id, data.sessionId);
+      sessionData = await Session.update(courseData.id, data.sessionId);
     } catch (err) {
       log.error("OPENTOK:: create class session ", err);
-      // TODO do we want to fail or continue here
     }
+
+    if (sessionData) {
+      store.dispatch(actions.milestone.addSession(sessionData));
+    }    
 
     setAuthData({
       sessionId: data.sessionId,
@@ -115,7 +119,7 @@ export default function() {
   );
 
   let content = (
-    <LinearProgress color="secondary" />
+    <LinearProgress color="primary" />
   );
 
   if (!loader) {

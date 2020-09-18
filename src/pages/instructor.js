@@ -1,16 +1,27 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useHistory } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { Container, Grid, CircularProgress, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core';
+import { useSelector } from 'react-redux';
+import { createSelector } from 'reselect';
 
 import CourseSchedule from '../components/courseSchedule';
 import UserData from '../components/userData';
 import * as InstructorAPI from '../api/instructor';
 import * as Course from '../api/course';
 import log from '../log';
-import path from '../routes/path';
+
+const instructorDataSelector = createSelector([state => state.instructor], (data) => {
+  return data;
+});
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(4),
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+  },
   divider: {
     margin: theme.spacing(2),
   },
@@ -39,9 +50,9 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Instructor() {
 
-  const history = useHistory();
   const classes = useStyles();
   const params = useParams();
+  const instructorData = useSelector(state => instructorDataSelector(state))
   const [photo, setPhoto] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -53,13 +64,32 @@ export default function Instructor() {
   const [courses, setCourses] = useState([]);
 
   useEffect(() => {
-    
-    setCourses([]);
-
     if (params.id) {
       getInstructor(params.id);
     }
   }, [params]);
+
+  useEffect(() => {
+
+    if (!params.id) return;
+
+    if (instructorData.length > 0) {
+      let existing = instructorData.filter(item => {
+        return item.id === params.id;
+      })[0];
+
+      if (existing) {
+        if (existing.photo_url) setPhoto(existing.photo_url);
+        if (existing.username) setUsername(existing.username);
+        if (existing.email) setEmail(existing.email);
+        if (existing.first_name) setFirstName(existing.first_name);
+        if (existing.last_name) setLastName(existing.last_name);
+        if (existing.bio) setBio(existing.bio);
+        if (existing.social && existing.social.instagram) setInsta(existing.social.instagram);
+        setLoader(false);
+      }
+    }
+  }, [instructorData, params])
 
 
   async function getInstructor(id) {
@@ -68,15 +98,7 @@ export default function Instructor() {
     try {
       instructor = await InstructorAPI.get(id);
     } catch (err) {
-      // redirect to user's profile
       log.error("PROFILE::", err);
-      history.push(path.profile);
-      return;
-    }
-
-    if (!instructor || !instructor.data) {
-      // redirect to user's profile
-      history.push(path.profile);
       return;
     }
 
@@ -164,7 +186,7 @@ export default function Instructor() {
   }
 
   return (
-    <Container>
+    <Container className={classes.root}>
       {content}
     </Container>
   );

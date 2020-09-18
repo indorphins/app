@@ -128,7 +128,7 @@ export function Birthday(props) {
                   allowKeyboardControl={false}
                   disableToolbar={true}
                   helperText={err}
-                  color="secondary"
+                  color="primary"
                 />
               </Grid>
               <Grid item xs={4}>
@@ -148,7 +148,7 @@ export function Birthday(props) {
                   allowKeyboardControl={false}
                   disableToolbar={true}
                   helperText={err}
-                  color="secondary"
+                  color="primary"
                 />
               </Grid>
               <Grid item xs={4}>
@@ -168,7 +168,7 @@ export function Birthday(props) {
                   allowKeyboardControl={false}
                   disableToolbar={true}
                   helperText={err}
-                  color="secondary"
+                  color="primary"
                 />
               </Grid>
             </Grid>

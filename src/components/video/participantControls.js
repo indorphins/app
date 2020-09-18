@@ -32,7 +32,7 @@ export default function ParticipantControls(props) {
         }
       }).map(item => {
         if (item.user.id === course.instructor.id) {
-          item.color = "secondary";
+          item.color = "primary";
           item.icon = (<Star />);
           item.buttonDisabled = true;
         } else {

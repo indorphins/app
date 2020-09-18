@@ -192,7 +192,7 @@ export default function EditProfile() {
   if (loader) {
     progress = (
       <Grid>
-        <LinearProgress color="secondary" />
+        <LinearProgress color="primary" />
       </Grid>
     );
   }
@@ -228,7 +228,7 @@ export default function EditProfile() {
             disabled={loader}
             required
             autoComplete="username"
-            color="secondary"
+            color="primary"
             variant="outlined"
             type="text"
             id="username"
@@ -243,7 +243,7 @@ export default function EditProfile() {
             className={classes.input}
             disabled={loader}
             autoComplete="given_name"
-            color="secondary"
+            color="primary"
             variant="outlined"
             type="text"
             id="first"
@@ -257,7 +257,7 @@ export default function EditProfile() {
             className={classes.input}
             disabled={loader}
             autoComplete="family_name"
-            color="secondary"
+            color="primary"
             variant="outlined"
             type="text"
             id="last"
@@ -272,7 +272,7 @@ export default function EditProfile() {
             disabled={loader} 
             required
             autoComplete="tel"
-            color="secondary"
+            color="primary"
             variant="outlined"
             type="tel"
             id="phone"
@@ -286,7 +286,7 @@ export default function EditProfile() {
             className={classes.input}
             disabled={loader}
             autoComplete="tel"
-            color="secondary"
+            color="primary"
             variant="outlined"
             type="text"
             id="instagram"
@@ -299,7 +299,7 @@ export default function EditProfile() {
           <TextField
             className={classes.input}
             disabled={loader}
-            color="secondary"
+            color="primary"
             variant="outlined"
             type="text"
             id="photo"

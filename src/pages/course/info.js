@@ -39,6 +39,12 @@ import { format } from 'date-fns';
 import { createCalenderEvent } from '../../utils/index';
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(4),
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+  },
   title: {
     paddingBottom: theme.spacing(2),
   },
@@ -64,11 +70,19 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.grey[200],
   },
   photo: {
+    minHeight: 400,
+    maxHeight: 550,
     width: "100%",
     objectFit: "cover",
     borderRadius: "4px",
-    minHeight: 300,
-    maxHeight: 500,
+    '@media (max-width: 900px)': {
+      minHeight: 350,
+      maxHeight: 500,
+    },
+    '@media (max-width: 600px)': {
+      minHeight: 300,
+      maxHeight: 450,
+    },
   },
   nophoto: {
     width: "100%",
@@ -92,6 +106,12 @@ const useStyles = makeStyles((theme) => ({
     fontStyle: "italic",
     fontSize: "0.9rem",
   },
+  icon: {
+    display: 'flex',
+    alignContent: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   link: {
     cursor: "pointer",
     textDecoration: "none",
@@ -112,6 +132,10 @@ const selectDefaultPaymentMethod = createSelector(
   pd => pd.methods.filter(item => item.default)
 );
 
+const courseDataSelector = createSelector([state => state.course], (data) => {
+  return data;
+});
+
 export default function CourseInfo() {
 
   const classes = useStyles();
@@ -119,6 +143,7 @@ export default function CourseInfo() {
   const params = useParams();
   const currentUser = useSelector(state => getUserSelector(state));
   const paymentData = useSelector(state => paymentDataSelector(state));
+  const courseData = useSelector(state => courseDataSelector(state))
   const defaultPaymentMethod = useSelector(state => selectDefaultPaymentMethod(state));
   const paymentMethod = useRef(defaultPaymentMethod);
   const [course, setCourse] = useState('');
@@ -132,6 +157,18 @@ export default function CourseInfo() {
   useEffect(() => {
     document.querySelector('body').scrollTo(0, 0);
   }, []);
+
+  useEffect(() => {
+
+    if (params.id && courseData.length > 0) {
+      let existing = courseData.filter(item => {
+        return item.id === params.id;
+      })[0];
+
+      if (existing) setCourse(existing);
+    }
+
+  }, [courseData, params]);
 
   useEffect(() => {
     getCourse(params.id);
@@ -169,20 +206,14 @@ export default function CourseInfo() {
       cls = await Course.get(id);
     } catch (err) {
       log.error("COURSE INFO:: get course details", err);
-      history.push(path.home);
     }
 
     if (!cls || !cls.id) {
       log.debug("COURSE INFO:: course not found")
-      history.push(path.home);
       return;
     }
 
     log.debug("COURSE INFO:: got course details", cls);
-
-    if (typeof cls.instructor === String) {
-      cls.instructor = JSON.parse(cls.instructor);
-    }
     log.info("SET COURSE ", cls);
     setCourse(cls);
   }
@@ -206,7 +237,7 @@ export default function CourseInfo() {
     history.push(path.home);
   }
 
-  const courseSignupHandler = async function () {
+  const courseSignupHandler = function () {
 
     setErrMessage({severity: "info", message: "Processing..."});
     setPaymentProcessing(true);
@@ -299,7 +330,7 @@ export default function CourseInfo() {
       actionBtnDirection: "column",
       actionBtnSize: "auto",
       instructorDetailsDirection: "column",
-      instructorDetailsSize: "auto",
+      instructorDetailsSize: 12,
     };
   } else if (med) {
     layout = {
@@ -331,14 +362,14 @@ export default function CourseInfo() {
       actionBtnDirection: "row",
       actionBtnSize: 3,
       instructorDetailsDirection: "column",
-      instructorDetailsSize: "auto",
+      instructorDetailsSize: 12,
     }
   }
 
   let paymentProcessingContent = null;
   if (paymentProcessing) {
     paymentProcessingContent = ( 
-      <LinearProgress color="secondary" />
+      <LinearProgress color="primary" />
     );
   }
 
@@ -358,23 +389,33 @@ export default function CourseInfo() {
     let insta = null;
     if (course.instructor.social && course.instructor.social.instagram) {
       insta = (
-        <Instagram instagram={course.instructor.social.instagram} />
+        <Grid item style={{width: "100%"}}>
+          <Instagram instagram={course.instructor.social.instagram} />
+        </Grid>
       );
     }
 
     instructorContent = (
       <Card className={classes.instructorContainer}>
-        <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={2}>
-          <Grid item>
-            <RecordVoiceOver color="primary" />
+        <Grid container direction="column" spacing={2}>
+          <Grid 
+            item 
+            container 
+            direction="row"
+            justify="flex-start"
+            alignItems="center"
+            alignContent="center"
+            spacing={2}
+          >
+            <Grid item className={classes.icon}>
+              <RecordVoiceOver color="primary" />
+            </Grid>
+            <Grid item>
+              <Typography variant="h5">
+                {course.instructor.username}
+              </Typography>
+            </Grid>
           </Grid>
-          <Grid item>
-            <Typography variant="h5">
-              {course.instructor.username}
-            </Typography>
-          </Grid>
-        </Grid>
-        <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={2}>
           {insta}
         </Grid>
       </Card>
@@ -412,34 +453,36 @@ export default function CourseInfo() {
 
   let courseMetaData = (
     <Grid container direction="column" spacing={2}>
-      <Grid item>
-        <Grid container direction="row" justify="flex-end" spacing={2}>
-          <Grid item xs={layout.costSize}>
-            <Cost course={course} classes={classes} />
-          </Grid>
-          <Grid item xs={layout.costSize}>
-            <Duration course={course} classes={classes} />
-          </Grid>
-          <Grid item xs={layout.spotsSize}>
-            <AvailableSpots course={course} classes={classes} />
-          </Grid>               
+      <Grid item container direction="row" justify="flex-end" spacing={2}>
+        <Grid item xs={layout.costSize}>
+          <Cost course={course} classes={classes} />
         </Grid>
+        <Grid item xs={layout.costSize}>
+          <Duration course={course} classes={classes} />
+        </Grid>
+        <Grid item xs={layout.spotsSize}>
+          <AvailableSpots course={course} classes={classes} />
+        </Grid>               
       </Grid>
-      <Grid item>
-        <Grid container direction={layout.instructorDetailsDirection} spacing={2}>
-          <Grid item xs={layout.instructorDetailsSize}>
-            {instructorContent}
-          </Grid>
-          <Grid item xs={layout.instructorDetailsSize}>
-            <Participants currentUser={currentUser} course={course} />
-          </Grid>
+      <Grid item container direction={layout.instructorDetailsDirection} spacing={2}>
+        <Grid item xs={layout.instructorDetailsSize} style={{width: "100%"}}>
+          {instructorContent}
+        </Grid>
+        <Grid item xs={layout.instructorDetailsSize} style={{width: "100%"}}>
+          <Participants currentUser={currentUser} course={course} />
         </Grid>
       </Grid>
     </Grid>
   );
 
   let courseDetails = (
-    <Grid container direction={layout.courseDetailsDirection} justify={layout.courseDetailsJustify} spacing={2}>
+    <Grid 
+      container
+      direction={layout.courseDetailsDirection}
+      justify={layout.courseDetailsJustify}
+      spacing={2}
+      style={{flexWrap: "nowrap"}}
+    >
       <Grid item xs={layout.courseDetailsSize}>
         <Grid container direction={layout.coursePhotoDirection} justify="flex-start" spacing={2}>
           <Grid item xs={layout.coursePhotoSize}>
@@ -455,23 +498,23 @@ export default function CourseInfo() {
           </Grid>
         </Grid>
       </Grid>
-      <Grid item xs={layout.courseCostSize}>
+      <Grid item xs={layout.courseCostSize} style={{width:"100%"}}>
         {courseMetaData}
       </Grid>
     </Grid>
   );
 
   return (
-    <Container style={{paddingTop: "2rem", paddingBottom: "2rem"}}>
+    <Container className={classes.root}>
       <Grid container direction={layout.main} spacing={2}>
-        <Grid item>
+        <Grid item container>
           {courseDetails}
         </Grid>
         <Grid item>
           {errorContent}
           {paymentContent}
         </Grid>
-        <Grid item>
+        <Grid item container>
           <Grid container direction={layout.actionBtnDirection} justify="flex-end" spacing={2}>
             <JoinSession currentUser={currentUser} course={course} size={layout.actionBtnSize} />
             <Signup

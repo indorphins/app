@@ -1,16 +1,9 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import InstagramIcon from './icon/instagram';
-import { makeStyles, useTheme } from '@material-ui/core';
+import { makeStyles } from '@material-ui/core';
 import { Grid, Typography} from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
-  contactLabel: {
-    color: theme.palette.text.secondary,
-  },
-  icon: {
-    color: theme.palette.primary.main,
-    fontSize: "1.5rem",
-  },
   link: {
     textDecoration: "none",
     cursor: "pointer",
@@ -18,41 +11,53 @@ const useStyles = makeStyles((theme) => ({
     display: "inline-block",
     width: "100%",
   },
-  iconCnt: {
-    display: 'flex',
-  },
   container: {
-    padding: theme.spacing(1),
+    cursor: 'pointer',
+  },
+  icon: {
+    display: 'flex',
+    alignContent: 'center',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 }));
 
 export default function Instagram(props) {
 
   const classes = useStyles();
-  const theme = useTheme();
-  const iconColor = theme.palette.primary.main;
-  const url = `https://www.instagram.com/${props.instagram}`;
+  const [ url, setUrl ] = useState(null);
+
+  useEffect(() => {
+    if (props.instagram) {
+      setUrl(`https://www.instagram.com/${props.instagram}`);
+    }
+  }, [props])
+
+  const navigate = function() {
+    let win = window.open(url, '_blank');
+    win.focus();
+  }
 
   return (
-    <a title="View Instagram profile" className={classes.link} target="_blank" rel="noopener noreferrer" href={url}>
-      <Grid
-        container
-        direction="row"
-        justify="flex-start"
-        alignItems="center"
-        alignContent="center"
-        spacing={1}
-        className={classes.container}
-      >
-        <Grid item className={classes.iconCnt}>
-          <InstagramIcon color={iconColor} width="28px" height="28px" className={classes.icon} />
-        </Grid>
-        <Grid item>
-          <Typography className={classes.contactLabel}>
-            {`@${props.instagram}`}
-          </Typography>
-        </Grid>
+    <Grid
+      container
+      direction="row"
+      justify="flex-start"
+      alignItems="center"
+      alignContent="center"
+      spacing={2}
+      className={classes.container}
+      onClick={navigate}
+      title="Instagram"
+    >
+      <Grid item className={classes.icon}>
+        <InstagramIcon />
       </Grid>
-    </a>
-  )
+      <Grid item>
+        <Typography variant="h5">
+          {`@${props.instagram}`}
+        </Typography>
+      </Grid>
+    </Grid>
+  );
 }
