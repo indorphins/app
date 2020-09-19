@@ -155,7 +155,7 @@ export function sendClassEmail(html, id) {
  * Fetches list of all participants in the class with necessary additional info
  * @param {String} id 
  */
-export function getParticipants(id) {
+export async function getParticipants(id) {
   const options = {
     method: 'GET',
     headers: {

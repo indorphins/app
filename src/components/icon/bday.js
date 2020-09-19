@@ -9,9 +9,13 @@ export function BdayIcon(props) {
 
   const bday = formatDate(new Date(props.bday));
 
-  return (
-    <Tooltip title={bday} placement='top' arrow>
-      <BdayCakeIcon />
-    </Tooltip>
-  )
+  if (props.showBirthday) {
+    return (
+      <Tooltip title={bday} placement='top' arrow>
+        <BdayCakeIcon />
+      </Tooltip>
+    );
+  }
+
+  return null;
 }

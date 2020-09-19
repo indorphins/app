@@ -13,6 +13,7 @@ import { Photo, RecordVoiceOver } from '@material-ui/icons';
 import Alert from '@material-ui/lab/Alert';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
+import { isSameDay, isWithinInterval, sub, add } from 'date-fns';
 
 import { 
   AvailableSpots,
@@ -170,9 +171,10 @@ export default function CourseInfo() {
 
   }, [courseData, params]);
 
+
   useEffect(() => {
-    getCourse(params.id);
-  }, [params]);
+    getCourse(params.id, currentUser);
+  }, [params, currentUser]);
 
   useEffect(() => {
     if(defaultPaymentMethod) {
@@ -199,7 +201,23 @@ export default function CourseInfo() {
 
   }, [paymentData.id, currentUser.id]);
 
-  async function getCourse(id) {
+  function birthdayHelper(user, course) {
+    if (user.birthday) {
+      // Check range extending to 8 days on either side of today to ensure time differences don't miss a valid birthday
+      const bday = new Date(user.birthday);
+      const start = sub(new Date(course.start_date), {days: 8});
+      const end = add(new Date(course.start_date), {days: 8});
+      bday.setFullYear(start.getFullYear());
+
+      if (isSameDay(bday, new Date(course.start_date)) || isWithinInterval(bday, {start: start, end: end})) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+
+  async function getCourse(id, currentUser) {
     let cls;
 
     try {
@@ -211,6 +229,24 @@ export default function CourseInfo() {
     if (!cls || !cls.id) {
       log.debug("COURSE INFO:: course not found")
       return;
+    }
+
+    if (cls.instructor.id === currentUser.id || currentUser.type === 'admin') {
+      let participants;
+      try {
+        participants = await Course.getParticipants(cls.id)
+      } catch (err) {
+        log.warn("COURSE INFO:: unable to fetch list of participants");
+      }
+      
+      if (participants) {
+        let data = participants.map(item => {
+          item.showBirthday = birthdayHelper(item, cls);
+          return item;
+        });
+
+        cls.participants = data;
+      }
     }
 
     log.debug("COURSE INFO:: got course details", cls);
