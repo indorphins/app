@@ -1,12 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Grid, 
-  Typography,
-} from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
-import Emote from '../emote';
+import VideoContainer from './videoContainer';
 import VideoDOMElement from './videoDOMElement';
 import log from '../../../log';
 
@@ -112,94 +108,10 @@ const horizontalStyles = makeStyles((theme) => ({
   }
 }));
 
-const gridStyles = makeStyles((theme) => ({
-  full: {
-    height: "100%",
-    width: "100%",
-    position: "relative",
-  },
-  split: {
-    height: "100%",
-    width: "50%",
-    position: "relative",
-  },
-  subscriberItem: {
-    height: "50%",
-    width: "50%",
-    background: theme.palette.grey[50],
-    position: "relative",
-  },
-  subscriberItemAlt: {
-    height: "50%",
-    width: "50%",
-    position: "relative",
-  },
-  subscriberFeature: {
-    height: "50%",
-    width: "50%",
-    background: theme.palette.grey[50],
-    position: "relative"
-  },
-  subscriberFeatureAlt: {
-    height: "50%",
-    width: "50%",
-    position: "relative",
-  },
-  subscriberLabelBox: {
-    position: 'relative',
-    bottom: '50px',
-  },
-  subscriberLabel: {
-    fontSize: "2.2rem",
-    color: theme.palette.grey[800],
-  },
-  emoteBtn: {
-    position: "absolute",
-    zIndex: 999,
-    bottom: "10px",
-    right: "10px"
-  }
-}));
-
-/*const breaks = {
-  2: [2,1],
-  3: [2,2],
-  5: [3,2],
-  7: [3,3],
-  10: [4,3],
-  13: [4,4],
-  17: [5,4],
-  21: [5,5],
-  26: [6,5],
-}*/
-
-function VideoContainer(props) {
-  const { classes } = props;
-
-  return (
-    <Grid item className={props.className} style={props.style}>
-      {props.children}
-      <Box className={classes.subscriberLabelBox}>
-        <Typography
-          align="center"
-          variant="h4"
-          className={classes.subscriberLabel}
-        >
-          {props.username}
-        </Typography>
-      </Box>
-      <Grid className={classes.emoteBtn}>
-        <Emote userId={props.id} username={props.user.username} session={props.session} />
-      </Grid>
-    </Grid>
-  );
-}
-
 export default function Default(props) {
 
   const horizontalClasses = horizontalStyles();
   const verticalClasses = verticalStyles();
-  const gridClasses = gridStyles();
   const { session, subs, user } = props;
   const [ classes, setClasses ]  = useState(horizontalClasses);
   const [ featureVid, setFeatureVid ] = useState(null);
@@ -228,10 +140,6 @@ export default function Default(props) {
     }
   }, [subs]);
 
-  /*useEffect(() => {
-
-  }, [max]);*/
-
   useEffect(() => {
     if (props.max) {
       setMax(props.max);
@@ -245,10 +153,6 @@ export default function Default(props) {
       if (props.layout === "horizontal") {
         setDirection("column");
         setClasses(horizontalClasses);
-      }
-      if (props.layout === "grid") {
-        setDirection("column");
-        setClasses(gridClasses);
       }
     }
   }, [props]);

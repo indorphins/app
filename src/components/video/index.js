@@ -27,6 +27,7 @@ import ParticipantControls from './participantControls';
 import PublisherControls from './publisherControls';
 import log from '../../log';
 
+import GridView from './layout/gridView';
 import Default from './layout/default';
 import LayoutPicker from './layout/picker';
 
@@ -619,7 +620,13 @@ export default function Video(props) {
       })
     }
     
-  }, [maxStreams, loopMode])
+  }, [maxStreams, loopMode]);
+
+  useEffect(() => {
+    if (videoLayout === 'grid' && course.instructor.id === user.id) {
+      setMaxStreams(40);
+    }
+  }, [videoLayout, course, user])
 
   async function toggleLayout(evt) {
     if (evt === "fullscreen") {
@@ -627,6 +634,7 @@ export default function Video(props) {
     } else {
       setMaxStreams(max);
     }
+
     setVideoLayout(evt);
   }
 
@@ -876,12 +884,22 @@ export default function Video(props) {
     );
   }
 
+  let vidsLayout = (
+    <Default user={user} subs={subs} session={session} max={maxStreams} layout={videoLayout} />
+  )
+
+  if (videoLayout === "grid") {
+    vidsLayout = (
+      <GridView user={user} subs={subs} session={session} />
+    )
+  }
+
   return (
     <Grid style={{width: "100%", height: "100%", overflow: "hidden"}}>
       {displayMsgContent}
       <Grid container direction="row" justify="flex-start" style={{height:"100%", overflow: "hidden"}}>
         <Grid container direction="row" spacing={0} justify="flex-start" style={{height: "100%", overflow: "hidden"}} >
-          <Default user={user} subs={subs} session={session} max={maxStreams} layout={videoLayout} />
+          {vidsLayout}
           <Drawer>
             <PublisherControls publisher={publisher} user={user} course={course} session={session} />
             {accor}
