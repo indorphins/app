@@ -9,8 +9,8 @@ import { People } from '@material-ui/icons';
 import { isSameDay, isWithinInterval, sub, add } from 'date-fns';
 
 import { BdayIcon } from '../../components/icon/bday';
-import * as Course from '../../api/course';
-import log from '../../log';
+//import * as Course from '../../api/course';
+//import log from '../../log';
 import { ClassesTakenIcon } from '../icon/classesTaken';
 import { WeekStreakIcon } from '../icon/weekStreak';
 
@@ -46,7 +46,7 @@ export default function Participants(props) {
       }
     }));
 
-    if (course.instructor.id === currentUser.id || currentUser.type === 'admin') {
+    /*if (course.instructor.id === currentUser.id || currentUser.type === 'admin') {
       Course.getParticipants(course.id).then(list => {
         setParticipantList(list.sort((a, b) => {
           if (a.username === b.username) {
@@ -60,7 +60,7 @@ export default function Participants(props) {
       }).catch (err => {
         log.warn("COURSE INFO:: unable to fetch list of participants");
       })
-    }
+    }*/
   }, [course, currentUser]);
 
 
