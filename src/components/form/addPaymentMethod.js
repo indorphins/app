@@ -112,7 +112,7 @@ export default function (props) {
   if (loader) {
     progress = (
       <Grid>
-        <LinearProgress color="secondary" />
+        <LinearProgress color="primary" />
       </Grid>
     );
   }
