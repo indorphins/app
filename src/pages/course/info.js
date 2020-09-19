@@ -216,6 +216,25 @@ export default function CourseInfo() {
     return false;
   }
 
+  async function getParticipantsData(course) {
+    let participants;
+    let cls = Object.assign({}, course);
+    try {
+      participants = await Course.getParticipants(cls.id)
+    } catch (err) {
+      log.warn("COURSE INFO:: unable to fetch list of participants");
+    }
+    
+    if (participants) {
+      let data = participants.map(item => {
+        item.showBirthday = birthdayHelper(item, cls);
+        return item;
+      });
+
+      cls.participants = data;
+      setCourse(cls);
+    }
+  }
 
   async function getCourse(id, currentUser) {
     let cls;
@@ -231,27 +250,13 @@ export default function CourseInfo() {
       return;
     }
 
-    if (cls.instructor.id === currentUser.id || currentUser.type === 'admin') {
-      let participants;
-      try {
-        participants = await Course.getParticipants(cls.id)
-      } catch (err) {
-        log.warn("COURSE INFO:: unable to fetch list of participants");
-      }
-      
-      if (participants) {
-        let data = participants.map(item => {
-          item.showBirthday = birthdayHelper(item, cls);
-          return item;
-        });
-
-        cls.participants = data;
-      }
-    }
-
     log.debug("COURSE INFO:: got course details", cls);
     log.info("SET COURSE ", cls);
     setCourse(cls);
+
+    if (cls.instructor.id === currentUser.id || currentUser.type === 'admin') {
+      getParticipantsData(cls)
+    }
   }
 
   const showSignupForm = async function() {
