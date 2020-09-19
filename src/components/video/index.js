@@ -37,6 +37,12 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
     width: "48px",
     height: "48px",
+  },
+  enabled: {
+    color: theme.palette.common.white,
+  },
+  disabled: {
+    color: theme.palette.grey[300],
   }
 }));
 
@@ -764,10 +770,12 @@ export default function Video(props) {
     if (props.user) setUser(props.user);
   }, [props]);
 
-  let settingsText = "Rotate videos";
+  let textColor = classes.enabled;
+  let iconColor = classes.disabled;
 
-  if (!loopMode) {
-    settingsText = "Pin friends to view";
+  if (loopMode) {
+    textColor = classes.disabled;
+    iconColor = classes.enabled;
   }
   
   let settings = (
@@ -789,17 +797,17 @@ export default function Video(props) {
         alignContent="center"
       >
         <Grid item className={classes.settingsIcon}>
-          <Loop />
+          <Loop className={iconColor} />
         </Grid>
         <Grid item xs>
-          <Typography>{settingsText}</Typography>
+          <Typography className={textColor}>Pin friends to view</Typography>
         </Grid>
         <Grid item>
           <Switch 
-            checked={loopMode}
+            checked={!loopMode}
             color="primary"
             onChange={toggleLoopMode}
-            title={settingsText}
+            title="Rotate videos / pin friends"
             name="loop"
           />
         </Grid>
