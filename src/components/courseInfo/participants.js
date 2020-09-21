@@ -11,6 +11,7 @@ import { isSameDay, isWithinInterval, sub, add } from 'date-fns';
 import { BdayIcon } from '../../components/icon/bday';
 import { ClassesTakenIcon } from '../icon/classesTaken';
 import { WeekStreakIcon } from '../icon/weekStreak';
+import log from '../../log';
 
 const useStyles = makeStyles((theme) => ({
   participantContainer: {
@@ -45,23 +46,25 @@ export default function Participants(props) {
         bday.setFullYear(start.getFullYear());
   
         if (isSameDay(bday, new Date(course.start_date)) || isWithinInterval(bday, {start: start, end: end})) {
-          item.bday = true;
+          item.showBirthday = true;
         } else {
-          item.bday = false;
+          item.showBirthday = false;
         }
       }
       return item;
     });
 
     let sorted = data.sort((a, b) => {
-      if (a.username === b.username) {
+      if (a.username.toLowerCase() === b.username.toLowerCase()) {
         return 0;
-      } else if (a.username > b.username) {
+      } else if (a.username.toLowerCase() > b.username.toLowerCase()) {
         return 1;
       } else {
         return -1;
       }
-    })
+    });
+
+    log.debug("additional participants data", sorted);
 
     setParticipantList(sorted);
   }, [course]);
