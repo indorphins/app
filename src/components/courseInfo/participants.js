@@ -10,8 +10,8 @@ import { People } from '@material-ui/icons';
 import { isSameDay, isWithinInterval, sub, add } from 'date-fns';
 
 import { BdayIcon } from '../../components/icon/bday';
-import { ClassesTakenIcon } from '../icon/classesTaken';
-import { WeekStreakIcon } from '../icon/weekStreak';
+//import { ClassesTakenIcon } from '../icon/classesTaken';
+//import { WeekStreakIcon } from '../icon/weekStreak';
 import log from '../../log';
 
 const useStyles = makeStyles((theme) => ({
@@ -80,7 +80,11 @@ export default function Participants(props) {
     <Grid key={item.id} item xs={6}>
       <Grid container direction='row' alignItems='center' style={{flexWrap: "nowrap"}}>
         <Grid item style={{whiteSpace: "nowrap", overflow: "hidden"}}>
-          <Tooltip title={item.username} placement='top' arrow>
+          <Tooltip 
+            title={`${item.username}: ${item.classesTaken} classes taken, ${item.weeklyStreak} week streak`}
+            placement='top'
+            arrow
+          >
             <Typography 
               variant="body1" 
               style={{overflow: "hidden", textOverflow: "ellipsis"}}
@@ -91,8 +95,8 @@ export default function Participants(props) {
         </Grid>
         <Grid item style={{whiteSpace: "nowrap", fontSize: '0.7rem'}}>
           <BdayIcon bday={item.birthday} showBirthday={item.showBirthday} />
-          <ClassesTakenIcon classes={item.classesTaken} />
-          <WeekStreakIcon weeks={item.weeklyStreak} />
+          {/*<ClassesTakenIcon classes={item.classesTaken} />
+          <WeekStreakIcon weeks={item.weeklyStreak} />*/}
         </Grid>
       </Grid>
     </Grid>
