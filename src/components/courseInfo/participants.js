@@ -10,9 +10,7 @@ import { People } from '@material-ui/icons';
 import { isSameDay, isWithinInterval, sub, add } from 'date-fns';
 
 import { BdayIcon } from '../../components/icon/bday';
-//import { ClassesTakenIcon } from '../icon/classesTaken';
-//import { WeekStreakIcon } from '../icon/weekStreak';
-import log from '../../log';
+import { ClassesTakenIcon } from '../icon/classesTaken';
 
 const useStyles = makeStyles((theme) => ({
   participantContainer: {
@@ -37,7 +35,7 @@ export default function Participants(props) {
       return;
     }
 
-    let data = course.participants.map(item => {
+    let data = [].concat(course.participants).map(item => {
       if (item.birthday) {
         // Check range extending to 8 days on either side of today to ensure time differences 
         // don't miss a valid birthday
@@ -52,6 +50,17 @@ export default function Participants(props) {
           item.showBirthday = false;
         }
       }
+      
+      let titleText = {
+        title: `${item.username}`
+      };
+      
+      if (item.classesTaken && item.weeklyStreak) {
+        titleText.title += `: ${item.classesTaken} classes taken, ${item.weeklyStreak} week streak`;
+      }
+
+      item = Object.assign({}, titleText, item);
+
       return item;
     });
 
@@ -64,8 +73,6 @@ export default function Participants(props) {
         return -1;
       }
     });
-
-    log.debug("additional participants data", sorted);
 
     setParticipantList(sorted);
   }, [course]);
@@ -88,7 +95,7 @@ export default function Participants(props) {
       >
         <Grid item style={{whiteSpace: "nowrap", overflow: "hidden"}}>
           <Tooltip 
-            title={`${item.username}: ${item.classesTaken} classes taken, ${item.weeklyStreak} week streak`}
+            title={item.title}
             placement='top'
             arrow
           >
@@ -100,10 +107,9 @@ export default function Participants(props) {
             </Typography>
           </Tooltip>
         </Grid>
-        <Grid item style={{whiteSpace: "nowrap", fontSize: '0.7rem'}}>
+        <Grid item style={{whiteSpace: "nowrap", display: "flex", alignContent:"center", alignItems: "center"}}>
           <BdayIcon bday={item.birthday} showBirthday={item.showBirthday} />
-          {/*<ClassesTakenIcon classes={item.classesTaken} />
-          <WeekStreakIcon weeks={item.weeklyStreak} />*/}
+          <ClassesTakenIcon count={item.classesTaken} />
         </Grid>
       </Grid>
     </Grid>

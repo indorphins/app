@@ -1,15 +1,15 @@
 import React from 'react';
-import { Tooltip } from '@material-ui/core';
-import DirectionsRun from '@material-ui/icons/DirectionsRun';
+import { FiberNew } from '@material-ui/icons';
 
 export function ClassesTakenIcon(props) {
-  if (props.classes && props.classes > 0) {
-    return (
-      <Tooltip title={`${props.classes} classes`} placement='top' arrow>
-        <DirectionsRun />
-      </Tooltip>
-    );
-  }
+  const { count } = props;
 
-  return null;
+  if (count === 0) {
+    return (
+      <FiberNew style={{fontSize: '1.2rem'}} />
+    );
+  } else {
+
+    return null;
+  }
 }
