@@ -55,8 +55,12 @@ export default function Participants(props) {
         title: `${item.username}`
       };
       
-      if (item.classesTaken && item.weeklyStreak) {
-        titleText.title += `: ${item.classesTaken} classes taken, ${item.weeklyStreak} week streak`;
+      if (item.classesTaken >= 0) {
+        titleText.title += `: ${item.classesTaken} classes taken`;
+      }
+
+      if (item.weeklyStreak > 0) {
+        titleText.title += ` ${item.weeklyStreak} week streak`;
       }
 
       item = Object.assign({}, titleText, item);
