@@ -12,7 +12,7 @@ export function BdayIcon(props) {
   if (props.showBirthday) {
     return (
       <Tooltip title={bday} placement='top' arrow>
-        <BdayCakeIcon />
+        <BdayCakeIcon style={{fontSize: '1.2rem'}} />
       </Tooltip>
     );
   }

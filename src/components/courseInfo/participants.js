@@ -78,7 +78,14 @@ export default function Participants(props) {
 
   let participantsContent = list.map(item => (
     <Grid key={item.id} item xs={6}>
-      <Grid container direction='row' alignItems='center' style={{flexWrap: "nowrap"}}>
+      <Grid
+        container
+        direction='row'
+        alignItems='center'
+        alignContent="center"
+        style={{flexWrap: "nowrap"}}
+        spacing={1}
+      >
         <Grid item style={{whiteSpace: "nowrap", overflow: "hidden"}}>
           <Tooltip 
             title={`${item.username}: ${item.classesTaken} classes taken, ${item.weeklyStreak} week streak`}
@@ -114,7 +121,7 @@ export default function Participants(props) {
           </Typography>
         </Grid>
       </Grid>
-      <Grid container direction="row" justify="flex-start">
+      <Grid container direction="row" justify="flex-start" spacing={1}>
         {participantsContent}
       </Grid>
     </Card>
