@@ -148,6 +148,11 @@ export default function Styles(props) {
       textColorSecondary: {
         color: theme.palette.secondary.main,
       },
+    },
+    MuiTooltip: {
+      tooltip: {
+        color: theme.palette.primary.contrastText,
+      }
     }
   }
 
