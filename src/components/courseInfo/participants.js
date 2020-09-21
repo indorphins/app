@@ -9,8 +9,8 @@ import { People } from '@material-ui/icons';
 import { isSameDay, isWithinInterval, sub, add } from 'date-fns';
 
 import { BdayIcon } from '../../components/icon/bday';
-//import * as Course from '../../api/course';
-//import log from '../../log';
+import * as Course from '../../api/course';
+import log from '../../log';
 import { ClassesTakenIcon } from '../icon/classesTaken';
 import { WeekStreakIcon } from '../icon/weekStreak';
 
@@ -29,40 +29,28 @@ export default function Participants(props) {
 
   const classes = useStyles();
   const { currentUser, course } = props;
-  const [participantList, setParticipantList] = useState(null);
+  const [participantList, setParticipantList] = useState([]);
 
   useEffect(() => {
-    if (!course.participants) {
+    if (!course || !currentUser) {
       return;
     }
 
-    setParticipantList([].concat(course.participants).sort((a, b) => {
-      if (a.username === b.username) {
-        return 0;
-      } else if (a.username > b.username) {
-        return 1;
-      } else {
-        return -1;
-      }
-    }));
-
-    /*if (course.instructor.id === currentUser.id || currentUser.type === 'admin') {
-      Course.getParticipants(course.id).then(list => {
-        setParticipantList(list.sort((a, b) => {
-          if (a.username === b.username) {
-            return 0;
-          } else if (a.username > b.username) {
-            return 1;
-          } else {
-            return -1;
-          }
-        }))
-      }).catch (err => {
-        log.warn("COURSE INFO:: unable to fetch list of participants");
+    Course.getParticipants(course.id).then(list => {
+      setParticipantList(list.sort((a, b) => {
+        if (a.username === b.username) {
+          return 0;
+        } else if (a.username > b.username) {
+          return 1;
+        } else {
+          return -1;
+        }
       })
-    }*/
+    )}).catch (err => {
+      log.warn("COURSE INFO:: unable to fetch list of participants");
+    })
+   
   }, [course, currentUser]);
-
 
   const birthdayHelper = function (user) {
     if (user.birthday) {
