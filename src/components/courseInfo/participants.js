@@ -6,6 +6,7 @@ import {
   makeStyles,
 } from '@material-ui/core';
 import { People } from '@material-ui/icons';
+import { isSameDay, isWithinInterval, sub, add } from 'date-fns';
 
 import { BdayIcon } from '../../components/icon/bday';
 import { ClassesTakenIcon } from '../icon/classesTaken';
@@ -34,7 +35,25 @@ export default function Participants(props) {
       return;
     }
 
-    let data = [].concat(course.participants).sort((a, b) => {
+    let data = course.participants.map(item => {
+      if (item.birthday) {
+        // Check range extending to 8 days on either side of today to ensure time differences 
+        // don't miss a valid birthday
+        const bday = new Date(item.birthday);
+        const start = sub(new Date(course.start_date), {days: 8});
+        const end = add(new Date(course.start_date), {days: 8});
+        bday.setFullYear(start.getFullYear());
+  
+        if (isSameDay(bday, new Date(course.start_date)) || isWithinInterval(bday, {start: start, end: end})) {
+          item.bday = true;
+        } else {
+          item.bday = false;
+        }
+      }
+      return item;
+    });
+
+    let sorted = data.sort((a, b) => {
       if (a.username === b.username) {
         return 0;
       } else if (a.username > b.username) {
@@ -44,7 +63,7 @@ export default function Participants(props) {
       }
     })
 
-    setParticipantList(data);
+    setParticipantList(sorted);
   }, [course]);
 
   let list = [];

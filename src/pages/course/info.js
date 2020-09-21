@@ -13,7 +13,7 @@ import { Photo, RecordVoiceOver } from '@material-ui/icons';
 import Alert from '@material-ui/lab/Alert';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { isSameDay, isWithinInterval, sub, add } from 'date-fns';
+
 
 import { 
   AvailableSpots,
@@ -201,20 +201,6 @@ export default function CourseInfo() {
 
   }, [paymentData.id, currentUser.id]);
 
-  function birthdayHelper(user, course) {
-    if (user.birthday) {
-      // Check range extending to 8 days on either side of today to ensure time differences don't miss a valid birthday
-      const bday = new Date(user.birthday);
-      const start = sub(new Date(course.start_date), {days: 8});
-      const end = add(new Date(course.start_date), {days: 8});
-      bday.setFullYear(start.getFullYear());
-
-      if (isSameDay(bday, new Date(course.start_date)) || isWithinInterval(bday, {start: start, end: end})) {
-        return true;
-      }
-    }
-    return false;
-  }
 
   async function getParticipantsData(course) {
     let participants;
@@ -226,12 +212,7 @@ export default function CourseInfo() {
     }
     
     if (participants) {
-      let data = participants.map(item => {
-        item.showBirthday = birthdayHelper(item, cls);
-        return item;
-      });
-
-      cls.participants = data;
+      cls.participants = participants;
       setCourse(cls);
     }
   }
