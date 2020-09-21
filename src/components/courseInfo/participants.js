@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import {
   Card,
   Grid,
+  Tooltip,
   Typography,
   makeStyles,
 } from '@material-ui/core';
@@ -77,11 +78,22 @@ export default function Participants(props) {
 
   let participantsContent = list.map(item => (
     <Grid key={item.id} item xs={6}>
-      <Grid container display='inline' direction='row' alignItems='center'>
-        <Typography variant="body1">{item.username}</Typography>
-        <BdayIcon bday={item.birthday} showBirthday={item.showBirthday} />
-        <ClassesTakenIcon classes={item.classesTaken} />
-        <WeekStreakIcon weeks={item.weeklyStreak} />
+      <Grid container direction='row' alignItems='center' style={{flexWrap: "nowrap"}}>
+        <Grid item style={{whiteSpace: "nowrap", overflow: "hidden"}}>
+          <Tooltip title={item.username} placement='top' arrow>
+            <Typography 
+              variant="body1" 
+              style={{overflow: "hidden", textOverflow: "ellipsis"}}
+            >
+              {item.username}
+            </Typography>
+          </Tooltip>
+        </Grid>
+        <Grid item style={{whiteSpace: "nowrap", fontSize: '0.7rem'}}>
+          <BdayIcon bday={item.birthday} showBirthday={item.showBirthday} />
+          <ClassesTakenIcon classes={item.classesTaken} />
+          <WeekStreakIcon weeks={item.weeklyStreak} />
+        </Grid>
       </Grid>
     </Grid>
   ))
