@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   Card,
   Grid,
-  Tooltip,
   Typography,
   makeStyles,
 } from '@material-ui/core';
@@ -22,6 +21,31 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.grey[200],
   },
 }));
+
+function Email(props) {
+
+  const { value } = props;
+
+  const sendEmail = function() {
+    const mailTo = "mailto:" + value;
+    let win = window.open(mailTo, '_blank');
+    win.focus();
+  }
+
+  if (value) {
+    return (
+      <Typography
+        onClick={sendEmail}
+        variant="subtitle2"
+        style={{overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer"}}
+      >
+        {value}
+      </Typography>
+    );
+  }
+
+  return null;
+}
 
 export default function Participants(props) {
 
@@ -52,11 +76,11 @@ export default function Participants(props) {
       }
       
       let titleText = {
-        title: `${item.username}`
+        title: ""
       };
       
       if (item.classesTaken >= 0) {
-        titleText.title += `: ${item.classesTaken} classes taken`;
+        titleText.title += `${item.classesTaken} classes`;
       }
 
       if (item.weeklyStreak > 0) {
@@ -98,23 +122,24 @@ export default function Participants(props) {
         spacing={1}
       >
         <Grid item style={{whiteSpace: "nowrap", overflow: "hidden"}}>
-          <Tooltip 
-            title={item.title}
-            placement='top'
-            arrow
+          <Typography
+            color="primary"
+            variant="body1" 
+            style={{overflow: "hidden", textOverflow: "ellipsis"}}
           >
-            <Typography 
-              variant="body1" 
-              style={{overflow: "hidden", textOverflow: "ellipsis"}}
-            >
-              {item.username}
-            </Typography>
-          </Tooltip>
+            {item.username}
+          </Typography>
         </Grid>
         <Grid item style={{whiteSpace: "nowrap", display: "flex", alignContent:"center", alignItems: "center"}}>
           <BdayIcon bday={item.birthday} showBirthday={item.showBirthday} />
-          <ClassesTakenIcon count={item.classesTaken} />
+          <ClassesTakenIcon count={item.instructorClasses} />
         </Grid>
+      </Grid>
+      <Grid container direction="column" style={{whiteSpace: "nowrap", overflow: "hidden"}}>
+        <Email value={item.email} />
+        <Typography variant="subtitle2">
+          {item.title}
+        </Typography>
       </Grid>
     </Grid>
   ))
