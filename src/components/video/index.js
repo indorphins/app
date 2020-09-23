@@ -13,6 +13,7 @@ import {
 import { 
   ExpandMoreOutlined,
   Loop,
+  ViewArray
 } from '@material-ui/icons';
 import { Alert } from '@material-ui/lab';
 import * as OT from '@opentok/client';
@@ -99,6 +100,7 @@ export default function Video(props) {
   const [displayMsg, setDisplayMsg] = useState(null);
   const [permissionsError, setPermissionsError] = useState(false);
   const [videoLayout, setVideoLayout] = useState("horizontal");
+  const [cover, setCover] = useState(false);
   const subsRef = useRef();
   const loopModeRef = useRef();
   const maxStreamsRef = useRef();
@@ -357,6 +359,10 @@ export default function Video(props) {
     videoElement.style.width = "100%";
     videoElement.style.objectFit = "cover";
     videoElement.style.objectPosition = "center";
+
+    if (!cover) {
+      videoElement.style.objectFit = "contain";
+    }
 
     setSubs(subs => subs.map(item => {
       if (item.user.id === id) {
@@ -741,6 +747,21 @@ export default function Video(props) {
     }));
   }
 
+  function toggleCover() {
+    let updated = !cover;
+    setCover(updated);
+    setSubs(subs =>  subs.map(item => {
+      if (item.videoElement) {
+        if (updated) {
+          item.videoElement.style.objectFit = "cover"
+        } else {
+          item.videoElement.style.objectFit = "contain"
+        }
+      }
+      return item;
+    }));
+  }
+
   function handleSignal(event) {
     if (event.type === "signal:emote") {
       let data = JSON.parse(event.data);
@@ -785,6 +806,16 @@ export default function Video(props) {
     textColor = classes.disabled;
     iconColor = classes.enabled;
   }
+
+  let coverText = "Zoom";
+  let coverClasses = classes.disabled;
+  let cIconClasses = classes.enabled;
+
+  if (cover) {
+    coverText = "Zoom"
+    coverClasses = classes.enabled;
+    cIconClasses = classes.disabled;
+  }
   
   let settings = (
     <Grid container direction="column">
@@ -818,6 +849,22 @@ export default function Video(props) {
             title="Rotate videos / pin friends"
             name="loop"
           />
+        </Grid>
+        <Grid item container direction="row" justify="space-between" alignItems="center" alignContent="center">
+          <Grid item className={classes.settingsIcon}>
+            <ViewArray className={cIconClasses} />
+          </Grid>
+          <Grid item xs>
+            <Typography className={coverClasses}>{coverText}</Typography>
+          </Grid>
+          <Grid item>
+            <Switch
+              checked={cover}
+              color="primary"
+              onChange={toggleCover}
+              name="cover"
+            />
+          </Grid>
         </Grid>
       </Grid>
     </Grid>

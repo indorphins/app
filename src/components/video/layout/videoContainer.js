@@ -8,10 +8,14 @@ import {
 import Emote from '../emote';
 
 export default function VideoContainer(props) {
-  const { classes } = props;
+  const { classes, style } = props;
+
+  let styles = Object.assign({
+    backgroundColor: "black",
+  }, style)
 
   return (
-    <Grid item className={props.className} style={props.style}>
+    <Grid item className={props.className} style={styles}>
       {props.children}
       <Box className={classes.subscriberLabelBox}>
         <Typography
