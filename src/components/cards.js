@@ -230,7 +230,7 @@ class Cards extends React.Component {
           <RadioGroup onChange={this.changeDefaultPaymentMethod} className={classes.radioGroup}>
             {this.state.paymentData.methods.map(item => (
               <Grid key={item.id} item className={classes.cardItem}>
-                <Grid container direction="row" alignItems="center" justify="flext-start" spacing={2}>
+                <Grid container direction="row" alignItems="center" justify="flex-start" spacing={2}>
                   <Grid item xs={2}>
                     <Radio color="primary" checked={item.default} name={item.id} />
                   </Grid>
@@ -268,7 +268,7 @@ class Cards extends React.Component {
                           justify="center"
                           alignItems="center"
                           alignContent="center"
-                          spacing="2"
+                          spacing={2}
                         >
                           <Grid item style={{display:"flex"}}>
                             <CardLogo brand={item.brand} />

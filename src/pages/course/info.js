@@ -14,6 +14,7 @@ import Alert from '@material-ui/lab/Alert';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 
+
 import { 
   AvailableSpots,
   Cancel,
@@ -170,9 +171,10 @@ export default function CourseInfo() {
 
   }, [courseData, params]);
 
+
   useEffect(() => {
-    getCourse(params.id);
-  }, [params]);
+    getCourse(params.id, currentUser);
+  }, [params, currentUser]);
 
   useEffect(() => {
     if(defaultPaymentMethod) {
@@ -199,7 +201,23 @@ export default function CourseInfo() {
 
   }, [paymentData.id, currentUser.id]);
 
-  async function getCourse(id) {
+
+  async function getParticipantsData(course) {
+    let participants;
+    let cls = Object.assign({}, course);
+    try {
+      participants = await Course.getParticipants(cls.id)
+    } catch (err) {
+      log.warn("COURSE INFO:: unable to fetch list of participants");
+    }
+    
+    if (participants) {
+      cls.participants = participants;
+      setCourse(cls);
+    }
+  }
+
+  async function getCourse(id, currentUser) {
     let cls;
 
     try {
@@ -216,6 +234,10 @@ export default function CourseInfo() {
     log.debug("COURSE INFO:: got course details", cls);
     log.info("SET COURSE ", cls);
     setCourse(cls);
+
+    if (cls.instructor.id === currentUser.id || currentUser.type === 'admin') {
+      getParticipantsData(cls)
+    }
   }
 
   const showSignupForm = async function() {
