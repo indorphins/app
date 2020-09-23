@@ -60,6 +60,7 @@ const vidProps = {
 };
 
 const pubSettings = {
+  facingMode: "user",
   mirror: true,
   showControls: false,
   insertDefaultUI: true,
