@@ -105,9 +105,11 @@ export default function Video(props) {
   const subsRef = useRef();
   const loopModeRef = useRef();
   const maxStreamsRef = useRef();
+  const coverRef = useRef();
   subsRef.current = subs;
   loopModeRef.current = loopMode;
   maxStreamsRef.current = maxStreams;
+  coverRef.current = cover;
 
   async function handleError(err) {
     if (err) {
@@ -361,7 +363,7 @@ export default function Video(props) {
     videoElement.style.objectFit = "cover";
     videoElement.style.objectPosition = "center";
 
-    if (!cover) {
+    if (!coverRef.current) {
       videoElement.style.objectFit = "contain";
     }
 
