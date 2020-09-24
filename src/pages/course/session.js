@@ -147,8 +147,8 @@ export default function() {
   }, [params.id, currentUser]);
 
   function onDeviceChange(evt) {
-    setCameraId(evt.camera);
-    setMicId(evt.mic);
+    setCameraId(evt.cameraId);
+    setMicId(evt.micId);
     setJoin(evt.join);
   }
 
