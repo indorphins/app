@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
   },
   root: {
     height: '100%',
-    overflow: 'hidden',
+    overflowX: 'hidden',
     backgroundColor: dark.palette.background.default,
   },
   contentCol: {

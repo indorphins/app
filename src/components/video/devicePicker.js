@@ -313,7 +313,7 @@ export default function DevicePicker(props) {
   }
 
   return (
-    <Container style={{width: "100%", height: "100%", overflow: "hidden"}}>
+    <Container>
       {displayMsgContent}
       <Grid container direction="row" justify="center" spacing={4} style={{paddingTop: 16}}>
         <Grid item container direction="column" justify="center" alignItems="center" spacing={2}>
