@@ -98,6 +98,9 @@ const lightTypography = {
     fontWeight: 100,
     color: lightPalette.grey[900],
   },
+  subtitle2: {
+    fontStyle: "italic",
+  }
 };
 
 const darkPalette = {
@@ -188,6 +191,9 @@ const darkTypography = {
     fontStyle: 'italic',
     fontWeight: 100,
     color: darkPalette.grey[900],
+  },
+  subtitle2: {
+    fontStyle: "italic",
   }
 }
 
