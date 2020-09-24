@@ -13,7 +13,7 @@ import log from '../../log';
 import Video from '../../components/video';
 import DevicePicker from '../../components/video/devicePicker';
 import { dark } from '../../styles/theme';
-//import * as Session from '../../api/session';
+import * as Session from '../../api/session';
 
 const useStyles = makeStyles((theme) => ({
   '@global': {
@@ -58,30 +58,20 @@ export default function() {
   const [authData, setAuthData] = useState({});
   const [cameraId, setCameraId] = useState(null);
   const [micId, setMicId] = useState(null);
-  //const [join, setJoin] = useState(false);
-  const join = false;
+  const [join, setJoin] = useState(false);
   const [loader, setLoader] = useState(true);
 
-  /*const init = async function(classId) {
+  const init = async function(courseData) {
 
     if (!currentUser.id) return;
 
     let data;
     try {
-      data = await Course.getSessionInfo(classId);
+      data = await Course.getSessionInfo(courseData.id);
     } catch (err) {
       //TODO: redirect to class page with error message or display error here
       log.error("OPENTOK:: session join", err);
-      history.push(path.courses + "/" + classId);
-      return;
-    }
-
-    let courseData;
-    try {
-      courseData = await Course.get(classId);
-    } catch(err) {
-      log.error("OPENTOK:: get class info", err);
-      history.push(path.courses + "/" + classId);
+      history.push(path.courses + "/" + courseData.id);
       return;
     }
 
@@ -101,9 +91,8 @@ export default function() {
       token: data.token,
       apiKey: data.apiKey,      
     });
-    //setCourse(courseData);
     setLoader(false);
-  }*/
+  }
 
   const deviceInit = async function (classId) {
     if (!currentUser.id) return;
@@ -145,15 +134,22 @@ export default function() {
   }, [course, currentUser, authData])
 
   useEffect(() => {
+    if (join) {
+      setLoader(true);
+      init(course);
+    }
+  }, [join, course])
+
+  useEffect(() => {
     if (params.id && currentUser.id) {
       deviceInit(params.id)
     }
-    //init(params.id);
   }, [params.id, currentUser]);
 
   function onDeviceChange(evt) {
     setCameraId(evt.camera);
     setMicId(evt.mic);
+    setJoin(evt.join);
   }
 
   let content = (

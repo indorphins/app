@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Grid, MenuItem, Select, Typography, makeStyles } from '@material-ui/core';
+import React, { useEffect, useState } from 'react';
+import { Button, Container, Grid, MenuItem, Select, Typography, makeStyles } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import * as OT from '@opentok/client';
 import { isSafari, isMobile, fullBrowserVersion } from 'react-device-detect';
@@ -12,6 +12,17 @@ import VideoDOMElement from './layout/videoDOMElement';
 const useStyles = makeStyles((theme) => ({
   select: {
     width: 200,
+  },
+  audioLvlContainer: {
+    width: "100%",
+    height: 6, 
+    background: theme.palette.grey[100],
+    borderRadius: 3,
+    overflow: "hidden",
+  },
+  audioLvl: {
+    height: 6,
+    background: theme.palette.common.white,
   }
 }));
 
@@ -20,7 +31,7 @@ const pubSettings = {
   mirror: true,
   showControls: false,
   insertDefaultUI: false,
-  publishAudio: false,
+  publishAudio: true,
   publishVideo: true,
   resolution: "640x480",
   frameRate: 30,
@@ -31,7 +42,7 @@ const pubSettings = {
 
 export default function DevicePicker(props) {
   const classes = useStyles();
-  const { credentials, onChange } = props;
+  const { course, credentials, onChange } = props;
   const [displayMsg, setDisplayMsg] = useState(null);
   const [permissionsError, setPermissionsError] = useState(false);
   const [session, setSession] = useState(null);
@@ -40,10 +51,9 @@ export default function DevicePicker(props) {
   const [ audioDevices, setAudioDevices ] = useState([]);
   const [ camera, setCamera] = useState(null);
   const [ videoElement, setVideoElement ] = useState(null);
+  const [ audioLevel, setAudioLevel ] = useState(0);
   const [ mic, setMic] = useState(null);
-
-  const publisherRef = useRef();
-  publisherRef.current = publisher;
+  const [ join, setJoin ]= useState(false);
 
   async function handleError(err) {
     if (err) {
@@ -98,10 +108,11 @@ export default function DevicePicker(props) {
     if (onChange && typeof onChange === 'function') {
       onChange({
         cameraId: camera,
-        micId: mic
+        micId: mic,
+        join: join,
       });
     }
-  }, [camera, mic, onChange]);
+  }, [camera, mic, join, onChange]);
 
   useEffect(() => {
     if (!credentials) return;
@@ -137,7 +148,9 @@ export default function DevicePicker(props) {
     let valid = validateBrowserVersion();
 
     if (!valid) return;
+  }, []);
 
+  function getDevices() {
     OT.getDevices((err, result) => {
       log.debug("Hardware devices", result);
       setAudioDevices(result.filter(item => {
@@ -147,8 +160,8 @@ export default function DevicePicker(props) {
       setVideoDevices(result.filter(item => {
         return item.kind === "videoInput";
       }));
-    })
-  }, []);
+    });
+  }
 
   function videoElementCreated(event) {
     log.debug("OPENTOK:: subscriber video element created", event);
@@ -163,18 +176,23 @@ export default function DevicePicker(props) {
   }
 
   function initPublisher(settings) {
-    if (publisherRef.current && publisherRef.current.destroy) publisherRef.current.destroy();
-
     let publisher = OT.initPublisher('publisher', settings, handleError);
     log.info("OPENTOK:: publisher created", publisher);
     setPublisher(publisher);
 
     publisher.on({
+      accessAllowed: getDevices,
       accessDenied: function accessDeniedHandler(event) {
         setPermissionsError(true);
       },
       videoElementCreated: videoElementCreated,
+      audioLevelUpdated: audioLevelHandler,
     });
+  }
+
+  function audioLevelHandler(event) {
+    let lvl = Math.floor(100 * Number(event.audioLevel));
+    setAudioLevel(lvl);
   }
 
   function updateAudio(evt) {
@@ -218,6 +236,9 @@ export default function DevicePicker(props) {
       <Grid item container direction="row" spacing={2} justify="center" alignContent="center" alignItems="center">
         <Grid item style={{width: 110}}>
           <Typography color="primary">Microphone</Typography>
+          <Grid className={classes.audioLvlContainer}>
+            <Grid className={classes.audioLvl} style={{width: audioLevel}} />
+          </Grid>
         </Grid>
         <Grid item>
           <Select
@@ -273,14 +294,45 @@ export default function DevicePicker(props) {
     );
   }
 
-  return (
-    <Grid container direction="row" justify="center" style={{width: "100%", height: "100%", overflow: "hidden"}}>
-      {displayMsgContent}
-      <Grid container direction="column" justify="center" spacing={1}>
+  let content = null;
+
+  if (pubWindow) {
+    content = (
+      <React.Fragment>
         {pubWindow}
         {videoContent}
         {audioContent}
+      </React.Fragment>
+    )
+  } else {
+    content = (
+      <Grid item>
+        <Typography color="primary" variant="h5">Accessing camera and microphone...</Typography>
       </Grid>
-    </Grid>
+    )
+  }
+
+  return (
+    <Container style={{width: "100%", height: "100%", overflow: "hidden"}}>
+      {displayMsgContent}
+      <Grid container direction="row" justify="center" spacing={4} style={{paddingTop: 16}}>
+        <Grid item container direction="column" justify="center" alignItems="center" spacing={2}>
+          <Grid item>
+            <Typography variant="h3">Get setup for {course.title}</Typography>
+          </Grid>
+          {content}
+        </Grid>
+        <Grid item>
+          <Button
+            onClick={() => {setJoin(true);}}
+            variant="contained"
+            color="primary"
+            style={{fontWeight: 'bold'}}
+          >
+            Join Class
+          </Button>
+        </Grid>
+      </Grid>
+    </Container>
   )
 }
