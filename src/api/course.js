@@ -117,6 +117,19 @@ export async function removeParticipant(id) {
   return callAPI(u, options, true);
 }
 
+export async function getPrivateSessionInfo(id) {
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  };
+
+  let u = url + id + "/privatesession";
+
+  return callAPI(u, options, true);
+}
+
 export async function getSessionInfo(id) {
   const options = {
     method: 'GET',

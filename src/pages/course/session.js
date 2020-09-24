@@ -11,8 +11,9 @@ import * as Course from '../../api/course';
 import path from '../../routes/path';
 import log from '../../log';
 import Video from '../../components/video';
+import DevicePicker from '../../components/video/devicePicker';
 import { dark } from '../../styles/theme';
-import * as Session from '../../api/session';
+//import * as Session from '../../api/session';
 
 const useStyles = makeStyles((theme) => ({
   '@global': {
@@ -55,9 +56,13 @@ export default function() {
   const params = useParams();
   const [course, setCourse] = useState({});
   const [authData, setAuthData] = useState({});
+  const [cameraId, setCameraId] = useState(null);
+  const [micId, setMicId] = useState(null);
+  //const [join, setJoin] = useState(false);
+  const join = false;
   const [loader, setLoader] = useState(true);
 
-  const init = async function(classId) {
+  /*const init = async function(classId) {
 
     if (!currentUser.id) return;
 
@@ -96,6 +101,37 @@ export default function() {
       token: data.token,
       apiKey: data.apiKey,      
     });
+    //setCourse(courseData);
+    setLoader(false);
+  }*/
+
+  const deviceInit = async function (classId) {
+    if (!currentUser.id) return;
+
+    let data;
+    try {
+      data = await Course.getPrivateSessionInfo(classId);
+    } catch (err) {
+      //TODO: redirect to class page with error message or display error here
+      log.error("OPENTOK:: session join", err);
+      history.push(path.courses + "/" + classId);
+      return;
+    }
+
+    let courseData;
+    try {
+      courseData = await Course.get(classId);
+    } catch(err) {
+      log.error("OPENTOK:: get class info", err);
+      history.push(path.courses + "/" + classId);
+      return;
+    }
+
+    setAuthData({
+      sessionId: data.sessionId,
+      token: data.token,
+      apiKey: data.apiKey,      
+    });
     setCourse(courseData);
     setLoader(false);
   }
@@ -109,21 +145,36 @@ export default function() {
   }, [course, currentUser, authData])
 
   useEffect(() => {
-    init(params.id);
+    if (params.id && currentUser.id) {
+      deviceInit(params.id)
+    }
+    //init(params.id);
   }, [params.id, currentUser]);
 
-  let chatContent = (
-    <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
-      <Video credentials={authData} course={course} user={currentUser} />
-    </Grid>
-  );
+  function onDeviceChange(evt) {
+    setCameraId(evt.camera);
+    setMicId(evt.mic);
+  }
 
   let content = (
     <LinearProgress color="primary" />
   );
 
   if (!loader) {
-    content = chatContent;
+
+    if (join) {
+      content = (
+        <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
+          <Video credentials={authData} course={course} user={currentUser} cameraId={cameraId} micId={micId} />
+        </Grid>
+      );
+    } else {
+      content = (
+        <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
+          <DevicePicker credentials={authData} course={course} user={currentUser} onChange={onDeviceChange} />
+        </Grid>
+      )
+    }
   }
 
   return (
