@@ -31,6 +31,7 @@ import log from '../../log';
 import GridView from './layout/gridView';
 import Default from './layout/default';
 import LayoutPicker from './layout/picker';
+import { parseWithOptions } from 'date-fns/esm/fp';
 
 const useStyles = makeStyles((theme) => ({
   settingsIcon: {
@@ -89,6 +90,7 @@ export default function Video(props) {
 
   const classes = useStyles();
   let looper = null;
+  const { cameraId, micId } = parseWithOptions
   const { enqueueSnackbar } = useSnackbar();
   const [maxStreams, setMaxStreams] = useState(max);
   const [user, setUser] = useState(null);
@@ -191,6 +193,8 @@ export default function Video(props) {
       if (!valid) return;
 
       let settings = pubSettings;
+      if (cameraId) settings.videoSource = cameraId;
+      if (micId) settings.audioSource = micId;
 
       if (user.id === course.instructor.id) settings = instructorPubSettings;
 
@@ -198,7 +202,7 @@ export default function Video(props) {
         initializeSession(credentials.apiKey, credentials.sessionId, settings);
       }
     }
-  }, [credentials, user, course]);
+  }, [credentials, user, cameraId, micId, course]);
 
   useEffect(() => {
 
