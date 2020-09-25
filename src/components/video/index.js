@@ -17,8 +17,6 @@ import {
 } from '@material-ui/icons';
 import { Alert } from '@material-ui/lab';
 import * as OT from '@opentok/client';
-import { isSafari, isMobile, fullBrowserVersion } from 'react-device-detect';
-import compareVersions from 'compare-versions';
 import { useSnackbar } from 'notistack';
 
 import Chat from './chat';
@@ -31,7 +29,6 @@ import log from '../../log';
 import GridView from './layout/gridView';
 import Default from './layout/default';
 import LayoutPicker from './layout/picker';
-import { parseWithOptions } from 'date-fns/esm/fp';
 
 const useStyles = makeStyles((theme) => ({
   settingsIcon: {
@@ -61,11 +58,11 @@ const vidProps = {
 };
 
 const pubSettings = {
-  facingMode: "user",
+  usePreviousDeviceSelection: true,
   mirror: true,
   showControls: false,
   insertDefaultUI: true,
-  publishAudio: false,
+  publishAudio: true,
   publishVideo: true,
   resolution: "320x240",
   frameRate: 30,
@@ -75,6 +72,7 @@ const pubSettings = {
 };
 
 const instructorPubSettings = {
+  usePreviousDeviceSelection: true,
   mirror: true,
   showControls: false,
   insertDefaultUI: true,
@@ -90,13 +88,14 @@ export default function Video(props) {
 
   const classes = useStyles();
   let looper = null;
-  const { cameraId, micId } = parseWithOptions
+  const { cameraId, micId } = props;
   const { enqueueSnackbar } = useSnackbar();
   const [maxStreams, setMaxStreams] = useState(max);
   const [user, setUser] = useState(null);
   const [course, setCourse] = useState(null);
   const [credentials, setCredentials] = useState(null);
   const [session, setSession] = useState(null);
+  const [connected, setConnected] = useState(false);
   const [publisher, setPublisher] = useState(null);
   const [subs, setSubs] = useState([]);
   const [loopMode, setLoopMode] = useState(true);
@@ -115,7 +114,7 @@ export default function Video(props) {
 
   async function handleError(err) {
     if (err) {
-      log.error("OPENTOK::", err);
+      log.error("OPENTOK:: handleError", err);
 
       if (err.name === 'OT_HARDWARE_UNAVAILABLE') {
         return setDisplayMsg({
@@ -138,7 +137,7 @@ export default function Video(props) {
     }
   }
 
-  async function initializeSession(apiKey, sessionId, settings) {
+  async function initializeSession(apiKey, sessionId) {
 
     let session = OT.initSession(apiKey, sessionId);
 
@@ -148,8 +147,14 @@ export default function Video(props) {
     }
 
     setSession(session);
-    settings.name = session.data;
-  
+  }
+
+  /*function testHandler(event) {
+    log.debug("publisher video element created", event);
+  }*/
+
+  async function initializePublisher(settings, session) {
+
     let publisher = OT.initPublisher('publisher', settings, handleError);
     log.info("OPENTOK:: publisher created", publisher);
     setPublisher(publisher);
@@ -157,52 +162,54 @@ export default function Video(props) {
     publisher.on({
       accessDenied: function accessDeniedHandler(event) {
         setPermissionsError(true);
-      }
+      },
+      //videoElementCreated: testHandler,
     });
-  }
 
-  function validateBrowserVersion() {
-    let valid = true;
-
-    if (isMobile) {
-      setDisplayMsg({
-        severity: "warning",
-        message: "Indoorphins classes are not yet optimized for mobile devices. Apologies for the inconvenience."
-      });
-      valid = false;
-    }
-
-    if (isSafari) {
-      let compare = compareVersions(fullBrowserVersion, '12.1.0');
-      if (compare === -1) {
-        setDisplayMsg({
-          severity: "error",
-          message: "This version of Safari is not supported. Please update your system."
-        });
-        valid = false;
-      }
-    }
-    return valid;
+    session.publish(publisher, handleError);
   }
 
   useEffect(() => {
-    if (credentials && user && course) {
+    if (credentials && credentials.apiKey && credentials.sessionId) {
+      initializeSession(credentials.apiKey, credentials.sessionId);
+    }
+  }, [credentials]);
 
-      let valid = validateBrowserVersion();
+  useEffect(() => {
 
-      if (!valid) return;
+    if (connected) {
 
       let settings = pubSettings;
-      if (cameraId) settings.videoSource = cameraId;
-      if (micId) settings.audioSource = micId;
-
       if (user.id === course.instructor.id) settings = instructorPubSettings;
 
-      if (credentials.apiKey && credentials.sessionId) {
-        initializeSession(credentials.apiKey, credentials.sessionId, settings);
-      }
+      OT.getUserMedia().then(result => {
+        
+        let tracks = result.getTracks();
+        log.debug('user media result', tracks);
+
+        OT.getDevices((err, result) => {
+
+          log.debug("user devices result", result);
+
+          log.debug("selected camera", cameraId);
+          if (cameraId) {
+            //settings.videoSource = tracks.filter(item => item.kind === 'video')[0];
+            settings.videoSource = cameraId;
+          }
+    
+          log.debug("selected mic", micId);
+          if (micId) {
+            //settings.audioSource = tracks.filter(item => item.kind === 'audio')[0];
+            settings.audioSource = micId;
+          }
+    
+          initializePublisher(settings, session);
+        });
+      });
+
     }
-  }, [credentials, user, cameraId, micId, course]);
+
+  }, [session, connected, course, user, cameraId, micId])
 
   useEffect(() => {
 
@@ -220,19 +227,9 @@ export default function Video(props) {
     }
     
     // connect to session if a connection does not already exist
-    if (session.connect && !session.connection) {
+    if (session.connect) {
       // Connect to the session
-      session.connect(credentials.token, function(error) {
-        // If the connection is successful, initialize a publisher and publish to the session
-        if (error) {
-          return handleError(error);
-        }
-
-        if (session.capabilities.publish === 1) {
-          session.publish(publisher, handleError);
-        }
-
-      });
+      session.connect(credentials.token, handleError)
     }
 
     return function() {
@@ -248,23 +245,20 @@ export default function Video(props) {
         return sub;
       }));
 
-      // destroy publisher object
-      publisher.publishVideo(false);
-      publisher.publishAudio(false);
-      publisher.destroy();
-
       // disconnect local session
       if (session && session.connection) session.disconnect();
       log.debug('OPENTOK:: disconnected from video session');
     }
-  }, [session, publisher]);
+  }, [session]);
 
   function connectionCreated(event) {
     log.info("OPENTOK:: connection created", event);
 
     let data = JSON.parse(event.connection.data);
 
-    if (data.id === user.id) return;
+    if (data.id === user.id) {
+      return setConnected(true);
+    }
 
     let subData = {
       user: data,

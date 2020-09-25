@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const pubSettings = {
-  facingMode: "user",
+  usePreviousDeviceSelection: true,
   mirror: true,
   showControls: false,
   insertDefaultUI: false,
@@ -153,13 +153,17 @@ export default function DevicePicker(props) {
   function getDevices() {
     OT.getDevices((err, result) => {
       log.debug("Hardware devices", result);
-      setAudioDevices(result.filter(item => {
+      let video = result.filter(item => {
         return item.kind === "audioInput";
-      }));
+      })
+      setAudioDevices(video);
+      setCamera(video[0].deviceId)
 
-      setVideoDevices(result.filter(item => {
+      let audio = result.filter(item => {
         return item.kind === "videoInput";
-      }));
+      })
+      setVideoDevices(audio);
+      setMic(audio[0].deviceId);
     });
   }
 
@@ -176,7 +180,7 @@ export default function DevicePicker(props) {
   }
 
   function initPublisher(settings) {
-    let publisher = OT.initPublisher('publisher', settings, handleError);
+    let publisher = OT.initPublisher(null, settings, handleError);
     log.info("OPENTOK:: publisher created", publisher);
     setPublisher(publisher);
 
@@ -237,7 +241,7 @@ export default function DevicePicker(props) {
         <Grid item style={{width: 110}}>
           <Typography color="primary">Microphone</Typography>
           <Grid className={classes.audioLvlContainer}>
-            <Grid className={classes.audioLvl} style={{width: audioLevel}} />
+            <Grid className={classes.audioLvl} style={{width: `${audioLevel}%`}} />
           </Grid>
         </Grid>
         <Grid item>
@@ -324,7 +328,12 @@ export default function DevicePicker(props) {
         </Grid>
         <Grid item>
           <Button
-            onClick={() => {setJoin(true);}}
+            onClick={() => {
+              publisher.destroy();
+              session.disconnect();
+              log.debug('OPENTOK:: disconnected from video session');
+              setJoin(true);
+            }}
             variant="contained"
             color="primary"
             style={{fontWeight: 'bold'}}

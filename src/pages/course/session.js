@@ -55,6 +55,7 @@ export default function() {
   const history = useHistory();
   const params = useParams();
   const [course, setCourse] = useState({});
+  const [prvAuthData, setPrvAuthData] = useState({});
   const [authData, setAuthData] = useState({});
   const [cameraId, setCameraId] = useState(null);
   const [micId, setMicId] = useState(null);
@@ -116,7 +117,7 @@ export default function() {
       return;
     }
 
-    setAuthData({
+    setPrvAuthData({
       sessionId: data.sessionId,
       token: data.token,
       apiKey: data.apiKey,      
@@ -158,7 +159,7 @@ export default function() {
 
   if (!loader) {
 
-    if (join) {
+    if (authData && authData.token) {
       content = (
         <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
           <Video credentials={authData} course={course} user={currentUser} cameraId={cameraId} micId={micId} />
@@ -167,7 +168,7 @@ export default function() {
     } else {
       content = (
         <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
-          <DevicePicker credentials={authData} course={course} user={currentUser} onChange={onDeviceChange} />
+          <DevicePicker credentials={prvAuthData} course={course} user={currentUser} onChange={onDeviceChange} />
         </Grid>
       )
     }
