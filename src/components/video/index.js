@@ -13,7 +13,7 @@ import {
 import { 
   ExpandMoreOutlined,
   Loop,
-  ViewArray
+  //ViewArray
 } from '@material-ui/icons';
 import { Alert } from '@material-ui/lab';
 import * as OT from '@opentok/client';
@@ -21,11 +21,10 @@ import { useSnackbar } from 'notistack';
 
 import Chat from './chat';
 import Drawer from './drawer';
-import PermissionsError from './permissionsError';
 import ParticipantControls from './participantControls';
-import PublisherControls from './publisherControls';
-import log from '../../log';
 
+import log from '../../log';
+import DevicePicker from './devicePicker';
 import GridView from './layout/gridView';
 import Default from './layout/default';
 import LayoutPicker from './layout/picker';
@@ -57,57 +56,30 @@ const vidProps = {
   subscribeToVideo: true,
 };
 
-const pubSettings = {
-  usePreviousDeviceSelection: true,
-  mirror: true,
-  showControls: false,
-  insertDefaultUI: true,
-  publishAudio: true,
-  publishVideo: true,
-  resolution: "320x240",
-  frameRate: 30,
-  audioBitrate: 44000,
-  enableStereo: false,
-  maxResolution: {width: 640, height: 480},
-};
-
-const instructorPubSettings = {
-  usePreviousDeviceSelection: true,
-  mirror: true,
-  showControls: false,
-  insertDefaultUI: true,
-  publishAudio: true,
-  publishVideo: true,
-  audioBitrate: 96000,
-  frameRate: 30,
-  resolution: "640x480",
-  maxResolution: {width: 1280, height: 720},
-}
-
 export default function Video(props) {
 
   const classes = useStyles();
   let looper = null;
-  const { cameraId, micId } = props;
   const { enqueueSnackbar } = useSnackbar();
   const [maxStreams, setMaxStreams] = useState(max);
   const [user, setUser] = useState(null);
   const [course, setCourse] = useState(null);
   const [credentials, setCredentials] = useState(null);
   const [session, setSession] = useState(null);
-  const [connected, setConnected] = useState(false);
   const [publisher, setPublisher] = useState(null);
   const [subs, setSubs] = useState([]);
   const [loopMode, setLoopMode] = useState(true);
   const [displayMsg, setDisplayMsg] = useState(null);
-  const [permissionsError, setPermissionsError] = useState(false);
   const [videoLayout, setVideoLayout] = useState("horizontal");
-  const [cover, setCover] = useState(false);
+  //const [cover, setCover] = useState(true);
+  const cover = true;
   const subsRef = useRef();
+  const sessionRef = useRef();
   const loopModeRef = useRef();
   const maxStreamsRef = useRef();
   const coverRef = useRef();
   subsRef.current = subs;
+  sessionRef.current = session;
   loopModeRef.current = loopMode;
   maxStreamsRef.current = maxStreams;
   coverRef.current = cover;
@@ -137,118 +109,54 @@ export default function Video(props) {
     }
   }
 
-  async function initializeSession(apiKey, sessionId) {
+  async function initializeSession(apiKey, token, sessionId) {
 
     let session = OT.initSession(apiKey, sessionId);
 
     if (session.capabilities.publish !== 0) {
-      setDisplayMsg({severity: "error", message: "Not allowed to publish to session"});
       return;
     }
 
-    setSession(session);
-  }
+    session.on('connectionCreated', connectionCreated);
+    session.on('connectionDestroyed', connectionDestroyed);
+    session.on('streamCreated', streamCreated);
+    session.on('streamDestroyed', streamDestroyed);
+    session.on('signal', handleSignal);
 
-  /*function testHandler(event) {
-    log.debug("publisher video element created", event);
-  }*/
-
-  async function initializePublisher(settings, session) {
-
-    let publisher = OT.initPublisher('publisher', settings, handleError);
-    log.info("OPENTOK:: publisher created", publisher);
-    setPublisher(publisher);
-
-    publisher.on({
-      accessDenied: function accessDeniedHandler(event) {
-        setPermissionsError(true);
-      },
-      //videoElementCreated: testHandler,
+    session.connect(token, (err) => {
+      setSession(session);
     });
-
-    session.publish(publisher, handleError);
   }
+
 
   useEffect(() => {
     if (credentials && credentials.apiKey && credentials.sessionId) {
-      initializeSession(credentials.apiKey, credentials.sessionId);
+      initializeSession(credentials.apiKey, credentials.token, credentials.sessionId);
     }
   }, [credentials]);
 
   useEffect(() => {
 
-    if (connected) {
+    return function cleanup() {
+      if (session && session.connection) {
+        // disconnect the event listeners
+        session.off('connectionCreated');
+        session.off('connectionDestroyed');
+        session.off('streamCreated');
+        session.off('streamDestroyed');
+        session.off('signal');
 
-      let settings = pubSettings;
-      if (user.id === course.instructor.id) settings = instructorPubSettings;
+        setSubs(subs.map(sub => {
+          if (sub.subscriber) session.unsubscribe(sub.subscriber);
+          return sub;
+        }));
 
-      OT.getUserMedia().then(result => {
-        
-        let tracks = result.getTracks();
-        log.debug('user media result', tracks);
-
-        OT.getDevices((err, result) => {
-
-          log.debug("user devices result", result);
-
-          log.debug("selected camera", cameraId);
-          if (cameraId) {
-            //settings.videoSource = tracks.filter(item => item.kind === 'video')[0];
-            settings.videoSource = cameraId;
-          }
-    
-          log.debug("selected mic", micId);
-          if (micId) {
-            //settings.audioSource = tracks.filter(item => item.kind === 'audio')[0];
-            settings.audioSource = micId;
-          }
-    
-          initializePublisher(settings, session);
-        });
-      });
-
+        // disconnect local session
+        session.disconnect();
+        log.debug('OPENTOK:: disconnected from video session');
+      }
     }
 
-  }, [session, connected, course, user, cameraId, micId])
-
-  useEffect(() => {
-
-    if (!session) return;
-
-    log.debug("OPENTOK:: session object", session);
-
-    // Subscribe to stream events
-    if (session.on) {
-      session.on('connectionCreated', connectionCreated);
-      session.on('connectionDestroyed', connectionDestroyed);
-      session.on('streamCreated', streamCreated);
-      session.on('streamDestroyed', streamDestroyed);
-      session.on('signal', handleSignal);
-    }
-    
-    // connect to session if a connection does not already exist
-    if (session.connect) {
-      // Connect to the session
-      session.connect(credentials.token, handleError)
-    }
-
-    return function() {
-      // disconnect the event listeners
-      session.off('connectionCreated');
-      session.off('connectionDestroyed');
-      session.off('streamCreated');
-      session.off('streamDestroyed');
-      session.off('signal');
-
-      setSubs(subs.map(sub => {
-        if (sub.subscriber) session.unsubscribe(sub.subscriber);
-        return sub;
-      }));
-
-      // disconnect local session
-      if (session && session.connection) session.disconnect();
-      log.debug('OPENTOK:: disconnected from video session');
-    }
   }, [session]);
 
   function connectionCreated(event) {
@@ -257,7 +165,7 @@ export default function Video(props) {
     let data = JSON.parse(event.connection.data);
 
     if (data.id === user.id) {
-      return setConnected(true);
+      return;
     }
 
     let subData = {
@@ -282,7 +190,7 @@ export default function Video(props) {
 
   async function enableCandidate(candidate) {
 
-    if (!candidate.stream) return;
+    if (!candidate.stream || !session.subscribe) return;
 
     let props = vidProps;
     candidate.video = true;
@@ -324,7 +232,7 @@ export default function Video(props) {
 
     setSubs(subs => subs.map(item => {
       if (item.user.id === data.id) {
-        if (item.subscriber) session.unsubscribe(item.subscriber);
+        if (item.subscriber) sessionRef.current.unsubscribe(item.subscriber);
         item.subscriber = null;
         item.stream = null;
 
@@ -388,7 +296,7 @@ export default function Video(props) {
     match.audio = false;
     
     if (match.video && match.subscriber) {
-      session.unsubscribe(match.subscriber);
+      sessionRef.current.unsubscribe(match.subscriber);
       match.subscriber = null;
     }
 
@@ -444,7 +352,7 @@ export default function Video(props) {
         }
 
         try {
-          subscriber = await session.subscribe(match.stream, null, props, handleError);
+          subscriber = await sessionRef.current.subscribe(match.stream, null, props, handleError);
         } catch (err) {
           log.error("Subscribe to stream", err);
         }
@@ -506,14 +414,16 @@ export default function Video(props) {
       }));
 
       try {
-        subscriber = await session.subscribe(event.stream, null, props, handleError);
+        subscriber = await sessionRef.current.subscribe(event.stream, null, props, handleError);
       } catch (err) {
         log.error("Subscribe to stream", err);
       }
 
-      log.debug("OPENTOK:: created subscriber", subscriber);
-      subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, data.id) });
-      subData.subscriber = subscriber;
+      if (subscriber) {
+        log.debug("OPENTOK:: created subscriber", subscriber);
+        subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, data.id) });
+        subData.subscriber = subscriber;
+      }
     }
 
     setSubs(subs => subs.map(item => {
@@ -567,7 +477,7 @@ export default function Video(props) {
 
         let subscriber = null;
         try {
-          subscriber = await session.subscribe(next.stream, null, vidProps, handleError);
+          subscriber = await sessionRef.current.subscribe(next.stream, null, vidProps, handleError);
         } catch (err) {
           log.error("Subscribe to stream", err);
         }
@@ -585,7 +495,7 @@ export default function Video(props) {
           }));
         }
 
-        if (expired.subscriber) session.unsubscribe(expired.subscriber);
+        if (expired.subscriber) sessionRef.current.unsubscribe(expired.subscriber);
         expired.audio = false;
         expired.video = false;
         expired.subscriber = null;
@@ -666,7 +576,7 @@ export default function Video(props) {
         if (match > -1) {
           old[match].video = false;
           old[match].audio = false;
-          if (old[match].subscriber) session.unsubscribe(old[match].subscriber);
+          if (old[match].subscriber) sessionRef.current.unsubscribe(old[match].subscriber);
           return old[match];
         }
 
@@ -691,7 +601,7 @@ export default function Video(props) {
       if (item.video) {
         item.video = false;
         item.audio = false;
-        if (item.subscriber) session.unsubscribe(item.subscriber);
+        if (item.subscriber) sessionRef.current.unsubscribe(item.subscriber);
         item.subscriber = null;
         setSubs([
           ...subsRef.current.filter(i => i.user.id !== item.user.id),
@@ -705,7 +615,7 @@ export default function Video(props) {
         let subscriber = null;
 
         try {
-          subscriber = await session.subscribe(item.stream, null, vidProps, handleError);
+          subscriber = await sessionRef.current.subscribe(item.stream, null, vidProps, handleError);
         } catch (err) {
           log.error("Subscribe to stream", err);
           return;
@@ -748,7 +658,7 @@ export default function Video(props) {
     }));
   }
 
-  function toggleCover() {
+  /*function toggleCover() {
     let updated = !cover;
     setCover(updated);
     setSubs(subs =>  subs.map(item => {
@@ -761,7 +671,7 @@ export default function Video(props) {
       }
       return item;
     }));
-  }
+  }*/
 
   function handleSignal(event) {
     if (event.type === "signal:emote") {
@@ -794,6 +704,10 @@ export default function Video(props) {
     }
   }
 
+  function onDeviceChange(evt) {
+    setPublisher(evt);
+  }
+
   useEffect(() => {
     if (props.credentials) setCredentials(props.credentials);
     if (props.course) setCourse(props.course);
@@ -808,7 +722,7 @@ export default function Video(props) {
     iconColor = classes.enabled;
   }
 
-  let coverText = "Zoom";
+  /*let coverText = "Zoom";
   let coverClasses = classes.disabled;
   let cIconClasses = classes.enabled;
 
@@ -816,7 +730,7 @@ export default function Video(props) {
     coverText = "Zoom"
     coverClasses = classes.enabled;
     cIconClasses = classes.disabled;
-  }
+  }*/
   
   let settings = (
     <Grid container direction="column">
@@ -851,7 +765,7 @@ export default function Video(props) {
             name="loop"
           />
         </Grid>
-        <Grid item container direction="row" justify="space-between" alignItems="center" alignContent="center">
+        {/*<Grid item container direction="row" justify="space-between" alignItems="center" alignContent="center">
           <Grid item className={classes.settingsIcon}>
             <ViewArray className={cIconClasses} />
           </Grid>
@@ -866,7 +780,7 @@ export default function Video(props) {
               name="cover"
             />
           </Grid>
-        </Grid>
+        </Grid>*/}
       </Grid>
     </Grid>
   );
@@ -924,36 +838,56 @@ export default function Video(props) {
     )
   }
 
-  if (permissionsError) {
-    return (
-      <Grid style={{width: "100%", height: "100%", overflow: "hidden"}}>
-        <PermissionsError />      
-      </Grid>
-    );
-  }
-
   let vidsLayout = (
-    <Default user={user} subs={subs} session={session} max={maxStreams} layout={videoLayout} />
-  )
-
-  if (videoLayout === "grid") {
-    vidsLayout = (
-      <GridView user={user} subs={subs} session={session} />
-    )
-  }
-
-  return (
-    <Grid style={{width: "100%", height: "100%", overflow: "hidden"}}>
-      {displayMsgContent}
-      <Grid container direction="row" justify="flex-start" style={{height:"100%", overflow: "hidden"}}>
-        <Grid container direction="row" spacing={0} justify="flex-start" style={{height: "100%", overflow: "hidden"}} >
-          {vidsLayout}
-          <Drawer>
-            <PublisherControls publisher={publisher} user={user} course={course} session={session} />
-            {accor}
-          </Drawer>
+    <Grid item xs>
+      <Grid container direction="column" justify="center" style={{height: "100%"}}>
+        <Grid item>
+          <Typography align="center" variant="h3">Get ready for class</Typography>
         </Grid>
       </Grid>
     </Grid>
   );
+
+  if (publisher) {
+    vidsLayout = (
+      <Default user={user} subs={subs} session={session} max={maxStreams} layout={videoLayout} />
+    )
+
+    if (videoLayout === "grid") {
+      vidsLayout = (
+        <GridView user={user} subs={subs} session={session} />
+      )
+    }
+  }
+
+  let devicePickContent = (
+    <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
+      <DevicePicker session={session} course={course} user={user} onChange={onDeviceChange} />
+    </Grid>
+  );
+
+  if (course && course.title) {
+    return (
+      <Grid style={{width: "100%", height: "100%", overflow: "hidden"}}>
+        {displayMsgContent}
+        <Grid container direction="row" justify="flex-start" style={{height:"100%", overflow: "hidden"}}>
+          <Grid
+            container
+            direction="row"
+            spacing={0}
+            justify="flex-start"
+            style={{height: "100%", overflow: "hidden"}}
+          >
+            {vidsLayout}
+            <Drawer>
+              {devicePickContent}
+              {accor}
+            </Drawer>
+          </Grid>
+        </Grid>
+      </Grid>
+    );
+  }
+
+  return null;
 }

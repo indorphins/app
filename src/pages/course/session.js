@@ -11,9 +11,9 @@ import * as Course from '../../api/course';
 import path from '../../routes/path';
 import log from '../../log';
 import Video from '../../components/video';
-import DevicePicker from '../../components/video/devicePicker';
+
 import { dark } from '../../styles/theme';
-import * as Session from '../../api/session';
+import * as SessionAPI from '../../api/session';
 
 const useStyles = makeStyles((theme) => ({
   '@global': {
@@ -48,23 +48,29 @@ const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
 });
 
-export default function() {
+export default function Session() {
 
   const currentUser = useSelector(state => getUserSelector(state));
   const classes = useStyles();
   const history = useHistory();
   const params = useParams();
-  const [course, setCourse] = useState({});
-  const [prvAuthData, setPrvAuthData] = useState({});
-  const [authData, setAuthData] = useState({});
-  const [cameraId, setCameraId] = useState(null);
-  const [micId, setMicId] = useState(null);
-  const [join, setJoin] = useState(false);
+  const [course, setCourse] = useState(null);
+  const [authData, setAuthData] = useState(null);
   const [loader, setLoader] = useState(true);
 
-  const init = async function(courseData) {
+
+  const init = async function(classId) {
 
     if (!currentUser.id) return;
+
+    let courseData;
+    try {
+      courseData = await Course.get(classId);
+    } catch(err) {
+      log.error("OPENTOK:: get class info", err);
+      history.push(path.courses + "/" + classId);
+      return;
+    }
 
     let data;
     try {
@@ -78,15 +84,16 @@ export default function() {
 
     let sessionData;
     try {
-      sessionData = await Session.update(courseData.id, data.sessionId);
+      sessionData = await SessionAPI.update(courseData.id, data.sessionId);
     } catch (err) {
       log.error("OPENTOK:: create class session ", err);
     }
 
     if (sessionData) {
       store.dispatch(actions.milestone.addSession(sessionData));
-    }    
+    }
 
+    setCourse(courseData);
     setAuthData({
       sessionId: data.sessionId,
       token: data.token,
@@ -95,83 +102,34 @@ export default function() {
     setLoader(false);
   }
 
-  const deviceInit = async function (classId) {
-    if (!currentUser.id) return;
-
-    let data;
-    try {
-      data = await Course.getPrivateSessionInfo(classId);
-    } catch (err) {
-      //TODO: redirect to class page with error message or display error here
-      log.error("OPENTOK:: session join", err);
-      history.push(path.courses + "/" + classId);
-      return;
-    }
-
-    let courseData;
-    try {
-      courseData = await Course.get(classId);
-    } catch(err) {
-      log.error("OPENTOK:: get class info", err);
-      history.push(path.courses + "/" + classId);
-      return;
-    }
-
-    setPrvAuthData({
-      sessionId: data.sessionId,
-      token: data.token,
-      apiKey: data.apiKey,      
-    });
-    setCourse(courseData);
-    setLoader(false);
-  }
-
   useEffect(() => {
-    if (course.instructor && currentUser.id !== course.instructor.id) {
+    if (course && course.instructor && currentUser.id !== course.instructor.id) {
       store.dispatch(actions.feedback.setCourse(course));
       store.dispatch(actions.feedback.setShow(true));
+    }
+
+    if (authData && authData.sessionId) {
       store.dispatch(actions.feedback.setSessionId(authData.sessionId));
     }
-  }, [course, currentUser, authData])
-
-  useEffect(() => {
-    if (join) {
-      setLoader(true);
-      init(course);
-    }
-  }, [join, course])
+  }, [course, currentUser, authData]);
 
   useEffect(() => {
     if (params.id && currentUser.id) {
-      deviceInit(params.id)
+      init(params.id);
     }
   }, [params.id, currentUser]);
 
-  function onDeviceChange(evt) {
-    setCameraId(evt.cameraId);
-    setMicId(evt.micId);
-    setJoin(evt.join);
-  }
 
   let content = (
     <LinearProgress color="primary" />
   );
 
-  if (!loader) {
-
-    if (authData && authData.token) {
-      content = (
-        <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
-          <Video credentials={authData} course={course} user={currentUser} cameraId={cameraId} micId={micId} />
-        </Grid>
-      );
-    } else {
-      content = (
-        <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
-          <DevicePicker credentials={prvAuthData} course={course} user={currentUser} onChange={onDeviceChange} />
-        </Grid>
-      )
-    }
+  if (!loader && authData && course) {
+    content = (
+      <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
+        <Video credentials={authData} course={course} user={currentUser} />
+      </Grid>
+    );
   }
 
   return (

@@ -119,7 +119,6 @@ export default function PublisherControls(props) {
 
   let content = (
     <Box>
-      <Grid id="publisher" className={classes.publisher}></Grid>
       <Grid container direction="row" spacing={1} className={classes.buttons}>
         <Grid item>
           <IconButton title={videoTitle} onClick={toggleVideo}>

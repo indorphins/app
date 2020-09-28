@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Button, Container, Grid, MenuItem, Select, Typography, makeStyles } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import * as OT from '@opentok/client';
-import { isSafari, isMobile, fullBrowserVersion } from 'react-device-detect';
-import compareVersions from 'compare-versions';
 
 import PermissionsError from './permissionsError';
 import log from '../../log';
 import VideoDOMElement from './layout/videoDOMElement';
+import PublisherControls from './publisherControls';
 
 const useStyles = makeStyles((theme) => ({
   select: {
@@ -42,18 +41,20 @@ const pubSettings = {
 
 export default function DevicePicker(props) {
   const classes = useStyles();
-  const { course, credentials, onChange } = props;
+  const { course, session, user, onChange } = props;
   const [displayMsg, setDisplayMsg] = useState(null);
   const [permissionsError, setPermissionsError] = useState(false);
-  const [session, setSession] = useState(null);
-  const [publisher, setPublisher] = useState(null);
+  const [ publisher, setPublisher ] = useState(null);
   const [ videoDevices, setVideoDevices ] = useState([]);
   const [ audioDevices, setAudioDevices ] = useState([]);
-  const [ camera, setCamera] = useState(null);
   const [ videoElement, setVideoElement ] = useState(null);
   const [ audioLevel, setAudioLevel ] = useState(0);
-  const [ mic, setMic] = useState(null);
-  const [ join, setJoin ]= useState(false);
+  const [ joined, setJoined ] = useState(false);
+
+  const publisherRef = useRef()
+  publisherRef.current = publisher;
+  const sessionRef = useRef()
+  sessionRef.current = session;
 
   async function handleError(err) {
     if (err) {
@@ -80,75 +81,18 @@ export default function DevicePicker(props) {
     }
   }
 
-  function validateBrowserVersion() {
-    let valid = true;
+  useEffect(() => {
+    let settings = pubSettings;
+    initPublisher(settings);
 
-    if (isMobile) {
-      setDisplayMsg({
-        severity: "warning",
-        message: "Indoorphins classes are not yet optimized for mobile devices. Apologies for the inconvenience."
-      });
-      valid = false;
-    }
-
-    if (isSafari) {
-      let compare = compareVersions(fullBrowserVersion, '12.1.0');
-      if (compare === -1) {
-        setDisplayMsg({
-          severity: "error",
-          message: "This version of Safari is not supported. Please update your system."
-        });
-        valid = false;
+    return function() {
+      log.debug("kill publisher")
+      if (publisherRef.current && sessionRef.current) {
+        sessionRef.current.unpublish(publisherRef.current);
+        publisherRef.current.destroy();
       }
     }
-    return valid;
-  }
-
-  useEffect(() => {
-    if (onChange && typeof onChange === 'function') {
-      onChange({
-        cameraId: camera,
-        micId: mic,
-        join: join,
-      });
-    }
-  }, [camera, mic, join, onChange]);
-
-  useEffect(() => {
-    if (!credentials) return;
-
-    init(credentials.apiKey, credentials.sessionId, pubSettings);
-
-  }, [credentials]);
-
-  useEffect(() => {
-    return function() {
-      if (publisher) publisher.destroy();
-      if (session) session.disconnect();
-    }
-  }, [publisher, session]);
-
-  async function init(apiKey, sessionId, settings) {
-
-    let session = OT.initSession(apiKey, sessionId);
-
-    if (session.capabilities.publish !== 0) {
-      setDisplayMsg({severity: "error", message: "Not allowed to publish to session"});
-      return;
-    }
-
-    setSession(session);
-    settings.name = session.data;
-  
-    initPublisher(settings);
-  }
-
-  useEffect(() => {
-
-    let valid = validateBrowserVersion();
-
-    if (!valid) return;
-  }, []);
+  }, [])
 
   function getDevices() {
     OT.getDevices((err, result) => {
@@ -157,18 +101,16 @@ export default function DevicePicker(props) {
         return item.kind === "audioInput";
       })
       setAudioDevices(video);
-      setCamera(video[0].deviceId)
 
       let audio = result.filter(item => {
         return item.kind === "videoInput";
       })
       setVideoDevices(audio);
-      setMic(audio[0].deviceId);
     });
   }
 
   function videoElementCreated(event) {
-    log.debug("OPENTOK:: subscriber video element created", event);
+    log.debug("OPENTOK:: publisher video element created", event);
 
     let videoElement = event.element;
     videoElement.style.height = "100%";
@@ -194,6 +136,16 @@ export default function DevicePicker(props) {
     });
   }
 
+  function joinSession(publisher, session) {
+    session.publish(publisher, (err) => {
+      log.debug("publish to session", err);
+      if (err) return handleError(err);
+      setJoined(true);
+      publisher.off('audioLevelUpdated');
+      onChange(publisher)
+    });
+  }
+
   function audioLevelHandler(event) {
     let lvl = Math.floor(100 * Number(event.audioLevel));
     setAudioLevel(lvl);
@@ -201,8 +153,6 @@ export default function DevicePicker(props) {
 
   function updateAudio(evt) {
     let id = evt.target.value;
-    setMic(id);
-
     let settings = pubSettings;
     settings.audioSource = id;
     initPublisher(settings);
@@ -210,8 +160,6 @@ export default function DevicePicker(props) {
 
   function updateVideo(evt) {
     let id = evt.target.value;
-    setCamera(id);
-
     let settings = pubSettings;
     settings.videoSource = id;
     initPublisher(settings);
@@ -316,32 +264,37 @@ export default function DevicePicker(props) {
     )
   }
 
-  return (
-    <Container>
-      {displayMsgContent}
-      <Grid container direction="row" justify="center" spacing={4} style={{paddingTop: 16}}>
-        <Grid item container direction="column" justify="center" alignItems="center" spacing={2}>
-          <Grid item>
-            <Typography variant="h3">Get setup for {course.title}</Typography>
+  if (joined) {
+    return (
+      <React.Fragment>
+        {pubWindow}
+        <PublisherControls publisher={publisher} user={user} course={course} session={session} />
+      </React.Fragment>
+    )
+  }
+
+  if (course && course.title) {
+    return (
+      <Container>
+        {displayMsgContent}
+        <Grid container direction="row" justify="center" spacing={4} style={{paddingTop: 16, paddingBottom: 16}}>
+          <Grid item container direction="column" justify="center" alignItems="center" spacing={2}>
+            {content}
           </Grid>
-          {content}
+          <Grid item>
+            <Button
+              onClick={() => {joinSession(publisher, session);}}
+              variant="contained"
+              color="primary"
+              style={{fontWeight: 'bold'}}
+            >
+              Join
+            </Button>
+          </Grid>
         </Grid>
-        <Grid item>
-          <Button
-            onClick={() => {
-              publisher.destroy();
-              session.disconnect();
-              log.debug('OPENTOK:: disconnected from video session');
-              setJoin(true);
-            }}
-            variant="contained"
-            color="primary"
-            style={{fontWeight: 'bold'}}
-          >
-            Join Class
-          </Button>
-        </Grid>
-      </Grid>
-    </Container>
-  )
+      </Container>
+    );
+  }
+
+  return null;
 }
