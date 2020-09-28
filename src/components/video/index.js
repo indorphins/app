@@ -171,7 +171,7 @@ export default function Video(props) {
         settings.publishAudio = true;
         settings.frameRate = 30;
         settings.resolution = "640x480";
-        settings.maxResolution = {width: 1280, height: 720};
+        settings.maxResolution = {width: 640, height: 480};
       }
 
       if (credentials.apiKey && credentials.sessionId) {
@@ -274,7 +274,7 @@ export default function Video(props) {
     if (data.instructor) {
       props.preferredFrameRate = 30;
       props.subscribeToVideo = true;
-      props.preferredResolution = {width: 1280, height: 720};
+      props.preferredResolution = {width: 640, height: 480};
     }
 
     try {
