@@ -61,14 +61,12 @@ export default function Session() {
 
   const init = async function(classId) {
 
-    if (!currentUser.id) return;
-
     let courseData;
     try {
       courseData = await Course.get(classId);
     } catch(err) {
       log.error("OPENTOK:: get class info", err);
-      history.push(path.courses + "/" + classId);
+      history.push(path.courses + "/" + classId + "?error=" + encodeURIComponent(err.message));
       return;
     }
 
@@ -78,7 +76,12 @@ export default function Session() {
     } catch (err) {
       //TODO: redirect to class page with error message or display error here
       log.error("OPENTOK:: session join", err);
-      history.push(path.courses + "/" + courseData.id);
+      history.push(path.courses + "/" + courseData.id + "?error=" + encodeURIComponent(err.message));
+      return;
+    }
+
+    if (!data) {
+      history.push(path.login + "?redirect=" + encodeURIComponent(path.courses + "/" + courseData.id + path.joinPath));
       return;
     }
 
@@ -114,7 +117,7 @@ export default function Session() {
   }, [course, currentUser, authData]);
 
   useEffect(() => {
-    if (params.id && currentUser.id) {
+    if (params.id && currentUser) {
       init(params.id);
     }
   }, [params.id, currentUser]);
