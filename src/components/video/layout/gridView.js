@@ -4,6 +4,7 @@ import { makeStyles } from '@material-ui/core/styles';
 
 import VideoContainer from './videoContainer';
 import VideoDOMElement from './videoDOMElement';
+import log from '../../../log';
 
 
 const gridStyles = makeStyles((theme) => ({
@@ -78,6 +79,8 @@ export default function GridView(props) {
       let filtered = subs.filter(item => {
         return item.video && item.videoElement && !item.disabled;
       });
+
+      log.debug("OPENTOK:: filtered videos", filtered);
 
       setVids(filtered);
     }
