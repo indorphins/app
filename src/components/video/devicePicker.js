@@ -3,7 +3,6 @@ import { Button, Container, Grid, MenuItem, Select, Typography, makeStyles } fro
 import { Alert } from '@material-ui/lab';
 import * as OT from '@opentok/client';
 
-import PermissionsError from './permissionsError';
 import log from '../../log';
 import VideoDOMElement from './layout/videoDOMElement';
 import PublisherControls from './publisherControls';
@@ -41,9 +40,8 @@ const pubSettings = {
 
 export default function DevicePicker(props) {
   const classes = useStyles();
-  const { course, session, user, onChange } = props;
+  const { course, session, user, onChange, onPermissionsError } = props;
   const [displayMsg, setDisplayMsg] = useState(null);
-  const [permissionsError, setPermissionsError] = useState(false);
   const [ publisher, setPublisher ] = useState(null);
   const [ videoDevices, setVideoDevices ] = useState([]);
   const [ audioDevices, setAudioDevices ] = useState([]);
@@ -130,7 +128,7 @@ export default function DevicePicker(props) {
     publisher.on({
       accessAllowed: getDevices,
       accessDenied: function accessDeniedHandler(event) {
-        setPermissionsError(true);
+        onPermissionsError();
       },
       videoElementCreated: videoElementCreated,
       audioLevelUpdated: audioLevelHandler,
@@ -172,14 +170,6 @@ export default function DevicePicker(props) {
     displayMsgContent = (
       <Alert severity={displayMsg.severity}>{displayMsg.message}</Alert>
     )
-  }
-
-  if (permissionsError) {
-    return (
-      <Grid style={{width: "100%", height: "100%", overflow: "hidden"}}>
-        <PermissionsError />      
-      </Grid>
-    );
   }
 
   let audioContent = null;

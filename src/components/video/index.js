@@ -19,6 +19,7 @@ import { Alert } from '@material-ui/lab';
 import * as OT from '@opentok/client';
 import { useSnackbar } from 'notistack';
 
+import PermissionsError from './permissionsError';
 import Chat from './chat';
 import Drawer from './drawer';
 import ParticipantControls from './participantControls';
@@ -71,6 +72,7 @@ export default function Video(props) {
   const [loopMode, setLoopMode] = useState(true);
   const [displayMsg, setDisplayMsg] = useState(null);
   const [videoLayout, setVideoLayout] = useState("horizontal");
+  const [permissionsError, setPermissionsError] = useState(false);
   //const [cover, setCover] = useState(true);
   const cover = true;
   const subsRef = useRef();
@@ -720,10 +722,6 @@ export default function Video(props) {
     }
   }
 
-  function onDeviceChange(evt) {
-    setPublisher(evt);
-  }
-
   useEffect(() => {
     if (props.credentials) setCredentials(props.credentials);
     if (props.course) setCourse(props.course);
@@ -881,8 +879,20 @@ export default function Video(props) {
   if (session) {
     devicePickContent = (
       <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
-        <DevicePicker session={session} course={course} user={user} onChange={onDeviceChange} />
+        <DevicePicker
+          session={session}
+          course={course}
+          user={user}
+          onChange={(evt) => setPublisher(evt)}
+          onPermissionsError={() => setPermissionsError(true)}
+        />
       </Grid>
+    );
+  }
+
+  if (permissionsError) {
+    return (
+      <PermissionsError />
     );
   }
 
