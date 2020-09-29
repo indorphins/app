@@ -92,6 +92,7 @@ export default function DevicePicker(props) {
         publisherRef.current.off('accessDenied');
         publisherRef.current.off('videoElementCreated');
         publisherRef.current.off('audioLevelUpdated');
+        publisherRef.current.destroy();
       }
     }
   }, []);
