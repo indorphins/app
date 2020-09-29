@@ -120,27 +120,6 @@ export default function Default(props) {
   const [ max, setMax ] = useState(4);
 
   useEffect(() => {
-    if (subs) {
-      let filtered = subs.filter(item => {
-        return item.video && item.videoElement && !item.disabled;
-      }).slice(0, max);
-
-      log.debug("DEFAULT LAYOUT:: filtered subscriber videos", filtered);
-
-      if (filtered[0]) {
-        setFeatureVid(filtered[0]);
-      } else {
-        setFeatureVid(null);
-      }
-      if (filtered.length > 1) {
-        setRegularVid([].concat(filtered.slice(1)));
-      } else {
-        setRegularVid([]);
-      }
-    }
-  }, [subs]);
-
-  useEffect(() => {
     if (props.max) {
       setMax(props.max);
     }
@@ -156,6 +135,29 @@ export default function Default(props) {
       }
     }
   }, [props]);
+
+  useEffect(() => {
+    if (subs) {
+      let filtered = subs.filter(item => {
+        return item.video && item.videoElement && !item.disabled;
+      }).slice(0, max);
+
+      log.debug("DEFAULT LAYOUT:: filtered subscriber videos", filtered);
+
+      if (filtered[0]) {
+        setFeatureVid(filtered[0]);
+      } else {
+        setFeatureVid(null);
+        setRegularVid([]);
+      }
+
+      if (filtered.length > 1) {
+        setRegularVid([].concat(filtered.slice(1)));
+      } else {
+        setRegularVid([]);
+      }
+    }
+  }, [subs]);
 
   let featureClasses = null;
   let regularClasses = null;
