@@ -162,6 +162,15 @@ export default function Video(props) {
 
   }, [session]);
 
+  useEffect(() => {
+    return function() {
+      if (publisher) {
+        log.debug("OPENTOK:: disconnect from session");
+        publisher.destroy();
+      }
+    }
+  }, [publisher]);
+
   function connectionCreated(event) {
     log.info("OPENTOK:: connection created", event);
 
