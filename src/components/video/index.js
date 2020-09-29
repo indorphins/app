@@ -420,7 +420,7 @@ export default function Video(props) {
       subData.audio = true;
 
       if (data.instructor) {
-        props.preferredResolution = {width: 1280, height: 720};
+        props.preferredResolution = {width: 640, height: 480};
       }
 
       setSubs(subs => subs.map(item => {
