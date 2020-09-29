@@ -9,7 +9,7 @@ import Login from '../pages/login';
 import Signup from '../pages/signup';
 import log from '../log';
 import {Alert} from '@material-ui/lab';
-import { Grid } from '@material-ui/core';
+import { Container, Grid } from '@material-ui/core';
 
 const AsyncPage = loadable(props => import(`../pages/${props.page}`), {
   cacheKey: props => props.page,
@@ -43,11 +43,13 @@ export default function Routes() {
 
   if (err) {
     errcontent = (
-      <Grid container direction="row" spacing={2} style={{padding: 16}}>
-        <Grid item xs>
-          <Alert severity="error" onClose={() => setError(null)}>{err}</Alert>
+      <Container>
+        <Grid container direction="row" spacing={2}>
+          <Grid item xs>
+            <Alert severity="error" onClose={() => setError(null)}>{err}</Alert>
+          </Grid>
         </Grid>
-      </Grid>
+      </Container>
     )
   }
 
