@@ -15,7 +15,7 @@ jobs:
             sudo apt-get install -y docker-ce
       - run:
           name: Build source
-          command: docker run --rm -it -v $(pwd):/var/app -w /var/app node:14.1 /bin/bash -c "npm i && npm i -g webpack webpack-cli && webpack --config webpack.config.js"
+          command: docker run --rm -it -v $(pwd):/var/app -w /var/app node:14.12 /bin/bash -c "npm i && npm i -g webpack webpack-cli && webpack --config webpack.config.js"
       - run:
           name: Upload static files to build bucket
           command: docker run -it -v $(pwd)/build:/var/build -e AWS_ACCESS_KEY_ID=$ACCESS_KEY -e AWS_SECRET_ACCESS_KEY=$SECRET_KEY organs/awscli aws s3 sync /var/build/ s3://indorphins-fe-build/ --exclude="*.js" --exclude="index.js"
