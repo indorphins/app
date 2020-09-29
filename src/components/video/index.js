@@ -854,7 +854,7 @@ export default function Video(props) {
     <Grid item xs>
       <Grid container direction="column" justify="center" style={{height: "100%"}}>
         <Grid item>
-          <Typography align="center" variant="h3">Get ready for class</Typography>
+          <Typography align="center" variant="h3">Click join when ready</Typography>
         </Grid>
       </Grid>
     </Grid>
