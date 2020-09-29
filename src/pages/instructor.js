@@ -7,11 +7,17 @@ import { createSelector } from 'reselect';
 
 import CourseSchedule from '../components/courseSchedule';
 import UserData from '../components/userData';
+import ArchiveList from '../components/archiveList';
 import * as InstructorAPI from '../api/instructor';
 import * as Course from '../api/course';
+import { getInstructorSessions } from "../api/session";
 import log from '../log';
 
 const instructorDataSelector = createSelector([state => state.instructor], (data) => {
+  return data;
+});
+
+const userDataSelector = createSelector([state => state.user.data], (data) => {
   return data;
 });
 
@@ -52,7 +58,8 @@ export default function Instructor() {
 
   const classes = useStyles();
   const params = useParams();
-  const instructorData = useSelector(state => instructorDataSelector(state))
+  const instructorData = useSelector(state => instructorDataSelector(state));
+  const userData = useSelector(state => userDataSelector(state));
   const [photo, setPhoto] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -62,12 +69,23 @@ export default function Instructor() {
   const [bio, setBio] = useState('');
   const [loader, setLoader] = useState(true);
   const [courses, setCourses] = useState([]);
+  const [sessions, setSessions] = useState([]);
 
   useEffect(() => {
     if (params.id) {
       getInstructor(params.id);
     }
   }, [params]);
+
+  useEffect(() => {
+    if (userData && userData.type === 'admin' && params.id) {
+      getInstructorSessions(params.id).then(list => {
+        setSessions(list);
+      }).catch(err => {
+        log.error("PROFILE:: fetching instructor sessions: ", err);
+      })
+    }
+  }, [userData, params])
 
   useEffect(() => {
 
@@ -151,6 +169,12 @@ export default function Instructor() {
       <CircularProgress color="secondary" />
     </Grid>
   );
+
+  let archivesContent;
+
+  if (sessions && userData.type === 'admin') {
+    archivesContent = <ArchiveList sessions={sessions} />
+  }
   
   let userContent = (
     <Grid>
@@ -173,6 +197,9 @@ export default function Instructor() {
           </Grid>
           <Grid item>
             <CourseSchedule course={courses} view="month" />
+          </Grid>
+          <Grid item>
+            {archivesContent}
           </Grid>
         </Grid>
       </Grid>
