@@ -350,7 +350,6 @@ export default function Video(props) {
     });
 
     let match = subsRef.current[index];
-    match.disabled = false;
 
     if (!match) return log.warn("OPENTOK:: enabled video not matched");
     
@@ -360,8 +359,6 @@ export default function Video(props) {
       log.debug("OPENTOK:: current subscribed videos", current);
 
       if (!current || current.length < maxStreamsRef.current || match.user.id === course.instructor.id) {
-        //match.video = true;
-        //match.audio = true;
         let subscriber = null;
         let props = vidProps;
 
@@ -380,6 +377,7 @@ export default function Video(props) {
 
           setSubs(subs => subs.map(item => {
             if (item.user.id === id) {
+              item.disabled = false;
               item.audio = true;
               item.video = true;
               item.subscriber = subscriber;
