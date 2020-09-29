@@ -360,8 +360,8 @@ export default function Video(props) {
       log.debug("OPENTOK:: current subscribed videos", current);
 
       if (!current || current.length < maxStreamsRef.current || match.user.id === course.instructor.id) {
-        match.video = true;
-        match.audio = true;
+        //match.video = true;
+        //match.audio = true;
         let subscriber = null;
         let props = vidProps;
 
@@ -377,14 +377,17 @@ export default function Video(props) {
   
         if (subscriber) {
           log.debug("OPENTOK:: created subscriber", subscriber);
-          subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, id) });
 
           setSubs(subs => subs.map(item => {
             if (item.user.id === id) {
+              item.audio = true;
+              item.video = true;
               item.subscriber = subscriber;
             }
             return item;
           }));
+
+          subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, id) });
 
           killExcessVideos();
         }
