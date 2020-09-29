@@ -86,13 +86,15 @@ export default function DevicePicker(props) {
     initPublisher(settings);
 
     return function() {
-      log.debug("kill publisher")
-      if (publisherRef.current && sessionRef.current) {
-        sessionRef.current.unpublish(publisherRef.current);
-        publisherRef.current.destroy();
+      log.debug("OPENTOK:: disconnect from session");
+      if (publisherRef.current) {
+        publisherRef.current.off('accessAllowed');
+        publisherRef.current.off('accessDenied');
+        publisherRef.current.off('videoElementCreated');
+        publisherRef.current.off('audioLevelUpdated');
       }
     }
-  }, [])
+  }, []);
 
   function getDevices() {
     OT.getDevices((err, result) => {

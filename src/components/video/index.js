@@ -111,21 +111,26 @@ export default function Video(props) {
 
   async function initializeSession(apiKey, token, sessionId) {
 
-    let session = OT.initSession(apiKey, sessionId);
+    log.debug("OPENTOK:: Initializing session");
 
-    if (session.capabilities.publish !== 0) {
+    let sess = OT.initSession(apiKey, sessionId);
+
+    if (sess.capabilities.publish !== 0) {
+      log.warn("not allowed to publish")
       return;
     }
 
-    session.on('connectionCreated', connectionCreated);
-    session.on('connectionDestroyed', connectionDestroyed);
-    session.on('streamCreated', streamCreated);
-    session.on('streamDestroyed', streamDestroyed);
-    session.on('signal', handleSignal);
-
-    session.connect(token, (err) => {
-      setSession(session);
-    });
+    if (sess) {
+      sess.connect(token, (err) => {
+        log.debug("OPENTOK:: Connected to session", err);
+        sess.on('connectionCreated', connectionCreated);
+        sess.on('connectionDestroyed', connectionDestroyed);
+        sess.on('streamCreated', streamCreated);
+        sess.on('streamDestroyed', streamDestroyed);
+        sess.on('signal', handleSignal);
+        setSession(sess);
+      });
+    }
   }
 
 
@@ -151,9 +156,7 @@ export default function Video(props) {
           return sub;
         }));
 
-        // disconnect local session
         session.disconnect();
-        log.debug('OPENTOK:: disconnected from video session');
       }
     }
 
@@ -860,11 +863,15 @@ export default function Video(props) {
     }
   }
 
-  let devicePickContent = (
-    <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
-      <DevicePicker session={session} course={course} user={user} onChange={onDeviceChange} />
-    </Grid>
-  );
+  let devicePickContent = null
+  
+  if (session) {
+    devicePickContent = (
+      <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
+        <DevicePicker session={session} course={course} user={user} onChange={onDeviceChange} />
+      </Grid>
+    );
+  }
 
   if (course && course.title) {
     return (
