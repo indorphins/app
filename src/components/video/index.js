@@ -141,9 +141,21 @@ export default function Video(props) {
   }, [credentials]);
 
   useEffect(() => {
+    return function() {
+      if (publisher) {
+        log.debug("OPENTOK:: destroy publisher", publisher);
+        if (session) {
+          session.unpublish(publisher);
+        }
+        publisher.destroy();
+      }
+    }
+  }, [publisher, session]);
 
-    return function cleanup() {
-      if (session && session.connection) {
+  useEffect(() => {
+    return function() {
+      if (session) {
+        log.debug("OPENTOK:: disconnect from session", session);
         // disconnect the event listeners
         session.off('connectionCreated');
         session.off('connectionDestroyed');
@@ -151,25 +163,11 @@ export default function Video(props) {
         session.off('streamDestroyed');
         session.off('signal');
 
-        setSubs(subs.map(sub => {
-          if (sub.subscriber) session.unsubscribe(sub.subscriber);
-          return sub;
-        }));
-
         session.disconnect();
       }
     }
 
   }, [session]);
-
-  useEffect(() => {
-    return function() {
-      if (publisher) {
-        log.debug("OPENTOK:: disconnect from session");
-        publisher.destroy();
-      }
-    }
-  }, [publisher]);
 
   function connectionCreated(event) {
     log.info("OPENTOK:: connection created", event);

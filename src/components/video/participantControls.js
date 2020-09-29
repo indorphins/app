@@ -39,7 +39,7 @@ export default function ParticipantControls(props) {
           item.color = "primary";
           item.icon = null;
 
-          if (loopMode) {
+          if (loopMode || !item.stream) {
             item.buttonDisabled = true;
           } else {
             item.buttonDisabled = false;
