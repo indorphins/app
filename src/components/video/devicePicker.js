@@ -10,7 +10,7 @@ import PublisherControls from './publisherControls';
 
 const useStyles = makeStyles((theme) => ({
   select: {
-    width: 200,
+    width: "100%",
   },
   audioLvlContainer: {
     width: "100%",
@@ -186,13 +186,13 @@ export default function DevicePicker(props) {
   if (audioDevices.length > 0) {
     audioContent = (
       <Grid item container direction="row" spacing={2} justify="center" alignContent="center" alignItems="center">
-        <Grid item style={{width: 110}}>
+        <Grid item xs={4}>
           <Typography color="primary">Microphone</Typography>
           <Grid className={classes.audioLvlContainer}>
             <Grid className={classes.audioLvl} style={{width: `${audioLevel}%`}} />
           </Grid>
         </Grid>
-        <Grid item>
+        <Grid item xs={8}>
           <Select
             id="audioDevice"
             defaultValue={audioDevices[0].deviceId}
@@ -215,10 +215,10 @@ export default function DevicePicker(props) {
   if (videoDevices.length > 0) {
     videoContent = (
       <Grid item container direction="row" spacing={2} justify="center" alignContent="center" alignItems="center">
-        <Grid item style={{width: 110}}>
+        <Grid item xs={4}>
           <Typography color="primary">Camera</Typography>
         </Grid>
-        <Grid item>
+        <Grid item xs={8}>
           <Select
             id="videoDevice"
             defaultValue={videoDevices[0].deviceId}
