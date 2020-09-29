@@ -9,10 +9,7 @@ import { People } from '@material-ui/icons';
 import { isSameDay, isWithinInterval, sub, add } from 'date-fns';
 
 import { BdayIcon } from '../../components/icon/bday';
-//import * as Course from '../../api/course';
-//import log from '../../log';
 import { ClassesTakenIcon } from '../icon/classesTaken';
-import { WeekStreakIcon } from '../icon/weekStreak';
 
 const useStyles = makeStyles((theme) => ({
   participantContainer: {
@@ -25,101 +22,143 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+function Email(props) {
+
+  const { value } = props;
+
+  const sendEmail = function() {
+    const mailTo = "mailto:" + value;
+    let win = window.open(mailTo, '_blank');
+    win.focus();
+  }
+
+  if (value) {
+    return (
+      <Typography
+        onClick={sendEmail}
+        variant="subtitle2"
+        style={{overflow: "hidden", textOverflow: "ellipsis", cursor: "pointer"}}
+      >
+        {value}
+      </Typography>
+    );
+  }
+
+  return null;
+}
+
 export default function Participants(props) {
 
   const classes = useStyles();
-  const { currentUser, course } = props;
-  const [participantList, setParticipantList] = useState(null);
+  const { course } = props;
+  const [participantList, setParticipantList] = useState([]);
+
 
   useEffect(() => {
     if (!course.participants) {
       return;
     }
 
-    setParticipantList([].concat(course.participants).sort((a, b) => {
-      if (a.username === b.username) {
+    let data = [].concat(course.participants).map(item => {
+      if (item.birthday) {
+        // Check range extending to 8 days on either side of today to ensure time differences 
+        // don't miss a valid birthday
+        const bday = new Date(item.birthday);
+        const start = sub(new Date(course.start_date), {days: 8});
+        const end = add(new Date(course.start_date), {days: 8});
+        bday.setFullYear(start.getFullYear());
+  
+        if (isSameDay(bday, new Date(course.start_date)) || isWithinInterval(bday, {start: start, end: end})) {
+          item.showBirthday = true;
+        } else {
+          item.showBirthday = false;
+        }
+      }
+      
+      let titleText = {
+        title: ""
+      };
+      
+      if (item.classesTaken >= 0) {
+        titleText.title += `${item.classesTaken} classes`;
+      }
+
+      if (item.weeklyStreak > 0) {
+        titleText.title += ` ${item.weeklyStreak} week streak`;
+      }
+
+      item = Object.assign({}, titleText, item);
+
+      return item;
+    });
+
+    let sorted = data.sort((a, b) => {
+      if (a.username.toLowerCase() === b.username.toLowerCase()) {
         return 0;
-      } else if (a.username > b.username) {
+      } else if (a.username.toLowerCase() > b.username.toLowerCase()) {
         return 1;
       } else {
         return -1;
       }
-    }));
+    });
 
-    /*if (course.instructor.id === currentUser.id || currentUser.type === 'admin') {
-      Course.getParticipants(course.id).then(list => {
-        setParticipantList(list.sort((a, b) => {
-          if (a.username === b.username) {
-            return 0;
-          } else if (a.username > b.username) {
-            return 1;
-          } else {
-            return -1;
-          }
-        }))
-      }).catch (err => {
-        log.warn("COURSE INFO:: unable to fetch list of participants");
-      })
-    }*/
-  }, [course, currentUser]);
+    setParticipantList(sorted);
+  }, [course]);
 
+  let list = [];
 
-  const birthdayHelper = function (user) {
-    if (user.birthday) {
-      // Check range extending to 8 days on either side of today to ensure time differences don't miss a valid birthday
-      const bday = new Date(user.birthday);
-      const start = sub(new Date(course.start_date), {days: 8});
-      const end = add(new Date(course.start_date), {days: 8});
-      bday.setFullYear(start.getFullYear());
-
-      if (isSameDay(bday, new Date(course.start_date)) || isWithinInterval(bday, {start: start, end: end})) {
-        return true;
-      }
-    }
-    return false;
+  if (participantList && participantList.length > 0) { 
+    list = participantList
   }
 
-  let participantsContent = null
-
-  if (participantList && participantList.length) { 
-    let participants = participantList.map(item => (
-      <Grid key={item.username} item xs={6}>
-        <Grid container display='inline' direction='row' alignItems='center'>
-          <Typography variant="body1">{item.username}</Typography>
-          {(currentUser.id === course.instructor.id || currentUser.type === 'admin') && birthdayHelper(item) ? 
-            <BdayIcon bday={item.birthday} /> :
-            null
-          }
-          {(currentUser.id === course.instructor.id || currentUser.type === 'admin') && item.classesTaken ? 
-            <ClassesTakenIcon classes={item.classesTaken} /> :
-            null
-          }
-          {(currentUser.id === course.instructor.id || currentUser.type === 'admin') && item.weeklyStreak ? 
-            <WeekStreakIcon weeks={item.weeklyStreak} /> :
-            null
-          }
+  let participantsContent = list.map(item => (
+    <Grid key={item.id} item xs={6}>
+      <Grid
+        container
+        direction='row'
+        alignItems='center'
+        alignContent="center"
+        style={{flexWrap: "nowrap"}}
+        spacing={1}
+      >
+        <Grid item style={{whiteSpace: "nowrap", overflow: "hidden"}}>
+          <Typography
+            color="primary"
+            variant="body1" 
+            style={{overflow: "hidden", textOverflow: "ellipsis"}}
+          >
+            {item.username}
+          </Typography>
+        </Grid>
+        <Grid item style={{whiteSpace: "nowrap", display: "flex", alignContent:"center", alignItems: "center"}}>
+          <BdayIcon bday={item.birthday} showBirthday={item.showBirthday} />
+          <ClassesTakenIcon count={item.instructorClasses} />
         </Grid>
       </Grid>
-    ))
+      <Grid container direction="column" style={{whiteSpace: "nowrap", overflow: "hidden"}}>
+        <Email value={item.email} />
+        <Typography variant="subtitle2">
+          {item.title}
+        </Typography>
+      </Grid>
+    </Grid>
+  ))
 
-    participantsContent = (
-      <Card className={classes.participantContainer}>
-        <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={2}>
-          <Grid item>
-            <People color="primary" />
-          </Grid>
-          <Grid item>
-            <Typography variant="h5">
-              Participants
-            </Typography>
-          </Grid>
+  return (
+    <Card className={classes.participantContainer}>
+      <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={2}>
+        <Grid item>
+          <People color="primary" />
         </Grid>
-        <Grid container direction="row" justify="flex-start">
-          {participants}
+        <Grid item>
+          <Typography variant="h5">
+            Participants
+          </Typography>
         </Grid>
-      </Card>
-    )
-  }
-
-  return participantsContent;
+      </Grid>
+      <Grid container direction="row" justify="flex-start" spacing={1}>
+        {participantsContent}
+      </Grid>
+    </Card>
+  );
 }

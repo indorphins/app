@@ -9,14 +9,14 @@ const url = config.host + '/session';
  */
 export async function update(classId, sessionId) {
 
-  let options = {
+  const options = {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
   };
   
-  let u = url + `/${classId}/${sessionId}`;
+  const u = url + `/${classId}/${sessionId}`;
 
   return callAPI(u, options, true);
 }
@@ -25,14 +25,14 @@ export async function update(classId, sessionId) {
  * Fetches the session
  */
 export async function get(classId, sessionId) {
-  let options = {
+  const options = {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
     },
   };
   
-  let u = url + `/${classId}/${sessionId}`;
+  const u = url + `/${classId}/${sessionId}`;
 
   return callAPI(u, options, true);
 }
@@ -41,14 +41,14 @@ export async function get(classId, sessionId) {
  * Deletes a session
  */
 export async function remove(classId, sessionId) {
-  let options = {
+  const options = {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json',
     },
   };
   
-  let u = url + `/${classId}/${sessionId}`;
+  const u = url + `/${classId}/${sessionId}`;
 
   return callAPI(u, options, true);
 }
@@ -57,7 +57,7 @@ export async function remove(classId, sessionId) {
  * Creates a new session with instructorId and startDate
  */
 export async function create(classId, sessionId, data) {
-  let options = {
+  const options = {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -65,7 +65,7 @@ export async function create(classId, sessionId, data) {
     body: JSON.stringify(data)
   };
   
-  let u = url + `/${classId}/${sessionId}`;
+  const u = url + `/${classId}/${sessionId}`;
 
   return callAPI(u, options, true);
 }
@@ -74,14 +74,49 @@ export async function create(classId, sessionId, data) {
  * Fetches all the class sessions the user was apart of
  */
 export async function getAll() {
-  let options = {
+  const options = {
     method: 'GET',
     headers: {
       'Content-Type': 'application/json',
     },
   };
 
-  let u = url;
+  const u = url;
+
+  return callAPI(u, options, true);
+}
+
+/**
+ * Returns the opentok archive for the input sessionId
+ * @param {String} sessionId 
+ */
+export async function fetchArchive(sessionId) {
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ sessionId: sessionId })
+  };
+
+  const u = url + `/archive`; ///${sessionId}`;
+
+  return callAPI(u, options, true);
+}
+
+/**
+ * Returns all the Sessions where the instructor was the input instructorId
+ * @param {String} instructorId 
+ */
+export async function getInstructorSessions(instructorId) {
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+
+  const u = url + `/${instructorId}`;
 
   return callAPI(u, options, true);
 }
