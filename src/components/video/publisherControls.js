@@ -47,11 +47,11 @@ export default function PublisherControls(props) {
 
   useEffect(() => {
     if (publisher) publisher.publishVideo(publishVideo);
-  }, [publishVideo]);
+  }, [publisher, publishVideo]);
 
   useEffect(() => {
     if (publisher) publisher.publishAudio(publishAudio);
-  }, [publishAudio]);
+  }, [publisher, publishAudio]);
 
   function toggleAudio() {
     let disabled = false;
