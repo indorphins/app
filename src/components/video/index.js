@@ -366,7 +366,7 @@ export default function Video(props) {
         let props = vidProps;
 
         if (match.user.id === course.instructor.id) {
-          props.preferredResolution = {width: 1280, height: 720};
+          props.preferredResolution = {width: 640, height: 480};
         }
 
         try {
@@ -375,17 +375,19 @@ export default function Video(props) {
           log.error("Subscribe to stream", err);
         }
   
-        log.debug("OPENTOK:: created subscriber", subscriber);
-        subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, id) });
+        if (subscriber) {
+          log.debug("OPENTOK:: created subscriber", subscriber);
+          subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, id) });
 
-        setSubs(subs => subs.map(item => {
-          if (item.user.id === id) {
-            item.subscriber = subscriber;
-          }
-          return item;
-        }));
+          setSubs(subs => subs.map(item => {
+            if (item.user.id === id) {
+              item.subscriber = subscriber;
+            }
+            return item;
+          }));
 
-        killExcessVideos();
+          killExcessVideos();
+        }
 
       } else {
         match.video = false;
