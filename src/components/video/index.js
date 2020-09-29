@@ -133,6 +133,12 @@ export default function Video(props) {
     }
   }
 
+  useEffect(() => {
+    if (course && user && course.instructor.id === user.id) {
+      setVideoLayout("grid");
+    }
+  }, [course, user]);
+
 
   useEffect(() => {
     if (credentials && credentials.apiKey && credentials.sessionId) {
