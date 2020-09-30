@@ -29,37 +29,32 @@ const useStyles = makeStyles((theme) => ({
 
 export default function PublisherControls(props) {
 
-  const { session, user, course } = props
+  const { session, publisher, user, course } = props
   const classes = useStyles();
-  const [publisher, setPublisher] = useState(null);
   const [publishVideo, setPublishVideo] = useState(true);
   const [publishAudio, setPublishAudio] = useState(false);
 
   useEffect(() => {
-    if (props.publisher) {
-      setPublisher(props.publisher);
-    }
-
     if (user && course && user.id === course.instructor.id) {
       setPublishAudio(true);
     }
-  }, [props, user, course]);
+  }, [user, course]);
 
   useEffect(() => {
-    if (publisher) publisher.publishVideo(publishVideo);
+    if (publisher) {
+      log.debug("OPENTOK:: set publish video", publishVideo);
+      publisher.publishVideo(publishVideo);
+    }
   }, [publisher, publishVideo]);
 
   useEffect(() => {
     if (publisher) publisher.publishAudio(publishAudio);
   }, [publisher, publishAudio]);
 
-  function toggleAudio() {
-    let disabled = false;
-    if (publishAudio) {
-      disabled = true;
-    }
+  function toggleAudio(evt) {
+    let disabled = evt;
 
-    setPublishAudio(!publishAudio);
+    setPublishAudio(!disabled);
 
     session.signal(
       {
@@ -78,13 +73,10 @@ export default function PublisherControls(props) {
     );
   }
 
-  function toggleVideo() {
-    let disabled = false;
-    if (publishVideo) {
-      disabled = true;
-    }
+  function toggleVideo(evt) {
+    let disabled = evt;
 
-    setPublishVideo(!publishVideo);
+    setPublishVideo(!disabled);
 
     session.signal(
       {
@@ -121,12 +113,12 @@ export default function PublisherControls(props) {
     <Box>
       <Grid container direction="row" spacing={1} className={classes.buttons}>
         <Grid item>
-          <IconButton title={videoTitle} onClick={toggleVideo}>
+          <IconButton title={videoTitle} onClick={() => toggleVideo(publishVideo)}>
             {videoBtn}
           </IconButton>
         </Grid>
         <Grid item>
-          <IconButton title={micTitle} onClick={toggleAudio}>
+          <IconButton title={micTitle} onClick={() => toggleAudio(publishAudio)}>
             {micBtn}
           </IconButton>
         </Grid>
