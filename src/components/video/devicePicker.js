@@ -257,6 +257,16 @@ export default function DevicePicker(props) {
         {pubWindow}
         {videoContent}
         {audioContent}
+        <Grid item>
+          <Button
+            onClick={() => {joinSession(publisher, session);}}
+            variant="contained"
+            color="primary"
+            style={{fontWeight: 'bold'}}
+          >
+            Join
+          </Button>
+        </Grid>
       </React.Fragment>
     )
   } else {
@@ -274,9 +284,8 @@ export default function DevicePicker(props) {
         <PublisherControls publisher={publisher} user={user} course={course} session={session} />
       </React.Fragment>
     )
-  }
+  } else {
 
-  if (course && course.title) {
     return (
       <Container>
         {displayMsgContent}
@@ -284,20 +293,8 @@ export default function DevicePicker(props) {
           <Grid item container direction="column" justify="center" alignItems="center" spacing={2}>
             {content}
           </Grid>
-          <Grid item>
-            <Button
-              onClick={() => {joinSession(publisher, session);}}
-              variant="contained"
-              color="primary"
-              style={{fontWeight: 'bold'}}
-            >
-              Join
-            </Button>
-          </Grid>
         </Grid>
       </Container>
     );
   }
-
-  return null;
 }
