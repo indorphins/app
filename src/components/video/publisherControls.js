@@ -40,21 +40,12 @@ export default function PublisherControls(props) {
     }
   }, [user, course]);
 
-  useEffect(() => {
-    if (publisher) {
-      log.debug("OPENTOK:: set publish video", publishVideo);
-      publisher.publishVideo(publishVideo);
-    }
-  }, [publisher, publishVideo]);
-
-  useEffect(() => {
-    if (publisher) publisher.publishAudio(publishAudio);
-  }, [publisher, publishAudio]);
 
   function toggleAudio(evt) {
     let disabled = evt;
 
     setPublishAudio(!disabled);
+    publisher.publishAudio(!disabled);
 
     session.signal(
       {
@@ -77,6 +68,7 @@ export default function PublisherControls(props) {
     let disabled = evt;
 
     setPublishVideo(!disabled);
+    publisher.publishVideo(!disabled);
 
     session.signal(
       {
