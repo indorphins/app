@@ -46,9 +46,9 @@ export default function Chat(props) {
   }, [session]);
 
   const handleSignal = function(event) {
-    log.debug('OPENTOK:: got signal from client', event);
     
     if (event.type === "signal:chat") {
+      log.debug('OPENTOK:: got chat msg from client', event);
       let data = JSON.parse(event.data);
       setHistory(history => [data, ...history]);
     }
