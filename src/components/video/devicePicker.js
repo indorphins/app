@@ -32,7 +32,7 @@ const pubSettings = {
   publishAudio: true,
   publishVideo: true,
   resolution: "640x480",
-  frameRate: 30,
+  frameRate: 7,
   audioBitrate: 44000,
   enableStereo: false,
   maxResolution: {width: 640, height: 480},
@@ -78,6 +78,18 @@ export default function DevicePicker(props) {
       }
     }
   }
+
+  useEffect(() => {
+    return function() {
+      if (publisher) {
+        log.debug("OPENTOK:: destroy publisher", publisher);
+        if (session) {
+          session.unpublish(publisher);
+        }
+        publisher.destroy();
+      }
+    }
+  }, [publisher, session]);
 
   useEffect(() => {
     let settings = pubSettings;
