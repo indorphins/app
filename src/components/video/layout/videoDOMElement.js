@@ -1,16 +1,21 @@
 import React, { useEffect, useRef } from 'react';
 import { Grid } from '@material-ui/core';
+import log from '../../../log';
 
 export default function VideoDOMElement(props) {
 
+  const { element } = props;
   const gridRef = useRef(null);
 
   useEffect(() => {
-    if (props.element) {
+    if (element) {
+      log.debug("VIDEO ELEMENT:: element changed", element);
       gridRef.current.innerHTML = "";
-      gridRef.current.appendChild(props.element);
+      element.setAttribute("playsinline", "");
+      element.setAttribute("autoplay", "");
+      gridRef.current.appendChild(element);
     }
-  }, [props, gridRef])
+  }, [element])
 
   return (
     <Grid 
