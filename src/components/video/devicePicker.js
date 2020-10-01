@@ -251,8 +251,10 @@ export default function DevicePicker(props) {
 
   if (videoElement) {
     pubWindow = (
-      <Grid item>
-        <VideoDOMElement element={videoElement} />
+      <Grid style={{width: "100%"}}>
+        <Grid style={{maxWidth: 320}}>
+          <VideoDOMElement element={videoElement} />
+        </Grid>
       </Grid>
     );
   }
@@ -287,10 +289,10 @@ export default function DevicePicker(props) {
 
   if (joined) {
     return (
-      <React.Fragment>
+      <Grid container>
         {pubWindow}
         <PublisherControls publisher={publisher} user={user} course={course} session={session} />
-      </React.Fragment>
+      </Grid>
     )
   } else {
 
