@@ -194,7 +194,7 @@ export default function Video(props) {
 
   async function enableCandidate(candidate) {
 
-    if (!candidate.stream || !session.subscribe) return;
+    if (!candidate.stream || !sessionRef.current.subscribe) return;
 
     let props = vidProps;
     candidate.video = true;
@@ -212,7 +212,7 @@ export default function Video(props) {
     log.debug("OPENTOK:: enable candidate stream", candidate);
 
     try {
-      subscriber = await session.subscribe(candidate.stream, null, props, handleError);
+      subscriber = await sessionRef.current.subscribe(candidate.stream, null, props, handleError);
     } catch (err) {
       log.error("Subscribe to stream", err);
     }
