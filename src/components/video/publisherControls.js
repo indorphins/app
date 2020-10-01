@@ -16,11 +16,6 @@ import log from '../../log';
 import LeaveSession from './leaveSession';
 
 const useStyles = makeStyles((theme) => ({
-  publisher: {
-    height: 240,
-    width: 320,
-    background: theme.palette.grey[100],
-  },
   buttons: {
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),

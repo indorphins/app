@@ -32,7 +32,7 @@ const pubSettings = {
   publishAudio: false,
   publishVideo: true,
   resolution: "320x240",
-  frameRate: 7,
+  frameRate: 30,
   audioBitrate: 44000,
   enableStereo: false,
   maxResolution: {width: 640, height: 480},
