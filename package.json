@@ -20,7 +20,6 @@
 		"firebase": "^7.21.1",
 		"immutable-ics": "^0.4.0",
 		"later": "github:RickCarlino/later",
-		"lodash": "^4.17.20",
 		"mui-rte": "^1.19.0",
 		"node-fetch": "^2.6.1",
 		"notistack": "^0.9.17",
