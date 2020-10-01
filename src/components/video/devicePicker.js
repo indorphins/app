@@ -29,9 +29,9 @@ const pubSettings = {
   mirror: true,
   showControls: false,
   insertDefaultUI: false,
-  publishAudio: true,
+  publishAudio: false,
   publishVideo: true,
-  resolution: "640x480",
+  resolution: "320x240",
   frameRate: 7,
   audioBitrate: 44000,
   enableStereo: false,
@@ -92,18 +92,26 @@ export default function DevicePicker(props) {
   }, [publisher, session]);
 
   useEffect(() => {
-    let settings = pubSettings;
-    initPublisher(settings);
+    if (user.id && course.id) {
+      let settings = pubSettings;
 
-    return function() {
-      if (publisherRef.current) {
-        publisherRef.current.off('accessAllowed');
-        publisherRef.current.off('accessDenied');
-        publisherRef.current.off('videoElementCreated');
-        publisherRef.current.off('audioLevelUpdated');
+      if (user.id === course.instructor.id) {
+        settings.publishAudio = true;
+        settings.audioBitrate = 96000;
+      }
+
+      initPublisher(settings);
+
+      return function() {
+        if (publisherRef.current) {
+          publisherRef.current.off('accessAllowed');
+          publisherRef.current.off('accessDenied');
+          publisherRef.current.off('videoElementCreated');
+          publisherRef.current.off('audioLevelUpdated');
+        }
       }
     }
-  }, []);
+  }, [user, course]);
 
   function getDevices() {
     OT.getDevices((err, result) => {
