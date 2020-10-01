@@ -239,6 +239,7 @@ export default function Video(props) {
         if (item.subscriber) sessionRef.current.unsubscribe(item.subscriber);
         item.subscriber = null;
         item.stream = null;
+        item.videoElement = null;
 
         if (item.video) {
           item.video = false;
@@ -247,21 +248,6 @@ export default function Video(props) {
       }
       return item;
     }));
-
-    if (loopModeRef.current) {
-      let current = subsRef.current.filter(i => { return i.video });
-
-      if (current && current.length < maxStreamsRef.current) {
-        let diff = maxStreamsRef.current - current.length;
-        let candidates = subsRef.current.filter(i => { return !i.video && !i.disabled && i.stream }).slice(0, diff);
-
-        log.debug("OPENTOK:: candidate videos", candidates);
-
-        candidates.forEach(item => {
-          enableCandidate(item);
-        })
-      }
-    }
   }
 
   function videoElementCreated(event, id) {
@@ -283,8 +269,6 @@ export default function Video(props) {
       }
       return item;
     }));
-
-    killExcessVideos();
   }
 
   function videoDisabled(event) {
@@ -488,16 +472,6 @@ export default function Video(props) {
       }
     }
 
-    if (current.length < maxStreamsRef.current) {
-      // Check if there are other streams we can enable
-      let diff = maxStreamsRef.current - current.length;
-      let candidates = subs.filter(i => { return !i.video && !i.disabled }).slice(0, diff);
-
-      candidates.forEach(item => {
-        enableCandidate(item);
-      })
-    }
-
     if (expired) {
       setSubs([
         ...subs.filter(i => i.user.id !== expired.user.id),
@@ -508,9 +482,9 @@ export default function Video(props) {
 
   useEffect(() => {
 
-    if (loopMode) {
+    let current = subs.filter(item => { return item.video && !item.disabled });
 
-      let current = subs.filter(item => { return item.video && !item.disabled });
+    if (loopMode) {
 
       if (current.length < maxStreams) {
 
@@ -522,22 +496,30 @@ export default function Video(props) {
         });
       }
     }
+
+    if (current.length > maxStreams) {
+      killExcessVideos(maxStreams);
+    }
     
   }, [subs, maxStreams, loopMode]);
 
   useEffect(() => {
-    if (videoLayout === 'grid' && course.instructor.id === user.id) {
-      setMaxStreams(40);
-    }
-  }, [videoLayout, course, user])
-
-  async function toggleLayout(evt) {
-    if (evt === "fullscreen") {
-      setMaxStreams(1)
+    
+    if (videoLayout === 'grid') {
+      if (course.instructor.id === user.id) {
+        setMaxStreams(40);
+      } else {
+        setMaxStreams(max);
+      }
+    } else if (videoLayout === 'fullscreen') {
+      setMaxStreams(1);
     } else {
       setMaxStreams(max);
     }
 
+  }, [videoLayout, course, user])
+
+  async function toggleLayout(evt) {
     setVideoLayout(evt);
   }
 
@@ -545,8 +527,7 @@ export default function Video(props) {
     setLoopMode(!loopMode);
   }
 
-  function killExcessVideos() {
-    let start = maxStreamsRef.current;
+  function killExcessVideos(start) {
 
     let old = subsRef.current.filter(i => { return i.video && !i.disabled }).slice(start);
 
@@ -554,11 +535,10 @@ export default function Video(props) {
 
     if (old && old.length > 0) {
       setSubs(subs => subs.map(item => {
-
         let match = old.findIndex(oldItem => {
           return oldItem.user.id === item.user.id && item.user.id !== course.instructor.id
         });
-        
+
         if (match > -1) {
           old[match].video = false;
           old[match].audio = false;
@@ -587,6 +567,7 @@ export default function Video(props) {
       if (item.video) {
         item.video = false;
         item.audio = false;
+        item.videoElement = null;
         if (item.subscriber) sessionRef.current.unsubscribe(item.subscriber);
         item.subscriber = null;
         setSubs([
@@ -596,8 +577,6 @@ export default function Video(props) {
 
       } else {
 
-        item.video = true;
-        item.audio = true;
         let subscriber = null;
 
         try {
@@ -610,6 +589,8 @@ export default function Video(props) {
         if (subscriber) {
           subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, data); });
           item.subscriber = subscriber;
+          item.video = true;
+          item.audio = true;
         }
 
         if (user.id === course.instructor.id) {
