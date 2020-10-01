@@ -4,6 +4,8 @@ import { Brightness5Rounded, Brightness4Rounded } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
+import path from '../../routes/path';
+import { useHistory } from 'react-router-dom';
 
 import AppDrawer from './appDrawer';
 import UserAvatar from "./userAvatar";
@@ -21,6 +23,7 @@ let useStyles = makeStyles((theme) => ({
     '@media (max-width: 400px)': {
       fontSize: '1.1rem',
     },
+    cursor: "pointer"
   },
   appbar: {
     marginBottom: theme.spacing(2),
@@ -65,6 +68,7 @@ export default function Header(props) {
   }
   const med = useMediaQuery('(max-width:900px)');
   const classes = useStyles();
+  const history = useHistory();
   const theme = useSelector(state => getThemeSelector(state));
   const currentUser = useSelector(state => getUserSelector(state));
   const [themeButton, setThemeButton] = useState(null);
@@ -75,6 +79,10 @@ export default function Header(props) {
     } else {
       await store.dispatch(actions.theme.setLightMode());
     }
+  }
+
+  const goHomeHandler = () => {
+    history.push(path.home);
   }
 
   let lightButton = (<Brightness4Rounded />);
@@ -142,7 +150,7 @@ export default function Header(props) {
       >
         {drawer}
         <Grid item>
-          <Typography variant="h2" className={classes.logo}>INDOORPHINS</Typography>
+          <Typography variant="h2" className={classes.logo} onClick={goHomeHandler}>INDOORPHINS</Typography>
         </Grid>
         {tabs}
       </Grid>
