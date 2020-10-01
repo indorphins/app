@@ -66,9 +66,19 @@ export default function ArchiveList(props) {
   let resultContent;
 
   if (archives) {
+    const archiveContent = (
+      archives.map(url => {
+        return (
+          <Grid item key={url}>
+            <a href={url}>{url}</a>
+          </Grid>
+        )
+      })
+    );
+
     resultContent = (
       <Card className={classes.archives}>
-        {archives}
+        {archiveContent}
       </Card>
     )
   }
