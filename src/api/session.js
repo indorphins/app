@@ -105,7 +105,7 @@ export async function fetchArchive(sessionId) {
 }
 
 /**
- * Returns all the Sessions where the instructor was the input instructorId
+ * Returns the last 10 Sessions where the instructor was the input instructorId
  * @param {String} instructorId 
  */
 export async function getInstructorSessions(instructorId) {
