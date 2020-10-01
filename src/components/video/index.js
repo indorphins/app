@@ -286,21 +286,6 @@ export default function Video(props) {
       }
       return item;
     }));
-
-    if (loopModeRef.current) {
-      let current = subsRef.current.filter(i => { return i.video && !i.disabled }); 
-
-      if (current && current.length < maxStreamsRef.current) {
-        let diff = maxStreamsRef.current - current.length;
-        let candidates = subsRef.current.filter(i => { return !i.video && !i.disabled && i.stream }).slice(0, diff);
-
-        log.debug("OPENTOK:: candidate videos", candidates);
-
-        candidates.forEach(item => {
-          enableCandidate(item);
-        })
-      }
-    }
   }
 
   async function videoEnabled(event) {
