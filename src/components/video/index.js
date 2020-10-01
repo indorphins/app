@@ -47,10 +47,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const loopTime = 15000;
-const max = 4;
+const max = 1;
 const vidProps = {
-  preferredFrameRate: 30,
-  preferredResolution: {width: 320, height: 240},
+  preferredFrameRate:7,
+  preferredResolution: {width: 640, height: 480},
   showControls: false,
   insertDefaultUI: false,
   subscribeToAudio: true,
@@ -64,9 +64,6 @@ export default function Video(props) {
   const { enqueueSnackbar } = useSnackbar();
   const [maxStreams, setMaxStreams] = useState(max);
   const { credentials, course, user } = props;
-  //const [user, setUser] = useState(null);
-  //const [course, setCourse] = useState(null);
-  //const [credentials, setCredentials] = useState(null);
   const [session, setSession] = useState(null);
   const [publisher, setPublisher] = useState(null);
   const [subs, setSubs] = useState([]);
@@ -148,18 +145,6 @@ export default function Video(props) {
       initializeSession(credentials.apiKey, credentials.token, credentials.sessionId);
     }
   }, [credentials]);
-
-  useEffect(() => {
-    return function() {
-      if (publisher) {
-        log.debug("OPENTOK:: destroy publisher", publisher);
-        if (session) {
-          session.unpublish(publisher);
-        }
-        publisher.destroy();
-      }
-    }
-  }, [publisher, session]);
 
   useEffect(() => {
     return function() {
@@ -298,15 +283,21 @@ export default function Video(props) {
       }
       return item;
     }));
+
+    killExcessVideos();
   }
 
   function videoDisabled(event) {
     log.debug("OPENTOK:: subscriber video disabled", event);
 
-    setSubs(subsRef.current.map(item => {
+    setSubs(subs => subs.map(item => {
       if (item.user.id === event.id) {
-        if (item.subscriber) sessionRef.current.unsubscribe(item.subscriber);
+        if (item.subscriber) {
+          item.subscriber.off('videoElementCreated');
+          sessionRef.current.unsubscribe(item.subscriber);
+        }
         item.disabled = true;
+        item.videoElement = null;
         item.audio = false;
       }
       return item;
@@ -355,7 +346,6 @@ export default function Video(props) {
 
       if (subscriber) {
         log.debug("OPENTOK:: created subscriber", subscriber);
-        subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, id) });
 
         setSubs(subs => subs.map(item => {
           if (item.user.id === match.user.id) {
@@ -367,7 +357,7 @@ export default function Video(props) {
           return item;
         }));
 
-        //killExcessVideos();
+        subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, id) });
       }
     } else {
 
@@ -380,13 +370,6 @@ export default function Video(props) {
         return item;
       }));
     }
-
-    setSubs(subs => subs.map(item => {
-      if (item.user.id === id) {
-        return match;
-      }
-      return item;
-    }));
   }
 
   async function streamCreated(event) {
@@ -440,10 +423,6 @@ export default function Video(props) {
       }
       return item;
     }));
-
-    if (data.instructor && current.length >= maxStreamsRef.current) {
-      killExcessVideos();
-    }
   }
 
   useEffect(() => {
@@ -529,22 +508,22 @@ export default function Video(props) {
 
   useEffect(() => {
 
-    let current = subs.filter(item => { return item.video && !item.disabled });
+    if (loopMode) {
 
-    if (current.length > maxStreams) {
-      killExcessVideos();
-    }
+      let current = subs.filter(item => { return item.video && !item.disabled });
 
-    if (current.length < maxStreams && loopMode) {
-      let diff = maxStreams - current.length;
-      let candidates = subs.filter(i => { return !i.video && !i.disabled }).slice(0, diff);
+      if (current.length < maxStreams) {
 
-      candidates.forEach(item => {
-        enableCandidate(item);
-      })
+        let diff = maxStreams - current.length;
+        let candidates = subs.filter(i => { return !i.video && !i.disabled }).slice(0, diff);
+
+        candidates.forEach(item => {
+          enableCandidate(item);
+        });
+      }
     }
     
-  }, [maxStreams, loopMode]);
+  }, [subs, maxStreams, loopMode]);
 
   useEffect(() => {
     if (videoLayout === 'grid' && course.instructor.id === user.id) {
@@ -569,9 +548,9 @@ export default function Video(props) {
   function killExcessVideos() {
     let start = maxStreamsRef.current;
 
-    log.debug("slice start", start);
-
     let old = subsRef.current.filter(i => { return i.video && !i.disabled }).slice(start);
+
+    log.debug("OPENTOK:: excess videos", old);
 
     if (old && old.length > 0) {
       setSubs(subs => subs.map(item => {
@@ -642,8 +621,6 @@ export default function Video(props) {
             ...subsRef.current.filter(i => i.user.id !== item.user.id && i.user.id !== course.instructor.id)
           ])
         }
-
-        killExcessVideos();
       }
     }
   }
@@ -710,12 +687,6 @@ export default function Video(props) {
       log.debug("mic event", data);
     }
   }
-
-  /*useEffect(() => {
-    if (props.credentials) setCredentials(props.credentials);
-    if (props.course) setCourse(props.course);
-    if (props.user) setUser(props.user);
-  }, [props]);*/
 
   let textColor = classes.enabled;
   let iconColor = classes.disabled;
