@@ -24,6 +24,7 @@ const useStyles = makeStyles((theme) => ({
   buttons: {
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
+    flexWrap: "nowrap",
   }
 }));
 
