@@ -47,10 +47,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const loopTime = 15000;
-const max = 1;
+const max = 4;
 const vidProps = {
-  preferredFrameRate:7,
-  preferredResolution: {width: 640, height: 480},
+  preferredFrameRate: 30,
+  preferredResolution: {width: 320, height: 240},
   showControls: false,
   insertDefaultUI: false,
   subscribeToAudio: true,
