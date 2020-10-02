@@ -1,13 +1,13 @@
 import React from 'react';
 import { Grid, Typography, makeStyles } from '@material-ui/core';
 import { Error } from '@material-ui/icons';
-import { isSafari, isChrome } from 'react-device-detect';
+import { isSafari, isChrome, isFirefox } from 'react-device-detect';
 import { ThemeProvider } from '@material-ui/core/styles';
 import { light } from '../../styles/theme';
 
 const useStyles = makeStyles((theme) => ({
   link: {
-    color: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
     textDecoration: "none",
     cursor: "pointer",
   }
@@ -77,10 +77,30 @@ export default function PermissionsError() {
     additional = (
       <React.Fragment>
         <Grid item>
-          <Typography variant="h4">Adjust the camera permissions as shown below</Typography>
+          <Typography variant="h4">
+            Adjust the camera permissions as shown below
+          </Typography>
         </Grid>
         <Grid item>
           <img alt="chrome permissions" src="/img/chrome_camera_permissions.png" style={{width: 500, height: "auto"}} />
+        </Grid>
+      </React.Fragment>
+    )
+  }
+
+  if (isFirefox) {
+    additional = (
+      <React.Fragment>
+        <Grid item>
+          <Typography variant="h4">
+            Adjust the permissions as shown below by clearing the disabled settings and then&nbsp;
+            <span className={classes.link} onClick={() => {window.location.reload();}}>
+              click here to refresh the page
+            </span>
+          </Typography>
+        </Grid>
+        <Grid item>
+          <img alt="firefox permissions" src="/img/ff_camera_permissions.png" style={{width: 500, height: "auto"}} />
         </Grid>
       </React.Fragment>
     )
