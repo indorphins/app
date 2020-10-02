@@ -2,6 +2,8 @@ import React from 'react';
 import { Grid, Typography, makeStyles } from '@material-ui/core';
 import { Error } from '@material-ui/icons';
 import { isSafari, isChrome } from 'react-device-detect';
+import { ThemeProvider } from '@material-ui/core/styles';
+import { light } from '../../styles/theme';
 
 const useStyles = makeStyles((theme) => ({
   link: {
@@ -85,13 +87,15 @@ export default function PermissionsError() {
   }
 
   return (
-    <Grid xs item style={{height: "100%", overflow: "hidden", position: "relative"}}>
-      <Grid container direction="row" justify="center" alignItems="center" spacing={2} style={{height: "100%"}}>
-        <Grid item xs={8} container direction="column" justify="center" alignItems="center" spacing={2}>
-          {permissionsMsgContent}
-          {additional}
+    <ThemeProvider theme={light}>
+      <Grid xs item style={{height: "100%", overflow: "hidden", position: "relative"}}>
+        <Grid container direction="row" justify="center" alignItems="center" spacing={2} style={{height: "100%"}}>
+          <Grid item xs={8} container direction="column" justify="center" alignItems="center" spacing={2}>
+            {permissionsMsgContent}
+            {additional}
+          </Grid>
         </Grid>
       </Grid>
-    </Grid>
+    </ThemeProvider>
   );
 }
