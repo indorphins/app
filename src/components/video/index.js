@@ -31,6 +31,9 @@ import Default from './layout/default';
 import LayoutPicker from './layout/picker';
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    height: "100%",
+  },
   settingsIcon: {
     display: "flex",
     alignItems: "center",
@@ -917,7 +920,7 @@ export default function Video(props) {
           >
             {vidsLayout}
             <Drawer>
-              <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
+              <Grid container direction="row" justify="flex-start" alignItems="flex-start">
                 <DevicePicker
                   session={session}
                   publisher={publisher}

@@ -1,6 +1,18 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Button, Container, Grid, MenuItem, Select, Typography, makeStyles } from '@material-ui/core';
+import { 
+  IconButton,
+  Fab,
+  Container,
+  Grid,
+  MenuItem,
+  Select,
+  Typography,
+  makeStyles,
+  useMediaQuery
+} from '@material-ui/core';
+import { ArrowBack } from '@material-ui/icons';
 import { Alert } from '@material-ui/lab';
+import { useHistory } from 'react-router-dom';
 import * as OT from '@opentok/client';
 import { ThemeProvider } from '@material-ui/core/styles';
 import { light } from '../../styles/theme';
@@ -8,6 +20,7 @@ import { light } from '../../styles/theme';
 import log from '../../log';
 import VideoDOMElement from './layout/videoDOMElement';
 import PublisherControls from './publisherControls';
+import path from '../../routes/path';
 
 const useStyles = makeStyles((theme) => ({
   select: {
@@ -17,12 +30,18 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
     height: 6, 
     background: theme.palette.grey[100],
-    borderRadius: 3,
+    borderBottomLeftRadius: 3,
+    borderBottomRightRadius: 3,
     overflow: "hidden",
+  },
+  btn: {
+    background: theme.palette.secondaryColor.main,
+    color: theme.palette.secondaryColor.contrastText,
+    fontWeight: "bold",
   },
   audioLvl: {
     height: 6,
-    background: theme.palette.common.white,
+    background: theme.palette.secondaryColor.main,
   }
 }));
 
@@ -47,6 +66,9 @@ export default function DevicePicker(props) {
   const [ videoDevices, setVideoDevices ] = useState([]);
   const [ audioDevices, setAudioDevices ] = useState([]);
   const [ audioLevel, setAudioLevel ] = useState(0);
+  const history = useHistory();
+
+  const med = useMediaQuery('(max-width:900px)');
 
   const publisherRef = useRef()
   publisherRef.current = publisher;
@@ -137,11 +159,17 @@ export default function DevicePicker(props) {
     initPublisher(settings);
   }
 
+  function back() {
+    history.push(`${path.courses}/${course.id}`);
+  }
+
   let displayMsgContent = null;
   
   if (displayMsg) {
     displayMsgContent = (
-      <Alert severity={displayMsg.severity}>{displayMsg.message}</Alert>
+      <Grid item>
+        <Alert severity={displayMsg.severity}>{displayMsg.message}</Alert>
+      </Grid>
     )
   }
 
@@ -149,26 +177,23 @@ export default function DevicePicker(props) {
 
   if (audioDevices.length > 0) {
     audioContent = (
-      <Grid item container direction="row" spacing={2} justify="center" alignContent="center" alignItems="center">
-        <Grid item xs={4}>
-          <Typography color="primary">Microphone</Typography>
-          <Grid className={classes.audioLvlContainer}>
-            <Grid className={classes.audioLvl} style={{width: `${audioLevel}%`}} />
-          </Grid>
-        </Grid>
-        <Grid item xs={8}>
-          <Select
-            id="audioDevice"
-            defaultValue={audioDevices[0].deviceId}
-            onChange={updateAudio}
-            className={classes.select}
-          >
-            {audioDevices.map(device => (
-              <MenuItem value={device.deviceId} key={device.deviceId} name={device.label}>
-                {device.label}
-              </MenuItem>
-            ))}
-          </Select>
+      <Grid item>
+        <Select
+          id="audioDevice"
+          defaultValue={audioDevices[0].deviceId}
+          onChange={updateAudio}
+          className={classes.select}
+          variant="outlined"
+          style={{borderBottomLeftRadius: 0, borderBottomRightRadius: 0}}
+        >
+          {audioDevices.map(device => (
+            <MenuItem value={device.deviceId} key={device.deviceId} name={device.label}>
+              {device.label}
+            </MenuItem>
+          ))}
+        </Select>
+        <Grid className={classes.audioLvlContainer}>
+          <Grid className={classes.audioLvl} style={{width: `${audioLevel}%`}} />
         </Grid>
       </Grid>
     )
@@ -178,24 +203,20 @@ export default function DevicePicker(props) {
   
   if (videoDevices.length > 0) {
     videoContent = (
-      <Grid item container direction="row" spacing={2} justify="center" alignContent="center" alignItems="center">
-        <Grid item xs={4}>
-          <Typography color="primary">Camera</Typography>
-        </Grid>
-        <Grid item xs={8}>
-          <Select
-            id="videoDevice"
-            defaultValue={videoDevices[0].deviceId}
-            onChange={updateVideo}
-            className={classes.select}
-          >
-            {videoDevices.map(device => (
-              <MenuItem value={device.deviceId} key={device.deviceId} name={device.label}>
-                {device.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </Grid>
+      <Grid item>
+        <Select
+          id="videoDevice"
+          defaultValue={videoDevices[0].deviceId}
+          onChange={updateVideo}
+          className={classes.select}
+          variant="outlined"
+        >
+          {videoDevices.map(device => (
+            <MenuItem value={device.deviceId} key={device.deviceId} name={device.label}>
+              {device.label}
+            </MenuItem>
+          ))}
+        </Select>
       </Grid>
     )
   }
@@ -210,29 +231,81 @@ export default function DevicePicker(props) {
 
   let content = null;
 
+  let text = `Thanks for joining us, ${user.username}`;
+
+  if (user.id === course.instructor.id) {
+    text = `Let's get that bread, ${user.username}`;
+  }
+
+  let layout = {
+    direction: 'row',
+    width: 6,
+    align: "center"
+  }
+
+  if (med) {
+    layout.direction = "column-reverse";
+    layout.width = "auto";
+    layout.align = "flex-start";
+  }
+
   if (pubWindow) {
     content = (
-      <React.Fragment>
-        <Grid item>
-          {pubWindow}
+      <Grid item container direction={layout.direction} spacing={2}>
+        <Grid
+          item
+          xs={layout.width}
+          container
+          direction='column'
+          spacing={2}
+          justify="center"
+          alignItems="center"
+          alignContent="center"
+        >
+          <Grid item container direction="row" spacing={4} justify="center" alignItems="center" alignContent="center">
+            <Grid item>
+              <Typography variant="h3" align="center">{text}</Typography>
+            </Grid>
+            <Grid item>
+              <Typography variant="subtitle1">First, make sure you&apos;re good to go</Typography>
+            </Grid>
+          </Grid>
+          <Grid item style={{maxWidth:400, width: "100%"}}>
+            {videoContent}
+          </Grid>
+          <Grid item style={{maxWidth:400, width: "100%"}}>
+            {audioContent}
+          </Grid>
+          <Grid item>
+            <Fab
+              onClick={joinSession}
+              variant="contained"
+              color="primary"
+              className={classes.btn}
+            >
+              Enter room
+            </Fab>
+          </Grid>
         </Grid>
-        <Grid item>
-          {videoContent}
+        <Grid
+          item
+          xs={layout.width}
+          container 
+          direction={layout.direction}
+          spacing={1}
+          justify="center"
+          alignContent="center"
+        >
+          <Grid item>
+            {pubWindow}
+          </Grid>
+          <Grid item>
+            <Typography variant="subtitle1" align="center" style={{fontWeight: "bold"}}>
+              Try to be seen head to toe!
+            </Typography>
+          </Grid>
         </Grid>
-        <Grid item>
-          {audioContent}
-        </Grid>
-        <Grid item>
-          <Button
-            onClick={joinSession}
-            variant="contained"
-            color="primary"
-            style={{fontWeight: 'bold'}}
-          >
-            Join
-          </Button>
-        </Grid>
-      </React.Fragment>
+      </Grid>
     )
   } else {
     content = (
@@ -257,12 +330,21 @@ export default function DevicePicker(props) {
 
     return (
       <ThemeProvider theme={light}>
-        <Container>
+        <IconButton onClick={back} style={{position: "absolute", top: 5, left: 5}}>
+          <ArrowBack />
+        </IconButton>
+        <Container style={{height:"100%"}}>
           {displayMsgContent}
-          <Grid container direction="row" justify="center" spacing={4} style={{paddingTop: 16, paddingBottom: 16}}>
-            <Grid item container direction="column" justify="center" alignItems="center" spacing={2}>
-              {content}
-            </Grid>
+          <Grid
+            container
+            direction="column"
+            justify={layout.align}
+            alignContent="center"
+            alignItems="center"
+            spacing={2}
+            style={{height:"100%"}}
+          >
+            {content}
           </Grid>
         </Container>
       </ThemeProvider>
