@@ -8,6 +8,11 @@ import log from '../../../log';
 
 
 const gridStyles = makeStyles((theme) => ({
+  root: {
+    height:"100%", 
+    overflow: "hidden",
+    background: theme.palette.common.background,
+  },
   video: {
     position: "relative"
   },
@@ -123,7 +128,7 @@ export default function GridView(props) {
   }
 
   return (
-    <Grid xs item style={{height:"100%", overflow: "hidden"}}>
+    <Grid xs item className={classes.root}>
       <Grid
         container
         direction="row"

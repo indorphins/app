@@ -7,6 +7,11 @@ import VideoDOMElement from './videoDOMElement';
 import log from '../../../log';
 
 const verticalStyles = makeStyles((theme) => ({
+  root: {
+    height:"100%", 
+    overflow: "hidden",
+    background: theme.palette.common.background,
+  },
   full: {
     height: "100%",
     width: "100%",
@@ -60,6 +65,11 @@ const verticalStyles = makeStyles((theme) => ({
 }));
 
 const horizontalStyles = makeStyles((theme) => ({
+  root: {
+    height:"100%", 
+    overflow: "hidden",
+    background: theme.palette.common.background,
+  },
   full: {
     height: "100%",
     width: "100%",
@@ -214,7 +224,7 @@ export default function Default(props) {
   }
 
   return (
-    <Grid xs item style={{height:"100%", overflow: "hidden"}}>
+    <Grid xs item className={classes.root} style={{height:"100%", overflow: "hidden"}}>
       <Grid
         container
         direction={direction}

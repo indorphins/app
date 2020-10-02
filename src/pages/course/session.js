@@ -33,7 +33,6 @@ const useStyles = makeStyles((theme) => ({
   root: {
     height: '100%',
     overflowX: 'hidden',
-    backgroundColor: dark.palette.background.default,
   },
   contentCol: {
     padding: 0,
@@ -127,7 +126,7 @@ export default function Session() {
     <LinearProgress color="primary" />
   );
 
-  if (!loader && authData && course) {
+  if (!loader) {
     content = (
       <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
         <Video credentials={authData} course={course} user={currentUser} />

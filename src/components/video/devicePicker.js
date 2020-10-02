@@ -2,6 +2,8 @@ import React, { useEffect, useState, useRef } from 'react';
 import { Button, Container, Grid, MenuItem, Select, Typography, makeStyles } from '@material-ui/core';
 import { Alert } from '@material-ui/lab';
 import * as OT from '@opentok/client';
+import { ThemeProvider } from '@material-ui/core/styles';
+import { light } from '../../styles/theme';
 
 import log from '../../log';
 import VideoDOMElement from './layout/videoDOMElement';
@@ -25,11 +27,10 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const pubSettings = {
-  usePreviousDeviceSelection: true,
   mirror: true,
   showControls: false,
   insertDefaultUI: false,
-  publishAudio: false,
+  publishAudio: true,
   publishVideo: true,
   //resolution: "320x240",
   resolution: "640x480",
@@ -41,14 +42,11 @@ const pubSettings = {
 
 export default function DevicePicker(props) {
   const classes = useStyles();
-  const { course, session, user, onChange, onPermissionsError } = props;
+  const { course, session, publisher, user, videoElement, initPublisher, onJoined } = props;
   const [displayMsg, setDisplayMsg] = useState(null);
-  const [ publisher, setPublisher ] = useState(null);
   const [ videoDevices, setVideoDevices ] = useState([]);
   const [ audioDevices, setAudioDevices ] = useState([]);
-  const [ videoElement, setVideoElement ] = useState(null);
   const [ audioLevel, setAudioLevel ] = useState(0);
-  const [ joined, setJoined ] = useState(false);
 
   const publisherRef = useRef()
   publisherRef.current = publisher;
@@ -81,38 +79,24 @@ export default function DevicePicker(props) {
   }
 
   useEffect(() => {
-    return function() {
-      if (publisher) {
-        log.debug("OPENTOK:: destroy publisher", publisher);
-        if (session) {
-          session.unpublish(publisher);
-        }
-        publisher.destroy();
-      }
+    if (session && publisher) {
+      session.publish(publisher, (err) => {
+        log.debug("OPENTOK:: publish to session", err);
+        if (err) return handleError(err);
+      });
     }
-  }, [publisher, session]);
+  }, [session, publisher]);
 
   useEffect(() => {
-    if (user.id && course.id) {
-      let settings = pubSettings;
-
-      if (user.id === course.instructor.id) {
-        settings.publishAudio = true;
-        settings.audioBitrate = 96000;
-      }
-
-      initPublisher(settings);
-
-      return function() {
-        if (publisherRef.current) {
-          publisherRef.current.off('accessAllowed');
-          publisherRef.current.off('accessDenied');
-          publisherRef.current.off('videoElementCreated');
-          publisherRef.current.off('audioLevelUpdated');
-        }
-      }
+    if (publisher && initPublisher) {
+      publisher.on('accessAllowed', getDevices)
+      publisher.on('audioLevelUpdated', audioLevelHandler);
     }
-  }, [user, course]);
+
+    return function() {
+      publisher.off('audioLevelUpdated');
+    }
+  }, [publisher, initPublisher])
 
   function getDevices() {
     OT.getDevices((err, result) => {
@@ -129,41 +113,9 @@ export default function DevicePicker(props) {
     });
   }
 
-  function videoElementCreated(event) {
-    log.debug("OPENTOK:: publisher video element created", event);
 
-    let videoElement = event.element;
-    videoElement.style.height = "100%";
-    videoElement.style.width = "100%";
-    videoElement.style.objectFit = "contained";
-    videoElement.style.objectPosition = "center";
-
-    setVideoElement(videoElement);
-  }
-
-  function initPublisher(settings) {
-    let publisher = OT.initPublisher(null, settings, handleError);
-    log.info("OPENTOK:: publisher created", publisher);
-    setPublisher(publisher);
-
-    publisher.on({
-      accessAllowed: getDevices,
-      accessDenied: function accessDeniedHandler(event) {
-        onPermissionsError();
-      },
-      videoElementCreated: videoElementCreated,
-      audioLevelUpdated: audioLevelHandler,
-    });
-  }
-
-  function joinSession(publisher, session) {
-    session.publish(publisher, (err) => {
-      log.debug("publish to session", err);
-      if (err) return handleError(err);
-      setJoined(true);
-      publisher.off('audioLevelUpdated');
-      onChange(publisher)
-    });
+  function joinSession() {
+    onJoined();
   }
 
   function audioLevelHandler(event) {
@@ -252,11 +204,7 @@ export default function DevicePicker(props) {
 
   if (videoElement) {
     pubWindow = (
-      <Grid style={{width: "100%"}}>
-        <Grid style={{maxWidth: 320}}>
-          <VideoDOMElement element={videoElement} />
-        </Grid>
-      </Grid>
+      <VideoDOMElement element={videoElement} />
     );
   }
 
@@ -265,12 +213,18 @@ export default function DevicePicker(props) {
   if (pubWindow) {
     content = (
       <React.Fragment>
-        {pubWindow}
-        {videoContent}
-        {audioContent}
+        <Grid item>
+          {pubWindow}
+        </Grid>
+        <Grid item>
+          {videoContent}
+        </Grid>
+        <Grid item>
+          {audioContent}
+        </Grid>
         <Grid item>
           <Button
-            onClick={() => {joinSession(publisher, session);}}
+            onClick={joinSession}
             variant="contained"
             color="primary"
             style={{fontWeight: 'bold'}}
@@ -288,24 +242,30 @@ export default function DevicePicker(props) {
     )
   }
 
-  if (joined) {
+  if (!onJoined) {
     return (
       <Grid container>
-        {pubWindow}
+        <Grid style={{width: "100%"}}>
+          <Grid style={{maxWidth: 320, height: 240}}>
+            {pubWindow}
+          </Grid>
+        </Grid>
         <PublisherControls publisher={publisher} user={user} course={course} session={session} />
       </Grid>
     )
   } else {
 
     return (
-      <Container>
-        {displayMsgContent}
-        <Grid container direction="row" justify="center" spacing={4} style={{paddingTop: 16, paddingBottom: 16}}>
-          <Grid item container direction="column" justify="center" alignItems="center" spacing={2}>
-            {content}
+      <ThemeProvider theme={light}>
+        <Container>
+          {displayMsgContent}
+          <Grid container direction="row" justify="center" spacing={4} style={{paddingTop: 16, paddingBottom: 16}}>
+            <Grid item container direction="column" justify="center" alignItems="center" spacing={2}>
+              {content}
+            </Grid>
           </Grid>
-        </Grid>
-      </Container>
+        </Container>
+      </ThemeProvider>
     );
   }
 }

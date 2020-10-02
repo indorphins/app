@@ -57,6 +57,20 @@ const vidProps = {
   subscribeToVideo: true,
 };
 
+const pubSettings = {
+  mirror: true,
+  showControls: false,
+  insertDefaultUI: false,
+  publishAudio: true,
+  publishVideo: true,
+  //resolution: "320x240",
+  resolution: "640x480",
+  frameRate: 30,
+  audioBitrate: 44000,
+  enableStereo: false,
+  maxResolution: {width: 640, height: 480},
+};
+
 export default function Video(props) {
 
   const classes = useStyles();
@@ -69,8 +83,10 @@ export default function Video(props) {
   const [subs, setSubs] = useState([]);
   const [loopMode, setLoopMode] = useState(true);
   const [displayMsg, setDisplayMsg] = useState(null);
+  const [ videoElement, setVideoElement ] = useState(null);
   const [videoLayout, setVideoLayout] = useState("horizontal");
   const [permissionsError, setPermissionsError] = useState(false);
+  const [joined, setJoined] = useState(false);
   //const [cover, setCover] = useState(true);
   const cover = true;
   const subsRef = useRef();
@@ -78,11 +94,13 @@ export default function Video(props) {
   const loopModeRef = useRef();
   const maxStreamsRef = useRef();
   const coverRef = useRef();
+  const publisherRef = useRef();
   subsRef.current = subs;
   sessionRef.current = session;
   loopModeRef.current = loopMode;
   maxStreamsRef.current = maxStreams;
   coverRef.current = cover;
+  publisherRef.current = publisher;
 
   async function handleError(err) {
     if (err) {
@@ -129,9 +147,62 @@ export default function Video(props) {
         sess.on('streamDestroyed', streamDestroyed);
         sess.on('signal', handleSignal);
         setSession(sess);
+        return sess;
       });
     }
   }
+
+  async function handleJoin() { 
+    await initializeSession(credentials.apiKey, credentials.token, credentials.sessionId);
+    setJoined(true);
+  }
+
+  function publisherVideoElementCreated(event) {
+    log.debug("OPENTOK:: publisher video element created", event);
+
+    let videoElement = event.element;
+    videoElement.style.height = "100%";
+    videoElement.style.width = "100%";
+    videoElement.style.objectFit = "contained";
+    videoElement.style.objectPosition = "center";
+
+    setVideoElement(videoElement);
+  }
+
+  function initPublisher(settings) {
+    let publisher = OT.initPublisher(null, settings, handleError);
+    log.info("OPENTOK:: publisher created", publisher);
+    setPublisher(publisher);
+
+    publisher.on({
+      accessAllowed: () => setPermissionsError(false),
+      accessDenied: () => setPermissionsError(true),
+      videoElementCreated: publisherVideoElementCreated,
+    });
+  }
+
+  useEffect(() => {
+
+    if (user.id && course.id) {
+      let settings = pubSettings;
+
+      if (user.id === course.instructor.id) {
+        settings.publishAudio = true;
+        settings.audioBitrate = 96000;
+      }
+
+      initPublisher(settings);
+
+      return function() {
+        if (publisherRef.current) {
+          publisherRef.current.off('accessAllowed');
+          publisherRef.current.off('accessDenied');
+          publisherRef.current.off('videoElementCreated');
+          publisherRef.current.off('audioLevelUpdated');
+        }
+      }
+    }
+  }, [user, course]);
 
   useEffect(() => {
     if (course && user && course.instructor.id === user.id) {
@@ -141,10 +212,16 @@ export default function Video(props) {
 
 
   useEffect(() => {
-    if (credentials && credentials.apiKey && credentials.sessionId) {
-      initializeSession(credentials.apiKey, credentials.token, credentials.sessionId);
+    return function() {
+      if (publisher) {
+        log.debug("OPENTOK:: disconnect and destroy publisher", publisher);
+        if (sessionRef.current) {
+          sessionRef.current.unpublish(publisher);
+        }
+        publisher.destroy();
+      }
     }
-  }, [credentials]);
+  }, [publisher]);
 
   useEffect(() => {
     return function() {
@@ -156,12 +233,12 @@ export default function Video(props) {
         session.off('streamCreated');
         session.off('streamDestroyed');
         session.off('signal');
-
         session.disconnect();
       }
     }
 
   }, [session]);
+
 
   function connectionCreated(event) {
     log.info("OPENTOK:: connection created", event);
@@ -788,29 +865,18 @@ export default function Video(props) {
     </Grid>
   );
 
-  if (publisher) {
-    vidsLayout = (
-      <Default user={user} subs={subs} session={session} max={maxStreams} layout={videoLayout} />
-    )
-
-    if (videoLayout === "grid") {
-      vidsLayout = (
-        <GridView user={user} subs={subs} session={session} />
-      )
-    }
-  }
-
   let devicePickContent = null
   
-  if (session) {
+  if (publisher) {
     devicePickContent = (
       <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
         <DevicePicker
-          session={session}
+          publisher={publisher}
           course={course}
           user={user}
-          onChange={(evt) => setPublisher(evt)}
-          onPermissionsError={() => setPermissionsError(true)}
+          videoElement={videoElement}
+          initPublisher={initPublisher}
+          onJoined={handleJoin}
         />
       </Grid>
     );
@@ -822,7 +888,22 @@ export default function Video(props) {
     );
   }
 
-  if (course && course.title) {
+  if (!joined || !session) {
+
+    return devicePickContent;
+
+  } else {
+
+    vidsLayout = (
+      <Default user={user} subs={subs} session={session} max={maxStreams} layout={videoLayout} />
+    )
+
+    if (videoLayout === "grid") {
+      vidsLayout = (
+        <GridView user={user} subs={subs} session={session} />
+      )
+    }
+
     return (
       <Grid style={{width: "100%", height: "100%", overflow: "hidden"}}>
         {displayMsgContent}
@@ -836,7 +917,15 @@ export default function Video(props) {
           >
             {vidsLayout}
             <Drawer>
-              {devicePickContent}
+              <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
+                <DevicePicker
+                  session={session}
+                  publisher={publisher}
+                  course={course}
+                  user={user}
+                  videoElement={videoElement}
+                />
+              </Grid>
               {accor}
             </Drawer>
           </Grid>
@@ -844,6 +933,4 @@ export default function Video(props) {
       </Grid>
     );
   }
-
-  return null;
 }
