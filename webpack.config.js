@@ -52,6 +52,9 @@ module.exports = {
         { from: 'public/PP.html', to: 'PP.html' },
         { from: 'public/TOS.html', to: 'TOS.html' },
         { from: 'public/robots.txt', to: 'robots.txt' },
+        { from: 'public/font/Lato-Black.ttf', to:'Lato-Black.ttf' },
+        { from: 'public/font/Lato-Bold.ttf', to:'Lato-Bold.ttf' },
+        { from: 'public/font/Lato-Regular.ttf', to:'Lato-Regular.ttf' },
       ],
     }),
     new HtmlWebpackPlugin({
