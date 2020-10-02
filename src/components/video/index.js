@@ -858,16 +858,6 @@ export default function Video(props) {
     )
   }
 
-  let vidsLayout = (
-    <Grid item xs>
-      <Grid container direction="column" justify="center" style={{height: "100%"}}>
-        <Grid item>
-          <Typography align="center" variant="h3">Click join when ready</Typography>
-        </Grid>
-      </Grid>
-    </Grid>
-  );
-
   let devicePickContent = null
   
   if (publisher) {
@@ -897,7 +887,7 @@ export default function Video(props) {
 
   } else {
 
-    vidsLayout = (
+    let vidsLayout = (
       <Default user={user} subs={subs} session={session} max={maxStreams} layout={videoLayout} />
     )
 
