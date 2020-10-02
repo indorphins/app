@@ -32,7 +32,9 @@ export default function PublisherControls(props) {
 
   useEffect(() => {
     if (user && course && user.id === course.instructor.id) {
-      setPublishAudio(true);
+      toggleAudio(false);
+    } else {
+      toggleAudio(true);
     }
   }, [user, course]);
 
