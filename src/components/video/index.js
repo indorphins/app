@@ -45,9 +45,15 @@ const useStyles = makeStyles((theme) => ({
   disabled: {
     color: theme.palette.grey[300],
   },
+  tabs: {
+    borderBottom: `1px solid ${theme.palette.text.disabled}`
+  },
   tab: {
     minWidth: 0,
-  }
+  },
+  selectedTab: {
+    fontWeight: "bold",
+  },
 }));
 
 const loopTime = 15000;
@@ -92,6 +98,7 @@ export default function Video(props) {
   const [permissionsError, setPermissionsError] = useState(false);
   const [joined, setJoined] = useState(false);
   const [tab, setTab] = useState(0);
+  const [chatHistory, setChatHistory] = useState([]);
   //const [cover, setCover] = useState(true);
   const cover = true;
   const subsRef = useRef();
@@ -734,6 +741,12 @@ export default function Video(props) {
       let data = JSON.parse(event.data);
       log.debug("mic event", data);
     }
+
+    if (event.type === "signal:chat") {
+      log.debug('OPENTOK:: got chat msg from client', event);
+      let data = JSON.parse(event.data);
+      setChatHistory(history => [data, ...history]);
+    }
   }
 
   let textColor = classes.enabled;
@@ -824,8 +837,8 @@ export default function Video(props) {
   )
 
   let chatContent = (
-    <Container>
-      <Chat session={session} user={user} />
+    <Container style={{paddingLeft:6, paddingRight: 6}}>
+      <Chat session={session} user={user} chatHistory={chatHistory} />
     </Container>
   );
 
@@ -846,10 +859,12 @@ export default function Video(props) {
         onChange={(evt, newValue) => setTab(newValue)}
         variant="fullWidth"
         textColor="primary"
+        indicatorColor="primary"
+        className={classes.tabs}
       >
-        <Tab label="Group" value={0} classes={{root: classes.tab}} />
-        <Tab label="Chat" value={1} classes={{root: classes.tab}} />
-        <Tab label="Settings" value={2} classes={{root: classes.tab}} />
+        <Tab label="Group" value={0} classes={{root: classes.tab, selected: classes.selectedTab}} />
+        <Tab label="Chat" value={1} classes={{root: classes.tab, selected: classes.selectedTab}} />
+        <Tab label="Settings" value={2} classes={{root: classes.tab, selected: classes.selectedTab}} />
       </Tabs>
       {tabContent}
     </React.Fragment>

@@ -12,12 +12,16 @@ const useStyles = makeStyles((theme) => ({
     width: "100%",
   },
   chatMsg: {
-    display: "inline",
-    paddingLeft: theme.spacing(1),
+    color: theme.palette.secondary.contrastText,
+  },
+  chatTime: {
+    color: theme.palette.text.disabled,
+    fontWeight: 400,
   },
   chatUsername: {
     display: "inline",
     fontWeight: "bold",
+    color: theme.palette.secondary.contrastText,
   },
   chatContainer: {
     width: '100%',
@@ -29,30 +33,18 @@ const useStyles = makeStyles((theme) => ({
 export default function Chat(props) {
 
   const classes = useStyles();
-  const { session, user } = props;
+  const { session, user, chatHistory } = props;
   const [history, setHistory] = useState([]);
   const [chatMsg, setChatMsg] = useState('');
 
   useEffect(() => {
-    if (session && session.on) {
-      session.on('signal', handleSignal);
-    }
-
-    return function() {
-      if (session && session.off) {
-        session.off('signal');
+    setHistory(chatHistory.map(item => {
+      if (item.id === user.id) {
+        item.username = "You";
       }
-    }
-  }, [session]);
-
-  const handleSignal = function(event) {
-    
-    if (event.type === "signal:chat") {
-      log.debug('OPENTOK:: got chat msg from client', event);
-      let data = JSON.parse(event.data);
-      setHistory(history => [data, ...history]);
-    }
-  };
+      return item;
+    }));
+  }, [chatHistory, user])
 
   const sendChat = async function() {
     if (!chatMsg || chatMsg.trim() === "") return;
@@ -61,6 +53,7 @@ export default function Chat(props) {
       {
         type: "chat",
         data: JSON.stringify({
+          id: user.id,
           username: user.username,
           message: chatMsg,
           date: new Date().toISOString(),
@@ -89,7 +82,14 @@ export default function Chat(props) {
     return (
       <Grid className={classes.root}>
         <form onSubmit={chatFormHandler}>
-          <Grid container direction="row" justify="flex-start" alignContent="center" alignItems="flex-end">
+          <Grid
+            container
+            direction="row"
+            justify="flex-start"
+            alignContent="center"
+            alignItems="flex-end"
+            style={{paddingBottom: 16}}
+          >
             <Grid item xs>
               <TextField 
                 color="primary" 
@@ -109,10 +109,17 @@ export default function Chat(props) {
         <Grid container direction="column">
           {history.map(message => (
             <Grid item key={(Math.random() * 1000000)} className={classes.chatContainer}>
-              <Typography variant="body2" className={classes.chatUsername}>
-                {message.username} [{format(new Date(message.date), 'h:mm aa')}]: 
-              </Typography>
-              <Typography variant="body1" className={classes.chatMsg}>{message.message}</Typography>
+              <Grid container direction="column">
+                <Grid item>
+                  <Typography variant="body2" className={classes.chatUsername}>
+                    {message.username}
+                    <span className={classes.chatTime}>{format(new Date(message.date), 'h:mm aa')}</span>
+                  </Typography>
+                </Grid>
+                <Grid item>
+                  <Typography variant="body1" className={classes.chatMsg}>{message.message}</Typography>
+                </Grid>
+              </Grid>
             </Grid>
           ))}
         </Grid>
@@ -120,5 +127,5 @@ export default function Chat(props) {
     );
   }
 
-  return (<Grid></Grid>)
+  return null;
 }
