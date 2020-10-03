@@ -45,7 +45,10 @@ export default function Routes() {
           <AsyncPage page="schedule" />
         </Route>
         <Route exact path={path.instructorProfile}>
-          <AsyncPage page="instructor" />
+          <AsyncPage page="instructor/info" />
+        </Route>
+        <Route exact path={path.instructors}>
+          <AsyncPage page='instructor/index' />
         </Route>
         <Route exact path={path.milestone}>
           <AsyncPage page="milestone" />

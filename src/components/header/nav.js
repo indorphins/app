@@ -2,8 +2,6 @@ import React, {useState, useEffect} from 'react';
 import { useRouteMatch, useHistory } from 'react-router-dom';
 import { Tab, Tabs } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { useSelector } from 'react-redux';
-import { createSelector } from 'reselect';
 
 import path from '../../routes/path';
 
@@ -30,28 +28,24 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const getUserSelector = createSelector([state => state.user.data], (user) => {
-  return user;
-});
-
 export default function(props) {
 
   const [tab, setTab] = useState(0);
-  const currentUser = useSelector(state => getUserSelector(state));
   const classes = useStyles();
   const history = useHistory();
+  const instructors = useRouteMatch(path.instructors);
   let home = useRouteMatch({ path: path.home, strict: true});
-  let schedule = useRouteMatch(path.schedule);
   let milestone = useRouteMatch(path.milestone)
+
 
   useEffect(() => {
     if (home && home.isExact) {
       setTab(1);
     } else if (milestone) {
-      setTab(2);
-    } else if (currentUser.id && schedule) {
       setTab(3);
-    }  else {
+    } else if (instructors && instructors.isExact) {
+      setTab(2);
+    } else {
       setTab(0);
     }
   }, [home]);
@@ -60,27 +54,15 @@ export default function(props) {
     history.push(path.home);
   }
 
-  async function navSchedule() {
-    history.push(path.schedule);
-  }
-
   async function navMilestones() {
     history.push(path.milestone);
   }
 
-  let scheduleTab = null;
-
-  if (currentUser.id) {
-    scheduleTab = (
-      <Tab 
-        value={3}
-        label="My Schedule"
-        onClick={navSchedule}
-        className={classes.tab}
-        classes={{selected: classes.color}}
-      />
-    )
+  async function navInstructors() {
+    history.push(path.instructors);
   }
+
+  let scheduleTab = null;
 
   return (
     <Tabs
@@ -99,6 +81,13 @@ export default function(props) {
       />
       <Tab
         value={2}
+        label="Instructors"
+        onClick={navInstructors}
+        className={classes.tab}
+        classes={{selected: classes.color}}
+      />
+      <Tab
+        value={3}
         label="Milestones"
         onClick={navMilestones}
         className={classes.tab}
