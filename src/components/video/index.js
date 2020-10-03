@@ -755,13 +755,16 @@ export default function Video(props) {
 
   let textColor;
   let iconColor;
+  let settingsText;
 
   if (loopMode) {
     textColor = classes.disabled;
     iconColor = classes.enabled;
+    settingsText = "Change the video layout, or watch only your friends"
   } else {
     textColor = classes.enabled;
     iconColor = classes.disabled;
+    settingsText = "Select the group tab to change who you are viewing";
   }
 
   /*let coverText = "Zoom";
@@ -776,6 +779,11 @@ export default function Video(props) {
   
   let settings = (
     <Grid container direction="column">
+      <Grid container direction="column" style={{paddingLeft:24, paddingRight: 24}}>
+        <Grid item>
+          <Typography variant="subtitle2">{settingsText}</Typography>
+        </Grid>
+      </Grid>
       <Grid item container direction="row" alignItems="center" alignContent="center">
         <Grid item className={classes.settingsIcon}>
           <LayoutPicker layout={videoLayout} onSelect={(evt) => toggleLayout(evt)} />

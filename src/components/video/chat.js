@@ -85,6 +85,11 @@ export default function Chat(props) {
   if (session && user) {
     return (
       <Grid className={classes.root}>
+        <Grid container alignContent="center" justify="center">
+          <Grid item>
+            <Typography variant="subtitle2" align="center">Send a message to the class</Typography>
+          </Grid>
+        </Grid>
         <form onSubmit={chatFormHandler}>
           <Grid
             container
