@@ -5,13 +5,13 @@ import { makeStyles } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 
-import CourseSchedule from '../components/courseSchedule';
-import UserData from '../components/userData';
-import ArchiveList from '../components/archiveList';
-import * as InstructorAPI from '../api/instructor';
-import * as Course from '../api/course';
-import { getInstructorSessions } from "../api/session";
-import log from '../log';
+import CourseSchedule from '../../components/courseSchedule';
+import UserData from '../../components/userData';
+import ArchiveList from '../../components/archiveList';
+import * as InstructorAPI from '../../api/instructor';
+import * as Course from '../../api/course';
+import { getInstructorSessions } from "../../api/session";
+import log from '../../log';
 
 const instructorDataSelector = createSelector([state => state.instructor], (data) => {
   return data;
