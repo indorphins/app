@@ -6,8 +6,8 @@ import {
   makeStyles,
 } from '@material-ui/core';
 import { 
-  VideocamOffOutlined, 
-  VideocamOutlined, 
+  VideocamOffRounded, 
+  VideocamRounded, 
   MicNone, 
   MicOffOutlined, 
 } from '@material-ui/icons';
@@ -85,10 +85,10 @@ export default function PublisherControls(props) {
     );
   }
 
-  let videoBtn = (<VideocamOffOutlined />);
+  let videoBtn = (<VideocamOffRounded />);
   let videoTitle = "Enable camera";
   if (publishVideo) {
-    videoBtn = (<VideocamOutlined />);
+    videoBtn = (<VideocamRounded />);
     videoTitle = "Disable camera";
   }
 
@@ -103,13 +103,13 @@ export default function PublisherControls(props) {
     <Box>
       <Grid container direction="row" spacing={1} className={classes.buttons}>
         <Grid item>
-          <IconButton title={videoTitle} onClick={() => toggleVideo(publishVideo)}>
-            {videoBtn}
-          </IconButton>
-        </Grid>
-        <Grid item>
           <IconButton title={micTitle} onClick={() => toggleAudio(publishAudio)}>
             {micBtn}
+          </IconButton>
+        </Grid>        
+        <Grid item>
+          <IconButton title={videoTitle} onClick={() => toggleVideo(publishVideo)}>
+            {videoBtn}
           </IconButton>
         </Grid>
         <Grid item>

@@ -318,12 +318,12 @@ export default function DevicePicker(props) {
   if (!onJoined) {
     return (
       <Grid container>
-        <Grid style={{width: "100%"}}>
-          <Grid style={{maxWidth: 320, height: 240}}>
-            {pubWindow}
+        <Grid style={{width: "100%", position: "relative"}}>
+          {pubWindow}
+          <Grid container justify="center" style={{position: "absolute", bottom: 0}}>
+            <PublisherControls publisher={publisher} user={user} course={course} session={session} />
           </Grid>
         </Grid>
-        <PublisherControls publisher={publisher} user={user} course={course} session={session} />
       </Grid>
     )
   } else {
