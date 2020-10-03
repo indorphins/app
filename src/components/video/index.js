@@ -1,17 +1,15 @@
 /* eslint max-lines: 0*/
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Box, 
+import {
+  Container,
   Grid, 
   Typography, 
-  Accordion, 
-  AccordionSummary, 
-  AccordionDetails,
   Switch,
+  Tabs,
+  Tab,
   makeStyles,
 } from '@material-ui/core';
-import { 
-  ExpandMoreOutlined,
+import {
   Loop,
   //ViewArray
 } from '@material-ui/icons';
@@ -46,6 +44,9 @@ const useStyles = makeStyles((theme) => ({
   },
   disabled: {
     color: theme.palette.grey[300],
+  },
+  tab: {
+    minWidth: 0,
   }
 }));
 
@@ -90,6 +91,7 @@ export default function Video(props) {
   const [videoLayout, setVideoLayout] = useState("horizontal");
   const [permissionsError, setPermissionsError] = useState(false);
   const [joined, setJoined] = useState(false);
+  const [tab, setTab] = useState(0);
   //const [cover, setCover] = useState(true);
   const cover = true;
   const subsRef = useRef();
@@ -821,34 +823,37 @@ export default function Video(props) {
     </Grid>
   )
 
-  let accor = (
-    <Box>
-      <Accordion defaultExpanded>
-        <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
-          <Typography variant="h5">Settings</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          {settings}
-        </AccordionDetails>
-      </Accordion>
-      <Accordion defaultExpanded>
-        <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
-          <Typography variant="h5">Participants</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          {controlsGrid}
-        </AccordionDetails>
-      </Accordion>
-      <Accordion defaultExpanded>
-        <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
-          <Typography variant="h5">Chat</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Chat session={session} user={user} />
-        </AccordionDetails>
-      </Accordion>
-    </Box>
+  let chatContent = (
+    <Container>
+      <Chat session={session} user={user} />
+    </Container>
   );
+
+  let tabContent = controlsGrid;
+
+  if (tab === 1) {
+    tabContent = chatContent;
+  }
+
+  if (tab === 2) {
+    tabContent = settings;
+  }
+
+  let accor = (
+    <React.Fragment>
+      <Tabs
+        value={tab}
+        onChange={(evt, newValue) => setTab(newValue)}
+        variant="fullWidth"
+        textColor="primary"
+      >
+        <Tab label="Group" value={0} classes={{root: classes.tab}} />
+        <Tab label="Chat" value={1} classes={{root: classes.tab}} />
+        <Tab label="Settings" value={2} classes={{root: classes.tab}} />
+      </Tabs>
+      {tabContent}
+    </React.Fragment>
+  )
 
   let displayMsgContent = null;
   

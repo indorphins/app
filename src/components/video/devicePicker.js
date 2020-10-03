@@ -279,9 +279,9 @@ export default function DevicePicker(props) {
           <Grid item>
             <Fab
               onClick={joinSession}
-              variant="contained"
               color="primary"
               className={classes.btn}
+              variant="extended"
             >
               Enter room
             </Fab>
