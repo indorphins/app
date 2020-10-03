@@ -46,7 +46,8 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.grey[300],
   },
   tabs: {
-    borderBottom: `1px solid ${theme.palette.text.disabled}`
+    borderBottom: `1px solid ${theme.palette.text.disabled}`,
+    marginBottom: theme.spacing(1),
   },
   tab: {
     minWidth: 0,

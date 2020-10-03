@@ -17,6 +17,7 @@ const useStyles = makeStyles((theme) => ({
   chatTime: {
     color: theme.palette.text.disabled,
     fontWeight: 400,
+    paddingLeft: theme.spacing(1),
   },
   chatUsername: {
     display: "inline",
