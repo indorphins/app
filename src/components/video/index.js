@@ -16,6 +16,8 @@ import {
 import { Alert } from '@material-ui/lab';
 import * as OT from '@opentok/client';
 import { useSnackbar } from 'notistack';
+import { ThemeProvider } from '@material-ui/core/styles';
+import { light } from '../../styles/theme';
 
 import PermissionsError from './permissionsError';
 import Chat from './chat';
@@ -38,12 +40,13 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
     width: "48px",
     height: "48px",
+    color: theme.palette.secondary.main,
   },
   enabled: {
-    color: theme.palette.common.white,
+    color: theme.palette.secondary.main,
   },
   disabled: {
-    color: theme.palette.grey[300],
+    color: theme.palette.grey[500],
   },
   tabs: {
     borderBottom: `1px solid ${theme.palette.text.disabled}`,
@@ -750,12 +753,15 @@ export default function Video(props) {
     }
   }
 
-  let textColor = classes.enabled;
-  let iconColor = classes.disabled;
+  let textColor;
+  let iconColor;
 
   if (loopMode) {
     textColor = classes.disabled;
     iconColor = classes.enabled;
+  } else {
+    textColor = classes.enabled;
+    iconColor = classes.disabled;
   }
 
   /*let coverText = "Zoom";
@@ -775,7 +781,7 @@ export default function Video(props) {
           <LayoutPicker layout={videoLayout} onSelect={(evt) => toggleLayout(evt)} />
         </Grid>
         <Grid item xs>
-          <Typography>Display</Typography>
+          <Typography color="primary">Display</Typography>
         </Grid>
       </Grid>
       <Grid
@@ -854,7 +860,7 @@ export default function Video(props) {
   }
 
   let accor = (
-    <React.Fragment>
+    <ThemeProvider theme={light}>
       <Tabs
         value={tab}
         onChange={(evt, newValue) => setTab(newValue)}
@@ -868,7 +874,7 @@ export default function Video(props) {
         <Tab label="Settings" value={2} classes={{root: classes.tab, selected: classes.selectedTab}} />
       </Tabs>
       {tabContent}
-    </React.Fragment>
+    </ThemeProvider>
   )
 
   let displayMsgContent = null;

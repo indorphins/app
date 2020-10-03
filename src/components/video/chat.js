@@ -15,7 +15,7 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.secondary.contrastText,
   },
   chatTime: {
-    color: theme.palette.text.disabled,
+    color: theme.palette.grey[500],
     fontWeight: 400,
     paddingLeft: theme.spacing(1),
   },
@@ -28,6 +28,9 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
+  },
+  btn: {
+    fontWeight: "bold",
   },
 }));
 
@@ -103,7 +106,7 @@ export default function Chat(props) {
               />
             </Grid>
             <Grid item>
-              <Button type="submit" color="primary">Send</Button>
+              <Button type="submit" color="primary" className={classes.btn}>Send</Button>
             </Grid>
           </Grid>
         </form>

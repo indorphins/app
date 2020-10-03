@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
     height: "100%",
     overflowY: "scroll",
     overflowX: "hidden",
-    backgroundColor: "#0e0e0e",
+    backgroundColor: theme.palette.backgroundColor,
     transition: "all 175ms cubic-bezier(0.725, 0.005, 0.320, 0.990)",
   },
   hidden: {
