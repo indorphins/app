@@ -787,7 +787,14 @@ export default function Video(props) {
   
   let settings = (
     <Grid container direction="column">
-      <Grid container direction="column" style={{paddingLeft:24, paddingRight: 24}}>
+      <Grid
+        container
+        direction="column"
+        justify="center"
+        alignItems="center"
+        alignContent="center"
+        style={{paddingLeft:24, paddingRight: 24}}
+      >
         <Grid item>
           <Typography variant="subtitle2">{settingsText}</Typography>
         </Grid>
