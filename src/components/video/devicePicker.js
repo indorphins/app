@@ -318,7 +318,7 @@ export default function DevicePicker(props) {
   if (!onJoined) {
     return (
       <Grid container>
-        <Grid style={{width: "100%", position: "relative"}}>
+        <Grid style={{width: "100%", minHeight:240, position: "relative", background: "black"}}>
           {pubWindow}
           <Grid container justify="center" style={{position: "absolute", bottom: 0}}>
             <PublisherControls publisher={publisher} user={user} course={course} session={session} />
