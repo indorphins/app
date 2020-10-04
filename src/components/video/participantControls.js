@@ -120,7 +120,7 @@ export default function ParticipantControls(props) {
     content = (
       <Grid container direction="column" justify="center" alignContent="center">
         <Grid item>
-          <Typography variant="subtitle2">Class empty</Typography>
+          <Typography variant="subtitle2" align="center">Class empty</Typography>
         </Grid>
       </Grid>
     );
