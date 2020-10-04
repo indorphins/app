@@ -89,7 +89,7 @@ export default function ParticipantControls(props) {
 
     content = (
       <React.Fragment>
-        <Grid container direction="column" justify="center" alignContent="center">
+        <Grid container direction="column" justify="center" alignContent="center" alignItems="center">
           <Grid item style={{paddingLeft: 24, paddingRight: 24}}>
             <Typography variant="subtitle2">{text}</Typography>
           </Grid>
