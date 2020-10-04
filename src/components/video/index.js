@@ -760,7 +760,7 @@ export default function Video(props) {
   if (loopMode) {
     textColor = classes.disabled;
     iconColor = classes.enabled;
-    settingsText = "Change the video layout of watch only your friends";
+    settingsText = "Change the video layout or watch only your friends";
 
     if (user.id === course.instructor.id) {
       settingsText = "View & hear everyone in Grid Mode. Teach in horizontal mode";
