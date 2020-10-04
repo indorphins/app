@@ -79,7 +79,7 @@ const lightTypography = {
   },
   h3: {
     fontSize: '1.8rem',
-    fontWeight: 300,
+    fontWeight: 500,
     color: lightPalette.grey[600],
   },
   h4: {
@@ -173,7 +173,7 @@ const darkTypography = {
   },
   h3: {
     fontSize: '1.8rem',
-    fontWeight: 300,
+    fontWeight: 500,
     color: darkPalette.grey[600],
   },
   h4: {

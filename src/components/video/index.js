@@ -1,296 +1,274 @@
+/* eslint max-lines: 0*/
 import React, { useState, useEffect, useRef } from 'react';
-import { 
-  Box, 
+import {
+  Container,
   Grid, 
   Typography, 
-  Accordion, 
-  AccordionSummary, 
-  AccordionDetails,
   Switch,
+  Tabs,
+  Tab,
   makeStyles,
 } from '@material-ui/core';
-import { 
-  ExpandMoreOutlined,
+import {
   Loop,
+  //ViewArray
 } from '@material-ui/icons';
 import { Alert } from '@material-ui/lab';
 import * as OT from '@opentok/client';
-import { isSafari, isMobile, fullBrowserVersion } from 'react-device-detect';
-import compareVersions from 'compare-versions';
 import { useSnackbar } from 'notistack';
+import { ThemeProvider } from '@material-ui/core/styles';
+import { light } from '../../styles/theme';
 
+import PermissionsError from './permissionsError';
 import Chat from './chat';
 import Drawer from './drawer';
-import PermissionsError from './permissionsError';
 import ParticipantControls from './participantControls';
-import PublisherControls from './publisherControls';
-import log from '../../log';
 
+import log from '../../log';
+import DevicePicker from './devicePicker';
+import GridView from './layout/gridView';
 import Default from './layout/default';
 import LayoutPicker from './layout/picker';
 
 const useStyles = makeStyles((theme) => ({
+  root: {
+    height: "100%",
+  },
   settingsIcon: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     width: "48px",
     height: "48px",
+    color: theme.palette.secondary.main,
   },
   enabled: {
-    color: theme.palette.common.white,
+    color: theme.palette.secondary.main,
   },
   disabled: {
-    color: theme.palette.grey[300],
-  }
+    color: theme.palette.grey[500],
+  },
+  tabs: {
+    borderBottom: `1px solid ${theme.palette.text.disabled}`,
+    marginBottom: theme.spacing(1),
+  },
+  tab: {
+    minWidth: 0,
+  },
+  selectedTab: {
+    fontWeight: "bold",
+  },
 }));
+
+const loopTime = 15000;
+const max = 4;
+const vidProps = {
+  preferredFrameRate: 30,
+  preferredResolution: {width: 320, height: 240},
+  showControls: false,
+  insertDefaultUI: false,
+  subscribeToAudio: true,
+  subscribeToVideo: true,
+};
+
+const pubSettings = {
+  mirror: true,
+  showControls: false,
+  insertDefaultUI: false,
+  publishAudio: true,
+  publishVideo: true,
+  //resolution: "320x240",
+  resolution: "640x480",
+  frameRate: 30,
+  audioBitrate: 44000,
+  enableStereo: false,
+  maxResolution: {width: 640, height: 480},
+};
 
 export default function Video(props) {
 
   const classes = useStyles();
   let looper = null;
-  const loopTime = 15000;
   const { enqueueSnackbar } = useSnackbar();
-  const [maxStreams, setMaxStreams] = useState(4);
-  const [user, setUser] = useState(null);
-  const [course, setCourse] = useState(null);
-  const [credentials, setCredentials] = useState(null);
+  const [maxStreams, setMaxStreams] = useState(max);
+  const { credentials, course, user } = props;
   const [session, setSession] = useState(null);
   const [publisher, setPublisher] = useState(null);
   const [subs, setSubs] = useState([]);
-  const [subsShown, setSubsShown] = useState([]);
   const [loopMode, setLoopMode] = useState(true);
   const [displayMsg, setDisplayMsg] = useState(null);
-  const [permissionsError, setPermissionsError] = useState(false);
+  const [ videoElement, setVideoElement ] = useState(null);
   const [videoLayout, setVideoLayout] = useState("horizontal");
+  const [permissionsError, setPermissionsError] = useState(false);
+  const [joined, setJoined] = useState(false);
+  const [tab, setTab] = useState(0);
+  const [chatHistory, setChatHistory] = useState([]);
+  //const [cover, setCover] = useState(true);
+  const cover = true;
   const subsRef = useRef();
+  const sessionRef = useRef();
+  const loopModeRef = useRef();
+  const maxStreamsRef = useRef();
+  const coverRef = useRef();
+  const publisherRef = useRef();
   subsRef.current = subs;
+  sessionRef.current = session;
+  loopModeRef.current = loopMode;
+  maxStreamsRef.current = maxStreams;
+  coverRef.current = cover;
+  publisherRef.current = publisher;
 
   async function handleError(err) {
     if (err) {
-      log.error("OPENTOK::", err);
+      log.error("OPENTOK:: handleError", err);
 
       if (err.name === 'OT_HARDWARE_UNAVAILABLE') {
-        setDisplayMsg({
+        return setDisplayMsg({
           severity: "error",
           message: "We cannot access your camera or microphone, they are already in use by another application."
         });
-        return;
       }
 
       if (err.name === 'OT_NOT_SUPPORTED') {
-        setDisplayMsg({severity: "error", message: "Device not supported."});
-        return;
+        return setDisplayMsg({severity: "error", message: "Device not supported."});
       }
 
       if (err.name === 'OT_TIMEOUT' || err.name === 'OT_MEDIA_ERR_NETWORK') {
-        setDisplayMsg({
+        return setDisplayMsg({
           severity: "warning",
-          message: `Network connection slow. Disabling participant video. 
+          message: `Network connection slow.
           Try moving closer to your router if possible, or check your internet speed, and then refresh this page.`
         });
-        setMaxStreams(1);
-        return;
       }
     }
   }
 
-  async function initializeSession(apiKey, sessionId, settings) {
+  async function initializeSession(apiKey, token, sessionId) {
 
-    let session = OT.initSession(apiKey, sessionId);
+    log.debug("OPENTOK:: Initializing session");
 
-    if (session.capabilities.publish !== 0) {
-      setDisplayMsg({severity: "error", message: "Not allowed to publish to session"});
+    let sess = OT.initSession(apiKey, sessionId);
+
+    if (sess.capabilities.publish !== 0) {
+      log.warn("not allowed to publish")
       return;
     }
 
-    setSession(session);
-    settings.name = session.data;
-  
-    let publisher = OT.initPublisher('publisher', settings, handleError);
+    if (sess) {
+      sess.connect(token, (err) => {
+        log.debug("OPENTOK:: Connected to session", err);
+        sess.on('connectionCreated', connectionCreated);
+        sess.on('connectionDestroyed', connectionDestroyed);
+        sess.on('streamCreated', streamCreated);
+        sess.on('streamDestroyed', streamDestroyed);
+        sess.on('signal', handleSignal);
+        setSession(sess);
+        return sess;
+      });
+    }
+  }
+
+  async function handleJoin() { 
+    await initializeSession(credentials.apiKey, credentials.token, credentials.sessionId);
+    setJoined(true);
+  }
+
+  function publisherVideoElementCreated(event) {
+    log.debug("OPENTOK:: publisher video element created", event);
+
+    let videoElement = event.element;
+    videoElement.style.height = "100%";
+    videoElement.style.width = "100%";
+    videoElement.style.objectFit = "contained";
+    videoElement.style.objectPosition = "center";
+
+    setVideoElement(videoElement);
+  }
+
+  function initPublisher(settings) {
+    let publisher = OT.initPublisher(null, settings, handleError);
     log.info("OPENTOK:: publisher created", publisher);
     setPublisher(publisher);
 
     publisher.on({
-      accessDenied: function accessDeniedHandler(event) {
-        setPermissionsError(true);
-      }
+      accessAllowed: () => setPermissionsError(false),
+      accessDenied: () => setPermissionsError(true),
+      videoElementCreated: publisherVideoElementCreated,
     });
   }
 
-  function validateBrowserVersion() {
-    let valid = true;
-
-    if (isMobile) {
-      setDisplayMsg({
-        severity: "warning",
-        message: "Indoorphins classes are not yet optimized for mobile devices. Apologies for the inconvenience."
-      });
-      valid = false;
-    }
-
-    if (isSafari) {
-      let compare = compareVersions(fullBrowserVersion, '12.1.0');
-      if (compare === -1) {
-        setDisplayMsg({
-          severity: "error",
-          message: "This version of Safari is not supported. Please update your system."
-        });
-        valid = false;
-      }
-    }
-    return valid;
-  }
-
   useEffect(() => {
-    if (credentials && user && course) {
 
-      let valid = validateBrowserVersion();
-
-      if (!valid) return;
-
-      let settings = {
-        insertMode: 'append',
-        width: '100%',
-        height: '100%',
-        mirror: true,
-        showControls: false,
-        insertDefaultUI: true,
-        publishAudio: false,
-        publishVideo: true,
-        resolution: "320x240",
-        frameRate: 30,
-        audioBitrate: 20000,
-        enableStereo: false,
-        maxResolution: {width: 640, height: 480},
-      };
+    if (user.id && course.id) {
+      let settings = pubSettings;
 
       if (user.id === course.instructor.id) {
-        settings.audioBitrate = 96000;
-        settings.disableAudioProcessing = false;
         settings.publishAudio = true;
-        settings.frameRate = 30;
-        settings.resolution = "640x480";
-        settings.maxResolution = {width: 640, height: 480};
+        settings.audioBitrate = 96000;
       }
 
-      if (credentials.apiKey && credentials.sessionId) {
-        initializeSession(credentials.apiKey, credentials.sessionId, settings);
+      initPublisher(settings);
+
+      return function() {
+        if (publisherRef.current) {
+          publisherRef.current.off('accessAllowed');
+          publisherRef.current.off('accessDenied');
+          publisherRef.current.off('videoElementCreated');
+          publisherRef.current.off('audioLevelUpdated');
+        }
       }
     }
-  }, [credentials, user, course]);
+  }, [user, course]);
 
   useEffect(() => {
-
-    if (!session) return;
-
-    log.debug("OPENTOK:: session object", session);
-
-    // Subscribe to stream events
-    if (session.on) {
-      session.on('connectionCreated', connectionCreated);
-      session.on('connectionDestroyed', connectionDestroyed);
-      session.on('streamCreated', streamCreated);
-      session.on('streamDestroyed', streamDestroyed);
-      session.on('signal', handleSignal);
+    if (course && user && course.instructor.id === user.id) {
+      setVideoLayout("grid");
     }
-    
-    // connect to session if a connection does not already exist
-    if (session.connect && !session.connection) {
-      // Connect to the session
-      session.connect(credentials.token, function(error) {
-        // If the connection is successful, initialize a publisher and publish to the session
-        if (error) {
-          return handleError(error);
-        }
+  }, [course, user]);
 
-        if (session.capabilities.publish === 1) {
-          session.publish(publisher, handleError);
-        }
 
-      });
-    }
-
+  useEffect(() => {
     return function() {
-      // disconnect the event listeners
-      session.off('connectionCreated');
-      session.off('connectionDestroyed');
-      session.off('streamCreated');
-      session.off('streamDestroyed');
-      session.off('signal');
-
-      setSubs(subs.map(sub => {
-        sub.subscriber.subscribeToVideo(false);
-        sub.subscriber.subscribeToAudio(false);
-        session.unsubscribe(sub.subscriber);
-        return sub;
-      }));
-
-      // destroy publisher object
-      publisher.publishVideo(false);
-      publisher.publishAudio(false);
-      publisher.destroy();
-
-      // disconnect local session
-      if (session && session.connection) session.disconnect();
-      log.debug('OPENTOK:: disconnected from video session');
+      if (publisher) {
+        log.debug("OPENTOK:: disconnect and destroy publisher", publisher);
+        if (sessionRef.current) {
+          sessionRef.current.unpublish(publisher);
+        }
+        publisher.destroy();
+      }
     }
-  }, [session, publisher]);
+  }, [publisher]);
+
+  useEffect(() => {
+    return function() {
+      if (session) {
+        log.debug("OPENTOK:: disconnect from session", session);
+        // disconnect the event listeners
+        session.off('connectionCreated');
+        session.off('connectionDestroyed');
+        session.off('streamCreated');
+        session.off('streamDestroyed');
+        session.off('signal');
+        session.disconnect();
+      }
+    }
+
+  }, [session]);
+
 
   function connectionCreated(event) {
     log.info("OPENTOK:: connection created", event);
-  }
 
-  function connectionDestroyed(event) {
-    log.info("OPENTOK:: connection destroyed", event);
     let data = JSON.parse(event.connection.data);
-    setSubs(subs => subs.filter(item => item.user.id !== data.id));
-  }
 
-  function streamDestroyed(event) {
-    log.debug('OPENTOK:: stream destroyed', event);
-    let data = JSON.parse(event.stream.connection.data);
-    setSubs(subs => subs.filter(item => item.user.id !== data.id));
-  }
-
-  async function streamCreated(event) {
-
-    let data = JSON.parse(event.stream.connection.data);
-    log.debug('OPENTOK:: stream created event', event, data);
-    let subscriber = null;
-
-    let props = {
-      insertMode: 'append',
-      width: '100%',
-      height: '100%',
-      preferredFrameRate: 30,
-      preferredResolution: {width: 320, height: 240},
-      showControls: false,
-      insertDefaultUI: false,
-      subscribeToAudio: true,
-      subscribeToVideo: true,
-    };
-
-    if (data.instructor) {
-      props.preferredFrameRate = 30;
-      props.subscribeToVideo = true;
-      props.preferredResolution = {width: 640, height: 480};
+    if (data.id === user.id) {
+      return;
     }
-
-    try {
-      subscriber = await session.subscribe(event.stream, null, props, handleError);
-    } catch (err) {
-      log.error("Subscribe to stream", err);
-    }
-
-    log.debug("OPENTOK:: created subscriber", subscriber);
 
     let subData = {
-      user: data, 
-      subscriber: subscriber,
-      audio: props.subscribeToAudio,
-      video: props.subscribeToVideo,
-      videoElement: null,
+      user: data,
+      video: false,
+      audio: false,
       disabled: false,
     };
 
@@ -299,118 +277,220 @@ export default function Video(props) {
     } else {
       setSubs(subs => [...subs, subData]);
     }
+  }
 
-    subscriber.on('videoElementCreated', (event) => {
+  function connectionDestroyed(event) {
+    log.info("OPENTOK:: connection destroyed", event);
+    let data = JSON.parse(event.connection.data);
+    setSubs(subs => subs.filter(item => item.user.id !== data.id));
+  }
 
-      log.debug("OPENTOK:: subscriber video element created", event);
+  async function enableCandidate(candidate) {
 
-      let videoElement = event.element;
-      videoElement.style.height = "100%";
-      videoElement.style.width = "100%";
-      videoElement.style.objectFit = "cover";
-      videoElement.style.objectPosition = "center";
+    if (!candidate.stream || !sessionRef.current.subscribe) return;
+
+    let props = vidProps;
+    candidate.video = true;
+    candidate.audio = true;
+
+    let subscriber = null;
+
+    setSubs(subs => subs.map(i => {
+      if (i.user.id === candidate.user.id) {
+        return candidate;
+      }
+      return i;
+    }));
+
+    log.debug("OPENTOK:: enable candidate stream", candidate);
+
+    try {
+      subscriber = await sessionRef.current.subscribe(candidate.stream, null, props, handleError);
+    } catch (err) {
+      log.error("Subscribe to stream", err);
+    }
+
+    if (subscriber) {
+      log.debug("OPENTOK:: created subscriber", subscriber);
+      subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, candidate.user.id) });
 
       setSubs(subs => subs.map(item => {
-        if (item.user.id === data.id) {
-          item.videoElement = videoElement;
+        if (item.user.id === candidate.user.id) {
+          item.subscriber = subscriber;
         }
         return item;
       }));
-    });
-
-    subscriber.on('videoDisabled', (event) => {
-      log.debug("OPENTOK:: subscriber video disabled", event);
-      if (event.reason === "publishVideo") {
-        setSubs(subs => subs.map(item => {
-          if (item.user.id === data.id) {
-            item.disabled = true;
-          }
-          return item;
-        }));
-      }
-    });
-
-    subscriber.on('videoEnabled', (event) => {
-      log.debug("OPENTOK:: subscriber video enabled", event);
-      if (event.reason === "publishVideo") {
-        setSubs(subs => subs.map(item => {
-          if (item.user.id === data.id) {
-            item.disabled = false;
-          }
-          return item;
-        }));
-      }
-    });
+    }
   }
 
-  useEffect(() => {
-    if (subs.length && subs.length > 0) {
+  async function streamDestroyed(event) {
+    log.debug('OPENTOK:: stream destroyed', event);
+    let data = JSON.parse(event.stream.connection.data);
 
-      let enabled = [];
-      let dis = [];
+    setSubs(subs => subs.map(item => {
+      if (item.user.id === data.id) {
+        if (item.subscriber) sessionRef.current.unsubscribe(item.subscriber);
+        item.subscriber = null;
+        item.stream = null;
+        item.videoElement = null;
 
-      if (loopMode) {
-
-        enabled = subs.filter(item => {
-          return !item.disabled;
-        }).slice(0, maxStreams);
-
-        dis = subs.filter(item => {
-          return !item.disabled;
-        }).slice(maxStreams);
-
-      } else {
-
-        enabled = subs.filter(item => {
-          return !item.disabled && item.video;
-        }).slice(0, maxStreams);
-
-        dis = subs.filter(item => {
-          return !item.disabled && item.video;
-        }).slice(maxStreams);
-      }
-      
-      log.debug("enabled", enabled);
-      enabled.map(item => {
-        if (!item.video) {
-          item.video = true;
-          //item.subscriber.subscribeToVideo(true);
-        }
-        return item;
-      });
-
-      log.debug("disabled", dis);
-      dis.map(item => {
         if (item.video) {
           item.video = false;
-          //item.subscriber.subscribeToVideo(false);
+          item.audio = false;
+        }
+      }
+      return item;
+    }));
+  }
+
+  function videoElementCreated(event, id) {
+    log.debug("OPENTOK:: subscriber video element created", event);
+
+    let videoElement = event.element;
+    videoElement.style.height = "100%";
+    videoElement.style.width = "100%";
+    videoElement.style.objectFit = "cover";
+    videoElement.style.objectPosition = "center";
+
+    if (!coverRef.current) {
+      videoElement.style.objectFit = "contain";
+    }
+
+    setSubs(subs => subs.map(item => {
+      if (item.user.id === id) {
+        item.videoElement = videoElement;
+      }
+      return item;
+    }));
+  }
+
+  function videoDisabled(event) {
+    log.debug("OPENTOK:: subscriber video disabled", event);
+
+    setSubs(subs => subs.map(item => {
+      if (item.user.id === event.id) {
+        if (item.subscriber) {
+          item.subscriber.off('videoElementCreated');
+          sessionRef.current.unsubscribe(item.subscriber);
+        }
+        item.disabled = true;
+        item.videoElement = null;
+        item.audio = false;
+      }
+      return item;
+    }));
+  }
+
+  async function videoEnabled(event) {
+    log.debug("OPENTOK:: subscriber video enabled", event);
+    let id = event.id
+
+    let match = subsRef.current.find(item => {
+      return item.user.id === id
+    });
+
+    if (!match) return log.warn("OPENTOK:: enabled video not matched");
+    
+    if (match.video) {
+
+      let subscriber = null;
+      let props = vidProps;
+
+      if (match.user.id === course.instructor.id) {
+        props.preferredResolution = {width: 640, height: 480};
+      }
+
+      try {
+        subscriber = await sessionRef.current.subscribe(match.stream, null, props, handleError);
+      } catch (err) {
+        log.error("Subscribe to stream", err);
+      }
+
+      if (subscriber) {
+        log.debug("OPENTOK:: created subscriber", subscriber);
+
+        setSubs(subs => subs.map(item => {
+          if (item.user.id === match.user.id) {
+            item.disabled = false;
+            item.audio = true;
+            item.video = true;
+            item.subscriber = subscriber;
+          }
+          return item;
+        }));
+
+        subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, id) });
+      }
+    } else {
+
+      setSubs(subs => subs.map(item => {
+        if (item.user.id === match.user.id) {
+          item.disabled = false;
+          item.audio = false;
+          item.video = false;
         }
         return item;
-      });
-
-      setSubsShown([...enabled]);
+      }));
     }
-  }, [subs, loopMode, maxStreams]);
+  }
+
+  async function streamCreated(event) {
+
+    log.debug('OPENTOK:: stream created event', event);
+    let data = JSON.parse(event.stream.connection.data);
+
+    if (data.id === user.id) return;
+
+    let props = vidProps;
+    let current = subsRef.current.filter(i => { return i.video });
+    let subData = {
+      stream: event.stream,
+    };
+
+    if ((current.length < maxStreamsRef.current && loopModeRef.current) || data.instructor) {
+
+      let subscriber = null;
+      subData.video = true;
+      subData.audio = true;
+
+      if (data.instructor) {
+        props.preferredResolution = {width: 640, height: 480};
+      }
+
+      setSubs(subs => subs.map(item => {
+        if (item.user.id === data.id) {
+          let updated = Object.assign(item, subData);
+          return updated;
+        }
+        return item;
+      }));
+
+      try {
+        subscriber = await sessionRef.current.subscribe(event.stream, null, props, handleError);
+      } catch (err) {
+        log.error("Subscribe to stream", err);
+      }
+
+      if (subscriber) {
+        log.debug("OPENTOK:: created subscriber", subscriber);
+        subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, data.id) });
+        subData.subscriber = subscriber;
+      }
+    }
+
+    setSubs(subs => subs.map(item => {
+      if (item.user.id === data.id) {
+        let updated = Object.assign(item, subData);
+        return updated;
+      }
+      return item;
+    }));
+  }
 
   useEffect(() => {
     if (loopMode) {
       looper = setInterval(() => {
-        if (subs && subs.length > 1) {
-          let expired = null;
-
-          if (user.id === course.instructor.id) {
-            expired = subs[0];
-          } else {
-            expired = subs[1];
-          }
-    
-          if (expired) {
-            setSubs([
-              ...subs.filter(i => i.user.id !== expired.user.id),
-              expired
-            ])
-          }
-        }
+        loopVideo(subs, course, user)
       }, loopTime);
     } else {
       clearInterval(looper);
@@ -421,17 +501,132 @@ export default function Video(props) {
     };
   }, [subs, loopMode, user, course]);
 
-  async function toggleLayout(evt) {
-    if (evt === "fullscreen") {
+  async function loopVideo(subs, course, user) {
+    if (subs && subs.length <= 1) return;
+
+    let current = subs.filter(item => { return item.video && !item.disabled });
+    let expired = null;
+
+    if (user.id === course.instructor.id) {
+      expired = current[0];
+    } else {
+      expired = current[1];
+    }
+    
+    if (subs.length > maxStreamsRef.current) {
+
+      let next = subs.filter(i => { return !i.video && !i.disabled && i.stream})[0];
+
+      if (next && expired) {
+        log.debug("OPENTOK:: set new video and expire old", next, expired);
+
+        next.audio = true;
+        next.video = true;
+
+        let subscriber = null;
+        try {
+          subscriber = await sessionRef.current.subscribe(next.stream, null, vidProps, handleError);
+        } catch (err) {
+          log.error("Subscribe to stream", err);
+        }
+
+        if (subscriber) {
+          log.debug("OPENTOK:: created subscriber", subscriber);
+          subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, next.user.id) });
+          next.subscriber = subscriber;          
+
+          setSubs(subs => subs.map(item => {
+            if (item.user.id === next.userid) {
+              return next;
+            }
+            return item;
+          }));
+        }
+
+        if (expired.subscriber) sessionRef.current.unsubscribe(expired.subscriber);
+        expired.audio = false;
+        expired.video = false;
+        expired.subscriber = null;
+      }
+    }
+
+    if (expired) {
+      setSubs([
+        ...subs.filter(i => i.user.id !== expired.user.id),
+        expired
+      ]);
+    }
+  }
+
+  useEffect(() => {
+
+    let current = subs.filter(item => { return item.video && !item.disabled });
+
+    if (loopMode) {
+
+      if (current.length < maxStreams) {
+
+        let diff = maxStreams - current.length;
+        let candidates = subs.filter(i => { return !i.video && !i.disabled }).slice(0, diff);
+
+        candidates.forEach(item => {
+          enableCandidate(item);
+        });
+      }
+    }
+
+    if (current.length > maxStreams) {
+      killExcessVideos(maxStreams);
+    }
+    
+  }, [subs, maxStreams, loopMode]);
+
+  useEffect(() => {
+    
+    if (videoLayout === 'grid') {
+      if (course.instructor.id === user.id) {
+        setMaxStreams(40);
+      } else {
+        setMaxStreams(max);
+      }
+    } else if (videoLayout === 'fullscreen') {
       setMaxStreams(1);
     } else {
-      setMaxStreams(4);
+      setMaxStreams(max);
     }
+
+  }, [videoLayout, course, user])
+
+  async function toggleLayout(evt) {
     setVideoLayout(evt);
   }
 
   async function toggleLoopMode() {
     setLoopMode(!loopMode);
+  }
+
+  function killExcessVideos(start) {
+
+    let old = subsRef.current.filter(i => { return i.video && !i.disabled }).slice(start);
+
+    log.debug("OPENTOK:: excess videos", old);
+
+    if (old && old.length > 0) {
+      setSubs(subs => subs.map(item => {
+        let match = old.findIndex(oldItem => {
+          return oldItem.user.id === item.user.id && item.user.id !== course.instructor.id
+        });
+
+        if (match > -1) {
+          old[match].video = false;
+          old[match].audio = false;
+          if (old[match].subscriber) sessionRef.current.unsubscribe(old[match].subscriber);
+          return old[match];
+        }
+
+        return item;
+      }));
+    }
   }
 
   async function toggleSubscriberVideo(evt) {
@@ -449,11 +644,32 @@ export default function Video(props) {
 
       if (item.video) {
         item.video = false;
-        item.subscriber.subscribeToVideo(false);
-        setSubs([...subsRef.current.filter(i => i.user.id !== item.user.id), item]);
+        item.audio = false;
+        item.videoElement = null;
+        if (item.subscriber) sessionRef.current.unsubscribe(item.subscriber);
+        item.subscriber = null;
+        setSubs([
+          ...subsRef.current.filter(i => i.user.id !== item.user.id),
+          item
+        ]);
+
       } else {
-        item.video = true;
-        item.subscriber.subscribeToVideo(true);
+
+        let subscriber = null;
+
+        try {
+          subscriber = await sessionRef.current.subscribe(item.stream, null, vidProps, handleError);
+        } catch (err) {
+          log.error("Subscribe to stream", err);
+          return;
+        }
+        
+        if (subscriber) {
+          subscriber.on('videoElementCreated', (event) => { videoElementCreated(event, data); });
+          item.subscriber = subscriber;
+          item.video = true;
+          item.audio = true;
+        }
 
         if (user.id === course.instructor.id) {
           setSubs([item, ...subsRef.current.filter(i => i.user.id !== item.user.id)]);
@@ -475,15 +691,30 @@ export default function Video(props) {
       if (item.user.id === data) {
         if (item.audio) {
           item.audio = false;
-          item.subscriber.subscribeToAudio(false);
+          if (item.subscriber) item.subscriber.subscribeToAudio(false);
         } else {
           item.audio = true;
-          item.subscriber.subscribeToAudio(true);
+          if (item.subscriber) item.subscriber.subscribeToAudio(true);
         }
       }
       return item;
     }));
   }
+
+  /*function toggleCover() {
+    let updated = !cover;
+    setCover(updated);
+    setSubs(subs =>  subs.map(item => {
+      if (item.videoElement) {
+        if (updated) {
+          item.videoElement.style.objectFit = "cover"
+        } else {
+          item.videoElement.style.objectFit = "contain"
+        }
+      }
+      return item;
+    }));
+  }*/
 
   function handleSignal(event) {
     if (event.type === "signal:emote") {
@@ -496,30 +727,84 @@ export default function Video(props) {
         });
       }
     }
+
+    if (event.type === "signal:camera") {
+      let data = JSON.parse(event.data);
+      log.debug("camera event", data);
+
+      if (data.id !== user.id) {
+        if (data.disabled) {
+          videoDisabled(data);
+        } else {
+          videoEnabled(data);
+        }
+      }
+    }
+
+    if (event.type === "signal:microphone") {
+      let data = JSON.parse(event.data);
+      log.debug("mic event", data);
+    }
+
+    if (event.type === "signal:chat") {
+      log.debug('OPENTOK:: got chat msg from client', event);
+      let data = JSON.parse(event.data);
+      setChatHistory(history => [data, ...history]);
+    }
   }
 
-  useEffect(() => {
-    if (props.credentials) setCredentials(props.credentials);
-    if (props.course) setCourse(props.course);
-    if (props.user) setUser(props.user);
-  }, [props]);
-
-  let textColor = classes.enabled;
-  let iconColor = classes.disabled;
+  let textColor;
+  let iconColor;
+  let settingsText;
 
   if (loopMode) {
     textColor = classes.disabled;
     iconColor = classes.enabled;
+    settingsText = "Change the video layout or watch only your friends";
+
+    if (user.id === course.instructor.id) {
+      settingsText = "View & hear everyone in Grid Mode. Teach in horizontal mode";
+    }
+  } else {
+    textColor = classes.enabled;
+    iconColor = classes.disabled;
+    settingsText = "Select the group tab to change who you are viewing";
+
+    if (user.id === course.instructor.id) {
+      settingsText = "View & hear everyone in Grid Mode. Teach in horizontal mode";
+    }
   }
+
+  /*let coverText = "Zoom";
+  let coverClasses = classes.disabled;
+  let cIconClasses = classes.enabled;
+
+  if (cover) {
+    coverText = "Zoom"
+    coverClasses = classes.enabled;
+    cIconClasses = classes.disabled;
+  }*/
   
   let settings = (
     <Grid container direction="column">
+      <Grid
+        container
+        direction="column"
+        justify="center"
+        alignItems="center"
+        alignContent="center"
+        style={{paddingLeft:24, paddingRight: 24}}
+      >
+        <Grid item>
+          <Typography variant="subtitle2">{settingsText}</Typography>
+        </Grid>
+      </Grid>
       <Grid item container direction="row" alignItems="center" alignContent="center">
         <Grid item className={classes.settingsIcon}>
           <LayoutPicker layout={videoLayout} onSelect={(evt) => toggleLayout(evt)} />
         </Grid>
         <Grid item xs>
-          <Typography>Display</Typography>
+          <Typography color="primary">Display</Typography>
         </Grid>
       </Grid>
       <Grid
@@ -545,6 +830,22 @@ export default function Video(props) {
             name="loop"
           />
         </Grid>
+        {/*<Grid item container direction="row" justify="space-between" alignItems="center" alignContent="center">
+          <Grid item className={classes.settingsIcon}>
+            <ViewArray className={cIconClasses} />
+          </Grid>
+          <Grid item xs>
+            <Typography className={coverClasses}>{coverText}</Typography>
+          </Grid>
+          <Grid item>
+            <Switch
+              checked={cover}
+              color="primary"
+              onChange={toggleCover}
+              name="cover"
+            />
+          </Grid>
+        </Grid>*/}
       </Grid>
     </Grid>
   );
@@ -565,34 +866,39 @@ export default function Video(props) {
     </Grid>
   )
 
-  let accor = (
-    <Box>
-      <Accordion defaultExpanded>
-        <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
-          <Typography variant="h5">Settings</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          {settings}
-        </AccordionDetails>
-      </Accordion>
-      <Accordion defaultExpanded>
-        <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
-          <Typography variant="h5">Participants</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          {controlsGrid}
-        </AccordionDetails>
-      </Accordion>
-      <Accordion defaultExpanded>
-        <AccordionSummary expandIcon={<ExpandMoreOutlined />}>
-          <Typography variant="h5">Chat</Typography>
-        </AccordionSummary>
-        <AccordionDetails>
-          <Chat session={session} user={user} />
-        </AccordionDetails>
-      </Accordion>
-    </Box>
+  let chatContent = (
+    <Container style={{paddingLeft:6, paddingRight: 6}}>
+      <Chat session={session} user={user} chatHistory={chatHistory} />
+    </Container>
   );
+
+  let tabContent = controlsGrid;
+
+  if (tab === 1) {
+    tabContent = chatContent;
+  }
+
+  if (tab === 2) {
+    tabContent = settings;
+  }
+
+  let accor = (
+    <ThemeProvider theme={light}>
+      <Tabs
+        value={tab}
+        onChange={(evt, newValue) => setTab(newValue)}
+        variant="fullWidth"
+        textColor="primary"
+        indicatorColor="primary"
+        className={classes.tabs}
+      >
+        <Tab label="Group" value={0} classes={{root: classes.tab, selected: classes.selectedTab}} />
+        <Tab label="Chat" value={1} classes={{root: classes.tab, selected: classes.selectedTab}} />
+        <Tab label="Settings" value={2} classes={{root: classes.tab, selected: classes.selectedTab}} />
+      </Tabs>
+      {tabContent}
+    </ThemeProvider>
+  )
 
   let displayMsgContent = null;
   
@@ -602,26 +908,72 @@ export default function Video(props) {
     )
   }
 
-  if (permissionsError) {
-    return (
-      <Grid style={{width: "100%", height: "100%", overflow: "hidden"}}>
-        <PermissionsError />      
+  let devicePickContent = null
+  
+  if (publisher) {
+    devicePickContent = (
+      <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
+        <DevicePicker
+          publisher={publisher}
+          course={course}
+          user={user}
+          videoElement={videoElement}
+          initPublisher={initPublisher}
+          onJoined={handleJoin}
+        />
       </Grid>
     );
   }
 
-  return (
-    <Grid style={{width: "100%", height: "100%", overflow: "hidden"}}>
-      {displayMsgContent}
-      <Grid container direction="row" justify="flex-start" style={{height:"100%", overflow: "hidden"}}>
-        <Grid container direction="row" spacing={0} justify="flex-start" style={{height: "100%", overflow: "hidden"}} >
-          <Default user={user} subs={subsShown} session={session} max={maxStreams} layout={videoLayout} />
-          <Drawer>
-            <PublisherControls publisher={publisher} user={user} course={course} />
-            {accor}
-          </Drawer>
+  if (permissionsError) {
+    return (
+      <PermissionsError />
+    );
+  }
+
+  if (!joined || !session) {
+
+    return devicePickContent;
+
+  } else {
+
+    let vidsLayout = (
+      <Default user={user} subs={subs} session={session} max={maxStreams} layout={videoLayout} />
+    )
+
+    if (videoLayout === "grid") {
+      vidsLayout = (
+        <GridView user={user} subs={subs} session={session} />
+      )
+    }
+
+    return (
+      <Grid style={{width: "100%", height: "100%", overflow: "hidden"}}>
+        {displayMsgContent}
+        <Grid container direction="row" justify="flex-start" style={{height:"100%", overflow: "hidden"}}>
+          <Grid
+            container
+            direction="row"
+            spacing={0}
+            justify="flex-start"
+            style={{height: "100%", overflow: "hidden"}}
+          >
+            {vidsLayout}
+            <Drawer>
+              <Grid container direction="row" justify="flex-start" alignItems="flex-start">
+                <DevicePicker
+                  session={session}
+                  publisher={publisher}
+                  course={course}
+                  user={user}
+                  videoElement={videoElement}
+                />
+              </Grid>
+              {accor}
+            </Drawer>
+          </Grid>
         </Grid>
       </Grid>
-    </Grid>
-  );
+    );
+  }
 }

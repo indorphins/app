@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Grid, Checkbox, Chip, makeStyles } from '@material-ui/core';
+import { Grid, Checkbox, Chip, Typography, makeStyles } from '@material-ui/core';
 import { Star, VideocamOffOutlined } from '@material-ui/icons';
 
 import Emote from './emote';
@@ -39,7 +39,7 @@ export default function ParticipantControls(props) {
           item.color = "primary";
           item.icon = null;
 
-          if (loopMode) {
+          if (loopMode || !item.stream) {
             item.buttonDisabled = true;
           } else {
             item.buttonDisabled = false;
@@ -71,28 +71,57 @@ export default function ParticipantControls(props) {
 
   let content = null;
 
-  if (session && user) {
+  if (session && user && subs.length > 0) {
+
+    let text;
+
+    if (loopMode) {
+      text = 'Tip: adjust your "settings" if you want to pin friends to view!';
+      if (user.id === course.instructor.id) {
+        text = "When you're ready to start, switch your view in settings";
+      }
+    } else {
+      text = "Select your friends to view below";
+      if (user.id === course.instructor.id) {
+        text = "Select participants to view below. Change back to rotating in settings";
+      }
+    }
 
     content = (
-      <Grid container direction="column" justify="flex-start" alignItems="flex-start">
-        {subs.map(item => (
-          <Grid item key={item.user.id}>
-            <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center">
-              <Grid item>
-                {item.videoCheckbox}
-              </Grid>
-              <Grid item>
-                <Chip icon={item.icon} color={item.color} label={item.user.username} />
-              </Grid>
-              <Grid item>
-                <MuteButton name={item.user.id} checked={item.audio} onClick={audioHandler} />
-              </Grid>
-              <Grid item>
-                <Emote userId={item.user.id} username={user.username} session={session} />
-              </Grid>                            
-            </Grid>
+      <React.Fragment>
+        <Grid container direction="column" justify="center" alignContent="center" alignItems="center">
+          <Grid item style={{paddingLeft: 24, paddingRight: 24}}>
+            <Typography variant="subtitle2">{text}</Typography>
           </Grid>
-        ))}
+        </Grid>
+        <Grid container direction="column" justify="flex-start" alignItems="flex-start">
+          {subs.map(item => (
+            <Grid item key={item.user.id}>
+              <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center">
+                <Grid item>
+                  {item.videoCheckbox}
+                </Grid>
+                <Grid item>
+                  <Chip icon={item.icon} color={item.color} label={item.user.username} />
+                </Grid>
+                <Grid item>
+                  <MuteButton name={item.user.id} checked={item.audio} onClick={audioHandler} />
+                </Grid>
+                <Grid item>
+                  <Emote userId={item.user.id} username={user.username} session={session} />
+                </Grid>                            
+              </Grid>
+            </Grid>
+          ))}
+        </Grid>
+      </React.Fragment>
+    );
+  } else {
+    content = (
+      <Grid container direction="column" justify="center" alignContent="center">
+        <Grid item>
+          <Typography variant="subtitle2" align="center">Class empty</Typography>
+        </Grid>
       </Grid>
     );
   }

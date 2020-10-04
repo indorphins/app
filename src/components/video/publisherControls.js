@@ -6,63 +6,89 @@ import {
   makeStyles,
 } from '@material-ui/core';
 import { 
-  VideocamOffOutlined, 
-  VideocamOutlined, 
+  VideocamOffRounded, 
+  VideocamRounded, 
   MicNone, 
   MicOffOutlined, 
 } from '@material-ui/icons';
 
+import log from '../../log';
 import LeaveSession from './leaveSession';
 
 const useStyles = makeStyles((theme) => ({
-  publisher: {
-    height: 240,
-    width: 320,
-    background: theme.palette.grey[100],
-  },
   buttons: {
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
+    flexWrap: "nowrap",
   }
 }));
 
 export default function PublisherControls(props) {
 
+  const { session, publisher, user, course } = props
   const classes = useStyles();
-  const [publisher, setPublisher] = useState(null);
   const [publishVideo, setPublishVideo] = useState(true);
   const [publishAudio, setPublishAudio] = useState(false);
 
   useEffect(() => {
-    if (props.publisher) {
-      setPublisher(props.publisher);
+    if (user && course && user.id === course.instructor.id) {
+      toggleAudio(false);
+    } else {
+      toggleAudio(true);
     }
+  }, [user, course]);
 
-    if (props.user && props.course && props.user.id === props.course.instructor.id) {
-      setPublishAudio(true);
-    }
-  }, [props]);
 
-  useEffect(() => {
-    if (publisher) publisher.publishVideo(publishVideo);
-  }, [publishVideo]);
+  function toggleAudio(evt) {
+    let disabled = evt;
 
-  useEffect(() => {
-    if (publisher) publisher.publishAudio(publishAudio);
-  }, [publishAudio]);
+    setPublishAudio(!disabled);
+    publisher.publishAudio(!disabled);
 
-  function toggleAudio() {
-    setPublishAudio(!publishAudio);
+    session.signal(
+      {
+        type: "microphone",
+        data: JSON.stringify({
+          id: user.id,
+          disabled: disabled,
+          date: new Date().toISOString(),
+        }),
+      },
+      function(error) {
+        if (error) {
+          log.error("OPENTOK:: user signal error" + error.message);
+        }
+      }
+    );
   }
 
-  function toggleVideo() {
-    setPublishVideo(!publishVideo);
+  function toggleVideo(evt) {
+    let disabled = evt;
+
+    setPublishVideo(!disabled);
+    publisher.publishVideo(!disabled);
+
+    session.signal(
+      {
+        type: "camera",
+        data: JSON.stringify({
+          id: user.id,
+          disabled: disabled,
+          date: new Date().toISOString(),
+        }),
+      },
+      function(error) {
+        if (error) {
+          log.error("OPENTOK:: user signal error" + error.message);
+        }
+      }
+    );
   }
 
-  let videoBtn = (<VideocamOffOutlined />);
+  let videoBtn = (<VideocamOffRounded />);
   let videoTitle = "Enable camera";
   if (publishVideo) {
-    videoBtn = (<VideocamOutlined />);
+    videoBtn = (<VideocamRounded />);
     videoTitle = "Disable camera";
   }
 
@@ -75,16 +101,15 @@ export default function PublisherControls(props) {
 
   let content = (
     <Box>
-      <Grid id="publisher" className={classes.publisher}></Grid>
       <Grid container direction="row" spacing={1} className={classes.buttons}>
         <Grid item>
-          <IconButton title={videoTitle} onClick={toggleVideo}>
-            {videoBtn}
-          </IconButton>
-        </Grid>
-        <Grid item>
-          <IconButton title={micTitle} onClick={toggleAudio}>
+          <IconButton title={micTitle} onClick={() => toggleAudio(publishAudio)}>
             {micBtn}
+          </IconButton>
+        </Grid>        
+        <Grid item>
+          <IconButton title={videoTitle} onClick={() => toggleVideo(publishVideo)}>
+            {videoBtn}
           </IconButton>
         </Grid>
         <Grid item>

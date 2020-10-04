@@ -1,11 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { Switch, Route, useLocation } from 'react-router-dom';
+
 import path from './path';
 import Header from '../components/header/header';
 import loadable from '@loadable/component';
 import queryString from 'query-string';
 import Login from '../pages/login';
 import Signup from '../pages/signup';
+import log from '../log';
+import {Alert} from '@material-ui/lab';
+import { Container, Grid } from '@material-ui/core';
 
 const AsyncPage = loadable(props => import(`../pages/${props.page}`), {
   cacheKey: props => props.page,
@@ -19,12 +23,35 @@ export default function Routes() {
 
   let location = useLocation();
   const [ query, setQuery ] = useState(null);
+  const [ err, setError] = useState(null);
 
   useEffect(() => {
-    if (location.search) {
-      setQuery(queryString.parse(location.search));
+    if (location) {
+      let params = queryString.parse(location.search);
+      log.info("QUERY STRING::", params);
+      if (params) setQuery(params);
+
+      if (params && params.error) {
+        setError(params.error);
+      } else {
+        setError(null);
+      }
     }
   }, [location]);
+
+  let errcontent;
+
+  if (err) {
+    errcontent = (
+      <Container>
+        <Grid container direction="row" spacing={2}>
+          <Grid item xs>
+            <Alert severity="error" onClose={() => setError(null)}>{err}</Alert>
+          </Grid>
+        </Grid>
+      </Container>
+    )
+  }
 
   return (
     <Switch>
@@ -54,6 +81,7 @@ export default function Routes() {
           <AsyncPage page="milestone" />
         </Route>
         <Route path={path.home}>
+          {errcontent}
           <ClassRouter />
         </Route>
       </Header>
