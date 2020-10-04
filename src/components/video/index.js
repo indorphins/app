@@ -760,11 +760,19 @@ export default function Video(props) {
   if (loopMode) {
     textColor = classes.disabled;
     iconColor = classes.enabled;
-    settingsText = "Change the video layout, or watch only your friends"
+    settingsText = "Change the video layout of watch only your friends";
+
+    if (user.id === course.instructor.id) {
+      settingsText = "View & hear everyone in Grid Mode. Teach in horizontal mode";
+    }
   } else {
     textColor = classes.enabled;
     iconColor = classes.disabled;
     settingsText = "Select the group tab to change who you are viewing";
+
+    if (user.id === course.instructor.id) {
+      settingsText = "View & hear everyone in Grid Mode. Teach in horizontal mode";
+    }
   }
 
   /*let coverText = "Zoom";

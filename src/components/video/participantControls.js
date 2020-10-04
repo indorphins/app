@@ -76,14 +76,14 @@ export default function ParticipantControls(props) {
     let text;
 
     if (loopMode) {
-      text = "Rotating class members viewed. View the settings tab to pin a friend's video";
+      text = 'Tip: adjust your "settings" if you want to pin friends to view!';
       if (user.id === course.instructor.id) {
-        text = "Rotating class members viewed. View the settings tab to pin a friend's video";
+        text = "When you're ready to start, switch your view in settings";
       }
     } else {
-      text = "Select up to three class members to view, the instructor's video is permanently pinned";
+      text = "Select your friends to view below";
       if (user.id === course.instructor.id) {
-        text = "Select up to four class members to view. In Grid mode you can view everyone all at once";
+        text = "Select participants to view below. Change back to rotating in settings";
       }
     }
 
