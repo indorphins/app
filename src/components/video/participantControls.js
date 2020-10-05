@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
 export default function ParticipantControls(props) {
 
   const classes = useStyles();
-  const { course, user, session, videoHandler, audioHandler, loopMode, videoLayout } = props;
+  const { course, user, session, videoHandler, audioHandler, loopMode, videoLayout, maxStreams } = props;
   const [subs, setSubs] = useState([]);
 
   useEffect(() => {
@@ -76,11 +76,16 @@ export default function ParticipantControls(props) {
     let text;
 
     if (loopMode) {
-      text = 'Tip: adjust your "settings" if you want to pin friends to view!';
+      text = `You'll see a rotating view of the community. 
+      To workout with friends or just ${course.instructor.username}, go to settings.`;
     } else {
-      text = "Select your friends to view below";
-    }
 
+      if (maxStreams === 1) {
+        text = "Connect with the community via emojis and chat!"
+      } else {
+        text = "Select your friends below.";
+      }
+    }
     if (user.id === course.instructor.id) {
       if (videoLayout === 'grid') {
         text = "When you're ready to start, switch to class view";
