@@ -4,15 +4,15 @@ import {
   Container,
   Grid, 
   Typography, 
-  Switch,
+  //Switch,
   Tabs,
   Tab,
   makeStyles,
 } from '@material-ui/core';
-import {
+/*import {
   Loop,
-  //ViewArray
-} from '@material-ui/icons';
+  ViewArray
+} from '@material-ui/icons';*/
 import { Alert } from '@material-ui/lab';
 import * as OT from '@opentok/client';
 import { useSnackbar } from 'notistack';
@@ -28,7 +28,7 @@ import log from '../../log';
 import DevicePicker from './devicePicker';
 import GridView from './layout/gridView';
 import Default from './layout/default';
-import LayoutPicker from './layout/picker';
+//import LayoutPicker from './layout/picker';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -613,13 +613,13 @@ export default function Video(props) {
 
   }, [videoLayout, course, user])
 
-  async function toggleLayout(evt) {
+  /*async function toggleLayout(evt) {
     setVideoLayout(evt);
   }
 
   async function toggleLoopMode() {
     setLoopMode(!loopMode);
-  }
+  }*/
 
   function killExcessVideos(start) {
 
@@ -769,19 +769,25 @@ export default function Video(props) {
     }
   }
 
-  let textColor;
+  /*let textColor;
   let iconColor;
   let settingsText;
 
   if (loopMode) {
     textColor = classes.disabled;
     iconColor = classes.enabled;
-    settingsText = "Change the video layout or watch only your friends";
+    settingsText = `You'll see a rotating view of the community. 
+    To workout with friends or just ${course.instructor.username}, go to settings.`;
 
   } else {
     textColor = classes.enabled;
     iconColor = classes.disabled;
-    settingsText = "Select the group tab to change who you are viewing";
+
+    if (maxStreams === 1) {
+      settingsText = "Connect with the community via emojis and chat!"
+    } else {
+      settingsText = "Select your friends below.";
+    }
   }
 
   if (user.id === course.instructor.id) {
@@ -790,7 +796,7 @@ export default function Video(props) {
     } else {
       settingsText = "When class is over, switch back to Pre/Post class view to see & hear everyone";
     }
-  }
+  }*/
 
   /*let coverText = "Zoom";
   let coverClasses = classes.disabled;
@@ -802,7 +808,7 @@ export default function Video(props) {
     cIconClasses = classes.disabled;
   }*/
   
-  let settings = (
+  /*let settings = (
     <Grid container direction="column">
       <Grid
         container
@@ -847,7 +853,7 @@ export default function Video(props) {
             name="loop"
           />
         </Grid>
-        {/*<Grid item container direction="row" justify="space-between" alignItems="center" alignContent="center">
+        <Grid item container direction="row" justify="space-between" alignItems="center" alignContent="center">
           <Grid item className={classes.settingsIcon}>
             <ViewArray className={cIconClasses} />
           </Grid>
@@ -862,10 +868,10 @@ export default function Video(props) {
               name="cover"
             />
           </Grid>
-        </Grid>*/}
+        </Grid>
       </Grid>
     </Grid>
-  );
+  );*/
 
 
 
@@ -963,7 +969,7 @@ export default function Video(props) {
   }
 
 
-  settings = (
+  let settings = (
     <React.Fragment>
       <Grid container direction="column" spacing={1} style={{padding: 16}}>
         {vidSettings.map(item => (
@@ -999,6 +1005,7 @@ export default function Video(props) {
           subs={subs}
           loopMode={loopMode}
           videoLayout={videoLayout}
+          maxStreams={maxStreams}
           audioHandler={toggleSubscriberAudio}
           videoHandler={toggleSubscriberVideo} 
         />
