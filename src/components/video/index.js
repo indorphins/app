@@ -58,6 +58,22 @@ const useStyles = makeStyles((theme) => ({
   selectedTab: {
     fontWeight: "bold",
   },
+  videoSetting: {
+    border: `1px solid ${theme.palette.grey[500]}`,
+    borderRadius: '4px',
+    padding: theme.spacing(1),
+    cursor: "pointer",
+    color: theme.palette.common.black,
+  },
+  selectedSetting: {
+    background: theme.palette.common.black,
+    color: theme.palette.common.white,
+  },
+  videoSettingTitle: {
+    fontSize: '1.2rem',
+    fontWeight: 600,
+    color: "inherit",
+  },
 }));
 
 const loopTime = 15000;
@@ -762,16 +778,17 @@ export default function Video(props) {
     iconColor = classes.enabled;
     settingsText = "Change the video layout or watch only your friends";
 
-    if (user.id === course.instructor.id) {
-      settingsText = "View & hear everyone in Grid Mode. Teach in horizontal mode";
-    }
   } else {
     textColor = classes.enabled;
     iconColor = classes.disabled;
     settingsText = "Select the group tab to change who you are viewing";
+  }
 
-    if (user.id === course.instructor.id) {
-      settingsText = "View & hear everyone in Grid Mode. Teach in horizontal mode";
+  if (user.id === course.instructor.id) {
+    if (videoLayout === 'grid') {
+      settingsText = "When you're ready to start, switch to class view";
+    } else {
+      settingsText = "When class is over, switch back to Pre/Post class view to see & hear everyone";
     }
   }
 
@@ -850,6 +867,128 @@ export default function Video(props) {
     </Grid>
   );
 
+
+
+  const [vidSettings, setVidSettings] = useState([
+    {
+      value: "community",
+      className: `${classes.videoSetting} ${classes.selectedSetting}`,
+      selected: true,
+      title: "Community",
+      subTitle: "Rotating view of everyone in class.",
+    },
+    {
+      value: "friends",
+      className: classes.videoSetting,
+      selected: false,
+      title: "With Friends",
+      subTitle: "Pin friends to workout with.",
+    },
+    {
+      value: "instructor",
+      className: classes.videoSetting,
+      selected: false,
+      title: "1:1",
+      subTitle: "View just the instructor.",
+    }
+  ]);
+
+  useEffect(() => {
+
+    if (user.id === course.instructor.id) {
+      setVidSettings([
+        {
+          value: "grid",
+          className: `${classes.videoSetting} ${classes.selectedSetting}`,
+          selected: true,
+          title: "Pre/Post Class",
+          subTitle: "View and hear everyone at once.",
+        },
+        {
+          value: "class",
+          className: classes.videoSetting,
+          selected: false,
+          title: "Class View",
+          subTitle: "4 rotating participants.",
+        },
+      ])
+    }
+  }, [user, course]);
+
+  useEffect(() => {
+
+    let set = vidSettings.filter(item => item.selected)[0];
+
+    if (set) {
+      if (set.value === 'community' || set.value === 'class') {
+        setLoopMode(true);
+        setVideoLayout('horizontal');
+      }
+
+      if (set.value === 'friends') {
+        setLoopMode(false);
+        setVideoLayout('horizontal');
+        setTab(0);
+      }
+
+      if (set.value === 'instructor') {
+        setLoopMode(false);
+        setVideoLayout('fullscreen')
+      }
+
+      if (set.value === 'grid') {
+        setLoopMode(true);
+        setVideoLayout('grid')
+      }
+    }
+  }, [vidSettings])
+
+  function handleChangeView(evt) {
+
+    let value = evt;
+
+    setVidSettings(vidSettings => vidSettings.map(item => {
+      if (item.selected && item.value !== value) {
+        item.selected = false;
+        item.className = classes.videoSetting;
+      }
+
+      if (item.value === value) {
+        item.selected = true;
+        item.className = `${classes.videoSetting} ${classes.selectedSetting}`;
+      }
+
+      return item;
+    }));
+  }
+
+
+  settings = (
+    <React.Fragment>
+      <Grid container direction="column" spacing={1} style={{padding: 16}}>
+        {vidSettings.map(item => (
+          <Grid item key={item.value}>
+            <Grid
+              className={item.className}
+              container
+              direction="column"
+              justify="center"
+              alignItems="center"
+              onClick={() => handleChangeView(item.value)}
+            >
+              <Grid item>
+                <Typography className={classes.videoSettingTitle}>{item.title}</Typography>
+              </Grid>
+              <Grid item>
+                <Typography variant="subtitle1">{item.subTitle}</Typography>
+              </Grid>
+            </Grid>
+          </Grid>
+        ))}  
+      </Grid>
+    </React.Fragment>
+  )
+
   let controlsGrid = (
     <Grid container direction="column">
       <Grid item style={{width: "100%"}}>
@@ -859,6 +998,7 @@ export default function Video(props) {
           session={session}
           subs={subs}
           loopMode={loopMode}
+          videoLayout={videoLayout}
           audioHandler={toggleSubscriberAudio}
           videoHandler={toggleSubscriberVideo} 
         />

@@ -17,7 +17,7 @@ const useStyles = makeStyles((theme) => ({
 export default function ParticipantControls(props) {
 
   const classes = useStyles();
-  const { course, user, session, videoHandler, audioHandler, loopMode } = props;
+  const { course, user, session, videoHandler, audioHandler, loopMode, videoLayout } = props;
   const [subs, setSubs] = useState([]);
 
   useEffect(() => {
@@ -77,13 +77,15 @@ export default function ParticipantControls(props) {
 
     if (loopMode) {
       text = 'Tip: adjust your "settings" if you want to pin friends to view!';
-      if (user.id === course.instructor.id) {
-        text = "When you're ready to start, switch your view in settings";
-      }
     } else {
       text = "Select your friends to view below";
-      if (user.id === course.instructor.id) {
-        text = "Select participants to view below. Change back to rotating in settings";
+    }
+
+    if (user.id === course.instructor.id) {
+      if (videoLayout === 'grid') {
+        text = "When you're ready to start, switch to class view";
+      } else {
+        text = "When class is over, switch back to Pre/Post class view to see & hear everyone";
       }
     }
 
