@@ -778,16 +778,17 @@ export default function Video(props) {
     iconColor = classes.enabled;
     settingsText = "Change the video layout or watch only your friends";
 
-    if (user.id === course.instructor.id) {
-      settingsText = "View & hear everyone in Grid Mode. Teach in horizontal mode";
-    }
   } else {
     textColor = classes.enabled;
     iconColor = classes.disabled;
     settingsText = "Select the group tab to change who you are viewing";
+  }
 
-    if (user.id === course.instructor.id) {
-      settingsText = "View & hear everyone in Grid Mode. Teach in horizontal mode";
+  if (user.id === course.instructor.id) {
+    if (videoLayout === 'grid') {
+      settingsText = "When you're ready to start, switch to class view";
+    } else {
+      settingsText = "When class is over, switch back to Pre/Post class view to see & hear everyone";
     }
   }
 
@@ -927,6 +928,7 @@ export default function Video(props) {
       if (set.value === 'friends') {
         setLoopMode(false);
         setVideoLayout('horizontal');
+        setTab(0);
       }
 
       if (set.value === 'instructor') {
@@ -935,6 +937,7 @@ export default function Video(props) {
       }
 
       if (set.value === 'grid') {
+        setLoopMode(true);
         setVideoLayout('grid')
       }
     }
@@ -943,8 +946,6 @@ export default function Video(props) {
   function handleChangeView(evt) {
 
     let value = evt;
-
-    log.debug('set new value', value);
 
     setVidSettings(vidSettings => vidSettings.map(item => {
       if (item.selected && item.value !== value) {
@@ -963,27 +964,29 @@ export default function Video(props) {
 
 
   settings = (
-    <Grid container direction="column" spacing={1} style={{padding: 16}}>
-      {vidSettings.map(item => (
-        <Grid item key={item.value}>
-          <Grid
-            className={item.className}
-            container
-            direction="column"
-            justify="center"
-            alignItems="center"
-            onClick={() => handleChangeView(item.value)}
-          >
-            <Grid item>
-              <Typography className={classes.videoSettingTitle}>{item.title}</Typography>
-            </Grid>
-            <Grid item>
-              <Typography variant="subtitle1">{item.subTitle}</Typography>
+    <React.Fragment>
+      <Grid container direction="column" spacing={1} style={{padding: 16}}>
+        {vidSettings.map(item => (
+          <Grid item key={item.value}>
+            <Grid
+              className={item.className}
+              container
+              direction="column"
+              justify="center"
+              alignItems="center"
+              onClick={() => handleChangeView(item.value)}
+            >
+              <Grid item>
+                <Typography className={classes.videoSettingTitle}>{item.title}</Typography>
+              </Grid>
+              <Grid item>
+                <Typography variant="subtitle1">{item.subTitle}</Typography>
+              </Grid>
             </Grid>
           </Grid>
-        </Grid>
-      ))}  
-    </Grid>
+        ))}  
+      </Grid>
+    </React.Fragment>
   )
 
   let controlsGrid = (
@@ -995,6 +998,7 @@ export default function Video(props) {
           session={session}
           subs={subs}
           loopMode={loopMode}
+          videoLayout={videoLayout}
           audioHandler={toggleSubscriberAudio}
           videoHandler={toggleSubscriberVideo} 
         />
