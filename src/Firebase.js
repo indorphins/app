@@ -94,6 +94,13 @@ class Firebase {
     return firebase.auth().signInWithRedirect(provider);
   };
 
+  loginWithApple = function() {
+    var provider = new firebase.auth.OAuthProvider('apple.com');
+    provider.addScope('email');
+    provider.addScope('name');
+    return firebase.auth().signInWithRedirect(provider);
+  };
+
   getRedirectResult = function() {
     return firebase.auth().getRedirectResult();
   }
