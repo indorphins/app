@@ -1,11 +1,11 @@
 const appConfig = {
-  "host": "http://192.168.1.40:3001",
+  "host": "http://localhost:3001",
   "client": "http://localhost:3000",
   "log_level": "DEBUG",
   "log_type": "",
   "firebase": {
     "apiKey": "AIzaSyCHEgPu0UuO0vuMzpD0642-8H5b0_5hU_0",
-    "authDomain": "indo-e071f.firebaseapp.com",
+    "authDomain": "test-auth.indorphins.com",
     "databaseURL": "https://indo-e071f.firebaseio.com",
     "projectId": "indo-e071f",
     "storageBucket": "indo-e071f.appspot.com",

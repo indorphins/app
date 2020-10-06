@@ -3,7 +3,7 @@ const appConfig = {
   "client": "https://indoorphins.fit",
   "firebase": {
     "apiKey": "AIzaSyDvzc4jsC0j3jTnJQOucgtzwJbDUbWM7pE",
-    "authDomain": "indoorphins-f4de1.firebaseapp.com",
+    "authDomain": "auth.indoorphins.fit",
     "databaseURL": "https://indoorphins-f4de1.firebaseio.com",
     "projectId": "indoorphins-f4de1",
     "storageBucket": "indoorphins-f4de1.appspot.com",
