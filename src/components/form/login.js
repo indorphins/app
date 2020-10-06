@@ -106,6 +106,24 @@ export default function(props) {
     }
   }, [props, redirectUrl]);
 
+  useEffect(() => {
+    setLoader(true);
+    Firebase.getRedirectResult().then((result) => {
+      if (result.user) {
+        return User.get();
+      }
+
+      return null;
+    }).then((user) => {
+      if (user.data) store.dispatch(actions.user.set(user.data))
+      setLoader(false);
+    })
+    .catch((error) => {
+      setLoader(false);
+      return log.error('Error firebase signin email pw ', error);
+    });
+  }, [])
+
 
   const usernameHandler = (event) => {
     setServerErr(null);
