@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Grid, TextField, Button, Link, Typography, LinearProgress } from '@material-ui/core';
+import { Divider, Grid, TextField, Button, Link, Typography, LinearProgress } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
@@ -12,6 +12,7 @@ import log from '../../log';
 import path from '../../routes/path';
 import { store, actions } from '../../store';
 import GoogleIcon from '../icon/google';
+import AppleIcon from '../icon/apple';
 
 const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
@@ -36,8 +37,6 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   medBtn: {
-    marginTop: theme.spacing(4),
-    marginBottom: theme.spacing(2),
     color: theme.palette.primaryColor.contrastText,
     backgroundColor: theme.palette.primaryColor.main,
     "&:hover": {
@@ -49,18 +48,12 @@ const useStyles = makeStyles((theme) => ({
     minWidth: 300,
     width: "100%",
   },
-  borderItem: {
-    borderBottom: '1px solid',
-    color: theme.palette.grey[500],
-  },
   text: {
     color: theme.palette.primary.main
   },
   googBtn: {
     cursor: 'pointer',
     backgroundColor: theme.palette.secondary.main,
-    marginBottom: theme.spacing(2),
-    marginTop: theme.spacing(2),
     color: theme.palette.primary.main,
     width: '100%',
     borderRadius: 5,
@@ -72,10 +65,28 @@ const useStyles = makeStyles((theme) => ({
   googIcon: {
     paddingRight: theme.spacing(2),
     marginTop: 3
+  },
+  appleBtn: {
+    cursor: 'pointer',
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+    width: '100%',
+    borderRadius: 5,
+    boxShadow: `0 0 4px -1px ${theme.palette.grey[500]}`,
+    "&:hover": { 
+      backgroundColor: theme.palette.grey[300],
+      color: theme.palette.secondary.contrastText,
+    }
+  },
+  appleIcon: {
+    fill: theme.palette.primary.contrastText,
+    /*"&:hover": { 
+      fill: theme.palette.secondary.contrastText,
+    }*/
   }
 }));
 
-export default function(props) {
+export default function Login(props) {
   const currentUser = useSelector((state) => getUserSelector(state))
   const classes = useStyles();
   const [userName, setUserName] = useState('');
@@ -138,6 +149,11 @@ export default function(props) {
   const googleSignInFlow = async () => {
     return Firebase.loginWithGoogle();
   };
+
+  const appleSignInFlow = async () => {
+    return Firebase.loginWithApple();
+  };
+
 
 	// TODO: depending on mode do password reset email
   const formHandler = async (event) => {
@@ -264,7 +280,7 @@ export default function(props) {
   let createAcctContent = null;
   if (loginMode) {
     createAcctContent = (
-      <Grid item className={classes.btnContainer}>
+      <Grid item>
         <Button
           disabled={loader}
           className={classes.medBtn}
@@ -288,8 +304,8 @@ export default function(props) {
             <Typography className={classes.text} variant='body1'>or</Typography>
           </Grid>
         </Grid>
-        <Grid item className={classes.borderItem}>
-          <Grid container direciton="row" justify="center" 
+        <Grid item>
+          <Grid container direciton="row" justify="center"
             alignItems='center' className={classes.googBtn} onClick={googleSignInFlow}
           >
             <Grid item className={classes.googIcon}>
@@ -297,6 +313,18 @@ export default function(props) {
             </Grid>
             <Grid item>
               <Typography variant='button'>Sign in with Google</Typography>
+            </Grid>
+          </Grid>
+        </Grid>
+        <Grid item>
+          <Grid container direciton="row" justify="center" 
+            alignItems='center' className={classes.appleBtn} onClick={appleSignInFlow}
+          >
+            <Grid item className={classes.googIcon}>
+              <AppleIcon className={classes.appleIcon} />
+            </Grid>
+            <Grid item>
+              <Typography variant='button'>Sign in with Apple</Typography>
             </Grid>
           </Grid>
         </Grid>
@@ -345,8 +373,8 @@ export default function(props) {
           {googleContent}
         </Grid>
       </form>
-      
-      <Grid container direction="column" alignItems='center' justify="center"> 
+      <Divider style={{margin: "16px 0px"}} />
+      <Grid container direction="column" alignItems='center' justify="center" spacing={2}> 
         {createAcctContent}
         <Grid item>
           <Typography>
