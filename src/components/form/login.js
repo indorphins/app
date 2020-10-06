@@ -115,7 +115,7 @@ export default function(props) {
 
       return null;
     }).then((user) => {
-      if (user.data) store.dispatch(actions.user.set(user.data))
+      if (user && user.data) store.dispatch(actions.user.set(user.data))
       setLoader(false);
     })
     .catch((error) => {
