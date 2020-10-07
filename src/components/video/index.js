@@ -26,6 +26,8 @@ import ParticipantControls from './participantControls';
 import PublisherControls from './publisherControls';
 import log from '../../log';
 
+import { startArchive } from '../../api/session';
+
 import Default from './layout/default';
 import LayoutPicker from './layout/picker';
 
@@ -206,6 +208,14 @@ export default function Video(props) {
 
         if (session.capabilities.publish === 1) {
           session.publish(publisher, handleError);
+        }
+
+        if (props.user && props.course && props.course.instructor && props.course.instructor.id === props.user.id) {
+          startArchive(session.id).then(response => {
+            log.info("INSTRUCTOR STARTED ARCHIVE ", response);
+          }).catch(err => {
+            log.error("ERROR STARTING ARCHIVE ", err);
+          })
         }
 
       });

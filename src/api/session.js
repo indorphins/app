@@ -120,3 +120,16 @@ export async function getInstructorSessions(instructorId) {
 
   return callAPI(u, options, true);
 }
+
+export async function startArchive(sessionId) {
+  const options = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+
+  const u = url + `/archive/${sessionId}`;
+
+  return callAPI(u, options, true);
+}
