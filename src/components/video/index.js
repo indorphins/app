@@ -182,7 +182,7 @@ export default function Video(props) {
         setSession(sess);
 
         if (props.user && props.course && props.course.instructor && props.course.instructor.id === props.user.id) {
-          startArchive(session.id).then(response => {
+          startArchive(sess.id).then(response => {
             log.info("INSTRUCTOR STARTED ARCHIVE ", response);
           }).catch(err => {
             log.error("ERROR STARTING ARCHIVE ", err);
