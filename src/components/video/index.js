@@ -181,14 +181,6 @@ export default function Video(props) {
         sess.on('signal', handleSignal);
         setSession(sess);
 
-        if (props.user && props.course && props.course.instructor && props.course.instructor.id === props.user.id) {
-          startArchive(sess.id).then(response => {
-            log.info("INSTRUCTOR STARTED ARCHIVE ", response);
-          }).catch(err => {
-            log.error("ERROR STARTING ARCHIVE ", err);
-          })
-        }
-
         return sess;
       });
     }
@@ -222,6 +214,17 @@ export default function Video(props) {
       videoElementCreated: publisherVideoElementCreated,
     });
   }
+
+  // Start archiving the session, if user is instructor
+  useEffect(() => {
+    if (session && user && course && course.instructor && course.instructor.id === user.id) {
+      startArchive(session.id).then(response => {
+        log.info("INSTRUCTOR STARTED ARCHIVE ", response);
+      }).catch(err => {
+        log.error("ERROR STARTING ARCHIVE ", err);
+      })
+    }
+  }, [session, user, course])
 
   useEffect(() => {
 
