@@ -29,22 +29,24 @@ export default function LayoutPicker(props) {
     if (props.onSelect) props.onSelect(layout);
   }
 
-  let btnContent = (<FullscreenIcon />)
+  let btnContent = (<FullscreenIcon color="primary" />)
 
   if (layout === "grid") {
-    btnContent = (<GridIcon width="20" height="20" />);
+    btnContent = (<GridIcon color="primary" width="20" height="20" />);
   }
 
   if (layout === "vertical") {
-    btnContent = (<SplitGridIcon width="20" height="20" style={{ transform: "rotate(90deg)"}} />);
+    btnContent = (
+      <SplitGridIcon color="primary" width="20" height="20" style={{ transform: "rotate(90deg)"}} />
+    );
   }
   
   if (layout === "horizontal") {
-    btnContent = (<SplitGridIcon width="20" height="20" />);
+    btnContent = (<SplitGridIcon color="primary" width="20" height="20" />);
   } 
   
   if (layout === "fullscreen") {
-    btnContent = (<FullscreenIcon width="20" height="20" />);
+    btnContent = (<FullscreenIcon color="primary" width="20" height="20" />);
   }
 
   return (
@@ -59,16 +61,16 @@ export default function LayoutPicker(props) {
         onClose={handleClose}
       >
         <MenuItem title="Fullscreen" onClick={() => { handleSelect("fullscreen"); }}>
-          <FullscreenIcon />
+          <FullscreenIcon color="primary" />
         </MenuItem>
         <MenuItem title="Grid" onClick={() => { handleSelect("grid"); }}>
-          <GridIcon />
+          <GridIcon color="primary" />
         </MenuItem>
         <MenuItem title="Horizontal" onClick={() => { handleSelect("horizontal"); }}>
-          <SplitGridIcon />
+          <SplitGridIcon color="primary" />
         </MenuItem>
         <MenuItem title="Vertical" onClick={() => { handleSelect("vertical"); }}>
-          <SplitGridIcon style={{ transform: "rotate(90deg)"}} />
+          <SplitGridIcon color="primary" style={{ transform: "rotate(90deg)"}} />
         </MenuItem> 
       </Menu>
     </Grid>

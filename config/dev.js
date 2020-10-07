@@ -5,7 +5,7 @@ const appConfig = {
   "log_type": "",
   "firebase": {
     "apiKey": "AIzaSyByZtUAMH71kfHIvzpekjVpH2ND41XK4Bw",
-    "authDomain": "indo-dev.firebaseapp.com",
+    "authDomain": "dev-auth.indorphins.com",
     "databaseURL": "https://indo-dev.firebaseio.com",
     "projectId": "indo-dev",
     "storageBucket": "indo-dev.appspot.com",

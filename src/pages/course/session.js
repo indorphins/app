@@ -11,8 +11,9 @@ import * as Course from '../../api/course';
 import path from '../../routes/path';
 import log from '../../log';
 import Video from '../../components/video';
+
 import { dark } from '../../styles/theme';
-import * as Session from '../../api/session';
+import * as SessionAPI from '../../api/session';
 
 const useStyles = makeStyles((theme) => ({
   '@global': {
@@ -31,8 +32,7 @@ const useStyles = makeStyles((theme) => ({
   },
   root: {
     height: '100%',
-    overflow: 'hidden',
-    backgroundColor: dark.palette.background.default,
+    overflowX: 'hidden',
   },
   contentCol: {
     padding: 0,
@@ -47,83 +47,91 @@ const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
 });
 
-export default function() {
+export default function Session() {
 
   const currentUser = useSelector(state => getUserSelector(state));
   const classes = useStyles();
   const history = useHistory();
   const params = useParams();
-  const [course, setCourse] = useState({});
-  const [authData, setAuthData] = useState({});
+  const [course, setCourse] = useState(null);
+  const [authData, setAuthData] = useState(null);
   const [loader, setLoader] = useState(true);
 
+
   const init = async function(classId) {
-
-    if (!currentUser.id) return;
-
-    let data;
-    try {
-      data = await Course.getSessionInfo(classId);
-    } catch (err) {
-      //TODO: redirect to class page with error message or display error here
-      log.error("OPENTOK:: session join", err);
-      history.push(path.courses + "/" + classId);
-      return;
-    }
 
     let courseData;
     try {
       courseData = await Course.get(classId);
     } catch(err) {
       log.error("OPENTOK:: get class info", err);
-      history.push(path.courses + "/" + classId);
+      history.push(path.courses + "/" + classId + "?error=" + encodeURIComponent(err.message));
+      return;
+    }
+
+    let data;
+    try {
+      data = await Course.getSessionInfo(courseData.id);
+    } catch (err) {
+      //TODO: redirect to class page with error message or display error here
+      log.error("OPENTOK:: session join", err);
+      history.push(path.courses + "/" + courseData.id + "?error=" + encodeURIComponent(err.message));
+      return;
+    }
+
+    if (!data) {
+      history.push(path.login + "?redirect=" + encodeURIComponent(path.courses + "/" + courseData.id + path.joinPath));
       return;
     }
 
     let sessionData;
     try {
-      sessionData = await Session.update(courseData.id, data.sessionId);
+      sessionData = await SessionAPI.update(courseData.id, data.sessionId);
     } catch (err) {
       log.error("OPENTOK:: create class session ", err);
     }
 
     if (sessionData) {
       store.dispatch(actions.milestone.addSession(sessionData));
-    }    
+    }
 
+    setCourse(courseData);
     setAuthData({
       sessionId: data.sessionId,
       token: data.token,
       apiKey: data.apiKey,      
     });
-    setCourse(courseData);
     setLoader(false);
   }
 
   useEffect(() => {
-    if (course.instructor && currentUser.id !== course.instructor.id) {
+    if (course && course.instructor && currentUser.id !== course.instructor.id) {
       store.dispatch(actions.feedback.setCourse(course));
       store.dispatch(actions.feedback.setShow(true));
+    }
+
+    if (authData && authData.sessionId) {
       store.dispatch(actions.feedback.setSessionId(authData.sessionId));
     }
-  }, [course, currentUser, authData])
+  }, [course, currentUser, authData]);
 
   useEffect(() => {
-    init(params.id);
+    if (params.id && currentUser) {
+      init(params.id);
+    }
   }, [params.id, currentUser]);
 
-  let chatContent = (
-    <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
-      <Video credentials={authData} course={course} user={currentUser} />
-    </Grid>
-  );
 
   let content = (
     <LinearProgress color="primary" />
   );
 
   if (!loader) {
-    content = chatContent;
+    content = (
+      <Grid container direction="row" justify="flex-start" alignItems="flex-start" className={classes.root}>
+        <Video credentials={authData} course={course} user={currentUser} />
+      </Grid>
+    );
   }
 
   return (

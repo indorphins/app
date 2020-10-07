@@ -37,14 +37,16 @@ export function getPrevDate(rule, count, refDate) {
   return later.schedule(sched).prev(count, refDate);
 }
 
-export function getNextSession(now, c) {
+export function getNextSession(now, c, /*optional*/ win) {
+  let sw = sessionWindow;
+  if (win) sw = win;
   let start = new Date(c.start_date);
   let end = new Date(c.start_date);
   end.setMinutes(end.getMinutes() + c.duration);
   let startWindow = new Date(start);
-  startWindow = startWindow.setMinutes(startWindow.getMinutes() - sessionWindow);
+  startWindow = startWindow.setMinutes(startWindow.getMinutes() - sw);
   let endWindow = new Date(end);
-  endWindow = endWindow.setMinutes(endWindow.getMinutes() + sessionWindow);
+  endWindow = endWindow.setMinutes(endWindow.getMinutes() + sw);
 
   // if it's a recurring class and the first class is in the past
   if (c.recurring && now > endWindow) {
@@ -55,9 +57,9 @@ export function getNextSession(now, c) {
     end = new Date(start);
     end.setMinutes(end.getMinutes() + c.duration);
     startWindow = new Date(start);
-    startWindow = startWindow.setMinutes(startWindow.getMinutes() - sessionWindow);
+    startWindow = startWindow.setMinutes(startWindow.getMinutes() - sw);
     endWindow = new Date(end);
-    endWindow = endWindow.setMinutes(endWindow.getMinutes() + sessionWindow);
+    endWindow = endWindow.setMinutes(endWindow.getMinutes() + sw);
 
     // if the prev session is over then get the next session
     if (now > endWindow) {
@@ -65,9 +67,9 @@ export function getNextSession(now, c) {
       end = new Date(start);
       end.setMinutes(end.getMinutes() + c.duration);
       startWindow = new Date(start);
-      startWindow = startWindow.setMinutes(startWindow.getMinutes() - sessionWindow);
+      startWindow = startWindow.setMinutes(startWindow.getMinutes() - sw);
       endWindow = new Date(end);
-      endWindow = endWindow.setMinutes(endWindow.getMinutes() + sessionWindow);
+      endWindow = endWindow.setMinutes(endWindow.getMinutes() + sw);
     }
   }
 

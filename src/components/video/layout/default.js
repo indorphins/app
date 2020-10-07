@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Grid, 
-  Typography,
-} from '@material-ui/core';
+import { Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
-import Emote from '../emote';
+import VideoContainer from './videoContainer';
 import VideoDOMElement from './videoDOMElement';
 import log from '../../../log';
 
 const verticalStyles = makeStyles((theme) => ({
+  root: {
+    height:"100%", 
+    overflow: "hidden",
+    background: theme.palette.common.background,
+  },
   full: {
     height: "100%",
     width: "100%",
@@ -64,6 +65,11 @@ const verticalStyles = makeStyles((theme) => ({
 }));
 
 const horizontalStyles = makeStyles((theme) => ({
+  root: {
+    height:"100%", 
+    overflow: "hidden",
+    background: theme.palette.common.background,
+  },
   full: {
     height: "100%",
     width: "100%",
@@ -112,109 +118,16 @@ const horizontalStyles = makeStyles((theme) => ({
   }
 }));
 
-const gridStyles = makeStyles((theme) => ({
-  full: {
-    height: "100%",
-    width: "100%",
-    position: "relative",
-  },
-  split: {
-    height: "100%",
-    width: "50%",
-    position: "relative",
-  },
-  subscriberItem: {
-    height: "50%",
-    width: "50%",
-    background: theme.palette.grey[50],
-    position: "relative",
-  },
-  subscriberItemAlt: {
-    height: "50%",
-    width: "50%",
-    position: "relative",
-  },
-  subscriberFeature: {
-    height: "50%",
-    width: "50%",
-    background: theme.palette.grey[50],
-    position: "relative"
-  },
-  subscriberFeatureAlt: {
-    height: "50%",
-    width: "50%",
-    position: "relative",
-  },
-  subscriberLabelBox: {
-    position: 'relative',
-    bottom: '50px',
-  },
-  subscriberLabel: {
-    fontSize: "2.2rem",
-    color: theme.palette.grey[800],
-  },
-  emoteBtn: {
-    position: "absolute",
-    zIndex: 999,
-    bottom: "10px",
-    right: "10px"
-  }
-}));
-
-function VideoContainer(props) {
-  const { classes } = props;
-
-  return (
-    <Grid item className={props.className} style={props.style}>
-      {props.children}
-      <Box className={classes.subscriberLabelBox}>
-        <Typography
-          align="center"
-          variant="h4"
-          className={classes.subscriberLabel}
-        >
-          {props.username}
-        </Typography>
-      </Box>
-      <Grid className={classes.emoteBtn}>
-        <Emote userId={props.id} username={props.user.username} session={props.session} />
-      </Grid>
-    </Grid>
-  );
-}
-
 export default function Default(props) {
 
   const horizontalClasses = horizontalStyles();
   const verticalClasses = verticalStyles();
-  const gridClasses = gridStyles();
   const { session, subs, user } = props;
   const [ classes, setClasses ]  = useState(horizontalClasses);
   const [ featureVid, setFeatureVid ] = useState(null);
   const [ regularVid, setRegularVid ] = useState([]);
   const [ direction, setDirection ] = useState("column");
   const [ max, setMax ] = useState(4);
-
-  useEffect(() => {
-    if (subs) {
-      let filtered = subs.filter(item => {
-        return item.video && item.videoElement && !item.disabled;
-      }).slice(0, max);
-
-      log.debug("DEFAULT LAYOUT:: filtered subscriber videos", filtered);
-
-      if (filtered[0]) {
-        setFeatureVid(filtered[0]);
-      } else {
-        setFeatureVid(null);
-      }
-      if (filtered.length > 1) {
-        setRegularVid([].concat(filtered.slice(1)));
-      } else {
-        setRegularVid([]);
-      }
-    }
-  }, [subs]);
 
   useEffect(() => {
     if (props.max) {
@@ -230,12 +143,31 @@ export default function Default(props) {
         setDirection("column");
         setClasses(horizontalClasses);
       }
-      if (props.layout === "grid") {
-        setDirection("column");
-        setClasses(gridClasses);
-      }
     }
   }, [props]);
+
+  useEffect(() => {
+    if (subs) {
+      let filtered = subs.filter(item => {
+        return item.video && item.videoElement && !item.disabled;
+      }).slice(0, max);
+
+      log.debug("DEFAULT LAYOUT:: filtered subscriber videos", filtered);
+
+      if (filtered[0]) {
+        setFeatureVid(filtered[0]);
+      } else {
+        setFeatureVid(null);
+        setRegularVid([]);
+      }
+
+      if (filtered.length > 1) {
+        setRegularVid([].concat(filtered.slice(1)));
+      } else {
+        setRegularVid([]);
+      }
+    }
+  }, [subs]);
 
   let featureClasses = null;
   let regularClasses = null;
@@ -292,7 +224,7 @@ export default function Default(props) {
   }
 
   return (
-    <Grid xs item style={{height:"100%", overflow: "hidden"}}>
+    <Grid xs item className={classes.root} style={{height:"100%", overflow: "hidden"}}>
       <Grid
         container
         direction={direction}
