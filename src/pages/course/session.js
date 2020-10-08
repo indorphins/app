@@ -137,7 +137,7 @@ export default function Session() {
 
   let title;
 
-  if (course.title) {
+  if (course && course.title) {
     title = `${course.title} Class Session`;
   }
 
