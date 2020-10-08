@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchArchive } from '../api/session';
+import { fetchArchive } from '../api/archive';
 import { Grid, Typography, Button, Card, makeStyles } from '@material-ui/core';
 import log from '../log';
 
