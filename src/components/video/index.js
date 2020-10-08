@@ -18,6 +18,7 @@ import * as OT from '@opentok/client';
 import { useSnackbar } from 'notistack';
 import { ThemeProvider } from '@material-ui/core/styles';
 import { light } from '../../styles/theme';
+import { startArchive, stopArchive } from '../../api/archive';
 
 import PermissionsError from './permissionsError';
 import Chat from './chat';
@@ -179,6 +180,7 @@ export default function Video(props) {
         sess.on('streamDestroyed', streamDestroyed);
         sess.on('signal', handleSignal);
         setSession(sess);
+
         return sess;
       });
     }
@@ -213,6 +215,29 @@ export default function Video(props) {
     });
   }
 
+  // Start archiving the session, if user is instructor
+  useEffect(() => {
+    let archive;
+    if (session && user && course && course.instructor && course.instructor.id === user.id) {
+      startArchive(session.id).then(response => {
+        archive = response;
+        log.info("INSTRUCTOR STARTED ARCHIVE ", archive);
+      }).catch(err => {
+        log.warn("ERROR STARTING ARCHIVE ", err);
+      })
+    }
+
+    return () => {
+      if (archive) {
+        return stopArchive(archive.id).then(response => {
+          log.info("Stopped archive ", response);
+        }).catch(err => {
+          log.warn("Error stopping archive ", err);
+        })
+      }
+    }
+  }, [session, user, course])
+
   useEffect(() => {
 
     if (user.id && course.id) {
@@ -241,7 +266,6 @@ export default function Video(props) {
       setVideoLayout("grid");
     }
   }, [course, user]);
-
 
   useEffect(() => {
     return function() {
