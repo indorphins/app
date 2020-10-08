@@ -5,6 +5,7 @@ import { makeStyles } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 
+import Analytics from '../../utils/analytics';
 import CourseSchedule from '../../components/courseSchedule';
 import UserData from '../../components/userData';
 import ArchiveList from '../../components/archiveList';
@@ -212,9 +213,16 @@ export default function Instructor() {
     content = userContent;
   }
 
+  let title;
+  if (username) {
+    title = `Instructor - ${username}`;
+  }
+
   return (
-    <Container className={classes.root}>
-      {content}
-    </Container>
+    <Analytics title={title}>
+      <Container className={classes.root}>
+        {content}
+      </Container>
+    </Analytics>
   );
 }

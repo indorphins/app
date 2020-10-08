@@ -3,6 +3,7 @@ import { Container, Grid, makeStyles } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 import MilestoneItem from '../components/milestone/milestoneItem';
+import Analytics from '../utils/analytics';
 
 const milestonesSelector = createSelector([state => state.milestone.hits], (sessions) => {
   return sessions;
@@ -18,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }))
 
-export default function() {
+export default function Milestone() {
   const classes = useStyles();
   const user = useSelector(state => getUserSelector(state));
   const milestoneHits = useSelector(state => milestonesSelector(state));
@@ -69,5 +70,9 @@ export default function() {
     </Container>
   )
 
-  return content;
+  return (
+    <Analytics title="Milestones">
+      {content}
+    </Analytics>
+  );
 }

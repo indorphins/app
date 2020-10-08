@@ -174,8 +174,12 @@ export default function App() {
 
 
   useEffect(() => {
-    Firebase.clearListeners();
+    document.title="Indoorphins.fit";
     Firebase.addListener(listener);
+
+    return function() {
+      Firebase.clearListeners();
+    }
   });
 
   useEffect(() => {

@@ -12,6 +12,7 @@ import CreateCourse from '../../components/form/editCourse';
 import CourseFeature from '../../components/courseFeature';
 import { store, actions } from '../../store';
 import { isMonday, isSunday, isSaturday, isFriday, isThursday, isWednesday, isTuesday } from 'date-fns';
+import Analytics from '../../utils/analytics';
 
 const getUserSelector = createSelector([(state) => state.user.data], (user) => {
   return user;
@@ -315,37 +316,39 @@ export default function CourseList() {
   }
 
   return (
-    <Container justify='center'>
-      {createButton}
-      {createContent}
-      <Grid container direction="column" className={classes.content} spacing={3}>
-        {myClassesContent}
-        <Grid item>
-          <CourseFeature id="upcoming" header="Upcoming Classes" items={upcomingData} />
+    <Analytics title="Indoorphins.fit">
+      <Container justify='center'>
+        {createButton}
+        {createContent}
+        <Grid container direction="column" className={classes.content} spacing={3}>
+          {myClassesContent}
+          <Grid item>
+            <CourseFeature id="upcoming" header="Upcoming Classes" items={upcomingData} />
+          </Grid>
+          <Grid item>
+            <CourseFeature id="monday" header="Monday Classes" items={mondayData} />
+          </Grid>
+          <Grid item>
+            <CourseFeature id="tuesday" header="Tuesday Classes" items={tuesdayData} />
+          </Grid>
+          <Grid item>
+            <CourseFeature id="wednesday" header="Wednesday Classes" items={wednesdayData} />
+          </Grid>
+          <Grid item>
+            <CourseFeature id="thursday" header="Thursday Classes" items={thursdayData} />
+          </Grid>
+          <Grid item>
+            <CourseFeature id="friday" header="Friday Classes" items={fridayData} />
+          </Grid>
+          <Grid item>
+            <CourseFeature id="saturday" header="Saturday Classes" items={saturdayData} />
+          </Grid>
+          <Grid item>
+            <CourseFeature id="sunday" header="Sunday Classes" items={sundayData} />
+          </Grid>
+          
         </Grid>
-        <Grid item>
-          <CourseFeature id="monday" header="Monday Classes" items={mondayData} />
-        </Grid>
-        <Grid item>
-          <CourseFeature id="tuesday" header="Tuesday Classes" items={tuesdayData} />
-        </Grid>
-        <Grid item>
-          <CourseFeature id="wednesday" header="Wednesday Classes" items={wednesdayData} />
-        </Grid>
-        <Grid item>
-          <CourseFeature id="thursday" header="Thursday Classes" items={thursdayData} />
-        </Grid>
-        <Grid item>
-          <CourseFeature id="friday" header="Friday Classes" items={fridayData} />
-        </Grid>
-        <Grid item>
-          <CourseFeature id="saturday" header="Saturday Classes" items={saturdayData} />
-        </Grid>
-        <Grid item>
-          <CourseFeature id="sunday" header="Sunday Classes" items={sundayData} />
-        </Grid>
-        
-      </Grid>
-    </Container>
+      </Container>
+    </Analytics>
   );
 }

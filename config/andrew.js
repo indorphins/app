@@ -10,9 +10,10 @@ const appConfig = {
     "projectId": "indo-e071f",
     "storageBucket": "indo-e071f.appspot.com",
     "messagingSenderId": "365054292042",
-    "appId": "1:365054292042:web:bf99743bb8aafaad2176b3"
+    "appId": "1:365054292042:web:bf99743bb8aafaad2176b3",
   },
-  "stripe_public_key": "pk_test_51H4YYYCJnNzBdo8KT8gC5Oez0ntIXlDE5RyqbosNujZFTtvsxkVxQUFw7GP1EV30XCr84hqGxt18Yn4whV8MN8In00Lq2Zl44c"
+  "stripe_public_key": "pk_test_51H4YYYCJnNzBdo8KT8gC5Oez0ntIXlDE5RyqbosNujZFTtvsxkVxQUFw7GP1EV30XCr84hqGxt18Yn4whV8MN8In00Lq2Zl44c",
+  "googleAnalytics": "UA-180090604-1",
 };
 
 window.appConfig = appConfig;
