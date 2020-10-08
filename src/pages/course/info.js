@@ -38,6 +38,7 @@ import Instagram from '../../components/instagram';
 import EditorContent from '../../components/editorContent';
 import { format } from 'date-fns';
 import { createCalenderEvent } from '../../utils/index';
+import Analytics from '../../utils/analytics';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -154,10 +155,6 @@ export default function CourseInfo() {
 
   const sml = useMediaQuery('(max-width:600px)');
   const med = useMediaQuery('(max-width:900px)');
-
-  useEffect(() => {
-    document.querySelector('body').scrollTo(0, 0);
-  }, []);
 
   useEffect(() => {
 
@@ -527,38 +524,40 @@ export default function CourseInfo() {
   );
 
   return (
-    <Container className={classes.root}>
-      <Grid container direction={layout.main} spacing={2}>
-        <Grid item container>
-          {courseDetails}
-        </Grid>
-        <Grid item>
-          {errorContent}
-          {paymentContent}
-        </Grid>
-        <Grid item container>
-          <Grid container direction={layout.actionBtnDirection} justify="flex-end" spacing={2}>
-            <JoinSession currentUser={currentUser} course={course} size={layout.actionBtnSize} />
-            <Signup
-              currentUser={currentUser}
-              course={course}
-              size={layout.actionBtnSize}
-              leaveHandler={courseLeaveHandler}
-              paidHandler={showSignupForm}
-              freeHandler={courseSignupHandler}
-            />
-            <Cancel 
-              currentUser={currentUser}
-              course={course}
-              size={layout.actionBtnSize}
-              onCancel={cancelClassHandler}
-            />
+    <Analytics title={course.title}>
+      <Container className={classes.root}>
+        <Grid container direction={layout.main} spacing={2}>
+          <Grid item container>
+            {courseDetails}
+          </Grid>
+          <Grid item>
+            {errorContent}
+            {paymentContent}
+          </Grid>
+          <Grid item container>
+            <Grid container direction={layout.actionBtnDirection} justify="flex-end" spacing={2}>
+              <JoinSession currentUser={currentUser} course={course} size={layout.actionBtnSize} />
+              <Signup
+                currentUser={currentUser}
+                course={course}
+                size={layout.actionBtnSize}
+                leaveHandler={courseLeaveHandler}
+                paidHandler={showSignupForm}
+                freeHandler={courseSignupHandler}
+              />
+              <Cancel 
+                currentUser={currentUser}
+                course={course}
+                size={layout.actionBtnSize}
+                onCancel={cancelClassHandler}
+              />
+            </Grid>
+          </Grid>
+          <Grid item>
+            <Message currentUser={currentUser} course={course} />
           </Grid>
         </Grid>
-        <Grid item>
-          <Message currentUser={currentUser} course={course} />
-        </Grid>
-      </Grid>
-    </Container>
+      </Container>
+    </Analytics>
   )
 }

@@ -14,6 +14,7 @@ import Video from '../../components/video';
 
 import { dark } from '../../styles/theme';
 import * as SessionAPI from '../../api/session';
+import Analytics from '../../utils/analytics';
 
 const useStyles = makeStyles((theme) => ({
   '@global': {
@@ -134,15 +135,23 @@ export default function Session() {
     );
   }
 
+  let title;
+
+  if (course.title) {
+    title = `${course.title} Class Session`;
+  }
+
   return (
-    <SnackbarProvider classes={{root: classes.emote}} maxSnack={10}>
-      <ThemeProvider theme={dark}>
-        <Grid className={classes.root}>
-          <Grid className={classes.contentCol}>
-            {content}
+    <Analytics title={title}>
+      <SnackbarProvider classes={{root: classes.emote}} maxSnack={10}>
+        <ThemeProvider theme={dark}>
+          <Grid className={classes.root}>
+            <Grid className={classes.contentCol}>
+              {content}
+            </Grid>
           </Grid>
-        </Grid>
-      </ThemeProvider>
-    </SnackbarProvider>
+        </ThemeProvider>
+      </SnackbarProvider>
+    </Analytics>
   );
 }
