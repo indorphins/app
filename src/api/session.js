@@ -87,24 +87,6 @@ export async function getAll() {
 }
 
 /**
- * Returns the opentok archive for the input sessionId
- * @param {String} sessionId 
- */
-export async function fetchArchive(sessionId) {
-  const options = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify({ sessionId: sessionId })
-  };
-
-  const u = url + `/archive`; ///${sessionId}`;
-
-  return callAPI(u, options, true);
-}
-
-/**
  * Returns the last 10 Sessions where the instructor was the input instructorId
  * @param {String} instructorId 
  */
