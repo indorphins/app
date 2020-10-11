@@ -59,5 +59,5 @@ Circleci builds using docker containers and some of the commands in the `.circle
 To build using docker (taken from circleci config):
 
 ```
-docker run --rm -it -v $(pwd):/var/app -w /var/app node:14.1 /bin/bash -c "npm i && npm i -g webpack webpack-cli && webpack --config webpack.config.js"
+docker run --rm -it -v $(pwd):/var/app -w /var/app node:14.12 /bin/bash -c "npm i && npm i -g webpack@4.44.2 webpack-cli@3.3.12 && webpack --config webpack.config.js"
 ```
