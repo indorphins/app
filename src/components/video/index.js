@@ -89,12 +89,10 @@ const vidProps = {
 };
 
 const pubSettings = {
-  //mirror: true,
   showControls: false,
   insertDefaultUI: false,
   publishAudio: true,
   publishVideo: true,
-  //resolution: "320x240",
   resolution: "640x480",
   frameRate: 30,
   audioBitrate: 44000,

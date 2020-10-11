@@ -46,7 +46,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const pubSettings = {
-  mirror: true,
   showControls: false,
   insertDefaultUI: false,
   publishAudio: true,
