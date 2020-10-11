@@ -89,7 +89,7 @@ const vidProps = {
 };
 
 const pubSettings = {
-  mirror: true,
+  //mirror: true,
   showControls: false,
   insertDefaultUI: false,
   publishAudio: true,
@@ -195,10 +195,11 @@ export default function Video(props) {
     log.debug("OPENTOK:: publisher video element created", event);
 
     let videoElement = event.element;
-    videoElement.style.height = "100%";
-    videoElement.style.width = "100%";
+    videoElement.style.cssText = `transform: rotateY(180deg);`;
     videoElement.style.objectFit = "contained";
     videoElement.style.objectPosition = "center";
+    videoElement.style.height = "100%";
+    videoElement.style.width = "100%";
 
     setVideoElement(videoElement);
   }
@@ -931,7 +932,7 @@ export default function Video(props) {
           value: "grid",
           className: `${classes.videoSetting} ${classes.selectedSetting}`,
           selected: true,
-          title: "Pre/Post Class",
+          title: "View All",
           subTitle: "View and hear everyone at once.",
         },
         {
