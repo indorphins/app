@@ -46,7 +46,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const pubSettings = {
-  mirror: true,
   showControls: false,
   insertDefaultUI: false,
   publishAudio: true,
@@ -318,7 +317,16 @@ export default function DevicePicker(props) {
   if (!onJoined) {
     return (
       <Grid container>
-        <Grid style={{width: "100%", minHeight:240, position: "relative", background: "black"}}>
+        <Grid
+          container
+          style={{
+            width: "100%",
+            minHeight:240,
+            maxHeight: 320,
+            position: "relative",
+            background: "black"
+          }}
+        >
           {pubWindow}
           <Grid container justify="center" style={{position: "absolute", bottom: 0}}>
             <PublisherControls publisher={publisher} user={user} course={course} session={session} />
