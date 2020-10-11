@@ -6,7 +6,8 @@ const base = {
   login: "/login",
   courses: "/class",
   instructor: "/instructor",
-  milestone: '/milestones'
+  milestone: '/milestones',
+  instructors: '/instructors'
 };
 
 let params = Object.assign({}, base);

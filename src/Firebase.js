@@ -83,17 +83,27 @@ class Firebase {
   };
 
   signInWithEmailPassword = function(email, password) {
-    return this.auth
-			.signInWithEmailAndPassword(email, password)
-			.catch(function(error) {
-  throw error;
-});
+    return this.auth.signInWithEmailAndPassword(email, password)
+    .catch(function(error) {
+      throw error;
+    });
   };
 
   loginWithGoogle = function() {
     let provider = this.federated.google;
-    return firebase.auth().signInWithPopup(provider);
+    return firebase.auth().signInWithRedirect(provider);
   };
+
+  loginWithApple = function() {
+    var provider = new firebase.auth.OAuthProvider('apple.com');
+    provider.addScope('email');
+    provider.addScope('name');
+    return firebase.auth().signInWithRedirect(provider);
+  };
+
+  getRedirectResult = function() {
+    return firebase.auth().getRedirectResult();
+  }
 
 	/**
 	 * Returns user's firebase id token

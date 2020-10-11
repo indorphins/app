@@ -52,6 +52,9 @@ module.exports = {
         { from: 'public/PP.html', to: 'PP.html' },
         { from: 'public/TOS.html', to: 'TOS.html' },
         { from: 'public/robots.txt', to: 'robots.txt' },
+        { from: 'public/font/Lato-Black.ttf', to:'Lato-Black.ttf' },
+        { from: 'public/font/Lato-Bold.ttf', to:'Lato-Bold.ttf' },
+        { from: 'public/font/Lato-Regular.ttf', to:'Lato-Regular.ttf' },
       ],
     }),
     new HtmlWebpackPlugin({
@@ -75,6 +78,16 @@ module.exports = {
         <html>
           <head>
             <script src="/config.js"></script>
+            <script async src="https://www.googletagmanager.com/gtag/js"></script>
+            <script>
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+        
+              gtag('config', appConfig.googleAnalytics, {
+                'send_page_view': false
+              });
+            </script>
             <meta charset="utf-8"/>
             <title>${htmlWebpackPlugin.options.title}</title>
             ${htmlWebpackPlugin.tags.headTags}

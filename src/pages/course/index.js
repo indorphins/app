@@ -10,8 +10,9 @@ import * as Course from '../../api/course';
 import { getNextSession } from '../../utils';
 import CreateCourse from '../../components/form/editCourse';
 import CourseFeature from '../../components/courseFeature';
-import InstructorFeature from '../../components/instructorFeature';
 import { store, actions } from '../../store';
+import { isMonday, isSunday, isSaturday, isFriday, isThursday, isWednesday, isTuesday } from 'date-fns';
+import Analytics from '../../utils/analytics';
 
 const getUserSelector = createSelector([(state) => state.user.data], (user) => {
   return user;
@@ -53,11 +54,14 @@ export default function CourseList() {
   const [allowCreate, setAllowCreate] = useState(false);
   const [courseData, setCourseData] = useState([]);
   const [upcomingData, setUpcomingData] = useState([]);
-  const [weeklyData, setWeeklyData] = useState([]);
-  const [morningData, setMorningData] = useState([]);
-  const [middayData, setMiddayData] = useState([]);
-  const [eveningData, setEveningData] = useState([]);    
   const [scheduleData, setScheduleData] = useState([]);
+  const [mondayData, setMondayData] = useState([]);
+  const [tuesdayData, setTuesdayData] = useState([])
+  const [wednesdayData, setWednesdayData] = useState([]);
+  const [thursdayData, setThursdayData] = useState([]);
+  const [fridayData, setFridayData] = useState([]);
+  const [saturdayData, setSaturdayData] = useState([]);
+  const [sundayData, setSundayData] = useState([]);
   const [showForm, setShowForm] = useState(false);
 
   async function init() {
@@ -120,58 +124,107 @@ export default function CourseList() {
     let upcoming = courseData.filter(item => {
       return !item.recurring;
     });
-
-    let weekly = courseData.filter(item => {
-      return item.recurring;
-    });
-
-    let morning = courseData.filter(item => {
+    
+    let mondays = courseData.filter(item => {
       let next = getNextSession(now, item);
 
       if (next && next.date) {
-        let d = new Date(next.date);
-        let hour = d.getHours();
-        if (hour >= 0 && hour < 11) {
+        
+        const d = new Date(next.date);
+        if (isMonday(d)) {
           return true;
         }
       }
 
       return false;
-    });
+    })
 
-    let mid = courseData.filter(item => {
+    let tuesdays = courseData.filter(item => {
       let next = getNextSession(now, item);
 
       if (next && next.date) {
-        let d = new Date(next.date);
-        let hour = d.getHours();
-        if (hour >= 11 && hour <= 16) {
+        const d = new Date(next.date);
+        if (isTuesday(d)) {
           return true;
         }
       }
 
       return false;
-    });
+    })
 
-    let evening = courseData.filter(item => {
+    let wednesdays = courseData.filter(item => {
       let next = getNextSession(now, item);
 
       if (next && next.date) {
-        let d = new Date(next.date);
-        let hour = d.getHours();
-        if (hour > 16) {
+        const d = new Date(next.date);
+        if (isWednesday(d)) {
           return true;
         }
       }
 
       return false;
-    });
+    })
+
+    let thursdays = courseData.filter(item => {
+      let next = getNextSession(now, item);
+
+      if (next && next.date) {
+        const d = new Date(next.date);
+        if (isThursday(d)) {
+          return true;
+        }
+      }
+
+      return false;
+    })
+
+    let fridays = courseData.filter(item => {
+      let next = getNextSession(now, item);
+
+      if (next && next.date) {
+        const d = new Date(next.date);
+        if (isFriday(d)) {
+          return true;
+        }
+      }
+
+      return false;
+    })
+
+    let saturdays = courseData.filter(item => {
+      let next = getNextSession(now, item);
+
+      if (next && next.date) {
+        const d = new Date(next.date);
+        if (isSaturday(d)) {
+          return true;
+        }
+      }
+
+      return false;
+    })
+
+    let sundays = courseData.filter(item => {
+      let next = getNextSession(now, item);
+
+      if (next && next.date) {
+        const d = new Date(next.date);
+        if (isSunday(d)) {
+          return true;
+        }
+      }
+
+      return false;
+    })
 
     setUpcomingData([].concat(upcoming));
-    setWeeklyData([].concat(weekly));
-    setMorningData([].concat(morning));
-    setMiddayData([].concat(mid));
-    setEveningData([].concat(evening));
+    setMondayData([].concat(mondays));
+    setTuesdayData([].concat(tuesdays));
+    setWednesdayData([].concat(wednesdays));
+    setThursdayData([].concat(thursdays));
+    setFridayData([].concat(fridays));
+    setSaturdayData([].concat(saturdays));
+    setSundayData([].concat(sundays));
 
   }, [courseData])
 
@@ -263,33 +316,39 @@ export default function CourseList() {
   }
 
   return (
-    <Container justify='center'>
-      {createButton}
-      {createContent}
-      <Grid container direction="column" className={classes.content} spacing={3}>
-        {myClassesContent}
-        <Grid item>
-          <CourseFeature id="upcoming" header="Upcoming Classes" items={upcomingData} />
+    <Analytics title="Indoorphins.fit">
+      <Container justify='center'>
+        {createButton}
+        {createContent}
+        <Grid container direction="column" className={classes.content} spacing={3}>
+          {myClassesContent}
+          <Grid item>
+            <CourseFeature id="upcoming" header="Upcoming Classes" items={upcomingData} />
+          </Grid>
+          <Grid item>
+            <CourseFeature id="monday" header="Monday Classes" items={mondayData} />
+          </Grid>
+          <Grid item>
+            <CourseFeature id="tuesday" header="Tuesday Classes" items={tuesdayData} />
+          </Grid>
+          <Grid item>
+            <CourseFeature id="wednesday" header="Wednesday Classes" items={wednesdayData} />
+          </Grid>
+          <Grid item>
+            <CourseFeature id="thursday" header="Thursday Classes" items={thursdayData} />
+          </Grid>
+          <Grid item>
+            <CourseFeature id="friday" header="Friday Classes" items={fridayData} />
+          </Grid>
+          <Grid item>
+            <CourseFeature id="saturday" header="Saturday Classes" items={saturdayData} />
+          </Grid>
+          <Grid item>
+            <CourseFeature id="sunday" header="Sunday Classes" items={sundayData} />
+          </Grid>
+          
         </Grid>
-        <Grid item>
-          <CourseFeature id="morning" header="Morning Classes" items={morningData} />
-        </Grid>
-        <Grid item>
-          <CourseFeature id="midday" header="Mid Day Classes" items={middayData} />
-        </Grid>
-        <Grid item>
-          <CourseFeature id="evening" header="Evening Classes" items={eveningData} />
-        </Grid>
-        <Grid item>
-          <CourseFeature id="weekly" header="Weekly Classes" items={weeklyData} />
-        </Grid>
-        <Grid item>
-          <InstructorFeature
-            limit={500}
-            header='Instructors'
-          />
-        </Grid>
-      </Grid>
-    </Container>
+      </Container>
+    </Analytics>
   );
 }

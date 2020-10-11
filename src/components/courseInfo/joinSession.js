@@ -20,9 +20,11 @@ export default function JoinSession(props) {
 
     let authorized = false;
     let instructor = course.instructor;
+    let sessionWindow = 5;
 
     if (currentUser.id === instructor.id) {
       authorized = true;
+      sessionWindow = 10;
     }
 
     let exists = course.participants.filter(item => {
@@ -34,7 +36,7 @@ export default function JoinSession(props) {
     }
 
     let now = new Date();
-    let sessionTime = getNextSession(now, course);
+    let sessionTime = getNextSession(now, course, sessionWindow);
 
     if (!sessionTime) return;
 
@@ -63,7 +65,12 @@ export default function JoinSession(props) {
 
       interval = setInterval(() => {
         let now = new Date();
-        let sessionTime = getNextSession(now, course);
+        let sessionWindow = 5;
+        if (currentUser.id === instructor.id) {
+          sessionWindow = 10;
+        }
+    
+        let sessionTime = getNextSession(now, course, sessionWindow);
         let disabled = true;
   
         if (sessionTime) {

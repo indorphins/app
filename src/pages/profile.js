@@ -6,6 +6,7 @@ import { makeStyles } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 
+import Analytics from '../utils/analytics';
 import { store, actions } from '../store';
 import CourseSchedule from '../components/courseSchedule';
 import ProfileEdit from '../components/form/editProfile';
@@ -74,6 +75,10 @@ export default function Profile() {
   const [editButton, setEditButton] = useState(false);
   const [editForm, setEditForm] = useState(false);
   const [createStripe, setCreateStripe] = useState(false);
+
+  useEffect(() => {
+    document.title="Profile";
+  }, []);
 
   useEffect(() => {
 
@@ -261,8 +266,10 @@ export default function Profile() {
   }
 
   return (
-    <Container>
-      {content}
-    </Container>
+    <Analytics title="Profile">
+      <Container>
+        {content}
+      </Container>
+    </Analytics>
   );
 }

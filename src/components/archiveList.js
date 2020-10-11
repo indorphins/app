@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { fetchArchive } from '../api/session';
+import { fetchArchive } from '../api/archive';
 import { Grid, Typography, Button, Card, makeStyles } from '@material-ui/core';
 import log from '../log';
 
@@ -66,9 +66,19 @@ export default function ArchiveList(props) {
   let resultContent;
 
   if (archives) {
+    const archiveContent = (
+      archives.map(url => {
+        return (
+          <Grid item key={url}>
+            <a href={url}>{url}</a>
+          </Grid>
+        )
+      })
+    );
+
     resultContent = (
       <Card className={classes.archives}>
-        {archives}
+        {archiveContent}
       </Card>
     )
   }

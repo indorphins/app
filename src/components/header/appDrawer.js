@@ -26,7 +26,6 @@ let useStyles = makeStyles((theme) => ({
 
 export default function AppDrawer(props) {
 
-  const { user } = props;
   const classes = useStyles();
   const history = useHistory();
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -40,19 +39,6 @@ export default function AppDrawer(props) {
     setDrawerOpen(!drawerOpen);
   };
 
-  let schedule = null;
-
-  if (user && user.id) {
-    schedule = (
-      <React.Fragment>
-        <Grid item className={classes.clickable} onClick={() => navigate(path.schedule)}>
-          <Typography variant='h5' className={classes.drawerLink}>My Schedule</Typography>
-        </Grid>
-        <Divider />
-      </React.Fragment>
-    )
-  }
-
   return (
     <React.Fragment>
       <IconButton onClick={toggleDrawer} className={classes.button}>
@@ -65,11 +51,14 @@ export default function AppDrawer(props) {
             <Typography variant='h5' className={classes.drawerLink}>Classes</Typography>
           </Grid>
           <Divider />
+          <Grid item className={classes.clickable} onClick={() => navigate(path.instructors)}>
+            <Typography variant='h5' className={classes.drawerLink}>Instructors</Typography>
+          </Grid>
+          <Divider />
           <Grid item className={classes.clickable} onClick={() => navigate(path.milestone)}>
             <Typography variant='h5' className={classes.drawerLink}>Milestones</Typography>
           </Grid>
           <Divider />
-          {schedule}
         </Grid>
       </Drawer>
     </React.Fragment>

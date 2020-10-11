@@ -11,7 +11,7 @@ export default function CourseRoutes() {
       <Route exact path={path.courseDetail}>
         <CourseInfo />
       </Route>
-      <Route path={path.courses}>
+      <Route exact path={path.courses}>
         <CourseList />
       </Route>
       <Route exact path="/">
