@@ -77,7 +77,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const loopTime = 15000;
+const loopTime = 20000;
 const max = 4;
 const vidProps = {
   preferredFrameRate: 30,
