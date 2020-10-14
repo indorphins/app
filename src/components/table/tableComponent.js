@@ -50,9 +50,10 @@ export default function TableComponent(props) {
               i++;
               return <TableCell component='th'>{row[field]}</TableCell>
             } else {
-              i++;
               return <TableCell align="right">{row[field]}</TableCell>
             }
+          } else {
+            return <TableCell align="right">N/A</TableCell>
           }
         })
         return (
@@ -73,7 +74,6 @@ export default function TableComponent(props) {
           i++;
           return <TableCell><Typography variant='h5'>{title}</Typography></TableCell>
         } else {
-          i++;
           return <TableCell align="right"><Typography variant='h5'>{title}</Typography></TableCell>
         }
       })

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, makeStyles } from '@material-ui/core';
+import { Container, Grid, makeStyles, Typography } from '@material-ui/core';
 import TableComponent from '../components/table/tableComponent';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
@@ -24,10 +24,12 @@ export default function Admin() {
   const classes = useStyles();
   const user = useSelector(state => getUserSelector(state));
   const [reportData, setReportData] = useState([]);
+  const [instructorReports, setInstructorReports] = useState([]);
 
   useEffect(() => {
     if (user) {
-      fetchReports()
+      fetchReports();
+      fetchInstructorReports();
     }
   }, [user])
 
@@ -36,6 +38,14 @@ export default function Admin() {
       if (response) setReportData(response);
     }).catch(err => {
       log.warn("ADMIN:: Fetch Reports error ", err);
+    })
+  }
+
+  const fetchInstructorReports = () => {
+    Reporting.getInstructors().then(response => {
+      if (response) setInstructorReports(response);
+    }).catch(err => {
+      log.warn("ADMIN:: Fetch Instructor Reports error ", err);
     })
   }
 
@@ -48,6 +58,7 @@ export default function Admin() {
 
   const columnTitles = ['Week', 'New Users', 'New Instructors', 'New Admins', 'Total Booked', 'Total Refunded',
     'Total Attended', 'Total Revenue', 'Unique Booked', 'Unique Refunded', 'Unique Attended'];
+
   const fieldNames = ['week', 'tBooked', 'tRefunded', 'tAttended', 'tRevenue', 'uBooked', 
     'uRefunded', 'uAttended', 'newUsers', 'newInstructors', 'newAdmins'];
 
@@ -61,11 +72,45 @@ export default function Admin() {
       })
     )
   }
+
+  function createInstructorData(week, year, instructor, pReturn, tNoShow, uAttended, aAttended, tAttended,
+    tClasses, tExisting, tNewUser, uExisting, uNewUser, attendence, tEnrolled, eco) {
+
+    return { week: `${week} (${year})`, instructor, pReturn, tNoShow, uAttended, aAttended, tAttended,
+      tClasses, tExisting, tNewUser, uExisting, uNewUser, attendence, tEnrolled, eco };
+  }
+
+  const iColumnTitles = ['Week', 'Instructor', 'Percentage Returned', 'Total No Shows',
+    'Unique Attended', 'Average Attended', 'Total Attended', 'Total Classes', 'Total Existing User',
+    'Total New Users', 'Unique Existing Users', 'Unique New Users', 'Attendence Rate',
+    'Total Enrolled', 'Ecosystem Rate'];
+
+  const iFieldNames = ['week', 'instructor', 'pReturn', 'tNoShow', 'uAttended', 'aAttended', 'tAttended',
+    'tClasses', 'tExisting', 'tNewUser', 'uExisting', 'uNewUser', 'attendence', 'tEnrolled', 'eco'];
+
+  let instructorRows = [];
+  if (instructorReports) {
+    instructorRows = instructorReports.map(report => {
+      return createInstructorData(report.week, report.year, report.instructor.username,
+        report.percentageReturned, report.totalNoShows, report.uniqueAttended, report.averageAttended,
+        report.totalAttended, report.totalClasses, report.totalExistingUser, report.totalNewUser,
+        report.uniqueExistingUser, report.uniqueNewUser, report.attendenceRate,
+        report.totalEnrolled, report.ecoSystemRate);
+    })
+  }
   
   let content;
   content = (
     <Container className={classes.container}>
-      <TableComponent rows={rows} columnTitles={columnTitles} fieldNames={fieldNames} />
+      <Grid container>
+        <Typography variant='h3'>Overall</Typography>
+        <TableComponent rows={rows} columnTitles={columnTitles} fieldNames={fieldNames} />
+      </Grid>
+      <br />
+      <Grid container>
+        <Typography variant='h3'>Instructors</Typography>
+        <TableComponent rows={instructorRows} columnTitles={iColumnTitles} fieldNames={iFieldNames} />
+      </Grid>
     </Container>
   )
 

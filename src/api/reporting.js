@@ -16,3 +16,19 @@ export async function get() {
 
   return callAPI(url, options, true);
 }
+
+/**
+ * Fetch instructor reports from newest to oldest
+ */
+export async function getInstructors() {
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+
+  const u = url + '/instructor';
+
+  return callAPI(u, options, true);
+}
