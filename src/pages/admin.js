@@ -62,8 +62,8 @@ export default function Admin() {
     'New Admins', 'Total Booked', 'Total Refunded', 'Total Attended', 'Total Revenue', 
     'Unique Booked', 'Unique Refunded', 'Unique Attended'];
 
-  const fieldNames = ['week', 'startDate', 'endDate', 'tBooked', 'tRefunded', 'tAttended', 'tRevenue', 'uBooked', 
-    'uRefunded', 'uAttended', 'newUsers', 'newInstructors', 'newAdmins'];
+  const fieldNames = ['week', 'startDate', 'endDate', 'newUsers', 'newInstructors', 
+    'newAdmins', 'tBooked', 'tRefunded', 'tAttended', 'tRevenue', 'uBooked', 'uRefunded', 'uAttended'];
 
   let rows = [];
   if (reportData) {
