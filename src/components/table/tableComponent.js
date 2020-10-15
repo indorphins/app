@@ -11,8 +11,9 @@ const useStyles = makeStyles((theme) => ({
   container: {
     paddingBottom: theme.spacing(4)
   },
-  header: {
-
+  pagination: {
+    float: 'left',
+    minWidth: 650
   }
 }))
 
@@ -53,7 +54,7 @@ export default function TableComponent(props) {
               return <TableCell align="right">{row[field]}</TableCell>
             }
           } else {
-            return <TableCell align="right">N/A</TableCell>
+            return <TableCell align="right">0</TableCell>
           }
         })
         return (
@@ -72,9 +73,9 @@ export default function TableComponent(props) {
       columnTitles.map(title => {
         if (i === 0) {
           i++;
-          return <TableCell><Typography variant='h5'>{title}</Typography></TableCell>
+          return <TableCell><Typography variant='body2'>{title}</Typography></TableCell>
         } else {
-          return <TableCell align="right"><Typography variant='h5'>{title}</Typography></TableCell>
+          return <TableCell align="right"><Typography variant='body2'>{title}</Typography></TableCell>
         }
       })
     )
@@ -101,9 +102,9 @@ export default function TableComponent(props) {
             <TablePagination
               rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
               count={rows.length}
-              colSpan={6}
               rowsPerPage={rowsPerPage}
               page={page}
+              colSpan={5}
               SelectProps={{
                 inputProps: { 'aria-label': 'rows per page' },
                 native: true,

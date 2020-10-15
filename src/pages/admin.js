@@ -16,7 +16,9 @@ const useStyles = makeStyles((theme) => ({
     minWidth: 650,
   },
   container: {
-    paddingBottom: theme.spacing(4)
+    paddingBottom: theme.spacing(4),
+    paddingRight: 0,
+    paddingLeft: 0
   }
 }))
 
@@ -50,43 +52,52 @@ export default function Admin() {
   }
 
   function createAdminData(week, year, newUsers, newInstructors, newAdmins,
-     tBooked, tRefunded, tAttended, tRevenue, uBooked, uRefunded, uAttended) {
+     tBooked, tRefunded, tAttended, tRevenue, uBooked, uRefunded, uAttended, startDate, endDate) {
     
     return { week: `${week} (${year})`, newUsers, newInstructors, newAdmins,
-      tBooked, tRefunded, tAttended, tRevenue, uBooked, uRefunded, uAttended };
+      tBooked, tRefunded, tAttended, tRevenue, uBooked, uRefunded, uAttended, startDate, endDate };
   }
 
-  const columnTitles = ['Week', 'New Users', 'New Instructors', 'New Admins', 'Total Booked', 'Total Refunded',
-    'Total Attended', 'Total Revenue', 'Unique Booked', 'Unique Refunded', 'Unique Attended'];
+  const columnTitles = ['Week', 'Starting Date', 'Ending Date', 'New Users', 'New Instructors',
+    'New Admins', 'Total Booked', 'Total Refunded', 'Total Attended', 'Total Revenue', 
+    'Unique Booked', 'Unique Refunded', 'Unique Attended'];
 
-  const fieldNames = ['week', 'tBooked', 'tRefunded', 'tAttended', 'tRevenue', 'uBooked', 
+  const fieldNames = ['week', 'startDate', 'endDate', 'tBooked', 'tRefunded', 'tAttended', 'tRevenue', 'uBooked', 
     'uRefunded', 'uAttended', 'newUsers', 'newInstructors', 'newAdmins'];
 
   let rows = [];
   if (reportData) {
     rows = (
       reportData.map(report => {
+        if (report.startDate) {
+          const date = new Date(report.startDate)
+          report.startDate = (date.getMonth()+1) + '-'+date.getDate()+'-'+date.getFullYear()
+        } if (report.endDate) {
+          const date = new Date(report.endDate)
+          report.endDate = (date.getMonth()+1) + '-'+date.getDate()+'-'+date.getFullYear()
+        }
         return createAdminData(report.week, report.year, report.newUsers, report.newInstructors, 
           report.newAdmins, report.totalBooked, report.totalRefunded, report.totalAttended, report.totalRevenue,
-          report.uniqueBooked, report.uniqueRefunded, report.uniqueAttended);
+          report.uniqueBooked, report.uniqueRefunded, report.uniqueAttended, report.startDate, report.endDate);
       })
     )
   }
 
   function createInstructorData(week, year, instructor, pReturn, tNoShow, uAttended, aAttended, tAttended,
-    tClasses, tExisting, tNewUser, uExisting, uNewUser, attendence, tEnrolled, eco) {
+    tClasses, tExisting, tNewUser, uExisting, uNewUser, attendence, tEnrolled, eco, startDate, endDate) {
 
     return { week: `${week} (${year})`, instructor, pReturn, tNoShow, uAttended, aAttended, tAttended,
-      tClasses, tExisting, tNewUser, uExisting, uNewUser, attendence, tEnrolled, eco };
+      tClasses, tExisting, tNewUser, uExisting, uNewUser, attendence, tEnrolled, eco, startDate, endDate };
   }
 
-  const iColumnTitles = ['Week', 'Instructor', 'Percentage Returned', 'Total No Shows',
+  const iColumnTitles = ['Week', 'Starting Date', 'Ending Date', 'Instructor', 'Percentage Returned', 'Total No Shows',
     'Unique Attended', 'Average Attended', 'Total Attended', 'Total Classes', 'Total Existing User',
     'Total New Users', 'Unique Existing Users', 'Unique New Users', 'Attendence Rate',
     'Total Enrolled', 'Ecosystem Rate'];
 
-  const iFieldNames = ['week', 'instructor', 'pReturn', 'tNoShow', 'uAttended', 'aAttended', 'tAttended',
-    'tClasses', 'tExisting', 'tNewUser', 'uExisting', 'uNewUser', 'attendence', 'tEnrolled', 'eco'];
+  const iFieldNames = ['week', 'startDate', 'endDate', 'instructor', 'pReturn',
+    'tNoShow', 'uAttended', 'aAttended', 'tAttended', 'tClasses', 'tExisting', 
+    'tNewUser', 'uExisting', 'uNewUser', 'attendence', 'tEnrolled', 'eco'];
 
   let instructorRows = [];
   if (instructorReports) {
@@ -96,11 +107,18 @@ export default function Admin() {
           username : 'N/A'
         }
       }
+      if (report.startDate) {
+        const date = new Date(report.startDate)
+        report.startDate = (date.getMonth()+1) + '-'+date.getDate()+'-'+date.getFullYear();
+      } if (report.endDate) {
+        const date = new Date(report.endDate)
+        report.endDate = (date.getMonth()+1) + '-'+date.getDate()+'-'+date.getFullYear()
+      }
       return createInstructorData(report.week, report.year, report.instructor.username,
         report.percentageReturned, report.totalNoShows, report.uniqueAttended, report.averageAttended,
         report.totalAttended, report.totalClasses, report.totalExistingUser, report.totalNewUser,
         report.uniqueExistingUser, report.uniqueNewUser, report.attendenceRate,
-        report.totalEnrolled, report.ecoSystemRate);
+        report.totalEnrolled, report.ecoSystemRate, report.startDate, report.endDate);
     })
   }
   
