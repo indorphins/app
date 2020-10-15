@@ -91,6 +91,11 @@ export default function Admin() {
   let instructorRows = [];
   if (instructorReports) {
     instructorRows = instructorReports.map(report => {
+      if (!report.instructor) {
+        report.instructor = {
+          username : 'N/A'
+        }
+      }
       return createInstructorData(report.week, report.year, report.instructor.username,
         report.percentageReturned, report.totalNoShows, report.uniqueAttended, report.averageAttended,
         report.totalAttended, report.totalClasses, report.totalExistingUser, report.totalNewUser,
