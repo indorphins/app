@@ -2,6 +2,8 @@ import React, {useState, useEffect} from 'react';
 import { useRouteMatch, useHistory } from 'react-router-dom';
 import { Tab, Tabs } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { createSelector } from 'reselect';
+import { useSelector } from 'react-redux';
 
 import path from '../../routes/path';
 
@@ -28,14 +30,20 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const getUserSelector = createSelector([state => state.user.data], (user) => {
+  return user;
+});
+
 export default function(props) {
 
   const [tab, setTab] = useState(0);
   const classes = useStyles();
   const history = useHistory();
   const instructors = useRouteMatch(path.instructors);
+  const user = useSelector(state => getUserSelector(state));
   let home = useRouteMatch({ path: path.home, strict: true});
-  let milestone = useRouteMatch(path.milestone)
+  let milestone = useRouteMatch(path.milestone);
+  let admin = useRouteMatch(path.admin);
 
 
   useEffect(() => {
@@ -45,6 +53,8 @@ export default function(props) {
       setTab(3);
     } else if (instructors && instructors.isExact) {
       setTab(2);
+    } else if (admin && admin.isExact && user && user.type === 'admin') {
+      setTab(4)
     } else {
       setTab(0);
     }
@@ -62,7 +72,23 @@ export default function(props) {
     history.push(path.instructors);
   }
 
-  let scheduleTab = null;
+  async function navAdmin() {
+    history.push(path.admin);
+  }
+
+  let adminTab = null;
+
+  if (user && user.type === 'admin') {
+    adminTab = (
+      <Tab
+        value={4}
+        label="Admin"
+        onClick={navAdmin}
+        className={classes.tab}
+        classes={{selected: classes.color}}
+      />
+    )
+  }
 
   return (
     <Tabs
@@ -93,7 +119,7 @@ export default function(props) {
         className={classes.tab}
         classes={{selected: classes.color}}
       />
-      {scheduleTab}
+      {adminTab}
     </Tabs>
   )
 }

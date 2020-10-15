@@ -80,6 +80,9 @@ export default function Routes() {
         <Route exact path={path.milestone}>
           <AsyncPage page="milestone" />
         </Route>
+        <Route exact path={path.admin}>
+          <AsyncPage page='admin' />
+        </Route>
         <Route path={path.home}>
           {errcontent}
           <ClassRouter />
