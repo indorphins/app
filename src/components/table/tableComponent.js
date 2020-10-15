@@ -97,13 +97,14 @@ export default function TableComponent(props) {
             </TableRow>
           )}
         </TableBody>
-        <TableFooter > 
+        <TableFooter> 
           <TableRow>
             <TablePagination
               rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
               count={rows.length}
               rowsPerPage={rowsPerPage}
               page={page}
+              style={{'overflow': 'hidden'}}
               colSpan={5}
               SelectProps={{
                 inputProps: { 'aria-label': 'rows per page' },

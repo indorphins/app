@@ -11,7 +11,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     flexShrink: 0,
     marginLeft: theme.spacing(2.5),
-    minWidth: 400
+    minWidth: 350,
   },
 }));
 

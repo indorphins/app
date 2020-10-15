@@ -58,7 +58,7 @@ export default function Admin() {
       tBooked, tRefunded, tAttended, tRevenue, uBooked, uRefunded, uAttended, startDate, endDate };
   }
 
-  const columnTitles = ['Week', 'Starting Date', 'Ending Date', 'New Users', 'New Instructors',
+  const columnTitles = ['Week', 'Start Date', 'End Date', 'New Users', 'New Instructors',
     'New Admins', 'Total Booked', 'Total Refunded', 'Total Attended', 'Total Revenue', 
     'Unique Booked', 'Unique Refunded', 'Unique Attended'];
 
@@ -71,10 +71,10 @@ export default function Admin() {
       reportData.map(report => {
         if (report.startDate) {
           const date = new Date(report.startDate)
-          report.startDate = (date.getMonth()+1) + '-'+date.getDate()+'-'+date.getFullYear()
+          report.startDate = (date.getMonth()+1) + '/' + date.getDate();
         } if (report.endDate) {
           const date = new Date(report.endDate)
-          report.endDate = (date.getMonth()+1) + '-'+date.getDate()+'-'+date.getFullYear()
+          report.endDate = (date.getMonth()+1) + '/' + date.getDate();
         }
         return createAdminData(report.week, report.year, report.newUsers, report.newInstructors, 
           report.newAdmins, report.totalBooked, report.totalRefunded, report.totalAttended, report.totalRevenue,
@@ -90,7 +90,7 @@ export default function Admin() {
       tClasses, tExisting, tNewUser, uExisting, uNewUser, attendence, tEnrolled, eco, startDate, endDate };
   }
 
-  const iColumnTitles = ['Week', 'Starting Date', 'Ending Date', 'Instructor', 'Percentage Returned', 'Total No Shows',
+  const iColumnTitles = ['Week', 'Start Date', 'End Date', 'Instructor', 'Percentage Returned', 'Total No Shows',
     'Unique Attended', 'Average Attended', 'Total Attended', 'Total Classes', 'Total Existing User',
     'Total New Users', 'Unique Existing Users', 'Unique New Users', 'Attendence Rate',
     'Total Enrolled', 'Ecosystem Rate'];
@@ -109,10 +109,10 @@ export default function Admin() {
       }
       if (report.startDate) {
         const date = new Date(report.startDate)
-        report.startDate = (date.getMonth()+1) + '-'+date.getDate()+'-'+date.getFullYear();
+        report.startDate = (date.getMonth()+1) + '/' + date.getDate();
       } if (report.endDate) {
         const date = new Date(report.endDate)
-        report.endDate = (date.getMonth()+1) + '-'+date.getDate()+'-'+date.getFullYear()
+        report.endDate = (date.getMonth()+1) + '/' + date.getDate();
       }
       return createInstructorData(report.week, report.year, report.instructor.username,
         report.percentageReturned, report.totalNoShows, report.uniqueAttended, report.averageAttended,
