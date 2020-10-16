@@ -84,20 +84,23 @@ export default function Admin() {
   }
 
   function createInstructorData(week, year, instructor, pReturn, tNoShow, uAttended, aAttended, tAttended,
-    tClasses, tExisting, tNewUser, uExisting, uNewUser, attendence, tEnrolled, eco, startDate, endDate) {
+    tClasses, tExisting, tNewUser, uExisting, uNewUser, attendence, tEnrolled,
+    eco, startDate, endDate, avgClass, avgInstructor, avgVideo) {
 
     return { week: `${week} (${year})`, instructor, pReturn, tNoShow, uAttended, aAttended, tAttended,
-      tClasses, tExisting, tNewUser, uExisting, uNewUser, attendence, tEnrolled, eco, startDate, endDate };
+      tClasses, tExisting, tNewUser, uExisting, uNewUser, attendence, tEnrolled, eco,
+      startDate, endDate, avgClass, avgInstructor, avgVideo };
   }
 
   const iColumnTitles = ['Week', 'Start Date', 'End Date', 'Instructor', 'Percentage Returned', 'Total No Shows',
     'Unique Attended', 'Average Attended', 'Total Attended', 'Total Classes', 'Total Existing User',
     'Total New Users', 'Unique Existing Users', 'Unique New Users', 'Attendence Rate',
-    'Total Enrolled', 'Ecosystem Rate'];
+    'Total Enrolled', 'Ecosystem Rate', 'Avg Class Rating', 'Avg Instructor Rating', 'Avg Video Rating'];
 
   const iFieldNames = ['week', 'startDate', 'endDate', 'instructor', 'pReturn',
     'tNoShow', 'uAttended', 'aAttended', 'tAttended', 'tClasses', 'tExisting', 
-    'tNewUser', 'uExisting', 'uNewUser', 'attendence', 'tEnrolled', 'eco'];
+    'tNewUser', 'uExisting', 'uNewUser', 'attendence', 'tEnrolled', 'eco', 
+    'avgClass', 'avgInstructor', 'avgVideo'];
 
   let instructorRows = [];
   if (instructorReports) {
@@ -118,7 +121,8 @@ export default function Admin() {
         report.percentageReturned, report.totalNoShows, report.uniqueAttended, report.averageAttended,
         report.totalAttended, report.totalClasses, report.totalExistingUser, report.totalNewUser,
         report.uniqueExistingUser, report.uniqueNewUser, report.attendenceRate,
-        report.totalEnrolled, report.ecoSystemRate, report.startDate, report.endDate);
+        report.totalEnrolled, report.ecoSystemRate, report.startDate, report.endDate,
+        report.averageClassRating, report.averageInstructorRating, report.averageVideoRating);
     })
   }
   
