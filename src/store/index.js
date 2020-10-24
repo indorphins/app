@@ -46,6 +46,37 @@ const userSlice = createSlice({
   }
 });
 
+const campaignSlice = createSlice({
+  name: "campaign",
+  initialState: {
+    campaignId: null,
+    discountRate: 0,
+    discountAmount: 0,
+    referrerDiscountRate: 0,
+    referrerDiscountAmount: 0,
+    description: null,
+  },
+  reducers: {
+    set(state, action) {
+      log.debug("STORE:: set campaign", action.payload);
+      state = Object.assign({}, state, action.payload);
+      return state;
+    },
+    clear(state) {
+      log.debug("STORE:: set campaign");
+      state = {
+        campaignId: null,
+        discountRate: 0,
+        discountAmount: 0,
+        referrerDiscountRate: 0,
+        referrerDiscountAmount: 0,
+        description: null,
+      };
+      return state;
+    }
+  }
+})
+
 const milestoneSlice = createSlice({
   name: "milestone",
   initialState: {
@@ -173,6 +204,7 @@ const rootReducer = combineReducers({
   course: courseSlice.reducer,
   courseFeature: courseFeatureSlice.reducer,
   milestone: milestoneSlice.reducer,
+  campaign: campaignSlice.reducer,
 });
 
 export const actions = {
@@ -182,7 +214,8 @@ export const actions = {
   instructor: instructorSlice.actions,
   course: courseSlice.actions,
   courseFeature: courseFeatureSlice.actions,
-  milestone: milestoneSlice.actions
+  milestone: milestoneSlice.actions,
+  campaign: campaignSlice.actions,
 };
 
 export const store = configureStore({
