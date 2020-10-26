@@ -83,3 +83,19 @@ export async function update(userData) {
 
   return callAPI(url, options, true);
 }
+
+/**
+ * Creates a refer a friend campaign for the logged in user
+ */
+export async function referFriend() {
+  let options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  };
+
+  const u = url + '/referFriend';
+
+  return callAPI(u, options, true);
+}
