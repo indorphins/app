@@ -33,8 +33,9 @@ export default function ReferBonus() {
 
   return (
     <Container className={classes.root}>
-      <Grid container direction="row" justify="center">
-        <Grid item xs={layout.descWidth}
+      <Grid container direction="column" justify="center" alignContent="center" spacing={8}>
+        <Grid item
+          xs={layout.descWidth}
           container
           spacing={2}
           direction="column"
@@ -55,7 +56,21 @@ export default function ReferBonus() {
             </Typography>
           </Grid>
         </Grid>
+        <Grid item
+          xs={layout.descWidth}
+          container
+          spacing={2}
+          direction="column"
+          justify="center"
+          alignItems="center"
+          alignContent="center"
+        >
+          <Grid item>
+            <Typography variant="h4">Share Your Link</Typography>
+          </Grid>
+        </Grid>
       </Grid>
+
     </Container>
   )
 }
