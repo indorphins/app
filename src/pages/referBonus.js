@@ -21,8 +21,12 @@ const useStyles = makeStyles((theme) => ({
   },
   link: {
     border: "1px solid",
-    borderColor: theme.palette.common.black,
-    background: theme.palette.common.white,
+    borderColor: theme.palette.primary.main,
+    background: theme.palette.primary.contrastText,
+  },
+  linkText: {
+    paddingLeft: theme.spacing(3),
+    paddingRight: theme.spacing(3),
   }
 }));
 
@@ -117,7 +121,7 @@ export default function ReferBonus() {
           </Grid>
           <Grid item container direction="row" alignItems="center" justify="center" spacing={2}>
             <Grid item className={classes.link}>
-              <Typography variant="body1">{linkUrl}</Typography>
+              <Typography variant="body1" className={classes.linkText}>{linkUrl}</Typography>
             </Grid>
             <Grid item>
               <Button onClick={copy} startIcon={<FileCopyOutlined />}>Copy Link</Button>
