@@ -95,7 +95,7 @@ export async function referFriend() {
     },
   };
 
-  const u = url + '/referFriend';
+  const u = url + 'referFriend';
 
   return callAPI(u, options, true);
 }
