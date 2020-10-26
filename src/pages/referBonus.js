@@ -83,18 +83,17 @@ export default function ReferBonus() {
   }
 
   async function getReferLink() {
-    let id;
-
+    let campaign;
 
     //TODO: wait for user data before calling this and check for an existing link before making a new one
 
     try {
-      id = await User.referFriend();
+      campaign = await User.referFriend();
     } catch(err) {
       return log.error("generate referrer link", err);
     }
 
-    if (id) setReffererId(id);
+    if (campaign) setReffererId(campaign.id);
   }
 
   let linkUrl = window.location.origin + "?cid=" + referrerId;
