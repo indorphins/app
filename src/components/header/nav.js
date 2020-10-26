@@ -34,6 +34,10 @@ const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
 });
 
+const getSessions = createSelector([state => state.milestone.sessions], (sessions) => {
+  return sessions.length;
+});
+
 export default function(props) {
 
   const [tab, setTab] = useState(0);
@@ -41,24 +45,28 @@ export default function(props) {
   const history = useHistory();
   const instructors = useRouteMatch(path.instructors);
   const user = useSelector(state => getUserSelector(state));
+  const sessions = useSelector(state => getSessions(state));
   let home = useRouteMatch({ path: path.home, strict: true});
   let milestone = useRouteMatch(path.milestone);
   let admin = useRouteMatch(path.admin);
+  let refer = useRouteMatch(path.referFriend);
 
 
   useEffect(() => {
     if (home && home.isExact) {
-      setTab(1);
+      setTab("Classes");
     } else if (milestone) {
-      setTab(3);
+      setTab("Milestones");
     } else if (instructors && instructors.isExact) {
-      setTab(2);
+      setTab("Instructors");
     } else if (admin && admin.isExact && user && user.type === 'admin') {
-      setTab(4)
+      setTab("Admin")
+    } else if (refer && sessions > 0) {
+      setTab("Refer")
     } else {
       setTab(0);
     }
-  }, [home]);
+  }, [home, milestone, admin, refer, sessions]);
 
   async function navHome() {
     history.push(path.home);
@@ -76,14 +84,32 @@ export default function(props) {
     history.push(path.admin);
   }
 
+  async function navRefer() {
+    history.push(path.referFriend);
+  }
+
   let adminTab = null;
 
   if (user && user.type === 'admin') {
     adminTab = (
       <Tab
-        value={4}
+        value="Admin"
         label="Admin"
         onClick={navAdmin}
+        className={classes.tab}
+        classes={{selected: classes.color}}
+      />
+    )
+  }
+
+  let referFriend = null;
+
+  if (sessions > 0) {
+    referFriend = (
+      <Tab
+        value="Refer"
+        label="Refer &amp; Earn"
+        onClick={navRefer}
         className={classes.tab}
         classes={{selected: classes.color}}
       />
@@ -99,27 +125,28 @@ export default function(props) {
     >
       <Tab value={0} className={classes.hidden} classes={{selected: classes.color}} />
       <Tab
-        value={1}
+        value="Classes"
         label="Classes"
         onClick={navHome}
         className={classes.tab}
         classes={{selected: classes.color}}
       />
       <Tab
-        value={2}
+        value="Instructors"
         label="Instructors"
         onClick={navInstructors}
         className={classes.tab}
         classes={{selected: classes.color}}
       />
       <Tab
-        value={3}
+        value="Milestones"
         label="Milestones"
         onClick={navMilestones}
         className={classes.tab}
         classes={{selected: classes.color}}
       />
       {adminTab}
+      {referFriend}
     </Tabs>
   )
 }
