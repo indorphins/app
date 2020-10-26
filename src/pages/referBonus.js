@@ -68,6 +68,7 @@ export default function ReferBonus() {
   }, [sessions])
 
   useEffect(() => {
+    document.title="Refer & Earn";
     setReffererId("asdf");
   }, []);
 
