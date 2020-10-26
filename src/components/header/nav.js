@@ -61,12 +61,12 @@ export default function(props) {
       setTab("Instructors");
     } else if (admin && admin.isExact && user && user.type === 'admin') {
       setTab("Admin")
-    } else if (refer) {
+    } else if (refer && sessions > 0) {
       setTab("Refer")
     } else {
       setTab(0);
     }
-  }, [home, milestone, admin, refer]);
+  }, [home, milestone, admin, refer, sessions]);
 
   async function navHome() {
     history.push(path.home);
