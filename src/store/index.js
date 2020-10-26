@@ -48,14 +48,7 @@ const userSlice = createSlice({
 
 const campaignSlice = createSlice({
   name: "campaign",
-  initialState: {
-    campaignId: null,
-    discountRate: 0,
-    discountAmount: 0,
-    referrerDiscountRate: 0,
-    referrerDiscountAmount: 0,
-    description: null,
-  },
+  initialState: {},
   reducers: {
     set(state, action) {
       log.debug("STORE:: set campaign", action.payload);
@@ -64,14 +57,7 @@ const campaignSlice = createSlice({
     },
     clear(state) {
       log.debug("STORE:: set campaign");
-      state = {
-        campaignId: null,
-        discountRate: 0,
-        discountAmount: 0,
-        referrerDiscountRate: 0,
-        referrerDiscountAmount: 0,
-        description: null,
-      };
+      state = {};
       return state;
     }
   }
