@@ -13,6 +13,8 @@ import { createSelector } from 'reselect';
 import { useSelector } from 'react-redux';
 
 import path from '../routes/path';
+import log from '../log';
+import * as User from '../api/user';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -39,7 +41,7 @@ export default function ReferBonus() {
   const classes = useStyles();
   const history = useHistory();
   const sessions = useSelector(state => getSessions(state));
-  const [ referrerId, setReffererId ] = useState("blah");
+  const [ referrerId, setReffererId ] = useState("");
   const sml = useMediaQuery('(max-width:600px)');
   const med = useMediaQuery('(max-width:900px)');
 
@@ -68,10 +70,9 @@ export default function ReferBonus() {
   }, [sessions])
 
   useEffect(() => {
-    setReffererId("asdf");
+    document.title="Refer & Earn";
+    getReferLink();
   }, []);
-
-  let linkUrl = window.location.origin + "?cid=" + referrerId;
 
   function copy() {
     navigator.clipboard.writeText(linkUrl).then(function() {
@@ -81,6 +82,21 @@ export default function ReferBonus() {
     });
   }
 
+  async function getReferLink() {
+    let campaign;
+
+    //TODO: wait for user data before calling this and check for an existing link before making a new one
+
+    try {
+      campaign = await User.referFriend();
+    } catch(err) {
+      return log.error("generate referrer link", err);
+    }
+
+    if (campaign) setReffererId(campaign.id);
+  }
+
+  let linkUrl = window.location.origin + "?cid=" + referrerId;
 
   return (
     <Container className={classes.root}>
