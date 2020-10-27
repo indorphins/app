@@ -50,14 +50,19 @@ export default function Discount() {
       let amount;
 
       if (campaign.discountAmount) {
-        amount = campaign.discountAmount / 100;
-        text = text + `Book a class now for $${amount} off your next`;
+        amount = "$" + (campaign.discountAmount / 100);
+      }
 
-        if (campaign.discountMultiplier > 1) {
-          text = text + ` ${campaign.discountMultiplier} classes`
-        } else {
-          text = text + " class";
-        }
+      if (campaign.discountRate) {
+        amount = (campaign.discountRate * 100) + "%";
+      }
+
+      text = text + `Book a class now for ${amount} off your next`;
+
+      if (campaign.discountMultiplier > 1) {
+        text = text + ` ${campaign.discountMultiplier} classes`
+      } else {
+        text = text + " class";
       }
 
       setContent(
