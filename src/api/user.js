@@ -89,13 +89,13 @@ export async function update(userData) {
  */
 export async function referFriend() {
   let options = {
-    method: 'POST',
+    method: 'GET',
     headers: {
       'Content-Type': 'application/json',
     },
   };
 
-  const u = url + '/referFriend';
+  const u = url + 'referFriend';
 
   return callAPI(u, options, true);
 }
