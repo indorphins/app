@@ -65,23 +65,6 @@ export default function Discount() {
         return content;
       }
 
-      let text;
-      let amount;
-
-      if (campaign.discountAmount) {
-        amount = "$" + (campaign.discountAmount / 100);
-      }
-
-      if (campaign.discountRate) {
-        amount = (campaign.discountRate * 100) + "%";
-      }
-
-      text = `Book a class now for ${amount} off`;
-
-      if (campaign.discountMultiplier > 1) {
-        text = text + ` your next ${campaign.discountMultiplier} classes`
-      }
-
       setContent(
         <Grid style={{position: "relative"}}>
           <Container className={classes.root}>
@@ -99,7 +82,7 @@ export default function Discount() {
               </Grid>
               <Grid item className={classes.description}>
                 <Typography variant="h4" className={classes.text}>
-                  {text}
+                  {campaign.description}
                 </Typography>
               </Grid>
             </Grid>
