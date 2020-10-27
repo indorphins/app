@@ -89,7 +89,7 @@ export async function update(userData) {
  */
 export async function referFriend() {
   let options = {
-    method: 'POST',
+    method: 'GET',
     headers: {
       'Content-Type': 'application/json',
     },
