@@ -14,6 +14,11 @@ const userSlice = createSlice({
       state.data = Object.assign({}, state.data, action.payload);
       return state;
     },
+    setReferFriend(state, action) {
+      log.debug("STORE:: set user refer friend id", action.payload);
+      state.data = Object.assign({}, state.data, action.payload);
+      return state;
+    },
     setPaymentData(state, action) {
       log.debug("STORE:: set user payment data", action.payload);
       state.paymentData = Object.assign(state.paymentData, action.payload);

@@ -15,6 +15,7 @@ import { useSelector } from 'react-redux';
 import path from '../routes/path';
 import log from '../log';
 import * as User from '../api/user';
+import { store, actions } from '../store';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -32,14 +33,18 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
+const getUserSelector = createSelector([state => state.user.data], (user) => {
+  return user.referrerId;
+});
+
 const getSessions = createSelector([state => state.milestone.sessions], (sessions) => {
   return sessions.length;
 });
 
-
 export default function ReferBonus() {
   const classes = useStyles();
   const history = useHistory();
+  const user = useSelector(state => getUserSelector(state));
   const sessions = useSelector(state => getSessions(state));
   const [ referrerId, setReffererId ] = useState("");
   const sml = useMediaQuery('(max-width:600px)');
@@ -64,15 +69,22 @@ export default function ReferBonus() {
   }
 
   useEffect(() => {
+    document.title="Refer & Earn";
+  }, []);
+
+  useEffect(() => {
     if (!sessions || sessions <= 0) {
       history.push(path.courses);
     }
-  }, [sessions])
+  }, [sessions]);
 
   useEffect(() => {
-    document.title="Refer & Earn";
-    getReferLink();
-  }, []);
+    if (user) {
+      setReffererId(user);
+    } else {
+      getReferLink();
+    }
+  }, [user]);
 
   function copy() {
     navigator.clipboard.writeText(linkUrl).then(function() {
@@ -93,7 +105,12 @@ export default function ReferBonus() {
       return log.error("generate referrer link", err);
     }
 
-    if (campaign) setReffererId(campaign.id);
+    log.debug("got campaign result", campaign)
+
+    if (campaign) {
+      //setReffererId(campaign.id);
+      store.dispatch(actions.user.setReferFriend({referrerId: campaign.id}))
+    }
   }
 
   let linkUrl = window.location.origin + "?cid=" + referrerId;
