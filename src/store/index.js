@@ -77,7 +77,7 @@ const milestoneSlice = createSlice({
   reducers: {
     setSessions(state, action) {
       log.debug("STORE:: set user sessions", action.payload);
-      state.sessions = state.sessions.concat(action.payload);
+      state.sessions = [].concat(action.payload);
       return state;
     },
     addSession(state, action) {
