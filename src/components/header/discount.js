@@ -10,11 +10,22 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(1),
   },
   description: {
-    '@media (max-width: 900px)': {
-      
-    },
     '@media (max-width: 600px)': {
       maxWidth: "70%",
+    },
+  },
+  text: {
+    '@media (max-width: 900px)': {
+      fontSize: '1.1rem',
+    },
+    '@media (max-width: 600px)': {
+      fontSize: '1rem',
+    }
+  },
+  container: {
+    justifyContent: "center",
+    '@media (max-width: 600px)': {
+      justifyContent: "flex-start",
     },
   },
   close: {
@@ -74,12 +85,20 @@ export default function Discount() {
       setContent(
         <Grid style={{position: "relative"}}>
           <Container className={classes.root}>
-            <Grid container direction="row" justify="center" alignContent="center" alignItems="center" spacing={2}>
+            <Grid
+              container
+              direction="row"
+              justify="center"
+              alignContent="center"
+              alignItems="center"
+              spacing={2}
+              className={classes.container}
+            >
               <Grid item>
                 <img alt="present" src="/img/presentArt.png" style={{maxHeight: 32}} />
               </Grid>
               <Grid item className={classes.description}>
-                <Typography variant="h4">
+                <Typography variant="h4" className={classes.text}>
                   {text}
                 </Typography>
               </Grid>
