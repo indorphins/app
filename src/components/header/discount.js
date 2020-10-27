@@ -9,6 +9,14 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: theme.spacing(1),
     paddingBottom: theme.spacing(1),
   },
+  description: {
+    '@media (max-width: 900px)': {
+      
+    },
+    '@media (max-width: 600px)': {
+      maxWidth: "70%",
+    },
+  },
   close: {
     position: "absolute",
     top: 2,
@@ -41,12 +49,12 @@ export default function Discount() {
   }
 
   useEffect(() => {
-    if (campaign.id && (campaign.discountAmount || campaign.discountRate)) {
+    if (campaign && (campaign.discountAmount || campaign.discountRate)) {
       if (campaign.newUser && (sessions <= 0 && user)) {
         return content;
       }
 
-      let text = "";
+      let text;
       let amount;
 
       if (campaign.discountAmount) {
@@ -57,12 +65,10 @@ export default function Discount() {
         amount = (campaign.discountRate * 100) + "%";
       }
 
-      text = text + `Book a class now for ${amount} off your next`;
+      text = `Book a class now for ${amount} off`;
 
       if (campaign.discountMultiplier > 1) {
-        text = text + ` ${campaign.discountMultiplier} classes`
-      } else {
-        text = text + " class";
+        text = text + ` your next ${campaign.discountMultiplier} classes`
       }
 
       setContent(
@@ -72,7 +78,7 @@ export default function Discount() {
               <Grid item>
                 <img alt="present" src="/img/presentArt.png" style={{maxHeight: 32}} />
               </Grid>
-              <Grid item>
+              <Grid item className={classes.description}>
                 <Typography variant="h4">
                   {text}
                 </Typography>
