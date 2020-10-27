@@ -11,6 +11,9 @@ import log from '../log';
 import {Alert} from '@material-ui/lab';
 import { Container, Grid } from '@material-ui/core';
 
+import * as CampaignAPI from '../api/campaign';
+import { store, actions } from '../store';
+
 const AsyncPage = loadable(props => import(`../pages/${props.page}`), {
   cacheKey: props => props.page,
 })
@@ -24,6 +27,7 @@ export default function Routes() {
   let location = useLocation();
   const [ query, setQuery ] = useState(null);
   const [ err, setError] = useState(null);
+  const [ campaign, setCampaign] = useState(null);
 
   useEffect(() => {
     if (location) {
@@ -38,6 +42,29 @@ export default function Routes() {
       }
     }
   }, [location]);
+
+  useEffect(() => {
+    if (campaign && campaign.id) {
+      store.dispatch(actions.campaign.set(campaign));
+    }
+  }, [campaign])
+
+  useEffect(() => {
+    if (query && query.cid) {
+      getCampaign(query.cid);
+    }
+  }, [query]);
+
+  async function getCampaign(id) {
+    let c;
+    try {
+      c = await CampaignAPI.get(id);
+    } catch(err) {
+      log.warn("get campaign", err);
+    }
+
+    if (c) setCampaign(c);
+  }
 
   let errcontent;
 

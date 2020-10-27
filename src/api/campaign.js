@@ -14,5 +14,5 @@ export async function get(id) {
 
   const u = url + `/id/${id}`;
 
-  return callAPI(u, options, true);
+  return callAPI(u, options, false);
 }

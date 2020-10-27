@@ -1,31 +1,14 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import {
-  Container, 
-  Grid, 
-  Typography, 
-  Card, 
-  LinearProgress, 
-  useMediaQuery, 
-  makeStyles,
-} from '@material-ui/core';
+import { Container, Grid, Typography, Card, LinearProgress, useMediaQuery, makeStyles} from '@material-ui/core';
 import { Photo, RecordVoiceOver } from '@material-ui/icons';
 import Alert from '@material-ui/lab/Alert';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 
-
 import { 
-  AvailableSpots,
-  Cancel,
-  Cost, 
-  Duration, 
-  JoinSession,
-  Message,
-  OtherCourseInfo,
-  Signup,
-  StartTime, 
-  Participants 
+  AvailableSpots, Cancel, Cost, Duration, JoinSession, Message,
+  OtherCourseInfo, Signup, StartTime, Participants 
 } from '../../components/courseInfo/index';
 import { store, actions } from '../../store';
 import * as Course from '../../api/course';
@@ -49,19 +32,6 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     paddingBottom: theme.spacing(2),
-  },
-  cost: {
-    fontWeight: "bold",
-    display: "inline-block",
-    width: "100%",
-  },
-  spotsContainer: {
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2),
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-    cursor: "default",
-    backgroundColor: theme.palette.grey[200],
   },
   instructorContainer: {
     paddingLeft: theme.spacing(2),
@@ -125,6 +95,10 @@ const getUserSelector = createSelector([state => state.user], (user) => {
   return user.data;
 });
 
+const campaignSelector = createSelector([state => state.campaign], (c) => {
+  return c;
+});
+
 const paymentDataSelector = createSelector([state => state.user], (data) => {
   return data.paymentData;
 });
@@ -148,10 +122,13 @@ export default function CourseInfo() {
   const courseData = useSelector(state => courseDataSelector(state))
   const defaultPaymentMethod = useSelector(state => selectDefaultPaymentMethod(state));
   const paymentMethod = useRef(defaultPaymentMethod);
+  const campaign = useSelector(state => campaignSelector(state));
   const [course, setCourse] = useState('');
   const [needsPaymentMethod, setNeedsPaymentMethod] = useState(false);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [errMessage, setErrMessage] = useState(null);
+  const [discountPrice, setDiscountPrice] = useState(null);
+  //const [campaignId, setCampaignId] = useState(null);
 
   const sml = useMediaQuery('(max-width:600px)');
   const med = useMediaQuery('(max-width:900px)');
@@ -167,6 +144,34 @@ export default function CourseInfo() {
     }
 
   }, [courseData, params]);
+
+  useEffect(() => {
+    if (course) {
+      if (campaign) {
+        //setCampaignId(campaign.id);
+        let dc;
+        let cost = course.cost * 100;
+
+        if (campaign.discountAmount) {
+          dc = cost - campaign.discountAmount;
+        }
+
+        if (campaign.discountRate) {
+          dc = Math.floor(cost * campaign.discountRate);
+        }
+
+        if (dc < 100) {
+          dc = 0;
+        }
+
+        log.debug("DISCOUNT:: Set discount price", dc);
+        setDiscountPrice(dc/100);
+      } else {
+        setDiscountPrice(null);
+        //setCampaignId(null);
+      }
+    }
+  }, [campaign, course])
 
 
   useEffect(() => {
@@ -474,7 +479,7 @@ export default function CourseInfo() {
     <Grid container direction="column" spacing={2}>
       <Grid item container direction="row" justify="flex-end" spacing={2}>
         <Grid item xs={layout.costSize}>
-          <Cost course={course} classes={classes} />
+          <Cost course={course} classes={classes} discountPrice={discountPrice} />
         </Grid>
         <Grid item xs={layout.costSize}>
           <Duration course={course} classes={classes} />

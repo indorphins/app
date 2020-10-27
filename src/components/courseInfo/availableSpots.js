@@ -2,12 +2,30 @@ import React from 'react';
 import { 
   Grid, 
   Typography, 
-  Card, 
+  Card,
+  makeStyles,
 } from '@material-ui/core';
 import { GroupAdd } from '@material-ui/icons';
 
+const useStyles = makeStyles((theme) => ({
+  cost: {
+    fontWeight: "bold",
+    display: "inline-block",
+    width: "100%",
+  },
+  spotsContainer: {
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
+    paddingTop: theme.spacing(1),
+    paddingBottom: theme.spacing(1),
+    cursor: "default",
+    backgroundColor: theme.palette.grey[200],
+  },
+}));
+
 export default function AvailableSpots(props) {
-  const { course, classes } = props;
+  const classes = useStyles();
+  const { course } = props;
   let spotsContent = null;
 
   const takenSpots = course ? course.participants.length : 0;
