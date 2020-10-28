@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { AppBar, IconButton, Box, Grid, Typography, Container, useMediaQuery } from '@material-ui/core';
+import { AppBar, IconButton, Grid, Typography, Container, useMediaQuery } from '@material-ui/core';
 import { Brightness5Rounded, Brightness4Rounded } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
@@ -10,13 +10,11 @@ import { useHistory } from 'react-router-dom';
 import AppDrawer from './appDrawer';
 import UserAvatar from "./userAvatar";
 import Navigation from './nav';
+import Discount from './discount';
 import { store, actions } from '../../store';
 
 
 let useStyles = makeStyles((theme) => ({
-  root: {
-    height: "100%",
-  },
   logo: {
     display: 'inline',
     color: theme.palette.common.white,
@@ -184,11 +182,12 @@ export default function Header(props) {
   );
 
   return (
-    <Box className={classes.root}>
+    <Grid style={{height: "100%"}}>
+      <Discount />
       <AppBar position={layout.appBarPosition} className={classes.appbar}>
         {toolbar}
       </AppBar>
       {props.children}
-    </Box>
+    </Grid>
   );
 }

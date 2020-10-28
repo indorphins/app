@@ -1,5 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { Switch, Route, useLocation } from 'react-router-dom';
+import {Alert} from '@material-ui/lab';
+import { Container, Grid } from '@material-ui/core';
+import { useSelector } from 'react-redux';
+import { createSelector } from 'reselect';
 
 import path from './path';
 import Header from '../components/header/header';
@@ -8,8 +12,8 @@ import queryString from 'query-string';
 import Login from '../pages/login';
 import Signup from '../pages/signup';
 import log from '../log';
-import {Alert} from '@material-ui/lab';
-import { Container, Grid } from '@material-ui/core';
+import * as CampaignAPI from '../api/campaign';
+import { store, actions } from '../store';
 
 const AsyncPage = loadable(props => import(`../pages/${props.page}`), {
   cacheKey: props => props.page,
@@ -19,11 +23,22 @@ const ClassRouter = loadable(/* webpackChunkName: "course" */ () => import(`./co
   cacheKey: () => 'ClassRouter',
 });
 
+const getUserSelector = createSelector([state => state.user.data], (user) => {
+  return user;
+});
+
+const getSavedCampaigns = createSelector([state => state.user.data], (user) => {
+  return user.campaigns ? user.campaigns : [];
+});
+
 export default function Routes() {
 
   let location = useLocation();
   const [ query, setQuery ] = useState(null);
   const [ err, setError] = useState(null);
+  const [ campaign, setCampaign] = useState(null);
+  const user = useSelector(state => getUserSelector(state));
+  const savedCampaigns = useSelector(state => getSavedCampaigns(state));
 
   useEffect(() => {
     if (location) {
@@ -38,6 +53,105 @@ export default function Routes() {
       }
     }
   }, [location]);
+
+  useEffect(() => {
+    if (campaign && campaign.active) {
+
+      let exists = savedCampaigns.find(item => item.campaignId === campaign.id);
+
+      if (!exists) {
+        getCampaignData(campaign, user);
+      } else {
+        if (exists.remaining > 0) {
+          getCampaignData(campaign, user, exists.remaining);
+        } else {
+          setCampaign(null);
+          store.dispatch(actions.campaign.clear());
+        }
+      }
+
+    } else {
+
+      let saved = savedCampaigns.find(item => item.remaining > 0);
+
+      if (saved) {
+        getCampaign(saved.campaignId);
+      }
+    }
+  }, [campaign, savedCampaigns, user])
+
+  useEffect(() => {
+    if (query && query.cid) {
+      getCampaign(query.cid);
+    }
+  }, [query]);
+
+  async function getCampaign(id) {
+    let c;
+    try {
+      c = await CampaignAPI.get(id);
+    } catch(err) {
+      log.warn("get campaign", err);
+    }
+
+    if (c) setCampaign(c);
+  }
+
+  function getCampaignData(campaign, user, /*optional*/ remaining) {
+    let text;
+    let amount;
+    let discountRate;
+    let discountAmount;
+    let discountMultiplier;
+    let displayData;
+
+    if (user.id !== campaign.referrerId && (campaign.discountAmount || campaign.discountRate)) {
+      discountRate = campaign.discountRate;
+      discountAmount = campaign.discountAmount;
+      discountMultiplier = campaign.discountMultiplier;
+    }
+
+    if (user.id === campaign.referrerId && (campaign.referrerDiscountAmount || campaign.referrerDiscountRate)) {
+      discountRate = campaign.referrerDiscountRate;
+      discountAmount = campaign.referrerDiscountAmount;
+      discountMultiplier = campaign.referrerDiscountMultiplier;
+    }
+    
+    displayData = {
+      id: campaign.id,
+    }
+
+    if (discountRate) {
+      amount = (discountRate * 100) + "%";
+      displayData.discountRate = discountRate;
+    }
+
+    if (discountAmount) {
+      amount = "$" + (discountAmount / 100);
+      displayData.discountAmount = discountAmount;
+    }
+
+    if (amount) {
+
+      if (remaining) {
+        discountMultiplier = remaining;
+        text = `${amount} off`;
+      } else {
+        text = `Book a class now for ${amount} off`;
+      }
+
+      if (discountMultiplier > 1) {
+        text = `${text} your next ${discountMultiplier} classes`;
+      } else {
+        text = `${text} your next class`;
+      }
+
+      displayData.multiplier = discountMultiplier;
+      displayData.description = text;
+    }
+
+    store.dispatch(actions.campaign.set(displayData));
+  }
 
   let errcontent;
 
@@ -82,6 +196,9 @@ export default function Routes() {
         </Route>
         <Route exact path={path.admin}>
           <AsyncPage page='admin' />
+        </Route>
+        <Route exact path={path.referFriend}>
+          <AsyncPage page='referBonus' />
         </Route>
         <Route path={path.home}>
           {errcontent}
