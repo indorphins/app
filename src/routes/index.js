@@ -74,8 +74,8 @@ export default function Routes() {
 
       let saved = savedCampaigns.find(item => item.remaining > 0);
 
-      if (saved && saved[0]) {
-        getCampaign(saved[0].campaignId);
+      if (saved) {
+        getCampaign(saved.campaignId);
       }
     }
   }, [campaign, savedCampaigns, user])
@@ -122,12 +122,12 @@ export default function Routes() {
     }
 
     if (discountRate) {
-      amount = (campaign.discountRate * 100) + "%";
+      amount = (discountRate * 100) + "%";
       displayData.discountRate = discountRate;
     }
 
     if (discountAmount) {
-      amount = "$" + (campaign.discountAmount / 100);
+      amount = "$" + (discountAmount / 100);
       displayData.discountAmount = discountAmount;
     }
 
