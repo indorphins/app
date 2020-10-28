@@ -63,7 +63,9 @@ export default function Routes() {
         getCampaignData(campaign, user);
       } else {
         if (exists.remaining > 0) {
-          getCampaignData(campaign, user, exists.remaining)
+          getCampaignData(campaign, user, exists.remaining);
+        } else {
+          setCampaign(null);
         }
       }
 
