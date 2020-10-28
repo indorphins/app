@@ -61,6 +61,18 @@ export default function Routes() {
 
       if (!exists) {
         getCampaignData(campaign, user);
+      } else {
+        if (exists.remaining > 0) {
+          getCampaignData(campaign, user, exists.remaining)
+        }
+      }
+
+    } else {
+
+      let saved = savedCampaigns.find(item => item.remaining > 0);
+
+      if (saved && saved[0]) {
+        getCampaign(saved[0].campaignId);
       }
     }
   }, [campaign, savedCampaigns, user])
@@ -82,7 +94,7 @@ export default function Routes() {
     if (c) setCampaign(c);
   }
 
-  function getCampaignData(campaign, user) {
+  function getCampaignData(campaign, user, /*optional*/ remaining) {
     let text;
     let amount;
     let discountRate;
@@ -100,7 +112,7 @@ export default function Routes() {
       discountRate = campaign.referrerDiscountRate;
       discountAmount = campaign.referrerDiscountAmount;
       discountMultiplier = campaign.referrerDiscountMultiplier;
-    } 
+    }
     
     displayData = {
       id: campaign.id,
@@ -118,14 +130,17 @@ export default function Routes() {
 
     if (amount) {
 
-      text = `Book a class now for ${text} ${amount} off`;
+      if (remaining) {
+        discountMultiplier = remaining;
+        text = `${amount} off`;
+      } else {
+        text = `Book a class now for ${amount} off`;
+      }
 
-      if (discountMultiplier) {
-        if (discountMultiplier > 1) {
-          text = `${text} your next ${discountMultiplier} classes`;
-        } else {
-          text = `${text} your next class`;
-        }
+      if (discountMultiplier > 1) {
+        text = `${text} your next ${discountMultiplier} classes`;
+      } else {
+        text = `${text} your next class`;
       }
 
       displayData.description = text;
