@@ -1,3 +1,4 @@
+/* eslint max-lines: 0*/
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
 import { Container, Grid, Typography, Card, LinearProgress, useMediaQuery, makeStyles} from '@material-ui/core';
