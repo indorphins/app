@@ -66,6 +66,7 @@ export default function Routes() {
           getCampaignData(campaign, user, exists.remaining);
         } else {
           setCampaign(null);
+          store.dispatch(actions.campaign.clear());
         }
       }
 
