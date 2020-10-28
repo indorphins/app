@@ -173,6 +173,19 @@ export default function(props) {
     }
   }
 
+  let msContent;
+
+  if (user && user.id) {
+    msContent = (
+      <TabItem
+        tab={tab}
+        value="Milestones"
+        label="Milestones"
+        onClick={navMilestones}
+      />
+    )
+  }
+
   return (
     <Grid>
       <TabItem
@@ -187,14 +200,9 @@ export default function(props) {
         label="Instructors"
         onClick={navInstructors}
       />
-      <TabItem
-        tab={tab}
-        value="Milestones"
-        label="Milestones"
-        onClick={navMilestones}
-      />
-      {adminTab}
+      {msContent}
       {referFriend}
+      {adminTab}
     </Grid>
   )
 }
