@@ -128,7 +128,8 @@ export default function CourseInfo() {
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [errMessage, setErrMessage] = useState(null);
   const [discountPrice, setDiscountPrice] = useState(null);
-  //const [campaignId, setCampaignId] = useState(null);
+
+  const campaignRef = useRef(campaign);
 
   const sml = useMediaQuery('(max-width:600px)');
   const med = useMediaQuery('(max-width:900px)');
@@ -148,7 +149,6 @@ export default function CourseInfo() {
   useEffect(() => {
     if (course) {
       if (campaign) {
-        //setCampaignId(campaign.id);
         let dc;
         let cost = course.cost * 100;
 
@@ -168,7 +168,6 @@ export default function CourseInfo() {
         setDiscountPrice(dc/100);
       } else {
         setDiscountPrice(null);
-        //setCampaignId(null);
       }
     }
   }, [campaign, course])
@@ -279,7 +278,9 @@ export default function CourseInfo() {
       return;
     }
 
-    Stripe.createPaymentIntent(paymentMethodId, course.id)
+    let campaignId = campaignRef.current.id;
+
+    Stripe.createPaymentIntent(paymentMethodId, course.id, campaignId)
       .then(result => {
         setCourse({...result.course});
         store.dispatch(actions.user.addScheduleItem(result.course));

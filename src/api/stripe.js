@@ -30,8 +30,13 @@ export async function getAccountLinkURL(url) {
 export async function createPaymentIntent(
   paymentMethodId,
   classId,
+  /* optional */ campaignId,
 ) {
-  const url = urlBase + `/class/${classId}/payment/${paymentMethodId}`;
+  let url = urlBase + `/class/${classId}/payment/${paymentMethodId}`;
+  if (campaignId) {
+    url = url + `/campaign/${campaignId}`;
+  }
+  
   const options = {
     method: 'POST',
     headers: {
