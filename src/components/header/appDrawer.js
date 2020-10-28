@@ -64,9 +64,13 @@ export default function AppDrawer(props) {
         <Menu />
       </IconButton>
       <Drawer anchor="left" open={drawerOpen} onClose={toggleDrawer} classes={{paper: classes.container}}>
-        <Grid container direction="column" spacing={3} >
+        <Grid container direction="column" spacing={3}>
           <Divider />
           <Grid item className={classes.clickable} onClick={() => navigate(path.home)}>
+            <Typography variant='h5' className={classes.drawerLink}>Home</Typography>
+          </Grid>
+          <Divider />
+          <Grid item className={classes.clickable} onClick={() => navigate(path.courses)}>
             <Typography variant='h5' className={classes.drawerLink}>Classes</Typography>
           </Grid>
           <Divider />

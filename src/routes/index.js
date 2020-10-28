@@ -200,9 +200,12 @@ export default function Routes() {
         <Route exact path={path.referFriend}>
           <AsyncPage page='referBonus' />
         </Route>
-        <Route path={path.home}>
+        <Route path={path.courses}>
           {errcontent}
           <ClassRouter />
+        </Route>
+        <Route exact path="/">
+          <AsyncPage page="home" />
         </Route>
       </Header>
     </Switch>
