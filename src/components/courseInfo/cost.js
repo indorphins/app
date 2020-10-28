@@ -38,14 +38,19 @@ export default function Cost(props) {
       </Grid>
     );
 
-    if (discountPrice) {
+    if (discountPrice || discountPrice === 0) {
+      let text = "$" + discountPrice;
+
+      if (discountPrice === 0) {
+        text = "FREE"
+      }
       content = (
         <Grid item>
           <Typography className={classes.cost} variant="h2" style={{paddingRight: "8px"}}>
             <strike>${course.cost}</strike>
           </Typography>
           <Typography className={classes.cost} variant="h2">
-            ${discountPrice}
+            {text}
           </Typography>
         </Grid>
       );

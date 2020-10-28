@@ -146,6 +146,7 @@ export default function Routes() {
         text = `${text} your next class`;
       }
 
+      displayData.multiplier = discountMultiplier;
       displayData.description = text;
     }
 

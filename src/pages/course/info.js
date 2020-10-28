@@ -129,8 +129,6 @@ export default function CourseInfo() {
   const [errMessage, setErrMessage] = useState(null);
   const [discountPrice, setDiscountPrice] = useState(null);
 
-  const campaignRef = useRef(campaign);
-
   const sml = useMediaQuery('(max-width:600px)');
   const med = useMediaQuery('(max-width:900px)');
 
@@ -278,7 +276,7 @@ export default function CourseInfo() {
       return;
     }
 
-    let campaignId = campaignRef.current.id;
+    let campaignId = campaign.id;
 
     Stripe.createPaymentIntent(paymentMethodId, course.id, campaignId)
       .then(result => {
@@ -296,6 +294,35 @@ export default function CourseInfo() {
       })
       .then((err) => {
         if (err) return;
+        let user = Object.assign({}, currentUser);
+        let saved = user.campaigns ? user.campaigns : [];
+        let updated;
+
+        if (campaign.id && (campaign.discountAmount || campaign.discountRate)) {
+          let exists = saved.find(item => item.campaignId === campaign.id);
+
+          if (exists) {
+            let data = {
+              campaignId: exists.campaignId,
+              remaining: exists.remaining - 1,
+            }
+            updated = saved.map(item => {
+              if (item.campaignId === data.campaignId) {
+                return data;
+              }
+              return item;
+            });
+
+          } else {
+            updated = [...saved, {
+              campaignId: campaign.id,
+              remaining: campaign.multiplier - 1,
+            }];
+          }
+
+          user.campaigns = updated;
+          store.dispatch(actions.user.update(user));
+        }
 
         // Send class joined email
         const start = format(new Date(course.start_date), "iiii, MMMM do");
@@ -316,9 +343,9 @@ export default function CourseInfo() {
         
         return classJoined(start, course.id, emailAttachment);
       }).catch(err => {
+        setPaymentProcessing(false);
         setErrMessage({severity: "error", message: err.message});
       })
-
   }
 
   const courseLeaveHandler = async function () {
