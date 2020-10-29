@@ -49,7 +49,7 @@ export default function CampaignParser(props) {
       if (!exists && user.id !== campaign.referrerId) {
         getCampaignData(campaign, user);
       } else {
-        if (exists.remaining > 0) {
+        if (exists && exists.remaining > 0) {
           getCampaignData(campaign, user, exists.remaining);
         } else {
           setCampaign(null);
