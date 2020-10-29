@@ -76,6 +76,14 @@ const styles = makeStyles((theme) => ({
     fontWeight:"bold", 
     fontSize:"1.4rem",
     color: theme.palette.common.black,
+  },
+  footer: {
+    backgroundColor: "#000",
+    color: theme.palette.common.white,
+    paddingTop: theme.spacing(8),
+    paddingBottom: theme.spacing(4),
+    paddingLeft: theme.spacing(2),
+    paddingRight: theme.spacing(2),
   }
 }));
 
@@ -87,6 +95,10 @@ export default function Home() {
 
   function navClasses() {
     history.push(path.courses);
+  }
+
+  function navSignup() {
+    history.push(path.signup);
   }
 
   let layout;
@@ -314,7 +326,25 @@ export default function Home() {
         </Grid>
       </Grid>
     </Grid>
-  )
+  );
+
+  let footer = (
+    <React.Fragment>
+      <Grid container direction="row" justify="center" alignItems="center" style={{paddingTop: 150, paddingBottom: 50}}>
+        <Grid item>
+          <Button variant="contained" color="primary" className={classes.button} onClick={navSignup}>
+            Sign up for free
+          </Button>
+        </Grid>
+      </Grid>
+      <Grid className={classes.footer}>
+        <Typography variant="body1" align="center">
+          Questions? Comments? Want a recommendation? Shoot us an email: hello@indoorphins.fit
+        </Typography>
+      </Grid>
+    </React.Fragment>
+  );
+
   return (
     <Grid style={{position: "relative", width: "100%", height: "100%"}}>
       <Grid className={classes.backShape}></Grid>
@@ -324,6 +354,7 @@ export default function Home() {
         {mission}
         {how}
       </Container>
+      {footer}
     </Grid>
   );
 }
