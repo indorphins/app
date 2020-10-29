@@ -44,6 +44,10 @@ const styles = makeStyles((theme) => ({
       backgroundColor: theme.palette.primaryColor.main,
       color: theme.palette.primaryColor.contrastText,
     }
+  },
+  testimonial: {
+    textAlign: "center",
+    color: theme.palette.common.black,
   }
 }));
 
@@ -65,6 +69,8 @@ export default function Home() {
       direction: "column",
       align: "center",
       spacing: 6,
+      testimonialDirection: "column",
+      testimonialSize: 12,
     }
   } else {
     layout = {
@@ -72,11 +78,13 @@ export default function Home() {
       direction: "row",
       align: "flex-start",
       spacing: 2,
+      testimonialDirection: "row",
+      testimonialSize: 4,
     }
   }
 
   let section1 = (
-    <Grid container direction={layout.direction} justify="center" alignItems="center" /*spacing={layout.spacing}*/>
+    <Grid container direction={layout.direction} justify="center" alignItems="center" style={{paddingTop: 100}}>
       <Grid
         item
         xs={layout.size}
@@ -108,11 +116,43 @@ export default function Home() {
     </Grid>
   );
 
+
+  let testimonials = (
+    <Grid style={{paddingTop: 50}}>
+      <Grid container direction="column" justify="center" alignContent="center" alignItems="center" spacing={2}>
+        <Grid item>
+          <Typography variant="body1">The reviews are in:</Typography>  
+        </Grid>
+        <Grid item>
+          <Typography variant="h1" className={classes.heroText}>⭑⭑⭑⭑⭑</Typography>
+        </Grid>
+      </Grid>
+      <Grid container direction={layout.testimonialDirection} spacing={4} style={{marginTop: 50}}>
+        <Grid item xs={layout.testimonialSize}>
+          <Typography variant="h3" className={classes.testimonial}>
+            &ldquo;A beautiful space to be yourself, let go and have fun&rdquo;
+          </Typography>
+        </Grid>
+        <Grid item xs={layout.testimonialSize}>
+          <Typography variant="h3" className={classes.testimonial}>
+            &ldquo;AMAZING WORKOUT HOLY SMOKES&rdquo;
+          </Typography>
+        </Grid>
+        <Grid item xs={layout.testimonialSize}>
+          <Typography variant="h3" className={classes.testimonial}>
+            &ldquo;best virtual class in the whole wide world&rdquo;
+          </Typography>
+        </Grid>
+      </Grid>
+    </Grid>
+  )
+
   return (
     <Grid style={{position: "relative", width: "100%", height: "100%"}}>
       <Grid className={classes.backShape}></Grid>
       <Container>
         {section1}
+        {testimonials}
       </Container>
     </Grid>
   );
