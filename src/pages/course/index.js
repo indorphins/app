@@ -27,7 +27,9 @@ const courseSelector = createSelector([state => state.course], (items) => {
 });
 
 const useStyles = makeStyles((theme) => ({
-  content: {},
+  content: {
+    paddingTop: theme.spacing(2),
+  },
   extendedBtn: {
     marginRight: theme.spacing(1),
   },
@@ -94,6 +96,7 @@ export default function CourseList() {
   }, [courseList]);
 
   useEffect(() => {
+    document.title="Classes";
     init();
   }, []);
 
