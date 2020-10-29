@@ -64,17 +64,12 @@ const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
 });
 
-const getSessions = createSelector([state => state.milestone.sessions], (sessions) => {
-  return sessions.length;
-});
-
 export default function(props) {
 
   const [tab, setTab] = useState(0);
   const history = useHistory();
   const instructors = useRouteMatch(path.instructors);
   const user = useSelector(state => getUserSelector(state));
-  const sessions = useSelector(state => getSessions(state));
 
   let home = useRouteMatch({ path: path.home, strict: true});
   let courses = useRouteMatch({ path: path.courses, strict: true});
@@ -100,18 +95,20 @@ export default function(props) {
       return setTab("Instructors");
     }
     
-    if (admin && admin.isExact && user && user.type === 'admin') {
-      return setTab("Admin");
+    if (refer) {
+      return setTab("Refer");
     }
     
     setTab(0);
-  }, [home, courses, milestone, admin]);
+  }, [home, courses, milestone, admin, refer]);
 
   useEffect(() => {
-    if (refer && sessions > 0) {
-      return setTab("Refer")
+    if (admin && admin.isExact && user && user.type === 'admin') {
+      return setTab("Admin");
     }
-  }, [refer, sessions])
+
+  }, [user, admin]);
+
 
   async function navCourses() {
     history.push(path.courses);
@@ -148,7 +145,7 @@ export default function(props) {
 
   let referFriend = null;
 
-  if (sessions > 0) {
+  if (user && user.id) {
 
     if (user.referrerId) {
       referFriend = (
