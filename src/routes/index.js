@@ -10,7 +10,7 @@ import queryString from 'query-string';
 import Login from '../pages/login';
 import Signup from '../pages/signup';
 import log from '../log';
-import CampaignParser from '../hooks/campaignParser';
+import CampaignParser from '../components/campaign/campaignParser';
 
 const AsyncPage = loadable(props => import(`../pages/${props.page}`), {
   cacheKey: props => props.page,
