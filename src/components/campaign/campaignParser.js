@@ -42,16 +42,21 @@ export default function CampaignParser(props) {
     
     if (campaign && campaign.active) {
 
-      if (campaign.isNew && !isNew && user.id !== campaign.referrerId) return;
+      if ((campaign.newUser === true && isNew === false) && user.id !== campaign.referrerId) {
+        return log.debug("campaign not valid for user");
+      }
 
       let exists = savedCampaigns.find(item => item.campaignId === campaign.id);
 
-      if (!exists && user.id !== campaign.referrerId) {
+      log.debug("user saved campaigns", exists);
+
+      if (!exists && (user.id !== campaign.referrerId || !campaign.referrerId)) {
         getCampaignData(campaign, user);
       } else {
         if (exists && exists.remaining > 0) {
           getCampaignData(campaign, user, exists.remaining);
         } else {
+          log.debug("clear campaign data");
           setCampaign(null);
           store.dispatch(actions.campaign.clear());
         }
@@ -69,6 +74,7 @@ export default function CampaignParser(props) {
 
   useEffect(() => {
     if (query && query.cid) {
+      log.debug("get campaigin data for id", query.cid);
       getCampaign(query.cid);
     }
   }, [query]);
@@ -102,7 +108,7 @@ export default function CampaignParser(props) {
     }
 
     if (campaign.description) {
-      if (campaign.referrerId === user.id) {
+      if (campaign.referrerId && campaign.referrerId === user.id) {
         text = `${text}, thanks to your referral`;
       } else {
         text = `${text}, ${campaign.description}`;
@@ -125,7 +131,13 @@ export default function CampaignParser(props) {
       id: campaign.id,
     }
 
-    if (user.id !== campaign.referrerId && (campaign.discountAmount || campaign.discountRate)) {
+    log.debug("campaign data", campaign)
+
+    if (
+      (user.id !== campaign.referrerId || !campaign.referrerId ) && 
+      (campaign.discountAmount || campaign.discountRate)
+    ) {
+      log.debug("set campaign prioce");
       discountRate = campaign.discountRate;
       discountAmount = campaign.discountAmount;
       discountMultiplier = campaign.discountMultiplier;
@@ -137,6 +149,8 @@ export default function CampaignParser(props) {
       discountMultiplier = campaign.referrerDiscountMultiplier;
     }
 
+    log.debug("campaign discounts", discountRate, discountAmount)
+
     if (discountRate) {
       amount = (discountRate * 100) + "%";
       displayData.discountRate = discountRate;
@@ -147,8 +161,11 @@ export default function CampaignParser(props) {
       displayData.discountAmount = discountAmount;
     }
 
+    log.debug("campaign price", displayData);
+
     if (amount) {
       let desc = makeDescription(campaign, user, amount, discountMultiplier, remaining);
+      log.debug("campaign description", desc);
       Object.assign(displayData, desc);
     }
 
