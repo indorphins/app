@@ -84,13 +84,46 @@ export default function CampaignParser(props) {
     if (c) setCampaign(c);
   }
 
-  function getCampaignData(campaign, user, /*optional*/ remaining) {
+  function makeDescription(campaign, user, amount, discountMultiplier, remaining) {
+    let displayData = {};
     let text;
+
+    if (remaining) {
+      discountMultiplier = remaining;
+      text = `${amount} off`;
+    } else {
+      text = `Book a class now for ${amount} off`;
+    }
+
+    if (discountMultiplier > 1) {
+      text = `${text} your next ${discountMultiplier} classes`;
+    } else {
+      text = `${text} your next class`;
+    }
+
+    if (campaign.description) {
+      if (campaign.referrerId === user.id) {
+        text = `${text}, thanks to your referral`;
+      } else {
+        text = `${text}, ${campaign.description}`;
+      }
+    }
+
+    displayData.multiplier = discountMultiplier;
+    displayData.description = text;
+
+    return displayData;
+  }
+
+  function getCampaignData(campaign, user, /*optional*/ remaining) {
     let amount;
     let discountRate;
     let discountAmount;
     let discountMultiplier;
-    let displayData;
+    
+    let displayData = {
+      id: campaign.id,
+    }
 
     if (user.id !== campaign.referrerId && (campaign.discountAmount || campaign.discountRate)) {
       discountRate = campaign.discountRate;
@@ -102,10 +135,6 @@ export default function CampaignParser(props) {
       discountRate = campaign.referrerDiscountRate;
       discountAmount = campaign.referrerDiscountAmount;
       discountMultiplier = campaign.referrerDiscountMultiplier;
-    }
-    
-    displayData = {
-      id: campaign.id,
     }
 
     if (discountRate) {
@@ -119,22 +148,8 @@ export default function CampaignParser(props) {
     }
 
     if (amount) {
-
-      if (remaining) {
-        discountMultiplier = remaining;
-        text = `${amount} off`;
-      } else {
-        text = `Book a class now for ${amount} off`;
-      }
-
-      if (discountMultiplier > 1) {
-        text = `${text} your next ${discountMultiplier} classes`;
-      } else {
-        text = `${text} your next class`;
-      }
-
-      displayData.multiplier = discountMultiplier;
-      displayData.description = text;
+      let desc = makeDescription(campaign, user, amount, discountMultiplier, remaining);
+      Object.assign(displayData, desc);
     }
 
     store.dispatch(actions.campaign.set(displayData));
