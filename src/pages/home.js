@@ -17,6 +17,15 @@ const styles = makeStyles((theme) => ({
     backgroundRepeat: "no-repeat",
     zIndex: -9,
   },
+  subHeader: {
+    color: theme.palette.common.black,
+    fontSize: "3.2rem",
+    fontWeight: 600,
+    textAlign: "center",
+    '@media (max-width: 960px)': {
+      fontSize: "2.5rem",
+    },
+  },
   heroText: {
     color: theme.palette.common.black,
     fontSize: "3.8rem",
@@ -48,6 +57,17 @@ const styles = makeStyles((theme) => ({
   testimonial: {
     textAlign: "center",
     color: theme.palette.common.black,
+  },
+  missionText: {
+    color: theme.palette.common.black,
+  },
+  missionRow: {
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+  },
+  missionRowContent: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
   }
 }));
 
@@ -71,6 +91,8 @@ export default function Home() {
       spacing: 6,
       testimonialDirection: "column",
       testimonialSize: 12,
+      missionHeaderSize: 12,
+      missionTblSize: 12,
     }
   } else {
     layout = {
@@ -80,6 +102,8 @@ export default function Home() {
       spacing: 2,
       testimonialDirection: "row",
       testimonialSize: 4,
+      missionHeaderSize: 8,
+      missionTblSize: 10,
     }
   }
 
@@ -145,6 +169,77 @@ export default function Home() {
         </Grid>
       </Grid>
     </Grid>
+  );
+
+  let mission = (
+    <Grid
+      container
+      direction="column"
+      justify="center"
+      alignContent="center"
+      alignItems="center"
+      style={{paddingTop:150}}
+    >
+      <Grid item className={classes.missionRow} xs={layout.missionHeaderSize}>
+        <Typography variant="h1" className={classes.subHeader}>
+          We&apos;re on a mission to make group fitness accessible
+        </Typography>
+      </Grid>
+      <Grid item className={classes.missionRow} xs={layout.missionHeaderSize}>
+        <Typography variant="body1">For us, that means:</Typography>
+      </Grid>
+      <Grid item className={classes.missionRowContent} xs={layout.missionTblSize}>
+        <Grid container direction="row" spacing={4} justify="flex-start">
+          <Grid item xs={6}>
+            <Typography variant="h3" className={classes.missionText}>
+              We hold space for all&nbsp;
+              <span role="img" aria-label="fist">✊🏾</span>
+              <span role="img" aria-label="fist">✊🏼</span>
+              <span role="img" aria-label="fist">✊🏿</span>
+              <span role="img" aria-label="fist">✊🏻</span>
+            </Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <Typography variant="body">
+              {`People of all body types, skin colors, backgrounds and walks of life 
+              should have the opportunity to access the group fitness experience.`}
+            </Typography>
+          </Grid>
+        </Grid>
+      </Grid>
+      <Grid item className={classes.missionRowContent} xs={layout.missionTblSize}>
+        <Grid container direction="row" spacing={4} justify="flex-start">
+          <Grid item xs={6}>
+            <Typography variant="h3" className={classes.missionText}>
+              We strive for authenticity&nbsp;<span role="img" aria-label="100%">💯</span>
+            </Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <Typography variant="body">
+              {`Freedom to be ourselves without judgement. 
+              We accept and love each other for who we are, 
+              not who we're supposed to be based on outdated fitness ideals.`}
+            </Typography>
+          </Grid>
+        </Grid>
+      </Grid>
+      <Grid item className={classes.missionRowContent} xs={layout.missionTblSize}>
+        <Grid container direction="row" spacing={4} justify="flex-start">
+          <Grid item xs={6}>
+            <Typography variant="h3" className={classes.missionText}>
+              We empower instructors&nbsp;<span role="img" aria-label="strong arm">💪</span>
+            </Typography>
+          </Grid>
+          <Grid item xs={6}>
+            <Typography variant="body">
+              {`Instructors make the world go round, and they're people too! 
+              At Indoorphins, 80% of class proceeds go to your instructor. 
+              Instructors set their schedule and take time off as they need it.`}
+            </Typography>
+          </Grid>
+        </Grid>
+      </Grid>
+    </Grid>
   )
 
   return (
@@ -153,6 +248,7 @@ export default function Home() {
       <Container>
         {section1}
         {testimonials}
+        {mission}
       </Container>
     </Grid>
   );
