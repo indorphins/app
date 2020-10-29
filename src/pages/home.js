@@ -61,6 +61,9 @@ const styles = makeStyles((theme) => ({
   missionText: {
     color: theme.palette.common.black,
   },
+  missionDescription: {
+    fontSize: "1rem",
+  },
   missionRow: {
     paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(2),
@@ -68,6 +71,11 @@ const styles = makeStyles((theme) => ({
   missionRowContent: {
     paddingTop: theme.spacing(4),
     paddingBottom: theme.spacing(4),
+  },
+  howDescription: {
+    fontWeight:"bold", 
+    fontSize:"1.4rem",
+    color: theme.palette.common.black,
   }
 }));
 
@@ -93,6 +101,8 @@ export default function Home() {
       testimonialSize: 12,
       missionHeaderSize: 12,
       missionTblSize: 12,
+      howDirection: "column",
+      howSize: 12,
     }
   } else {
     layout = {
@@ -104,6 +114,8 @@ export default function Home() {
       testimonialSize: 4,
       missionHeaderSize: 8,
       missionTblSize: 10,
+      howDirection: "row",
+      howSize: 4,
     }
   }
 
@@ -200,7 +212,7 @@ export default function Home() {
             </Typography>
           </Grid>
           <Grid item xs={6}>
-            <Typography variant="body">
+            <Typography variant="body1" className={classes.missionDescription}>
               {`People of all body types, skin colors, backgrounds and walks of life 
               should have the opportunity to access the group fitness experience.`}
             </Typography>
@@ -215,7 +227,7 @@ export default function Home() {
             </Typography>
           </Grid>
           <Grid item xs={6}>
-            <Typography variant="body">
+            <Typography variant="body1" className={classes.missionDescription}>
               {`Freedom to be ourselves without judgement. 
               We accept and love each other for who we are, 
               not who we're supposed to be based on outdated fitness ideals.`}
@@ -231,7 +243,7 @@ export default function Home() {
             </Typography>
           </Grid>
           <Grid item xs={6}>
-            <Typography variant="body">
+            <Typography variant="body1" className={classes.missionDescription}>
               {`Instructors make the world go round, and they're people too! 
               At Indoorphins, 80% of class proceeds go to your instructor. 
               Instructors set their schedule and take time off as they need it.`}
@@ -240,8 +252,69 @@ export default function Home() {
         </Grid>
       </Grid>
     </Grid>
-  )
+  );
 
+  let how = (
+    <Grid>
+      <Typography variant="h1" className={classes.subHeader} style={{paddingBottom: 50, paddingTop: 150}}>
+        How it works
+      </Typography>
+      <Grid
+        container
+        direction={layout.howDirection}
+        justify="center"
+        alignContent="center"
+        alignItems="center"
+        spacing={4}
+      >
+        <Grid item xs={layout.howSize} container direction="column">
+          <Grid item style={{paddingBottom: 40}}>
+            <img className={classes.img} alt="Find and Book Class" src="/img/findAndBook.png" />
+          </Grid>
+          <Grid item>
+            <Typography variant="body1" align="center" className={classes.howDescription}>
+              Find &amp; book a class
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Typography variant="body1" align="center">
+              Our $10 classes are live, two-way-streaming so that our instructors can motivate and form correct.
+            </Typography>
+          </Grid>
+        </Grid>
+        <Grid item xs={layout.howSize} container direction="column">
+          <Grid item style={{paddingBottom: 40}}>
+            <img className={classes.img} alt="Join from website" src="/img/joinFromWebsite.png" />
+          </Grid>
+          <Grid item>
+            <Typography variant="body1" align="center" className={classes.howDescription}>
+              Join from our website
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Typography variant="body1" align="center">
+              Our platform is like Zoom but built for group fitness. You&apos;ll join class right from Chrome or Safari.
+            </Typography>
+          </Grid>
+        </Grid>
+        <Grid item xs={layout.howSize} container direction="column">
+          <Grid item style={{paddingBottom: 40}}>
+            <img className={classes.img} alt="Workout together" src="/img/workoutTogether.png" />
+          </Grid>
+          <Grid item>
+            <Typography variant="body1" align="center" className={classes.howDescription}>
+              Workout together
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Typography variant="body1" align="center">
+              Get form feedback &amp; motivation from your instructor. Send emojis &amp; energy to the community.
+            </Typography>
+          </Grid>
+        </Grid>
+      </Grid>
+    </Grid>
+  )
   return (
     <Grid style={{position: "relative", width: "100%", height: "100%"}}>
       <Grid className={classes.backShape}></Grid>
@@ -249,6 +322,7 @@ export default function Home() {
         {section1}
         {testimonials}
         {mission}
+        {how}
       </Container>
     </Grid>
   );
