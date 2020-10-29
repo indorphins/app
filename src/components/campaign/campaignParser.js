@@ -33,7 +33,7 @@ export default function CampaignParser(props) {
 
   useEffect(() => {
 
-    if (schedule.length > 1 || sessions.length > 1) {
+    if (schedule.length > 0 || sessions.length > 0) {
       setIsNew(false);
     }
   }, [schedule, sessions]);
