@@ -34,18 +34,13 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const getUserSelector = createSelector([state => state.user.data], (user) => {
-  return user.referrerId;
-});
-
-const getSessions = createSelector([state => state.milestone.sessions], (sessions) => {
-  return sessions.length;
+  return user;
 });
 
 export default function ReferBonus() {
   const classes = useStyles();
   const history = useHistory();
   const user = useSelector(state => getUserSelector(state));
-  const sessions = useSelector(state => getSessions(state));
   const [ referrerId, setReffererId ] = useState("");
   const sml = useMediaQuery('(max-width:600px)');
   const med = useMediaQuery('(max-width:900px)');
@@ -73,16 +68,14 @@ export default function ReferBonus() {
   }, []);
 
   useEffect(() => {
-    if (!sessions || sessions <= 0) {
-      history.push(path.courses);
-    }
-  }, [sessions]);
-
-  useEffect(() => {
-    if (user) {
-      setReffererId(user);
+    if (user && user.id) {
+      if (user.referrerId) {
+        setReffererId(user.referrerId);
+      } else {
+        getReferLink();
+      }
     } else {
-      getReferLink();
+      history.push(path.courses)
     }
   }, [user]);
 
