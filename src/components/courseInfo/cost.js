@@ -27,19 +27,35 @@ export default function Cost(props) {
   const classes = useStyles();
   const { course, discountPrice } = props;
 
+
+  function isInteger(n) {
+    return n === +n && n === (n|0);
+  }
+
   let content = null;
 
   if (course.cost && course.cost > 0) {
+
+    let costText = "$" + course.cost.toFixed(2);
+
+    if (isInteger(course.cost)) {
+      costText = "$" + course.cost;
+    }
+
     content = (
       <Grid item>
         <Typography className={classes.cost} variant="h2">
-          ${course.cost}
+          {costText}
         </Typography>
       </Grid>
     );
 
     if (discountPrice || discountPrice === 0) {
-      let text = "$" + discountPrice;
+      let text = "$" + discountPrice.toFixed(2);
+
+      if (isInteger(discountPrice)) {
+        text = "$" + discountPrice;
+      }
 
       if (discountPrice === 0) {
         text = "FREE"
