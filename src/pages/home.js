@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Button, Container, Grid, makeStyles, useMediaQuery, Typography } from '@material-ui/core';
 
@@ -92,6 +92,10 @@ export default function Home() {
   const history = useHistory();
 
   const med = useMediaQuery('(max-width:960px)');
+
+  useEffect(() => {
+    document.title="Indoorphins.fit";
+  }, []);
 
   function navClasses() {
     history.push(path.courses);

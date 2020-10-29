@@ -96,6 +96,7 @@ export default function CourseList() {
   }, [courseList]);
 
   useEffect(() => {
+    document.title="Classes";
     init();
   }, []);
 
