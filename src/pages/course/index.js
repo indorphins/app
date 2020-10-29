@@ -27,7 +27,7 @@ const courseSelector = createSelector([state => state.course], (items) => {
 });
 
 const useStyles = makeStyles((theme) => ({
-  content: {
+  root: {
     paddingTop: theme.spacing(2),
   },
   extendedBtn: {
@@ -320,7 +320,7 @@ export default function CourseList() {
 
   return (
     <Analytics title="Indoorphins.fit">
-      <Container justify='center'>
+      <Container justify='center' className={classes.root}>
         {createButton}
         {createContent}
         <Grid container direction="column" className={classes.content} spacing={3}>

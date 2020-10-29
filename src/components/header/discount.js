@@ -92,6 +92,9 @@ export default function Discount() {
           </IconButton>
         </Grid>
       );
+    } else {
+
+      setContent(null);
     }
   }, [campaign]);
 
