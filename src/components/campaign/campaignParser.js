@@ -14,18 +14,39 @@ const getSavedCampaigns = createSelector([state => state.user.data], (user) => {
   return user.campaigns ? user.campaigns : [];
 });
 
+const getScheduleSelector = createSelector([state => state.user.schedule], (s) => {
+  return s;
+});
+const getSessionHistorySelector = createSelector([state => state.milestone.sessions], (s) => {
+  return s;
+});
+
 export default function CampaignParser(props) {
   const { children, query } = props;
   const [ campaign, setCampaign] = useState(null);
   const user = useSelector(state => getUserSelector(state));
   const savedCampaigns = useSelector(state => getSavedCampaigns(state));
+  const schedule = useSelector(state => getScheduleSelector(state));
+  const sessions = useSelector(state => getSessionHistorySelector(state));
+
+  const [ isNew, setIsNew ] = useState(true);
 
   useEffect(() => {
+
+    if (schedule.length > 1 || sessions.length > 1) {
+      setIsNew(false);
+    }
+  }, [schedule, sessions]);
+
+  useEffect(() => {
+    
     if (campaign && campaign.active) {
+
+      if (campaign.isNew && !isNew && user.id !== campaign.referrerId) return;
 
       let exists = savedCampaigns.find(item => item.campaignId === campaign.id);
 
-      if (!exists) {
+      if (!exists && user.id !== campaign.referrerId) {
         getCampaignData(campaign, user);
       } else {
         if (exists.remaining > 0) {
@@ -44,7 +65,7 @@ export default function CampaignParser(props) {
         getCampaign(saved.campaignId);
       }
     }
-  }, [campaign, savedCampaigns, user])
+  }, [campaign, savedCampaigns, user, isNew])
 
   useEffect(() => {
     if (query && query.cid) {
