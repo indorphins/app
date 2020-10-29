@@ -24,11 +24,7 @@ let useStyles = makeStyles((theme) => ({
     cursor: "pointer"
   },
   appbar: {
-    marginBottom: theme.spacing(2),
     backgroundColor: theme.palette.common.black,
-    '@media (max-width: 900px)': {
-      marginBottom: theme.spacing(1),
-    }
   },
   toolbar: {
     alignItems: "center",
