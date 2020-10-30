@@ -45,6 +45,7 @@ module.exports = {
   plugins: [
     new CompressionPlugin({
       filename: '[path]',
+      include: /\/*.js/
     }),
     new CopyPlugin({
       patterns: [
