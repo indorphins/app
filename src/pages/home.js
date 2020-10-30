@@ -18,7 +18,7 @@ const styles = makeStyles((theme) => ({
     zIndex: -9,
   },
   subHeader: {
-    color: theme.palette.common.black,
+    color: theme.palette.secondary.contrastText,
     fontSize: "3.2rem",
     fontWeight: 600,
     textAlign: "center",
@@ -27,7 +27,7 @@ const styles = makeStyles((theme) => ({
     },
   },
   heroText: {
-    color: theme.palette.common.black,
+    color: theme.palette.secondary.contrastText,
     fontSize: "3.8rem",
     fontWeight: 600,
     '@media (max-width: 960px)': {
@@ -56,10 +56,10 @@ const styles = makeStyles((theme) => ({
   },
   testimonial: {
     textAlign: "center",
-    color: theme.palette.common.black,
+    color: theme.palette.secondary.contrastText,
   },
   missionText: {
-    color: theme.palette.common.black,
+    color: theme.palette.secondary.contrastText,
   },
   missionDescription: {
     fontSize: "1rem",
