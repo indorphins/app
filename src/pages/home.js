@@ -66,10 +66,10 @@ const styles = makeStyles((theme) => ({
   howDescription: {
     fontWeight:"bold", 
     fontSize:"1.4rem",
-    color: theme.palette.common.black,
+    color: theme.palette.secondary.contrastText,
   },
   footer: {
-    backgroundColor: "#000",
+    backgroundColor: theme.palette.common.black,
     color: theme.palette.common.white,
     paddingTop: theme.spacing(8),
     paddingBottom: theme.spacing(4),
