@@ -1,24 +1,15 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Button, Container, Grid, makeStyles, useMediaQuery, Typography } from '@material-ui/core';
+import { createSelector } from 'reselect';
+import { useSelector } from 'react-redux';
 
 import path from '../routes/path';
+import BgShape from '../components/icon/bgShape';
 
 const styles = makeStyles((theme) => ({
-  backShape: {
-    position: "absolute",
-    top: 0,
-    right: 0,
-    width: "100%",
-    height: "100%",
-    backgroundImage: "url(/img/bg_shape.svg)",
-    backgroundPosition: "100% 0%",
-    backgroundSize: "auto",
-    backgroundRepeat: "no-repeat",
-    zIndex: -9,
-  },
   subHeader: {
-    color: theme.palette.common.black,
+    color: theme.palette.secondary.contrastText,
     fontSize: "3.2rem",
     fontWeight: 600,
     textAlign: "center",
@@ -27,7 +18,7 @@ const styles = makeStyles((theme) => ({
     },
   },
   heroText: {
-    color: theme.palette.common.black,
+    color: theme.palette.secondary.contrastText,
     fontSize: "3.8rem",
     fontWeight: 600,
     '@media (max-width: 960px)': {
@@ -56,10 +47,10 @@ const styles = makeStyles((theme) => ({
   },
   testimonial: {
     textAlign: "center",
-    color: theme.palette.common.black,
+    color: theme.palette.secondary.contrastText,
   },
   missionText: {
-    color: theme.palette.common.black,
+    color: theme.palette.secondary.contrastText,
   },
   missionDescription: {
     fontSize: "1rem",
@@ -75,10 +66,10 @@ const styles = makeStyles((theme) => ({
   howDescription: {
     fontWeight:"bold", 
     fontSize:"1.4rem",
-    color: theme.palette.common.black,
+    color: theme.palette.secondary.contrastText,
   },
   footer: {
-    backgroundColor: "#000",
+    backgroundColor: theme.palette.common.black,
     color: theme.palette.common.white,
     paddingTop: theme.spacing(8),
     paddingBottom: theme.spacing(4),
@@ -87,15 +78,38 @@ const styles = makeStyles((theme) => ({
   }
 }));
 
+const getThemeSelector = createSelector([state => state.theme], (t) => {
+  return t;
+});
+
 export default function Home() {
   const classes = styles();
   const history = useHistory();
+  const theme = useSelector(state => getThemeSelector(state));
+  const [bgShape, setBgShape] = useState({
+    color: "#f5fbfc",
+    opacity: "0.87",
+  })
 
   const med = useMediaQuery('(max-width:960px)');
 
   useEffect(() => {
     document.title="Indoorphins.fit";
   }, []);
+
+  useEffect(() => {
+    if (theme === 'dark') {
+      setBgShape({
+        color: "#000",
+        opacity: "0.07",
+      });
+    } else {
+      setBgShape({
+        color: "#f5fbfc",
+        opacity: "0.87",
+      });
+    }
+  }, [theme])
 
   function navClasses() {
     history.push(path.courses);
@@ -351,7 +365,7 @@ export default function Home() {
 
   return (
     <Grid style={{position: "relative", width: "100%", height: "100%"}}>
-      <Grid className={classes.backShape}></Grid>
+      <BgShape color={bgShape.color} opacity={bgShape.opacity} />
       <Container>
         {section1}
         {testimonials}

@@ -22,6 +22,10 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: theme.spacing(8),
     paddingBottom: theme.spacing(4),
   },
+  content: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+  },
   link: {
     border: "1px solid",
     borderColor: theme.palette.primary.main,
@@ -110,7 +114,7 @@ export default function ReferBonus() {
 
   return (
     <Container className={classes.root}>
-      <Grid container direction="column" justify="center" alignContent="center" spacing={8}>
+      <Grid container direction="column" justify="center" alignContent="center">
         <Grid item
           xs={layout.descWidth}
           container
@@ -119,6 +123,7 @@ export default function ReferBonus() {
           justify="center"
           alignItems="center"
           alignContent="center"
+          className={classes.content}
         >
           <Grid item>
             <img alt="present" src="/img/presentArt.png" />
@@ -141,6 +146,7 @@ export default function ReferBonus() {
           justify="center"
           alignItems="center"
           alignContent="center"
+          className={classes.content}
         >
           <Grid item>
             <Typography variant="h4">Share Your Link</Typography>
@@ -162,6 +168,7 @@ export default function ReferBonus() {
           justify="center"
           alignItems="center"
           alignContent="center"
+          className={classes.content}
         >
           <Grid item>
             <Typography variant="h4">Pro tips:</Typography>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { AppBar, IconButton, Grid, Typography, Container, useMediaQuery } from '@material-ui/core';
+import { IconButton, Grid, Typography, Container, useMediaQuery } from '@material-ui/core';
 import { Brightness5Rounded, Brightness4Rounded } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
@@ -25,6 +25,16 @@ let useStyles = makeStyles((theme) => ({
   },
   appbar: {
     backgroundColor: theme.palette.common.black,
+    position: "sticky",
+    top: 0,
+    zIndex: 5,
+  },
+  appBarFiller: {
+    backgroundColor: theme.palette.common.black,
+    position: "sticky",
+    top: -1,
+    height: 1,
+    zIndex: 5,
   },
   toolbar: {
     alignItems: "center",
@@ -46,6 +56,19 @@ let useStyles = makeStyles((theme) => ({
     color: theme.palette.common.white,
   },
 }));
+
+function AppBar(props) {
+  const classes = useStyles();
+
+  return (
+    <React.Fragment>
+      <Grid className={classes.appBarFiller} />
+      <Grid className={classes.appbar}>
+        {props.children}
+      </Grid>
+    </React.Fragment>
+  )
+}
 
 const getThemeSelector = createSelector([state => state.theme], (theme) => {
   return theme;
@@ -180,7 +203,7 @@ export default function Header(props) {
   return (
     <Grid style={{height: "100%"}}>
       <Discount />
-      <AppBar position={layout.appBarPosition} className={classes.appbar}>
+      <AppBar className={classes.appbar}>
         {toolbar}
       </AppBar>
       {props.children}
