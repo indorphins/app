@@ -155,7 +155,7 @@ export default function CourseInfo() {
           dc = cost - campaign.discountAmount;
         }
 
-        if (campaign.discountRate && campaign.discountRate < 1) {
+        if (campaign.discountRate && campaign.discountRate <= 1) {
           dc = Math.floor(cost * (1 - campaign.discountRate));
         }
 
