@@ -86,9 +86,9 @@ export default function Feedback() {
 
   if (showFeedbackForm) {
     content = (
-      <Modal open={showFeedbackForm}>
+      <Modal open={showFeedbackForm} style={{overflowY: "scroll"}}>
         <Grid container direction="row" justify="center" className={classes.container}>
-          <Grid item xs={4}>
+          <Grid item xs={5}>
             <Grid container direction="column" justify="center" className={classes.container}>
               <Grid item>
                 {formContent}
