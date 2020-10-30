@@ -13,6 +13,7 @@ const tabStyles = makeStyles((theme) => ({
     minWidth: 0,
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
+    whiteSpace: "nowrap",
     fontSize: '1rem',
     '@media (max-width: 900px)': {
       fontSize: ".8rem",
@@ -184,7 +185,7 @@ export default function(props) {
   }
 
   return (
-    <Grid>
+    <Grid style={{display: "flex"}}>
       <TabItem
         tab={tab}
         value="Classes"
