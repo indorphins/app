@@ -27,14 +27,14 @@ let useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.common.black,
     position: "sticky",
     top: 0,
-    zIndex: 999999,
+    zIndex: 5,
   },
   appBarFiller: {
     backgroundColor: theme.palette.common.black,
     position: "sticky",
     top: -1,
     height: 1,
-    zIndex: 999998,
+    zIndex: 5,
   },
   toolbar: {
     alignItems: "center",
