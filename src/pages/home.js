@@ -144,6 +144,7 @@ export default function Home() {
       missionTblSize: 12,
       howDirection: "column",
       howSize: 12,
+      slideDirection: "down",
     }
   } else {
     layout = {
@@ -157,12 +158,13 @@ export default function Home() {
       missionTblSize: 10,
       howDirection: "row",
       howSize: 4,
+      slideDirection: "right",
     }
   }
 
   let section1 = (
     <Grid container direction={layout.direction} justify="center" alignItems="center" style={{paddingTop: 100}}>
-      <Slide direction="right" in={transition}>
+      <Slide direction={layout.slideDirection} in={transition}>
         <Grid
           item
           xs={layout.size}
