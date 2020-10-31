@@ -78,6 +78,10 @@ const styles = makeStyles((theme) => ({
   }
 }));
 
+const getUserSelector = createSelector([state => state.user.data], (u) => {
+  return u;
+});
+
 const getThemeSelector = createSelector([state => state.theme], (t) => {
   return t;
 });
@@ -85,6 +89,7 @@ const getThemeSelector = createSelector([state => state.theme], (t) => {
 export default function Home() {
   const classes = styles();
   const history = useHistory();
+  const user = useSelector(state => getUserSelector(state));
   const [transition, setTranstion] = useState(false); 
   const theme = useSelector(state => getThemeSelector(state));
   const [bgShape, setBgShape] = useState({
@@ -357,13 +362,25 @@ export default function Home() {
     </Grid>
   );
 
+  let signup = (
+    <Button variant="contained" color="primary" className={classes.button} onClick={navSignup}>
+      Sign up for free
+    </Button>
+  );
+
+  if (user && user.id) {
+    signup = (
+      <Button variant="contained" color="primary" className={classes.button} onClick={navClasses}>
+        View schedule
+      </Button>
+    )
+  }
+
   let footer = (
     <React.Fragment>
       <Grid container direction="row" justify="center" alignItems="center" style={{paddingTop: 150, paddingBottom: 50}}>
         <Grid item>
-          <Button variant="contained" color="primary" className={classes.button} onClick={navSignup}>
-            Sign up for free
-          </Button>
+          {signup}
         </Grid>
       </Grid>
       <Grid className={classes.footer}>
