@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Button, Container, Grid, makeStyles, useMediaQuery, Typography } from '@material-ui/core';
+import { Button, Container, Grid, makeStyles, useMediaQuery, Typography, Zoom, Slide } from '@material-ui/core';
 import { createSelector } from 'reselect';
 import { useSelector } from 'react-redux';
 
@@ -85,6 +85,7 @@ const getThemeSelector = createSelector([state => state.theme], (t) => {
 export default function Home() {
   const classes = styles();
   const history = useHistory();
+  const [transition, setTranstion] = useState(false); 
   const theme = useSelector(state => getThemeSelector(state));
   const [bgShape, setBgShape] = useState({
     color: "#f5fbfc",
@@ -95,6 +96,11 @@ export default function Home() {
 
   useEffect(() => {
     document.title="Indoorphins.fit";
+    setTranstion(true);
+
+    return function() {
+      setTranstion(false);
+    }
   }, []);
 
   useEffect(() => {
@@ -151,33 +157,38 @@ export default function Home() {
 
   let section1 = (
     <Grid container direction={layout.direction} justify="center" alignItems="center" style={{paddingTop: 100}}>
-      <Grid
-        item
-        xs={layout.size}
-        container
-        direction="column"
-        alignItems={layout.align}
-        alignContent={layout.align}
-        spacing={6}
-      >
-        <Grid item>
-          <Typography variant="h1" className={classes.heroText}>
-            Live, small group fitness classes - at home
-          </Typography>
+      <Slide direction="right" in={transition}>
+        <Grid
+          item
+          xs={layout.size}
+          container
+          direction="column"
+          alignItems={layout.align}
+          alignContent={layout.align}
+          spacing={6}
+        >
+          <Grid item>
+            <Typography variant="h1" className={classes.heroText}>
+              Live, small group fitness classes - at home
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Typography variant="body1">
+              {`The easiest way to actually, consistently workout at home, 
+              led by an instructor and empowered by a community`}
+            </Typography>
+          </Grid>
+          <Grid item>
+            <Button variant="contained" color="primary" className={classes.button} onClick={navClasses}>
+              View schedule
+            </Button>
+          </Grid>
         </Grid>
-        <Grid item>
-          <Typography variant="body1">
-            The easiest way to actually, consistently workout at home, led by an instructor and empowered by a community
-          </Typography>
-        </Grid>
-        <Grid item>
-          <Button variant="contained" color="primary" className={classes.button} onClick={navClasses}>
-            View schedule
-          </Button>
-        </Grid>
-      </Grid>
+      </Slide>
       <Grid item xs={layout.size}>
-        <img className={classes.img} alt="class demo on notebook" src="/img/heroImage.png" />
+        <Zoom in={transition}>
+          <img className={classes.img} alt="class demo on notebook" src="/img/heroImage.png" />
+        </Zoom>
       </Grid>
     </Grid>
   );
@@ -368,9 +379,15 @@ export default function Home() {
       <BgShape color={bgShape.color} opacity={bgShape.opacity} />
       <Container>
         {section1}
-        {testimonials}
-        {mission}
-        {how}
+        <Zoom in={transition}>
+          {testimonials}
+        </Zoom>
+        <Zoom in={transition}>
+          {mission}
+        </Zoom>
+        <Zoom in={transition}>
+          {how}
+        </Zoom>
       </Container>
       {footer}
     </Grid>

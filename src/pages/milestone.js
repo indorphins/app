@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Grid, makeStyles } from '@material-ui/core';
+import { Container, Grid, makeStyles, Slide } from '@material-ui/core';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 import MilestoneItem from '../components/milestone/milestoneItem';
@@ -54,17 +54,21 @@ export default function Milestone() {
       setMilestonesData([...milestoneHits, allMilestone]);
     }
 
-  }, [milestoneHits, user])
+  }, [milestoneHits, user]);
+
+  let timeout = 120;
 
   let content = (
     <Container className={classes.container}>
       <Grid container direction="column" spacing={2}>
-        {milestonesData.map(item => (
-          <Grid item key={item.title}>
-            <MilestoneItem title={item.title} label={item.label}
-              max={item.max} value={item.value} lvl={item.lvl}
-            />
-          </Grid>
+        {milestonesData.map((item, i) => (
+          <Slide direction="up" in={true} timeout={timeout*i} key={item.title}>
+            <Grid item>
+              <MilestoneItem title={item.title} label={item.label}
+                max={item.max} value={item.value} lvl={item.lvl}
+              />
+            </Grid>
+          </Slide>
         ))}
       </Grid>
     </Container>

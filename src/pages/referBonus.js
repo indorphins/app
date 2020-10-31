@@ -6,7 +6,9 @@ import {
   Grid,
   makeStyles,
   useMediaQuery,
-  Typography
+  Typography,
+  Slide,
+  Zoom
 } from '@material-ui/core';
 import { FileCopyOutlined } from '@material-ui/icons';
 import { createSelector } from 'reselect';
@@ -126,7 +128,9 @@ export default function ReferBonus() {
           className={classes.content}
         >
           <Grid item>
-            <img alt="present" src="/img/presentArt.png" />
+            <Slide direction="down" in={true}>
+              <img alt="present" src="/img/presentArt.png" />
+            </Slide>
           </Grid>
           <Grid item>
             <Typography variant="h2">Give $20, Get $10</Typography>
@@ -151,14 +155,16 @@ export default function ReferBonus() {
           <Grid item>
             <Typography variant="h4">Share Your Link</Typography>
           </Grid>
-          <Grid item container direction="row" alignItems="center" justify="center" spacing={2}>
-            <Grid item className={classes.link}>
-              <Typography variant="body1" className={classes.linkText}>{linkUrl}</Typography>
+          <Zoom in={true}>
+            <Grid item container direction="row" alignItems="center" justify="center" spacing={2}>
+              <Grid item className={classes.link}>
+                <Typography variant="body1" className={classes.linkText}>{linkUrl}</Typography>
+              </Grid>
+              <Grid item>
+                <Button onClick={copy} startIcon={<FileCopyOutlined />}>Copy Link</Button>
+              </Grid>
             </Grid>
-            <Grid item>
-              <Button onClick={copy} startIcon={<FileCopyOutlined />}>Copy Link</Button>
-            </Grid>
-          </Grid>
+          </Zoom>
         </Grid>
         <Grid item
           xs={layout.descWidth}

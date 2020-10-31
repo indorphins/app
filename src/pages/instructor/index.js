@@ -1,5 +1,5 @@
 import React from 'react';
-import { Container, Grid, makeStyles } from '@material-ui/core';
+import { Container, Grid, makeStyles, Fade } from '@material-ui/core';
 import InstructorFeature from '../../components/instructorFeature';
 import Analytics from '../../utils/analytics';
 
@@ -16,12 +16,14 @@ export default function InstructorList(props) {
   return (
     <Analytics title="Instructors">
       <Container className={classes.content}>
-        <Grid item>
-          <InstructorFeature
-            limit={500}
-            header='Instructors'
-          />
-        </Grid>
+        <Fade in={true}>
+          <Grid item>
+            <InstructorFeature
+              limit={500}
+              header='Instructors'
+            />
+          </Grid>
+        </Fade>
       </Container>
     </Analytics>
   )

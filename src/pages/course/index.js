@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { Container, Grid, Fab, Grow, Divider, Typography }  from '@material-ui/core';
+import { Container, Grid, Fab, Grow, Divider, Typography, Fade }  from '@material-ui/core';
 import { Add, Clear } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -323,34 +323,35 @@ export default function CourseList() {
       <Container justify='center' className={classes.root}>
         {createButton}
         {createContent}
-        <Grid container direction="column" className={classes.content} spacing={3}>
-          {myClassesContent}
-          <Grid item>
-            <CourseFeature id="upcoming" header="Upcoming Classes" items={upcomingData} />
+        <Fade in={true}>
+          <Grid container direction="column" className={classes.content} spacing={3}>
+            {myClassesContent}
+            <Grid item>
+              <CourseFeature id="upcoming" header="Upcoming Classes" items={upcomingData} />
+            </Grid>
+            <Grid item>
+              <CourseFeature id="monday" header="Monday Classes" items={mondayData} />
+            </Grid>
+            <Grid item>
+              <CourseFeature id="tuesday" header="Tuesday Classes" items={tuesdayData} />
+            </Grid>
+            <Grid item>
+              <CourseFeature id="wednesday" header="Wednesday Classes" items={wednesdayData} />
+            </Grid>
+            <Grid item>
+              <CourseFeature id="thursday" header="Thursday Classes" items={thursdayData} />
+            </Grid>
+            <Grid item>
+              <CourseFeature id="friday" header="Friday Classes" items={fridayData} />
+            </Grid>
+            <Grid item>
+              <CourseFeature id="saturday" header="Saturday Classes" items={saturdayData} />
+            </Grid>
+            <Grid item>
+              <CourseFeature id="sunday" header="Sunday Classes" items={sundayData} />
+            </Grid>
           </Grid>
-          <Grid item>
-            <CourseFeature id="monday" header="Monday Classes" items={mondayData} />
-          </Grid>
-          <Grid item>
-            <CourseFeature id="tuesday" header="Tuesday Classes" items={tuesdayData} />
-          </Grid>
-          <Grid item>
-            <CourseFeature id="wednesday" header="Wednesday Classes" items={wednesdayData} />
-          </Grid>
-          <Grid item>
-            <CourseFeature id="thursday" header="Thursday Classes" items={thursdayData} />
-          </Grid>
-          <Grid item>
-            <CourseFeature id="friday" header="Friday Classes" items={fridayData} />
-          </Grid>
-          <Grid item>
-            <CourseFeature id="saturday" header="Saturday Classes" items={saturdayData} />
-          </Grid>
-          <Grid item>
-            <CourseFeature id="sunday" header="Sunday Classes" items={sundayData} />
-          </Grid>
-          
-        </Grid>
+        </Fade>
       </Container>
     </Analytics>
   );
