@@ -16,7 +16,7 @@ module.exports = {
     filename: `static/js/main.${new Date().getTime()}.js`, // string
     // the filename template for entry chunks
     publicPath: "/", // string
-    // the url to the output directory resolved relative to the HTML page
+    // the url to the output directory resolved relatve to the HTML page
     library: "Indoorphins.js", // string,
     // the name of the exported library
     libraryTarget: "umd", // universal module definition
@@ -33,8 +33,20 @@ module.exports = {
         use: {
           loader: "babel-loader",
         }
+      },
+      {
+        test: /\.(woff2|ttf)$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[name].[ext]',
+              outputPath: 'fonts/'
+            }
+          }
+        ]
       }
-    ]
+    ],
   },
   optimization: {
     minimize: true,
@@ -53,9 +65,6 @@ module.exports = {
         { from: 'public/PP.html', to: 'PP.html' },
         { from: 'public/TOS.html', to: 'TOS.html' },
         { from: 'public/robots.txt', to: 'robots.txt' },
-        { from: 'public/font/Lato-Black.ttf', to:'Lato-Black.ttf' },
-        { from: 'public/font/Lato-Bold.ttf', to:'Lato-Bold.ttf' },
-        { from: 'public/font/Lato-Regular.ttf', to:'Lato-Regular.ttf' },
       ],
     }),
     new HtmlWebpackPlugin({

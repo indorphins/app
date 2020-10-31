@@ -11,7 +11,7 @@ const styles = makeStyles((theme) => ({
   subHeader: {
     color: theme.palette.secondary.contrastText,
     fontSize: "3.2rem",
-    fontWeight: 600,
+    fontWeight: 700,
     textAlign: "center",
     '@media (max-width: 960px)': {
       fontSize: "2.5rem",
@@ -20,7 +20,7 @@ const styles = makeStyles((theme) => ({
   heroText: {
     color: theme.palette.secondary.contrastText,
     fontSize: "3.8rem",
-    fontWeight: 600,
+    fontWeight: 700,
     '@media (max-width: 960px)': {
       fontSize: "3.2rem",
       textAlign: "center",
@@ -64,7 +64,7 @@ const styles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(4),
   },
   howDescription: {
-    fontWeight:"bold", 
+    fontWeight: "700", 
     fontSize:"1.4rem",
     color: theme.palette.secondary.contrastText,
   },

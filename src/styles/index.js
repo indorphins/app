@@ -8,24 +8,14 @@ import { createSelector } from 'reselect';
 import { store, actions } from '../store';
 import { light, dark } from './theme';
 
+import Fonts from './fonts';
+
 let lightTheme = light;
 let darkTheme = dark;
 
 const useStyles = makeStyles((theme) => ({
   root: {},
   '@global': {
-    '@font-face': {
-      fontFamily: "Lato",
-      src: 'url(/Lato-Regular.ttf) format("truetype")',
-      fontWeight: 'normal',
-      fontStyle: 'normal',
-    },
-    '@font-face': {
-      fontFamily: "LatoBold",
-      src: 'url(/Lato-Bold.ttf) format("truetype")',
-      fontWeight: 'bold',
-      fontStyle: 'normal',
-    },
     html: {
       overflow: 'hidden',
       height: '100%',
@@ -70,6 +60,11 @@ export default function Styles(props) {
   const [theme, setTheme] = useState(responsiveFontSizes(lightTheme));
   const classes = useStyles();
   const overrides = {
+    MuiCssBaseline: {
+      '@global': {
+        '@font-face': Fonts(),
+      },
+    },
     MuiLink: {
       root: {
         marginTop: theme.spacing(2),
