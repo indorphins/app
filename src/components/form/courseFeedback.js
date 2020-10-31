@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Button, Grid, Typography, LinearProgress } from '@material-ui/core';
+import { Button, Grid, Typography, LinearProgress, makeStyles } from '@material-ui/core';
 import Rating from '@material-ui/lab/Rating';
 
 import * as Course from '../../api/course';
-import Editor from '../editor';
 import log from '../../log';
 
 const labels = {
@@ -19,8 +18,19 @@ const labels = {
   5: 'Excellent',
 };
 
+const useStyles = makeStyles((theme) => ({
+  comments: {
+    width: "100%",
+    fontSize: "1rem",
+  },
+  label: {
+    paddingLeft: theme.spacing(1),
+  }
+}));
+
 export default function CourseFeedback(props) {
 
+  const classes = useStyles();
   const [ classRating, setClassRating ] = useState(0);
   const [ classHover, setClassHover ] = useState(-1);
   const [ instructorRating, setInstructorRating ] = useState(0);
@@ -32,11 +42,7 @@ export default function CourseFeedback(props) {
   const { course, sessionId } = props;
 
   const editorHandler = function (e) {
-    setComments(e);
-  }
-
-  const editorSaveHandler = function (e) {
-    setComments(e); 
+    setComments(e.target.value);
   }
 
   async function formHandler(e) {
@@ -73,19 +79,19 @@ export default function CourseFeedback(props) {
   let videoLabelText = labels[videoHover] ? labels[videoHover] : labels[videoRating];
 
   let classLabel = (
-    <Grid item>
+    <Grid item className={classes.label}>
       <Typography variant="subtitle1">{classLabelText}</Typography>
     </Grid>
   );
 
   let instructorLabel = (
-    <Grid item>
+    <Grid item className={classes.label}>
       <Typography variant="subtitle1">{instructorLabelText}</Typography>
     </Grid>
   );
 
   let videoLabel = (
-    <Grid item>
+    <Grid item className={classes.label}>
       <Typography variant="subtitle1">{videoLabelText}</Typography>
     </Grid>
   );
@@ -105,7 +111,7 @@ export default function CourseFeedback(props) {
           <Typography variant="body1">How would you rate the class?</Typography>
         </Grid>
         <Grid item>
-          <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={1}>
+          <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center">
             <Grid item>
               <Rating
                 name="course"
@@ -126,7 +132,7 @@ export default function CourseFeedback(props) {
           <Typography variant="body1">How was the instructor?</Typography>
         </Grid>
         <Grid item>
-          <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={1}>
+          <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center">
             <Grid item>
               <Rating
                 name="instructor"
@@ -147,7 +153,7 @@ export default function CourseFeedback(props) {
           <Typography variant="body1">How was the video quality?</Typography>
         </Grid>
         <Grid item>
-          <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center" spacing={1}>
+          <Grid container direction="row" justify="flex-start" alignItems="center" alignContent="center">
             <Grid item>
               <Rating
                 name="quality"
@@ -168,7 +174,7 @@ export default function CourseFeedback(props) {
           <Typography variant="body1">Additional comments</Typography>
         </Grid>
         <Grid item>
-          <Editor onChange={editorHandler} onSave={editorSaveHandler} />
+          <textarea onChange={editorHandler} rows="5" className={classes.comments} />
           {progress}
         </Grid>
         <Grid item>
