@@ -146,6 +146,13 @@ export default function CourseInfo() {
   }, [courseData, params]);
 
   useEffect(() => {
+    if (params && params.id) {
+      log.debug("fetch course info");
+      getCourse(params.id, currentUser);
+    }
+  }, []);
+
+  useEffect(() => {
     if (course) {
       if (campaign) {
         let dc;
@@ -169,12 +176,7 @@ export default function CourseInfo() {
         setDiscountPrice(null);
       }
     }
-  }, [campaign, course])
-
-
-  useEffect(() => {
-    getCourse(params.id, currentUser);
-  }, [params, currentUser]);
+  }, [campaign, course]);
 
   useEffect(() => {
     if(defaultPaymentMethod) {
