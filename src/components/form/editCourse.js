@@ -65,7 +65,7 @@ export default function (props) {
   const [title, setTitle] = useState('');
   const [courseType, setCourseType] = useState('');
   const [cost, setCost] = useState("10.00");
-  const [spots, setSpots] = useState(20);
+  const [spots, setSpots] = useState(30);
   const [duration, setDuration] = useState(45);
   const [selectedDate, setSelectedDate] = useState(null);
   const [description, setDescription] = useState('');
@@ -240,9 +240,9 @@ export default function (props) {
       <Slider
         disabled={loader}
         className={classes.slider}
-        defaultValue={20}
+        defaultValue={30}
         min={10}
-        max={20}
+        max={30}
         step={5}
         valueLabelDisplay="auto"
         onChangeCommitted={handleSpotsSlider}
