@@ -29,7 +29,7 @@ export default function AvailableSpots(props) {
   let spotsContent = null;
 
   const takenSpots = course ? course.participants.length : 0;
-  let spotsCount = `${takenSpots}/${course.total_spots}`;
+  let spotsCount = takenSpots;
   if (course.available_spots <= 0) spotsCount = "FULL";
   
   if (course && spotsCount) {
