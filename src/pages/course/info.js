@@ -325,6 +325,12 @@ export default function CourseInfo() {
           store.dispatch(actions.user.update(user));
         }
 
+        //fb conversion tracking
+        if (window.fbq) {
+          let value = discountPrice ? discountPrice : course.cost;
+          window.fbq('track', 'Purchase', {currency: "USD", value: value.toFixed(2)});
+        }
+
         // Send class joined email
         const start = format(new Date(course.start_date), "iiii, MMMM do");
         const s = new Date(course.start_date);

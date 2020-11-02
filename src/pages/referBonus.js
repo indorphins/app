@@ -7,7 +7,6 @@ import {
   makeStyles,
   useMediaQuery,
   Typography,
-  Slide,
   Zoom
 } from '@material-ui/core';
 import { FileCopyOutlined } from '@material-ui/icons';
@@ -36,7 +35,10 @@ const useStyles = makeStyles((theme) => ({
   linkText: {
     paddingLeft: theme.spacing(3),
     paddingRight: theme.spacing(3),
-  }
+  },
+  presentIn: {
+    animation: "dropbounce 0.5s",
+  },
 }));
 
 const getUserSelector = createSelector([state => state.user.data], (user) => {
@@ -128,9 +130,7 @@ export default function ReferBonus() {
           className={classes.content}
         >
           <Grid item>
-            <Slide direction="down" in={true}>
-              <img alt="present" src="/img/presentArt.png" />
-            </Slide>
+            <img alt="present" src="/img/presentArt.png" className={classes.presentIn} />
           </Grid>
           <Grid item>
             <Typography variant="h2">Give $20, Get $10</Typography>

@@ -62,7 +62,7 @@ export default function Milestone() {
     <Container className={classes.container}>
       <Grid container direction="column" spacing={2}>
         {milestonesData.map((item, i) => (
-          <Slide direction="up" in={true} timeout={timeout*i} key={item.title}>
+          <Slide direction="up" in={true} timeout={timeout*(i+1)} key={item.title}>
             <Grid item>
               <MilestoneItem title={item.title} label={item.label}
                 max={item.max} value={item.value} lvl={item.lvl}

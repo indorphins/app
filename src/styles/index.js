@@ -16,6 +16,15 @@ let darkTheme = dark;
 const useStyles = makeStyles((theme) => ({
   root: {},
   '@global': {
+    "@keyframes dropbounce": {
+      "0%": { transform: "translateY(-100%)" },
+      "59%": { transform: "translateY(0)" },
+      "60%": { transform: "translate(9px, -12px) rotate(7deg)" },
+      "70%": { transform: "translate(18px, 0px) rotate(7deg)" },
+      "80%": { transform: "translate(0px, -10px) rotate(-7deg)" },
+      "90%": { transform: "translate(-7px, 0px) rotate(-7deg)" },
+      "100%": { transform: "translate(0px, 0px) rotate(0deg)" },
+    },
     html: {
       overflow: 'hidden',
       height: '100%',
