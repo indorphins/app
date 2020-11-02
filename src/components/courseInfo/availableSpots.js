@@ -32,7 +32,7 @@ export default function AvailableSpots(props) {
   let spotsCount = takenSpots;
   if (course.available_spots <= 0) spotsCount = "FULL";
   
-  if (course && spotsCount) {
+  if (course && (spotsCount || spotsCount === 0)) {
     spotsContent = (
       <Card className={classes.spotsContainer} title="Spaces remaining">
         <Grid container direction="column" justify="center" alignItems="center">
