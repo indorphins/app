@@ -111,7 +111,7 @@ export default function CampaignParser(props) {
 
     if (campaign.description) {
       if (campaign.referrerId && campaign.referrerId === user.id) {
-        text = `${text}. Your friend booked a class your code!`;
+        text = `Your friend booked a class using your code! ${text}.`;
       } else {
         text = `${text}, ${campaign.description}`;
       }
