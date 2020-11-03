@@ -10,7 +10,7 @@ import { useHistory } from 'react-router-dom';
 import AppDrawer from './appDrawer';
 import UserAvatar from "./userAvatar";
 import Navigation from './nav';
-import Discount from './discount';
+import Discount from '../campaign/discount';
 import { store, actions } from '../../store';
 
 

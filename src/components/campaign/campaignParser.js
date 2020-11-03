@@ -1,3 +1,4 @@
+/* eslint complexity: ["error", { "max": 13 }]*/
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
@@ -8,10 +9,6 @@ import { store, actions } from '../../store';
 
 const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
-});
-
-const getSavedCampaigns = createSelector([state => state.user.data], (user) => {
-  return user.campaigns ? user.campaigns : [];
 });
 
 const getScheduleSelector = createSelector([state => state.user.schedule], (s) => {
@@ -25,7 +22,6 @@ export default function CampaignParser(props) {
   const { children, query } = props;
   const [ campaign, setCampaign] = useState(null);
   const user = useSelector(state => getUserSelector(state));
-  const savedCampaigns = useSelector(state => getSavedCampaigns(state));
   const schedule = useSelector(state => getScheduleSelector(state));
   const sessions = useSelector(state => getSessionHistorySelector(state));
 
@@ -39,27 +35,33 @@ export default function CampaignParser(props) {
   }, [schedule, sessions]);
 
   useEffect(() => {
+
+    let savedCampaigns = user.campaigns ? user.campaigns : [];
     
     if (campaign && campaign.active) {
-
-      if ((campaign.newUser === true && isNew === false) && user.id !== campaign.referrerId) {
-        return log.debug("campaign not valid for user");
-      }
 
       let exists = savedCampaigns.find(item => item.campaignId === campaign.id);
 
       log.debug("user saved campaigns", exists);
 
       if (!exists && (user.id !== campaign.referrerId || !campaign.referrerId)) {
-        getCampaignData(campaign, user);
-      } else {
-        if (exists && exists.remaining > 0) {
-          getCampaignData(campaign, user, exists.remaining);
-        } else {
-          log.debug("clear campaign data");
+
+        if (campaign.newUser === true && isNew === false && user.id !== campaign.referrerId) {
           setCampaign(null);
           store.dispatch(actions.campaign.clear());
+          return log.debug("campaign not valid for user");
         }
+
+        getCampaignData(campaign, user);
+
+      } else { 
+        if (exists && exists.remaining > 0) {
+          return getCampaignData(campaign, user, exists.remaining);
+        }
+
+        log.debug("clear campaign data");
+        setCampaign(null);
+        store.dispatch(actions.campaign.clear());
       }
 
     } else {
@@ -70,7 +72,7 @@ export default function CampaignParser(props) {
         getCampaign(saved.campaignId);
       }
     }
-  }, [campaign, savedCampaigns, user, isNew])
+  }, [campaign, user, isNew])
 
   useEffect(() => {
     if (query && query.cid) {
@@ -109,7 +111,7 @@ export default function CampaignParser(props) {
 
     if (campaign.description) {
       if (campaign.referrerId && campaign.referrerId === user.id) {
-        text = `${text}, thanks to your referral`;
+        text = `${text}. Your friend booked a class your code!`;
       } else {
         text = `${text}, ${campaign.description}`;
       }

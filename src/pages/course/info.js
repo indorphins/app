@@ -146,11 +146,8 @@ export default function CourseInfo() {
   }, [courseData, params]);
 
   useEffect(() => {
-    if (params && params.id) {
-      log.debug("fetch course info");
-      getCourse(params.id, currentUser);
-    }
-  }, []);
+    getCourse(params.id, currentUser);
+  }, [params, currentUser]);
 
   useEffect(() => {
     if (course) {
