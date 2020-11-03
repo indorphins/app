@@ -159,7 +159,7 @@ export default function CampaignParser(props) {
     }
 
     if (discountAmount) {
-      amount = "$" + (discountAmount / 100);
+      amount = "$" + (discountAmount / 100).toFixed(2);
       displayData.discountAmount = discountAmount;
     }
 

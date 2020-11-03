@@ -155,12 +155,12 @@ export default function CourseInfo() {
         let dc;
         let cost = course.cost * 100;
 
-        if (campaign.discountAmount) {
-          dc = cost - campaign.discountAmount;
-        }
-
         if (campaign.discountRate && campaign.discountRate <= 1) {
           dc = Math.floor(cost * (1 - campaign.discountRate));
+        }
+
+        if (campaign.discountAmount) {
+          dc = cost - campaign.discountAmount;
         }
 
         if (dc < 100) {
