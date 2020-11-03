@@ -136,14 +136,14 @@ export default function CourseInfo() {
   useEffect(() => {
 
     if (params.id && courseData.length > 0) {
-      let existing = courseData.filter(item => {
+      let existing = courseData.find(item => {
         return item.id === params.id;
-      })[0];
+      });
 
       if (existing) setCourse(existing);
     }
 
-  }, [courseData, params]);
+  }, []);
 
   useEffect(() => {
     getCourse(params.id, currentUser);
