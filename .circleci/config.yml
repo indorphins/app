@@ -30,7 +30,7 @@ jobs:
           command: docker run -it -v $(pwd)/build:/var/build -e AWS_ACCESS_KEY_ID=$ACCESS_KEY -e AWS_SECRET_ACCESS_KEY=$SECRET_KEY organs/awscli aws s3 sync --content-type font/ttf /var/build/fonts/ s3://indorphins-fe-build/fonts/ --exclude="*.woff2"
       - run:
           name: Upload woff font files to build bucket
-          command: docker run -it -v $(pwd)/build:/var/build -e AWS_ACCESS_KEY_ID=$ACCESS_KEY -e AWS_SECRET_ACCESS_KEY=$SECRET_KEY organs/awscli aws s3 sync --content-type font/woff2 /var/build/fonts/*.woff2 s3://indorphins-fe-build/fonts/ --exclude="*.ttf"
+          command: docker run -it -v $(pwd)/build:/var/build -e AWS_ACCESS_KEY_ID=$ACCESS_KEY -e AWS_SECRET_ACCESS_KEY=$SECRET_KEY organs/awscli aws s3 sync --content-type font/woff2 /var/build/fonts/ s3://indorphins-fe-build/fonts/ --exclude="*.ttf"
       - run:
           name: Sync build to develop bucket
           command: docker run -it -v $(pwd)/build:/var/build -e AWS_ACCESS_KEY_ID=$ACCESS_KEY -e AWS_SECRET_ACCESS_KEY=$SECRET_KEY organs/awscli aws s3 sync s3://indorphins-fe-build s3://indorphins-fe-dev
