@@ -87,7 +87,11 @@ module.exports = {
         <!DOCTYPE html>
         <html>
           <head>
+            <meta charset="utf-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1" />
             <script src="/config.js"></script>
+            <title>${htmlWebpackPlugin.options.title}</title>
+            ${htmlWebpackPlugin.tags.headTags}
             <!-- Facebook Pixel Code -->
             <script>
               !function(f,b,e,v,n,t,s)
@@ -115,9 +119,6 @@ module.exports = {
                 'send_page_view': false
               });
             </script>
-            <meta charset="utf-8"/>
-            <title>${htmlWebpackPlugin.options.title}</title>
-            ${htmlWebpackPlugin.tags.headTags}
           </head>
           <body>
             <div id="root"></div>
