@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Container, Grid, makeStyles, Typography, IconButton } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
 import { useSelector } from 'react-redux';
@@ -49,6 +49,12 @@ export default function Discount() {
   function close() {
     setDisplay(false);
   }
+
+  useEffect(() => {
+    if (campaign && campaign.id) {
+      setDisplay(true);
+    }
+  }, [campaign])
 
   let displayed = null;
 
