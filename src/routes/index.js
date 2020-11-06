@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Switch, Route, useLocation } from 'react-router-dom';
+import {Alert} from '@material-ui/lab';
+import { Container, Grid } from '@material-ui/core';
 
 import path from './path';
 import Header from '../components/header/header';
@@ -8,8 +10,7 @@ import queryString from 'query-string';
 import Login from '../pages/login';
 import Signup from '../pages/signup';
 import log from '../log';
-import {Alert} from '@material-ui/lab';
-import { Container, Grid } from '@material-ui/core';
+import CampaignParser from '../components/campaign/campaignParser';
 
 const AsyncPage = loadable(props => import(`../pages/${props.page}`), {
   cacheKey: props => props.page,
@@ -18,6 +19,7 @@ const AsyncPage = loadable(props => import(`../pages/${props.page}`), {
 const ClassRouter = loadable(/* webpackChunkName: "course" */ () => import(`./course`), {
   cacheKey: () => 'ClassRouter',
 });
+
 
 export default function Routes() {
 
@@ -54,37 +56,48 @@ export default function Routes() {
   }
 
   return (
-    <Switch>
-      <Route exact path={path.signup}>
-        <Signup query={query} />
-      </Route>
-      <Route exact path={path.login}>
-        <Login query={query} />
-      </Route>
-      <Route exact path={path.courseJoinSession}>
-        <AsyncPage page="course/session" />
-      </Route>
-      <Header>
-        <Route exact path={path.profile}>
-          <AsyncPage page="profile" />
+    <CampaignParser query={query}>
+      <Switch>
+        <Route exact path={path.signup}>
+          <Signup query={query} />
         </Route>
-        <Route exact path={path.schedule}>
-          <AsyncPage page="schedule" />
+        <Route exact path={path.login}>
+          <Login query={query} />
         </Route>
-        <Route exact path={path.instructorProfile}>
-          <AsyncPage page="instructor/info" />
+        <Route exact path={path.courseJoinSession}>
+          <AsyncPage page="course/session" />
         </Route>
-        <Route exact path={path.instructors}>
-          <AsyncPage page='instructor/index' />
-        </Route>
-        <Route exact path={path.milestone}>
-          <AsyncPage page="milestone" />
-        </Route>
-        <Route path={path.home}>
-          {errcontent}
-          <ClassRouter />
-        </Route>
-      </Header>
-    </Switch>
+        <Header>
+          <Route exact path={path.profile}>
+            <AsyncPage page="profile" />
+          </Route>
+          <Route exact path={path.schedule}>
+            <AsyncPage page="schedule" />
+          </Route>
+          <Route exact path={path.instructorProfile}>
+            <AsyncPage page="instructor/info" />
+          </Route>
+          <Route exact path={path.instructors}>
+            <AsyncPage page='instructor/index' />
+          </Route>
+          <Route exact path={path.milestone}>
+            <AsyncPage page="milestone" />
+          </Route>
+          <Route exact path={path.admin}>
+            <AsyncPage page='admin' />
+          </Route>
+          <Route exact path={path.referFriend}>
+            <AsyncPage page='referBonus' />
+          </Route>
+          <Route path={path.courses}>
+            {errcontent}
+            <ClassRouter />
+          </Route>
+          <Route exact path="/">
+            <AsyncPage page="home" />
+          </Route>
+        </Header>
+      </Switch>
+    </CampaignParser>
   );
 }

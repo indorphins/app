@@ -14,6 +14,16 @@ const userSlice = createSlice({
       state.data = Object.assign({}, state.data, action.payload);
       return state;
     },
+    update(state, action) {
+      log.debug("STORE:: set user", action.payload);
+      state.data = Object.assign({}, action.payload);
+      return state;
+    },
+    setReferFriend(state, action) {
+      log.debug("STORE:: set user refer friend id", action.payload);
+      state.data = Object.assign({}, state.data, action.payload);
+      return state;
+    },
     setPaymentData(state, action) {
       log.debug("STORE:: set user payment data", action.payload);
       state.paymentData = Object.assign(state.paymentData, action.payload);
@@ -46,6 +56,23 @@ const userSlice = createSlice({
   }
 });
 
+const campaignSlice = createSlice({
+  name: "campaign",
+  initialState: {},
+  reducers: {
+    set(state, action) {
+      log.debug("STORE:: set campaign", action.payload);
+      state = Object.assign({}, state, action.payload);
+      return state;
+    },
+    clear(state) {
+      log.debug("STORE:: set campaign");
+      state = {};
+      return state;
+    }
+  }
+})
+
 const milestoneSlice = createSlice({
   name: "milestone",
   initialState: {
@@ -55,7 +82,7 @@ const milestoneSlice = createSlice({
   reducers: {
     setSessions(state, action) {
       log.debug("STORE:: set user sessions", action.payload);
-      state.sessions = state.sessions.concat(action.payload);
+      state.sessions = [].concat(action.payload);
       return state;
     },
     addSession(state, action) {
@@ -173,6 +200,7 @@ const rootReducer = combineReducers({
   course: courseSlice.reducer,
   courseFeature: courseFeatureSlice.reducer,
   milestone: milestoneSlice.reducer,
+  campaign: campaignSlice.reducer,
 });
 
 export const actions = {
@@ -182,7 +210,8 @@ export const actions = {
   instructor: instructorSlice.actions,
   course: courseSlice.actions,
   courseFeature: courseFeatureSlice.actions,
-  milestone: milestoneSlice.actions
+  milestone: milestoneSlice.actions,
+  campaign: campaignSlice.actions,
 };
 
 export const store = configureStore({

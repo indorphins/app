@@ -10,7 +10,8 @@ export default async function callAPI(url, options, sendToken) {
       //log.debug("API:: fetch firbase token")
       token = await Firebase.getToken();
     } catch(err) {
-      return log.error("AUTH:: error fetching firebase token", err);
+      log.error("AUTH:: error fetching firebase token", err);
+      throw err;
     }
 
     if (!token) {
@@ -21,27 +22,28 @@ export default async function callAPI(url, options, sendToken) {
   }
 
   log.info("API:: request", url, options);
+  let status;
 
   return fetch(url, options)
-		.then((response) => {
-  log.info("API:: response status code", response.status);
-  if (response.status !== 201 && response.status !== 200) {
-    return response.json().then(result => {
+  .then((response) => {
+    log.info("API:: response status code", response.status);
+    status = response.status;
+    return response.json();
+  })
+  .then((data) => {
 
-      if (result.message.raw && result.message.raw.message) {
-        throw Error(result.message.raw.message);
+    if (status !== 201 && status !== 200) {
+      if (data.message.raw && data.message.raw.message) {
+        throw Error(data.message.raw.message);
       }
 
-      throw Error(result.message);
-    })
-  }
-  return response.json();
-})
-		.then((data) => {
-  return data;
-})
-		.catch((error) => {
-  log.error("API:: response", url, error);
-  throw error;
-});
+      throw Error(data.message);
+    }
+
+    return data;
+  })
+  .catch((error) => {
+    log.error("API:: response", url, error);
+    throw error;
+  });
 }

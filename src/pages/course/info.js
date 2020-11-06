@@ -1,31 +1,15 @@
+/* eslint max-lines: 0*/
 import React, { useEffect, useState, useRef } from 'react';
 import { useParams, useHistory } from 'react-router-dom';
-import {
-  Container, 
-  Grid, 
-  Typography, 
-  Card, 
-  LinearProgress, 
-  useMediaQuery, 
-  makeStyles,
-} from '@material-ui/core';
+import { Container, Grid, Typography, Card, LinearProgress, useMediaQuery, makeStyles} from '@material-ui/core';
 import { Photo, RecordVoiceOver } from '@material-ui/icons';
 import Alert from '@material-ui/lab/Alert';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 
-
 import { 
-  AvailableSpots,
-  Cancel,
-  Cost, 
-  Duration, 
-  JoinSession,
-  Message,
-  OtherCourseInfo,
-  Signup,
-  StartTime, 
-  Participants 
+  AvailableSpots, Cancel, Cost, Duration, JoinSession, Message,
+  OtherCourseInfo, Signup, StartTime, Participants 
 } from '../../components/courseInfo/index';
 import { store, actions } from '../../store';
 import * as Course from '../../api/course';
@@ -49,19 +33,6 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     paddingBottom: theme.spacing(2),
-  },
-  cost: {
-    fontWeight: "bold",
-    display: "inline-block",
-    width: "100%",
-  },
-  spotsContainer: {
-    paddingLeft: theme.spacing(2),
-    paddingRight: theme.spacing(2),
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
-    cursor: "default",
-    backgroundColor: theme.palette.grey[200],
   },
   instructorContainer: {
     paddingLeft: theme.spacing(2),
@@ -125,6 +96,10 @@ const getUserSelector = createSelector([state => state.user], (user) => {
   return user.data;
 });
 
+const campaignSelector = createSelector([state => state.campaign], (c) => {
+  return c;
+});
+
 const paymentDataSelector = createSelector([state => state.user], (data) => {
   return data.paymentData;
 });
@@ -148,10 +123,12 @@ export default function CourseInfo() {
   const courseData = useSelector(state => courseDataSelector(state))
   const defaultPaymentMethod = useSelector(state => selectDefaultPaymentMethod(state));
   const paymentMethod = useRef(defaultPaymentMethod);
+  const campaign = useSelector(state => campaignSelector(state));
   const [course, setCourse] = useState('');
   const [needsPaymentMethod, setNeedsPaymentMethod] = useState(false);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [errMessage, setErrMessage] = useState(null);
+  const [discountPrice, setDiscountPrice] = useState(null);
 
   const sml = useMediaQuery('(max-width:600px)');
   const med = useMediaQuery('(max-width:900px)');
@@ -159,19 +136,44 @@ export default function CourseInfo() {
   useEffect(() => {
 
     if (params.id && courseData.length > 0) {
-      let existing = courseData.filter(item => {
+      let existing = courseData.find(item => {
         return item.id === params.id;
-      })[0];
+      });
 
       if (existing) setCourse(existing);
     }
 
-  }, [courseData, params]);
-
+  }, []);
 
   useEffect(() => {
     getCourse(params.id, currentUser);
   }, [params, currentUser]);
+
+  useEffect(() => {
+    if (course) {
+      if (campaign) {
+        let dc;
+        let cost = course.cost * 100;
+
+        if (campaign.discountRate && campaign.discountRate <= 1) {
+          dc = Math.floor(cost * (1 - campaign.discountRate));
+        }
+
+        if (campaign.discountAmount) {
+          dc = cost - campaign.discountAmount;
+        }
+
+        if (dc < 100) {
+          dc = 0;
+        }
+
+        log.debug("DISCOUNT:: Set discount price", dc);
+        setDiscountPrice(dc/100);
+      } else {
+        setDiscountPrice(null);
+      }
+    }
+  }, [campaign, course]);
 
   useEffect(() => {
     if(defaultPaymentMethod) {
@@ -274,7 +276,9 @@ export default function CourseInfo() {
       return;
     }
 
-    Stripe.createPaymentIntent(paymentMethodId, course.id)
+    let campaignId = campaign.id;
+
+    Stripe.createPaymentIntent(paymentMethodId, course.id, campaignId)
       .then(result => {
         setCourse({...result.course});
         store.dispatch(actions.user.addScheduleItem(result.course));
@@ -290,6 +294,41 @@ export default function CourseInfo() {
       })
       .then((err) => {
         if (err) return;
+        let user = Object.assign({}, currentUser);
+        let saved = user.campaigns ? user.campaigns : [];
+        let updated;
+
+        if (campaign.id && (campaign.discountAmount || campaign.discountRate)) {
+          let exists = saved.find(item => item.campaignId === campaign.id);
+
+          if (exists) {
+            let data = {
+              campaignId: exists.campaignId,
+              remaining: exists.remaining - 1,
+            }
+            updated = saved.map(item => {
+              if (item.campaignId === data.campaignId) {
+                return data;
+              }
+              return item;
+            });
+
+          } else {
+            updated = [...saved, {
+              campaignId: campaign.id,
+              remaining: campaign.multiplier - 1,
+            }];
+          }
+
+          user.campaigns = updated;
+          store.dispatch(actions.user.update(user));
+        }
+
+        //fb conversion tracking
+        if (window.fbq) {
+          let value = discountPrice ? discountPrice : course.cost;
+          window.fbq('track', 'Purchase', {currency: "USD", value: value.toFixed(2)});
+        }
 
         // Send class joined email
         const start = format(new Date(course.start_date), "iiii, MMMM do");
@@ -310,9 +349,9 @@ export default function CourseInfo() {
         
         return classJoined(start, course.id, emailAttachment);
       }).catch(err => {
+        setPaymentProcessing(false);
         setErrMessage({severity: "error", message: err.message});
       })
-
   }
 
   const courseLeaveHandler = async function () {
@@ -474,7 +513,7 @@ export default function CourseInfo() {
     <Grid container direction="column" spacing={2}>
       <Grid item container direction="row" justify="flex-end" spacing={2}>
         <Grid item xs={layout.costSize}>
-          <Cost course={course} classes={classes} />
+          <Cost course={course} classes={classes} discountPrice={discountPrice} />
         </Grid>
         <Grid item xs={layout.costSize}>
           <Duration course={course} classes={classes} />

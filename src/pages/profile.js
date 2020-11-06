@@ -17,6 +17,9 @@ import log from '../log';
 import path from '../routes/path';
 
 const useStyles = makeStyles((theme) => ({
+  content: {
+    paddingTop: theme.spacing(2),
+  },
   divider: {
     margin: theme.spacing(2),
   },
@@ -267,7 +270,7 @@ export default function Profile() {
 
   return (
     <Analytics title="Profile">
-      <Container>
+      <Container className={classes.content}>
         {content}
       </Container>
     </Analytics>

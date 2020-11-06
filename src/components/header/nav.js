@@ -1,57 +1,118 @@
 import React, {useState, useEffect} from 'react';
 import { useRouteMatch, useHistory } from 'react-router-dom';
-import { Tab, Tabs } from '@material-ui/core';
+import { Badge, Button, Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
+import { createSelector } from 'reselect';
+import { useSelector } from 'react-redux';
 
 import path from '../../routes/path';
 
-const useStyles = makeStyles((theme) => ({
-  hidden: {
-    display: "none",
-    visibility: "hidden",
-  },
-  tab: {
+const tabStyles = makeStyles((theme) => ({
+  selected: {
     color: theme.palette.common.white,
     minWidth: 0,
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
+    whiteSpace: "nowrap",
     fontSize: '1rem',
     '@media (max-width: 900px)': {
       fontSize: ".8rem",
     },
   },
-  color: {
-    color: theme.palette.common.white,
+  unselected: {
+    color: theme.palette.grey[400],
+    fontWeight: 400,
   },
-  indicator: {
-    display: 'none',
-  },
+  badge: {
+    fontSize: '.6rem',
+    fontWeight: "bold",
+    color: theme.palette.secondaryColor.contrastText,
+    backgroundColor: theme.palette.secondaryColor.main,
+  }
 }));
+
+function TabItem(props) {
+
+  const classes = tabStyles();
+
+  let style = classes.selected;
+
+  if (props.value !== props.tab) {
+    style = `${classes.selected} ${classes.unselected}`
+  }
+
+  if (props.badge) {
+
+    return (
+      <Badge badgeContent={props.badge} classes={{badge:classes.badge}}>
+        <Button onClick={props.onClick} className={style}>
+          {props.label}
+        </Button>
+      </Badge>
+    )
+
+  } else {
+
+    return (
+      <Button onClick={props.onClick} className={style}>
+        {props.label}
+      </Button>
+    )
+  }
+}
+
+const getUserSelector = createSelector([state => state.user.data], (user) => {
+  return user;
+});
 
 export default function(props) {
 
   const [tab, setTab] = useState(0);
-  const classes = useStyles();
   const history = useHistory();
   const instructors = useRouteMatch(path.instructors);
+  const user = useSelector(state => getUserSelector(state));
+
   let home = useRouteMatch({ path: path.home, strict: true});
-  let milestone = useRouteMatch(path.milestone)
+  let courses = useRouteMatch({ path: path.courses, strict: true});
+  let milestone = useRouteMatch(path.milestone);
+  let admin = useRouteMatch(path.admin);
+  let refer = useRouteMatch(path.referFriend);
 
 
   useEffect(() => {
     if (home && home.isExact) {
-      setTab(1);
-    } else if (milestone) {
-      setTab(3);
-    } else if (instructors && instructors.isExact) {
-      setTab(2);
-    } else {
-      setTab(0);
+      return setTab(0);
     }
-  }, [home]);
+    
+    if (courses && courses.isExact) {
+      return setTab("Classes");
+    }
+    
+    if (milestone) {
+      return setTab("Milestones");
+    }
+    
+    if (instructors && instructors.isExact) {
+      return setTab("Instructors");
+    }
+    
+    if (refer) {
+      return setTab("Refer");
+    }
+    
+    setTab(0);
+  }, [home, courses, milestone, admin, refer]);
 
-  async function navHome() {
-    history.push(path.home);
+  useEffect(() => {
+    if (admin && admin.isExact && user && user.type === 'admin') {
+      return setTab("Admin");
+    }
+
+  }, [user, admin]);
+
+
+  async function navCourses() {
+    history.push(path.courses);
   }
 
   async function navMilestones() {
@@ -62,38 +123,84 @@ export default function(props) {
     history.push(path.instructors);
   }
 
-  let scheduleTab = null;
+  async function navAdmin() {
+    history.push(path.admin);
+  }
 
-  return (
-    <Tabs
-    value={tab}
-    classes={{
-      indicator: classes.indicator,
-    }}
-    >
-      <Tab value={0} className={classes.hidden} classes={{selected: classes.color}} />
-      <Tab
-        value={1}
-        label="Classes"
-        onClick={navHome}
-        className={classes.tab}
-        classes={{selected: classes.color}}
+  async function navRefer() {
+    history.push(path.referFriend);
+  }
+
+  let adminTab = null;
+
+  if (user && user.type === 'admin') {
+    adminTab = (
+      <TabItem
+        tab={tab}
+        value="Admin"
+        label="Admin"
+        onClick={navAdmin}
       />
-      <Tab
-        value={2}
-        label="Instructors"
-        onClick={navInstructors}
-        className={classes.tab}
-        classes={{selected: classes.color}}
-      />
-      <Tab
-        value={3}
+    )
+  }
+
+  let referFriend = null;
+
+  if (user && user.id) {
+
+    if (user.referrerId) {
+      referFriend = (
+        <TabItem
+          tab={tab}
+          value="Refer"
+          label="Refer &amp; Earn"
+          onClick={navRefer}
+        />
+      );
+    } else {
+
+      referFriend = (
+        <TabItem
+          badge="NEW"
+          tab={tab}
+          value="Refer"
+          label="Refer &amp; Earn"
+          onClick={navRefer}
+        />
+      );
+    }
+  }
+
+  let msContent;
+
+  if (user && user.id) {
+    msContent = (
+      <TabItem
+        tab={tab}
+        value="Milestones"
         label="Milestones"
         onClick={navMilestones}
-        className={classes.tab}
-        classes={{selected: classes.color}}
       />
-      {scheduleTab}
-    </Tabs>
+    )
+  }
+
+  return (
+    <Grid style={{display: "flex"}}>
+      <TabItem
+        tab={tab}
+        value="Classes"
+        label="Classes"
+        onClick={navCourses}
+      />
+      <TabItem
+        tab={tab}
+        value="Instructors"
+        label="Instructors"
+        onClick={navInstructors}
+      />
+      {msContent}
+      {referFriend}
+      {adminTab}
+    </Grid>
   )
 }
