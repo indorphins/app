@@ -1,4 +1,5 @@
 import * as later from 'later';
+import * as dateFns from 'date-fns';
 import { Component, Property } from 'immutable-ics';
 import path from '../routes/path';
 
@@ -13,6 +14,21 @@ const cronDayMap = {
   4: 4,
   5: 5,
   6: 6,
+}
+
+/**
+ * Takes in a date and returns the date numWeeks after
+ * If duration is passed, adds duration to the time of the new date
+ * @param {Date} start 
+ * @param {Number} numWeeks 
+ * @param {Number} duration (optional) duration of class
+ * @returns {Date}
+ */
+export function getDateWeeksLater(start, numWeeks, duration=0) {
+  let d = new Date(start);
+  d = dateFns.addWeeks(d, numWeeks);
+  d.setMinutes(d.getMinutes() + duration);
+  return d;
 }
 
 export function getWeeklyCronRule(date) {
