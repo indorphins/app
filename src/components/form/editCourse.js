@@ -131,7 +131,7 @@ export default function (props) {
   const seriesLengthHandler = function(e) {
     const weeks = e.target.value;
 
-    if (weeks && weeks > 0) {
+    if (weeks && weeks > 0 && weeks < 13) {
       setSeriesLength(weeks);
     }    
   }
