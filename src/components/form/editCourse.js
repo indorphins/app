@@ -131,7 +131,7 @@ export default function (props) {
   const seriesLengthHandler = function(e) {
     const weeks = e.target.value;
 
-    if (weeks && weeks >= 0) {
+    if (weeks && weeks > 0) {
       setSeriesLength(weeks);
     }    
   }
@@ -180,16 +180,15 @@ export default function (props) {
       data.start_date = selectedDate.toISOString();
     }
 
-    if (recurring) {
-      let rule = utils.getWeeklyCronRule(data.start_date);
-      data.recurring = rule;
-      if (seriesLength && selectedDate && duration) {
-        const d = utils.getDateWeeksLater(selectedDate, seriesLength, duration);
-        data.end_date = d;
+    let coursesList;
+
+    if (recurring && seriesLength) {
+      if (seriesLength > 0) {
+        coursesList = utils.getClassDataOverWeeks(data, seriesLength);
       } else {
         log.debug("COURSE EDIT:: recurring class parameters not set");
         setLoader(false);
-        setErrorMsg("Missing class parameter(s): start date, series length, or duration")
+        setErrorMsg("Series length must be 1 week or more")
         return;
       }
     }
@@ -211,6 +210,10 @@ export default function (props) {
 
       let created;
 
+      if (coursesList) {
+        data = coursesList
+      }
+
       try {
         created = await Course.create(data)
       } catch (e) {
@@ -219,10 +222,15 @@ export default function (props) {
         return log.error("COURSE EDIT:: course creation", e);
       }
 
+      // Add all new classes to schedule
+      let first;
+      created.data.forEach(c => {
+        if (!first) first = c;
+        store.dispatch(actions.user.addScheduleItem(c));
+      })
 
-      store.dispatch(actions.user.addScheduleItem(created.data));
       setLoader(false);
-      history.push(path.courses + "/" + created.data.id);
+      history.push(path.courses + "/" + first.id);
     }
   }
 
@@ -305,6 +313,8 @@ export default function (props) {
           type="number"
           label="Weeks?"
           variant="outlined"
+          min={1}
+          max={12}
           value={seriesLength}
           onChange={seriesLengthHandler}
         />

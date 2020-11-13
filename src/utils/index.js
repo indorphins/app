@@ -31,6 +31,16 @@ export function getDateWeeksLater(start, numWeeks, duration=0) {
   return d;
 }
 
+export function getClassDataOverWeeks(classData, seriesLength) {
+  let courses = [classData]
+  for (let i = 1; i < seriesLength; i++) {
+    let courseData = {...classData}
+    courseData.start_date = getDateWeeksLater(classData.start_date, i).toISOString();
+    courses.push(courseData);
+  }
+  return courses;
+}
+
 export function getWeeklyCronRule(date) {
   let d = new Date(date);
   let day = d.getUTCDay();
