@@ -99,7 +99,7 @@ export async function addParticipant(id) {
     }
   };
 
-  let u = url + id + "/participants";
+  let u = url + id + '/participants';
 
   return callAPI(u, options, true);
 }
