@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { useHistory } from "react-router-dom";
 import { Button, Grid, Modal, Fade, Paper, Typography, makeStyles } from '@material-ui/core';
 import log from '../../log';
 import { create } from '../../api/subscription';
@@ -47,12 +46,11 @@ const getDefaultPaymentMethod = createSelector(
  * Also has button to "switch payment method" that sends the user to their profile page
  * requires props - openModal, closeModalHandler
  */
-export default function ResumeSubscriptionModal (props) {
+export default function StartTrialModal (props) {
   const [err, setErr] = useState();
   const [cost, setCost] = useState();
-  const [pMethod, setPMethod] = useState('No Payment Method Added');
+  const [trialLength, setTrialLength] = useState();
   const classes = useStyles();
-  const history = useHistory();
   const products = useSelector(state => getProductsSelector(state));
   const defaultPaymentMethod = useSelector(state => getDefaultPaymentMethod(state));
 
@@ -62,7 +60,7 @@ export default function ResumeSubscriptionModal (props) {
 
   useEffect(() => {
     if (products && products.price && products.price.length > 0) {
-      
+
       let c = products.price[0].amount / 100;
       let costText = "$" + c.toFixed(2);
 
@@ -72,20 +70,13 @@ export default function ResumeSubscriptionModal (props) {
       
       setCost(costText)
     }
+
+    if (products && products.product) {
+      setTrialLength(products.product.trial_length);
+    }
   }, [products]);
 
-  useEffect(() => {
-    if (defaultPaymentMethod && defaultPaymentMethod.length > 0) {
-      setPMethod(`Payment Method: ${defaultPaymentMethod[0].brand.toUpperCase()} ${defaultPaymentMethod[0].last4}`)
-    }
-  }, [defaultPaymentMethod])
-
-  const swapPaymentHandler = () => {
-    setErr(null);
-    history.push('/profile');
-  }
-
-  const resumeSubHandler = () => {
+  const startTrialHandler = () => {
     if (!defaultPaymentMethod) {
       setErr("Add a payment method to subscribe")
       return
@@ -130,30 +121,40 @@ export default function ResumeSubscriptionModal (props) {
       </Paper>
     )
   } else {
+    let trialContent = '';
+    if (trialLength && trialLength > 0) {
+      trialContent = `${trialLength} Days Free, then `
+    }
+
+    let trialDescContent = `Your subscription starts when you click the button below. 
+      Your payment method on file will be charged ${cost} monthly at the end of each billing cycle until you cancel. 
+      You can cancel anytime online through your account. At all times, Terms and Conditions apply.`
+
+    if (trialLength && trialLength > 0) {
+      trialDescContent = `OFFER TERMS: Your ${trialLength} day trial starts when you click the button 
+      below and ends ${trialLength} days later. If you don’t cancel during the trial period, you will 
+      automatically continue to a paid plan (currently ${cost}/mo) and your payment method on file will 
+      be charged monthly until you cancel. You can cancel anytime online through your account. 
+      At all times, Terms and Conditions apply.`
+    }
+
     content = (
       <Paper className={classes.modalContent}>
         <Grid container id='modal-description' justify='center'>
-          <Typography variant="h3" style={{ textAlign: 'center'}}>Unlimited Classes for just {cost}</Typography>
-          <br />
+          <Typography variant="h3" style={{ textAlign: 'center'}}>
+            {trialContent}{cost}/mo for unlimited classes!
+          </Typography>
+        </Grid>
+        <Grid container id='modal-description'>
           <br />
           <Typography variant="body2">
-            OFFER TERMS: take as many classes as you’d like across our platform for just {cost}/mo. 
-            You’ll be billed automatically each month. Terms & Services apply across all classes.
+            {trialDescContent}
           </Typography>
         </Grid>
         <br />
-        <Typography variant="body2">{pMethod}</Typography>
-        <br />
         <Grid container id='modal-buttons' justify='center'>
-          <Button
-            onClick={swapPaymentHandler}
-            variant="contained"
-            className={classes.modalBtn}
-          >
-            Swap Payment Method
-          </Button>
-          <Button onClick={resumeSubHandler} variant="contained" color="primary" className={classes.modalBtn}>
-            Resume Subscription
+          <Button onClick={startTrialHandler} variant="contained" color="primary" className={classes.modalBtn}>
+            {trialLength > 0 ? "Start Trial" : "Start Subscription"}
           </Button>
         </Grid>
         <br />

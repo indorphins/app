@@ -26,16 +26,11 @@ const getSessionsSelector = createSelector([state => state.milestone.sessions], 
   return sessions;
 });
 
-const getProductsSelector = createSelector([state => state.products], (products => {
-  return products;
-}))
-
 const stripePromise = loadStripe(config.stripe_public_key);
 
 export default function App() {
   const currentUser = useSelector((state) => getUserSelector(state));
   const sessions = useSelector(state => getSessionsSelector(state));
-  const products = useSelector(state => getProductsSelector(state));
 
   async function getUser(firebaseUserData) {
     let user;
