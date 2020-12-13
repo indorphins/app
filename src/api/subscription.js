@@ -16,7 +16,7 @@ export async function getProducts() {
 
   const u = url + '/products';
 
-  return callAPI(u, options, true);
+  return callAPI(u, options, false);
 }
 
 /**
@@ -56,10 +56,10 @@ export async function create(sku, price) {
     headers: {
       'Content-Type': 'application/json'
     },
-    body: {
+    body: JSON.stringify({
       sku: sku,
       price: price
-    }
+    }),
   }
 
   return callAPI(url, options, true);
