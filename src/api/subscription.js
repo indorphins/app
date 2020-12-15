@@ -41,7 +41,10 @@ export async function cancel() {
     method: 'DELETE',
     headers: {
       'Content-Type': 'application/json'
-    }
+    },
+    body: JSON.stringify({
+      now: new Date()
+    })
   }
 
   return callAPI(url, options, true);

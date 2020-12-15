@@ -12,6 +12,8 @@ import CourseSchedule from '../components/courseSchedule';
 import ProfileEdit from '../components/form/editProfile';
 import UserData from '../components/userData';
 import Cards from '../components/cards';
+import ProfileNav from '../components/profile/nav';
+import Membership from '../components/profile/membership';
 import * as Stripe from '../api/stripe';
 import log from '../log';
 import path from '../routes/path';
@@ -78,6 +80,7 @@ export default function Profile() {
   const [editButton, setEditButton] = useState(false);
   const [editForm, setEditForm] = useState(false);
   const [createStripe, setCreateStripe] = useState(false);
+  const [navTab, setNavTab] = useState('profile');
 
   useEffect(() => {
     document.title="Profile";
@@ -151,6 +154,10 @@ export default function Profile() {
     let url = await Stripe.getAccountLinkURL(path.home);
     log.debug("REDIRECT to", url);
     window.location = url;
+  }
+
+  const setNavPageHandler = (page) => {
+    setNavTab(page);
   }
 
   let editContent = null;
@@ -268,8 +275,15 @@ export default function Profile() {
     }
   }
 
+  let membershipContent = <Membership />;
+
+  if (navTab === 'membership') {
+    content = membershipContent;
+  }
+
   return (
     <Analytics title="Profile">
+      <ProfileNav setPage={setNavPageHandler} />
       <Container className={classes.content}>
         {content}
       </Container>
