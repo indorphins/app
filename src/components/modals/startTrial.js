@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { Button, Grid, Modal, Fade, Paper, Typography, makeStyles } from '@material-ui/core';
+import { Button, Grid, Modal, Fade, Paper, Typography, CircularProgress, makeStyles } from '@material-ui/core';
 import log from '../../log';
 import { create } from '../../api/subscription';
 import { store, actions } from '../../store';
@@ -25,6 +25,9 @@ const useStyles = makeStyles((theme) => ({
     marginLeft: theme.spacing(1),
     marginRight: theme.spacing(1),
     marginTop: theme.spacing(1)
+  },
+  loader: {
+    minHeight: 300,
   },
 }));  
 
@@ -50,6 +53,7 @@ export default function StartTrialModal (props) {
   const [err, setErr] = useState();
   const [cost, setCost] = useState();
   const [trialLength, setTrialLength] = useState();
+  const [loader, setLoader] = useState(false)
   const classes = useStyles();
   const products = useSelector(state => getProductsSelector(state));
   const defaultPaymentMethod = useSelector(state => getDefaultPaymentMethod(state));
@@ -88,17 +92,29 @@ export default function StartTrialModal (props) {
       return;
     }
 
+    setLoader(true);
+
     create(products.product.id, products.price[0].id)
       .then(sub => {
         log.info("SUBSCRIPTION:: created ", sub);
         store.dispatch(actions.user.setSubscription(sub));
         setErr(null);
+        setLoader(false);
         props.closeModalHandler();
       }).catch(err => {
         log.warn("SUBSCRIPTION:: error creating ", err);
+        setLoader(false);
         setErr(err.message);
       });
   }
+
+  let loaderContent = (
+    <Paper className={classes.modalContent}>
+      <Grid container direction="row" justify="center" alignItems="center" className={classes.loader}>
+        <CircularProgress color="primary" />
+      </Grid>
+    </Paper>
+  );
 
   let content;
 
@@ -165,6 +181,10 @@ export default function StartTrialModal (props) {
         </Grid>
       </Paper>
     )
+  }
+
+  if (loader) {
+    content = loaderContent;
   }
 
   return (
