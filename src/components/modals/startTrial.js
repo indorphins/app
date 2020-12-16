@@ -5,6 +5,8 @@ import { Button, Grid, Modal, Fade, Paper, Typography, CircularProgress, makeSty
 import log from '../../log';
 import { create } from '../../api/subscription';
 import { store, actions } from '../../store';
+import { useHistory } from "react-router-dom";
+import { getSubscriptionCostString } from '../../utils/index';
 
 const useStyles = makeStyles((theme) => ({
   modal: {
@@ -54,31 +56,38 @@ export default function StartTrialModal (props) {
   const [cost, setCost] = useState();
   const [trialLength, setTrialLength] = useState();
   const [loader, setLoader] = useState(false)
+  const [needsPMethod, setNeedsPMethod] = useState(true);
+  const history = useHistory();
   const classes = useStyles();
   const products = useSelector(state => getProductsSelector(state));
   const defaultPaymentMethod = useSelector(state => getDefaultPaymentMethod(state));
 
-  function isInteger(n) {
-    return n === +n && n === (n|0);
-  }
-
   useEffect(() => {
     if (products && products.price && products.price.length > 0) {
 
-      let c = products.price[0].amount / 100;
-      let costText = "$" + c.toFixed(2);
-
-      if (isInteger(c)) {
-        costText = "$" + c;
+      let cost = getSubscriptionCostString(products.price);
+      if (cost !== -1) {
+        setCost(cost)
       }
-      
-      setCost(costText)
     }
 
-    if (products && products.product) {
+    if (products && products.product && products.product.trial_length) {
       setTrialLength(products.product.trial_length);
     }
   }, [products]);
+
+  useEffect(() => {
+    if (defaultPaymentMethod && defaultPaymentMethod.length > 0) {
+      setNeedsPMethod(false);
+    } else {
+      setNeedsPMethod(true);
+    }
+  }, [defaultPaymentMethod])
+
+  const swapPaymentHandler = () => {
+    setErr(null);
+    history.push('/profile');
+  }
 
   const startTrialHandler = () => {
     if (!defaultPaymentMethod) {
@@ -86,7 +95,8 @@ export default function StartTrialModal (props) {
       return
     }
 
-    if (!products || !products.product || !products.price || products.price.length === 0) {
+    if (!products || !products.product || !products.price || 
+      products.price.length === 0 || !products.product.id || !products.price[0].id) {
       log.warn("No products in redux store");
       setErr("No subscription data available")
       return;
@@ -138,20 +148,30 @@ export default function StartTrialModal (props) {
     )
   } else {
     let trialContent = '';
-    if (trialLength && trialLength > 0) {
-      trialContent = `${trialLength} Days Free, then `
-    }
-
     let trialDescContent = `Your subscription starts when you click the button below. 
       Your payment method on file will be charged ${cost} monthly at the end of each billing cycle until you cancel. 
       You can cancel anytime online through your account. At all times, Terms and Conditions apply.`
 
     if (trialLength && trialLength > 0) {
+      trialContent = `${trialLength} Days Free, then `
       trialDescContent = `OFFER TERMS: Your ${trialLength} day trial starts when you click the button 
       below and ends ${trialLength} days later. If you don’t cancel during the trial period, you will 
       automatically continue to a paid plan (currently ${cost}/mo) and your payment method on file will 
       be charged monthly until you cancel. You can cancel anytime online through your account. 
       At all times, Terms and Conditions apply.`
+    }
+
+    let paymentMethodBtn;
+    if (needsPMethod) {
+      paymentMethodBtn = (
+        <Button
+          onClick={swapPaymentHandler}
+          variant="contained"
+          className={classes.modalBtn}
+        >
+          Swap Payment Method
+        </Button>
+      );
     }
 
     content = (
@@ -169,6 +189,7 @@ export default function StartTrialModal (props) {
         </Grid>
         <br />
         <Grid container id='modal-buttons' justify='center'>
+          {paymentMethodBtn}
           <Button onClick={startTrialHandler} variant="contained" color="primary" className={classes.modalBtn}>
             {trialLength > 0 ? "Start Trial" : "Start Subscription"}
           </Button>

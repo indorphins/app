@@ -166,3 +166,27 @@ export function createCalenderEvent(subject, organizer, id, begin, end, recurrin
 
   return calendar;
 }
+
+function isInteger(n) {
+  return n === +n && n === (n|0);
+}
+
+/**
+ * Returns the cost string for input price like $XX.XX
+ * returns -1 if unable to grab price from input object
+ * @param {Object} price 
+ */
+export function getSubscriptionCostString(price) {
+  if (price && price.length > 0 && price[0].amount) {
+      
+    let c = price[0].amount / 100;
+    let costText = "$" + c.toFixed(2);
+
+    if (isInteger(c)) {
+      costText = "$" + c;
+    }
+    
+    return costText
+  }
+  return -1;
+}

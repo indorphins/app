@@ -6,6 +6,7 @@ import { Button, Grid, Modal, Fade, Paper, Typography, CircularProgress, makeSty
 import log from '../../log';
 import { create } from '../../api/subscription';
 import { store, actions } from '../../store';
+import { getSubscriptionCostString } from '../../utils/index';
 
 const useStyles = makeStyles((theme) => ({
   modal: {
@@ -54,33 +55,31 @@ export default function ResumeSubscriptionModal (props) {
   const [err, setErr] = useState();
   const [cost, setCost] = useState();
   const [pMethod, setPMethod] = useState('No Payment Method Added');
+  const [needsPMethod, setNeedsPMethod] = useState(true);
   const [loader, setLoader] = useState(false);
   const classes = useStyles();
   const history = useHistory();
   const products = useSelector(state => getProductsSelector(state));
   const defaultPaymentMethod = useSelector(state => getDefaultPaymentMethod(state));
 
-  function isInteger(n) {
-    return n === +n && n === (n|0);
-  }
-
   useEffect(() => {
-    if (products && products.price && products.price.length > 0) {
+    if (products && products.price && products.price.length > 0 && products.price[0].amount) {
       
-      let c = products.price[0].amount / 100;
-      let costText = "$" + c.toFixed(2);
-
-      if (isInteger(c)) {
-        costText = "$" + c;
+      let cost = getSubscriptionCostString(products.price);
+      if (cost !== -1) {
+        setCost(cost)
       }
-      
-      setCost(costText)
     }
   }, [products]);
 
   useEffect(() => {
-    if (defaultPaymentMethod && defaultPaymentMethod.length > 0) {
+    if (defaultPaymentMethod && defaultPaymentMethod.length > 0 
+    && defaultPaymentMethod[0].brand && defaultPaymentMethod[0].last4) {
       setPMethod(`Payment Method: ${defaultPaymentMethod[0].brand.toUpperCase()} ${defaultPaymentMethod[0].last4}`)
+      setNeedsPMethod(false);
+    } else {
+      setPMethod(`No Payment Method Added`);
+      setNeedsPMethod(true);
     }
   }, [defaultPaymentMethod])
 
@@ -169,7 +168,12 @@ export default function ResumeSubscriptionModal (props) {
           >
             Swap Payment Method
           </Button>
-          <Button onClick={resumeSubHandler} variant="contained" color="primary" className={classes.modalBtn}>
+          <Button onClick={resumeSubHandler}
+            variant="contained" 
+            disabled={needsPMethod} 
+            color="primary" 
+            className={classes.modalBtn}
+          >
             Resume Subscription
           </Button>
         </Grid>
