@@ -7,6 +7,7 @@ import { create } from '../../api/subscription';
 import { store, actions } from '../../store';
 import { useHistory } from "react-router-dom";
 import { getSubscriptionCostString } from '../../utils/index';
+import path from '../../routes/path';
 
 const useStyles = makeStyles((theme) => ({
   modal: {
@@ -50,6 +51,7 @@ const getDefaultPaymentMethod = createSelector(
  * Modal that will create a subscription without free trial if user chooses to resume subscription
  * Also has button to "switch payment method" that sends the user to their profile page
  * requires props - openModal, closeModalHandler
+ * optional props - currentCourse
  */
 export default function StartTrialModal (props) {
   const [err, setErr] = useState();
@@ -86,7 +88,11 @@ export default function StartTrialModal (props) {
 
   const swapPaymentHandler = () => {
     setErr(null);
-    history.push('/profile');
+    if (props.currentCourse) {
+      history.push(`${path.addPayment}?redirect=${path.courses}/${props.currentCourse.id}`);
+    } else {
+      history.push(`${path.addPayment}`);
+    }
   }
 
   const startTrialHandler = () => {
@@ -190,7 +196,13 @@ export default function StartTrialModal (props) {
         <br />
         <Grid container id='modal-buttons' justify='center'>
           {paymentMethodBtn}
-          <Button onClick={startTrialHandler} variant="contained" color="primary" className={classes.modalBtn}>
+          <Button
+            onClick={startTrialHandler}
+            variant="contained" 
+            color="primary" 
+            disabled={needsPMethod} 
+            className={classes.modalBtn}
+          >
             {trialLength > 0 ? "Start Trial" : "Start Subscription"}
           </Button>
         </Grid>

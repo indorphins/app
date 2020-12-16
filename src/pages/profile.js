@@ -80,7 +80,7 @@ export default function Profile() {
   const [editButton, setEditButton] = useState(false);
   const [editForm, setEditForm] = useState(false);
   const [createStripe, setCreateStripe] = useState(false);
-  const [navTab, setNavTab] = useState('profile');
+  const [navTab, setNavTab] = useState('Profile');
 
   useEffect(() => {
     document.title="Profile";
@@ -275,15 +275,15 @@ export default function Profile() {
     }
   }
 
-  let membershipContent = <Membership />;
+  let membershipContent = <Membership setNavTab={setNavPageHandler} />;
 
-  if (navTab === 'membership') {
+  if (navTab === 'Membership') {
     content = membershipContent;
   }
 
   return (
     <Analytics title="Profile">
-      <ProfileNav setPage={setNavPageHandler} />
+      <ProfileNav setPage={setNavPageHandler} tab={navTab} />
       <Container className={classes.content}>
         {content}
       </Container>

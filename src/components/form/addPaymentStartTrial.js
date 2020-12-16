@@ -54,7 +54,10 @@ const useStyles = makeStyles((theme) => ({
     paddingRight: theme.spacing(1),
     paddingBottom: theme.spacing(1.5),
     borderRadius: "2px"
-  }
+  },
+  txtField: {
+    width: "100%",
+  },
 }));
 
 export default function AddPaymentStartTrial (props) {
@@ -76,7 +79,7 @@ export default function AddPaymentStartTrial (props) {
 
       if (products.product.id && products.price[0].id) {
         setProductId(products.product.id);
-        setPriceId(products.price.id);
+        setPriceId(products.price[0].id);
       }
 
       let cost = getSubscriptionCostString(products.price);
@@ -123,7 +126,7 @@ export default function AddPaymentStartTrial (props) {
     } catch(err) {
       log.error("ADD_PAYMENT_START_TRIAL:: ", err);
       setLoader(false);
-      setServerErr({type:"error", message: err.message});
+      setServerErr(err.message);
       return;
     }
 
@@ -131,10 +134,7 @@ export default function AddPaymentStartTrial (props) {
 
     if (!paymentMethodRef) {
       setLoader(false);
-      return setServerErr({
-        type: "error",
-        message: "Invalid card information"
-      });
+      return setServerErr("Invalid card information");
     }
 
     let paymentData = null;
@@ -143,7 +143,7 @@ export default function AddPaymentStartTrial (props) {
     } catch(err) {
       log.error("ADD_PAYMENT_START_TRIAL:: ", err);
       setLoader(false);
-      setServerErr({type:"error", message: err.message});
+      setServerErr(err.message);
       return;
     }
 
@@ -152,7 +152,7 @@ export default function AddPaymentStartTrial (props) {
     if (!productId || ! priceId) {
       log.warn("No products in redux store");
       setLoader(false);
-      setServerErr({type: 'error', message: "No subscription data available to start trial"})
+      setServerErr("No subscription data available to start trial")
       return;
     }
 
@@ -164,7 +164,7 @@ export default function AddPaymentStartTrial (props) {
     } catch (err) {
       log.warn("ADD_PAYMENT_START_TRIAL:: error creating ", err);
       setLoader(false);
-      setServerErr({type: 'error', message: err.message});
+      setServerErr(err.message);
       return;
     }
     

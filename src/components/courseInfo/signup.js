@@ -101,7 +101,7 @@ export default function Signup(props) {
 
   useEffect(() => {
     // Has never has a subscription
-    if (currentUser && !sub || Object.entries(sub).length === 0) {
+    if (currentUser && (!sub || Object.entries(sub).length === 0)) {
       setSignup(
         <Button
           variant="contained"
@@ -206,7 +206,12 @@ export default function Signup(props) {
       openModal={startSubscription} 
     />
   );
-  let startTrialModal = <StartTrialModal closeModalHandler={closeSubModalHandler} openModal={startSubscription} />;
+  let startTrialModal = 
+    <StartTrialModal 
+      closeModalHandler={closeSubModalHandler}
+      openModal={startSubscription} 
+      currentCourse={course}
+    />;
 
   let content = null;
   let modalContent = null;

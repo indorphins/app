@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Badge, Button, Grid } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -61,19 +61,17 @@ function TabItem(props) {
   }
 }
 
-// Takes in a setPage prop 
+// Takes in a setPage and navTab prop 
 export default function ProfileNav(props) {
-  const [tab, setTab] = useState('Profile');
   const classes = styles();
+  const { setPage, tab } = props;
 
   const navProfile = () => {
-    setTab('Profile');
-    props.setPage('profile');
+    setPage('Profile');
   }
 
   const navMembership = () => {
-    setTab('Membership');
-    props.setPage('membership');
+    setPage('Membership');
   }
 
   return (

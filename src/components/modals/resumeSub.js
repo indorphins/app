@@ -50,6 +50,8 @@ const getDefaultPaymentMethod = createSelector(
  * Modal that will create a subscription without free trial if user chooses to resume subscription
  * Also has button to "switch payment method" that sends the user to their profile page
  * requires props - openModal, closeModalHandler
+ * optional props - profilePageHandler (used when resumeSubModal is presented 
+ * on the profile page and payment method is changed)
  */
 export default function ResumeSubscriptionModal (props) {
   const [err, setErr] = useState();
@@ -85,7 +87,11 @@ export default function ResumeSubscriptionModal (props) {
 
   const swapPaymentHandler = () => {
     setErr(null);
-    history.push('/profile');
+    if (window.location.pathname === '/profile' && props.profilePageHandler) {
+      props.profilePageHandler('Profile');
+    } else {
+      history.push('/profile');
+    }
   }
 
   const resumeSubHandler = () => {

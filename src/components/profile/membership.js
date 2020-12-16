@@ -58,7 +58,9 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
+// Takes in a setNavTab prop that can set the nav tab
 export default function Membership (props) {
+  const { setNavTab } = props;
   const [memStatus, setMemStatus] = useState('Inactive');
   const [payPeriod, setPayPeriod] = useState();
   const [pMethod, setPMethod] = useState();
@@ -119,7 +121,11 @@ export default function Membership (props) {
 
   if (confirmLeave) {
     modalContent = startTrial ? <StartTrialModal openModal={confirmLeave} closeModalHandler={closeHandler} /> 
-    : <ResumeSubscriptionModal openModal={confirmLeave} closeModalHandler={closeHandler} />
+    : <ResumeSubscriptionModal 
+    openModal={confirmLeave} 
+    closeModalHandler={closeHandler} 
+    profilePageHandler={setNavTab}
+      />
 
     if (memStatus === 'Active' || refund) {
       modalContent = 
