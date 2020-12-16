@@ -3,6 +3,8 @@ import { Button, Grid, Modal, Fade, Paper, Typography, makeStyles } from '@mater
 import { useHistory } from 'react-router-dom';
 
 import path from '../../routes/path';
+import StartTrialModal from '../modals/startTrial';
+import ResumeSubscriptionModal from '../modals/resumeSub';
 
 const useStyles = makeStyles((theme) => ({
   modal: {
@@ -25,12 +27,15 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Signup(props) {
 
-  const { currentUser, course, size } = props;
+  const { currentUser, course, size, subscription } = props;
   const classes = useStyles();
   const history = useHistory();
   const [ signupBtn, setSignup ] = useState(null);
   const [ confirmLeave, setConfirmLeave ] = useState(false);
   const [ isEnrolled, setIsEnrolled ] = useState(false);
+  const [ startSubscription, setStartSubscription] = useState(false);
+  const [ subModal, setSubModal] = useState();
+  const [ sub, setSub ] = useState();
 
   useEffect(() => {
 
@@ -51,23 +56,21 @@ export default function Signup(props) {
   }, [currentUser, course]);
 
   useEffect(() => {
-
-    if (!course || !currentUser.id || isEnrolled) return;
-
-    let handler = null;
-    let label = null;
-
-    if (course.available_spots > 0 || currentUser.type !== "standard") {
-      label = "Book Class";
-
-      if (course.cost && course.cost > 0 && currentUser.type === "standard") {
-        handler = props.paidHandler
-      } else {
-        handler = props.freeHandler
-      }
+    if (subscription) {
+      setSub(subscription);
     }
+  }, [subscription])
 
-    if (handler && label) {
+  useEffect(() => {
+
+    if (!course || !currentUser.id || isEnrolled || !subscription) return;
+
+    if ((course.available_spots > 0 || currentUser.type !== "standard")
+    && (subscription && (subscription.status === 'ACTIVE' || subscription.status === 'TRIAL'))) {
+      let label = "Book Class";
+      // Free and paid now use the same handlers with subscriptions
+      let handler = props.paidHandler 
+
       setSignup(
         <Button
           variant="contained"
@@ -79,7 +82,7 @@ export default function Signup(props) {
         </Button>
       );
     }
-  }, [currentUser, course, isEnrolled]);
+  }, [currentUser, course, isEnrolled, subscription]);
 
   useEffect(() => {
     if (isEnrolled) {
@@ -95,6 +98,34 @@ export default function Signup(props) {
       );
     }
   }, [isEnrolled]);
+
+  useEffect(() => {
+    // Has never has a subscription
+    if (currentUser && !sub || Object.entries(sub).length === 0) {
+      setSignup(
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => { showSubscriptionModalHandler(true); }}
+          style={{width:"100%"}}
+        >
+          Start Trial
+        </Button>
+      );
+    } else if (currentUser && sub && sub.status !== 'ACTIVE' && sub.status !== 'TRIAL') {
+      // Has had a prior subscription that is no longer active
+      setSignup(
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => { showSubscriptionModalHandler(false); }}
+          style={{width:"100%"}}
+        >
+          Resume Subscription
+        </Button>
+      );
+    }
+  }, [sub, currentUser])
 
   useEffect(() => {
 
@@ -132,6 +163,16 @@ export default function Signup(props) {
     setConfirmLeave(false);
   }
 
+  const showSubscriptionModalHandler = (trial) => {
+    let m = trial ? 'start' : 'resume';
+    setSubModal(m);
+    setStartSubscription(true);
+  }
+
+  const closeSubModalHandler = () => {
+    setStartSubscription(false);
+  }
+
   let modal = (
     <Modal
       open={confirmLeave}
@@ -159,11 +200,27 @@ export default function Signup(props) {
     </Modal>
   );
 
+  let resumeSubModal = (
+    <ResumeSubscriptionModal 
+      closeModalHandler={closeSubModalHandler}
+      openModal={startSubscription} 
+    />
+  );
+  let startTrialModal = <StartTrialModal closeModalHandler={closeSubModalHandler} openModal={startSubscription} />;
+
   let content = null;
   let modalContent = null;
 
   if (confirmLeave) {
     modalContent = modal;
+  }
+
+  if (startSubscription) {
+    if (subModal === 'start') {
+      modalContent = startTrialModal;
+    } else {
+      modalContent = resumeSubModal;
+    }
   }
 
   if (signupBtn) {

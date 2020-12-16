@@ -52,11 +52,15 @@ export default function CancelSubscriptionModal (props) {
         store.dispatch(actions.user.setSubscription(result.sub));
         props.showRefund(true);
         setRefund(true);
-        let c = result.refund / 100;
-        setRefundCost("$" + c.toFixed(2) + ' ');
+        if (result.refund === 0) {
+          setRefundCost(0);
+        } else {
+          let c = result.refund / 100;
+          setRefundCost("$" + c.toFixed(2) + ' ');
 
-        if (isInteger(c)) {
-          setRefundCost("$" + c + ' ');
+          if (isInteger(c)) {
+            setRefundCost("$" + c + ' ');
+          }
         }
         setLoader(false);
       }).catch(err => {
@@ -74,12 +78,19 @@ export default function CancelSubscriptionModal (props) {
     </Paper>
   );
 
+  let refundText;
+  if (!refundCost) {
+    refundText = `We’ve gone ahead and removed you from any classes you were booked into.`
+  } else {
+    refundText = `We’ve refunded you ${refundCost}
+    for the remaining days in your 
+    monthly subscription and removed you from any classes you were booked into.`
+  }
+
   let refundContent = (
     <Paper className={classes.modalContent}>
       <Typography variant="body1">
-        We’re sorry to see you go. We’ve refunded you {refundCost ? refundCost : ''}
-        for the remaining days in your 
-        monthly subscription and removed you from any classes you were booked into.
+        We’re sorry to see you go. {refundText}
       </Typography>
       <br />
       <Grid container id='modal-description' justify='center'>
