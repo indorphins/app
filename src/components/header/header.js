@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { IconButton, Grid, Typography, Container, useMediaQuery } from '@material-ui/core';
+import { IconButton, Button, Grid, Typography, Container, useMediaQuery } from '@material-ui/core';
 import { Brightness5Rounded, Brightness4Rounded } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
@@ -55,6 +55,12 @@ let useStyles = makeStyles((theme) => ({
   themeButton: {
     color: theme.palette.common.white,
   },
+  trialButton: {
+    backgroundColor: theme.palette.text.salmon,
+    color: theme.palette.common.white,
+    paddingLeft: theme.spacing(1),
+    paddingRight: theme.spacing(1),
+  }
 }));
 
 function AppBar(props) {
@@ -100,6 +106,10 @@ export default function Header(props) {
 
   const goHomeHandler = () => {
     history.push(path.home);
+  }
+
+  const goToSignup = () => {
+    history.push(path.signup);
   }
 
   let lightButton = (<Brightness4Rounded />);
@@ -174,6 +184,15 @@ export default function Header(props) {
     </React.Fragment>
   );
 
+  let trialButton;
+  if (!currentUser || Object.entries(currentUser).length === 0) {
+    trialButton = (
+      <Grid item>
+        <Button variant="contained" className={classes.trialButton} onClick={goToSignup}>Start Free Trial</Button>
+      </Grid>
+    )
+  }
+
   let avatar = (
     <Grid container direction='row' alignItems="center">
       <Grid item>
@@ -184,6 +203,7 @@ export default function Header(props) {
       <Grid item style={{paddingLeft: 10}}>
         <UserAvatar edge="end" user={currentUser} />
       </Grid>
+      {trialButton}
     </Grid>
   );
 

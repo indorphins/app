@@ -10,12 +10,10 @@ const url = config.host + '/user/';
  * @param {string} email 
  * @param {string} phone
  */
-export async function create(username, firstName, lastName, email, phone, birthday) {
+export async function create(username, email, phone, birthday) {
 
   let properties = {
     username: username,
-    first_name: firstName,
-    last_name: lastName,
     email: email,
     birthday: birthday
   };

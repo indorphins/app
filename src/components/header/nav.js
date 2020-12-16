@@ -127,9 +127,9 @@ export default function(props) {
     history.push(path.admin);
   }
 
-  async function navRefer() {
-    history.push(path.referFriend);
-  }
+  // async function navRefer() {
+  //   history.push(path.referFriend);
+  // }
 
   let adminTab = null;
 
@@ -146,30 +146,30 @@ export default function(props) {
 
   let referFriend = null;
 
-  if (user && user.id) {
+  // if (user && user.id) {
 
-    if (user.referrerId) {
-      referFriend = (
-        <TabItem
-          tab={tab}
-          value="Refer"
-          label="Refer &amp; Earn"
-          onClick={navRefer}
-        />
-      );
-    } else {
+  //   if (user.referrerId) {
+  //     referFriend = (
+  //       <TabItem
+  //         tab={tab}
+  //         value="Refer"
+  //         label="Refer &amp; Earn"
+  //         onClick={navRefer}
+  //       />
+  //     );
+  //   } else {
 
-      referFriend = (
-        <TabItem
-          badge="NEW"
-          tab={tab}
-          value="Refer"
-          label="Refer &amp; Earn"
-          onClick={navRefer}
-        />
-      );
-    }
-  }
+  //     referFriend = (
+  //       <TabItem
+  //         badge="NEW"
+  //         tab={tab}
+  //         value="Refer"
+  //         label="Refer &amp; Earn"
+  //         onClick={navRefer}
+  //       />
+  //     );
+  //   }
+  // }
 
   let msContent;
 

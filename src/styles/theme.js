@@ -48,6 +48,7 @@ const lightPalette = {
     secondary: '#9e9e9e',
     disabled: '#e0e0e0',
     hint: '#eeeeee',
+    salmon: colors.salmon
   },
   grey: {
     50: '#fafafa',
@@ -145,6 +146,7 @@ const darkPalette = {
     secondary: '#bdbdbd',
     disabled: '#757575',
     hint: '#616161',
+    salmon: colors.salmon
   },
   grey: {
     900: '#fafafa',

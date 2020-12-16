@@ -3,9 +3,12 @@ import { useHistory } from 'react-router-dom';
 import { Button, Container, Grid, makeStyles, useMediaQuery, Typography, Zoom, Slide } from '@material-ui/core';
 import { createSelector } from 'reselect';
 import { useSelector } from 'react-redux';
-
+import ResumeSubscriptionModal from '../components/modals/resumeSub';
 import path from '../routes/path';
 import BgShape from '../components/icon/bgShape';
+import * as Stripe from '../api/stripe';
+import log from '../log';
+import { store, actions } from '../store';
 
 const styles = makeStyles((theme) => ({
   subHeader: {
@@ -86,16 +89,27 @@ const getThemeSelector = createSelector([state => state.theme], (t) => {
   return t;
 });
 
+const getSubscriptionSelector = createSelector([state => state.user.subscription], s => {
+  return s;
+});
+
+const paymentDataSelector = createSelector([state => state.user.paymentData], (p) => {
+  return p;
+});
+
 export default function Home() {
   const classes = styles();
   const history = useHistory();
   const user = useSelector(state => getUserSelector(state));
+  const paymentData = useSelector(state => paymentDataSelector(state));
+  const subscription = useSelector(state => getSubscriptionSelector(state));
   const [transition, setTranstion] = useState(false); 
   const theme = useSelector(state => getThemeSelector(state));
   const [bgShape, setBgShape] = useState({
     color: "#f5fbfc",
     opacity: "0.87",
   })
+  const [resumeSub, setResumeSub] = useState(false);
 
   const med = useMediaQuery('(max-width:960px)');
 
@@ -122,12 +136,39 @@ export default function Home() {
     }
   }, [theme])
 
+  useEffect(() => {
+
+    if (!user.id) {
+      return;
+    }
+
+    if (paymentData.id) { 
+      return;
+    }
+
+    Stripe.getPaymentMethods().then(result => {
+      return store.dispatch(actions.user.setPaymentData(result));
+    })
+    .catch(err => {
+      log.error("HOME:: update user payment data", err);
+    });
+
+  }, [paymentData.id, user.id]);
+
   function navClasses() {
     history.push(path.courses);
   }
 
   function navSignup() {
     history.push(path.signup);
+  }
+
+  function showResumeSubModal() {
+    setResumeSub(true);
+  }
+
+  function closeResumeSubModal() {
+    setResumeSub(false);
   }
 
   let layout;
@@ -162,6 +203,32 @@ export default function Home() {
     }
   }
 
+  let signup = (
+    <Button variant="contained" color="primary" className={classes.button} onClick={navSignup}>
+      Start Free Trial
+    </Button>
+  );
+
+  if (user && user.id) {
+    if (subscription) {
+      let activeSub = subscription.status === 'ACTIVE' || subscription.status === 'TRIAL';
+      let inactiveSub = subscription.status === 'CANCELED' || subscription.status === 'PAYMENT_FAILED';
+      if (activeSub) {
+        signup = (
+          <Button variant="contained" color="primary" className={classes.button} onClick={navClasses}>
+            View schedule
+          </Button>
+        )
+      } else if (inactiveSub) {
+        signup = (
+          <Button variant="contained" color="primary" className={classes.button} onClick={showResumeSubModal}>
+            Resume Subscription
+          </Button>
+        )
+      }
+    }
+  }
+
   let section1 = (
     <Grid container direction={layout.direction} justify="center" alignItems="center" style={{paddingTop: 100}}>
       <Slide direction={layout.slideDirection} in={transition}>
@@ -186,9 +253,7 @@ export default function Home() {
             </Typography>
           </Grid>
           <Grid item>
-            <Button variant="contained" color="primary" className={classes.button} onClick={navClasses}>
-              View schedule
-            </Button>
+            {signup}
           </Grid>
         </Grid>
       </Slide>
@@ -326,7 +391,7 @@ export default function Home() {
           </Grid>
           <Grid item>
             <Typography variant="body1" align="center">
-              Our $10 classes are live, two-way-streaming so that our instructors can motivate and form correct.
+              Our classes are live, two-way-streaming so that our instructors can motivate and form correct.
             </Typography>
           </Grid>
         </Grid>
@@ -364,20 +429,6 @@ export default function Home() {
     </Grid>
   );
 
-  let signup = (
-    <Button variant="contained" color="primary" className={classes.button} onClick={navSignup}>
-      Sign up for free
-    </Button>
-  );
-
-  if (user && user.id) {
-    signup = (
-      <Button variant="contained" color="primary" className={classes.button} onClick={navClasses}>
-        View schedule
-      </Button>
-    )
-  }
-
   let footer = (
     <React.Fragment>
       <Grid container direction="row" justify="center" alignItems="center" style={{paddingTop: 150, paddingBottom: 50}}>
@@ -393,6 +444,11 @@ export default function Home() {
     </React.Fragment>
   );
 
+  let resumeSubModal;
+  if (resumeSub) {
+    resumeSubModal = <ResumeSubscriptionModal openModal={resumeSub} closeModalHandler={closeResumeSubModal} />
+  }
+
   return (
     <Grid style={{position: "relative", width: "100%", height: "100%"}}>
       <BgShape color={bgShape.color} opacity={bgShape.opacity} />
@@ -407,6 +463,7 @@ export default function Home() {
         <Zoom in={transition}>
           {how}
         </Zoom>
+        {resumeSubModal}
       </Container>
       {footer}
     </Grid>
