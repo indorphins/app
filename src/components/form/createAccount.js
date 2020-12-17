@@ -53,6 +53,8 @@ const useStyles = makeStyles((theme) => ({
 export default function(props) {
   const classes = useStyles();
   const [username, setUsername] = useState(null);
+  const [firstName, setFirstName] = useState(null);
+  const [lastName, setLastName] = useState(null);
   const [email, setEmail] = useState(null);
   const [password, setPassword] = useState(null);
   const [passwordErr, setPasswordErr] = useState(null);
@@ -78,6 +80,14 @@ export default function(props) {
 
   const usernameHandler = (event) => {
     setUsername(event.target.value);
+  };
+
+  const firstNameHandler = (event) => {
+    setFirstName(event.target.value);
+  };
+
+  const lastNameHandler = (event) => {
+    setLastName(event.target.value);
   };
 
   const emailHandler = (event) => {
@@ -201,7 +211,6 @@ export default function(props) {
     try {
       await Firebase.createAccount(email, password);
     } catch(err) {
-			// TODO: display this error to the user
       setLoader(false);
       log.error("AUTH:: firebase account create", err);
 
@@ -227,6 +236,8 @@ export default function(props) {
     try {
       user = await User.create( 
         username, 
+        firstName, 
+        lastName,
         email,
         pn,
         bday
@@ -415,6 +426,32 @@ export default function(props) {
         </Grid>
         <Grid item>
           {passwordConfirmField}
+        </Grid>
+        <Grid item>
+          <TextField
+          disabled={loader}
+          color="primary"
+          autoComplete="given-name"
+          className={classes.txtField}
+          id="firstName"
+          type="text"
+          label="First Name"
+          variant="outlined"
+          onChange={firstNameHandler}
+          />
+        </Grid>
+        <Grid item>
+          <TextField
+          disabled={loader}
+          color="primary"
+          autoComplete="family-name"
+          className={classes.txtField}
+          id="lastName"
+          type="text"
+          label="Last Name"
+          variant="outlined"
+          onChange={lastNameHandler}
+          />
         </Grid>
         <Grid item>
           {phoneField}
