@@ -9,6 +9,7 @@ import BgShape from '../components/icon/bgShape';
 import * as Stripe from '../api/stripe';
 import log from '../log';
 import { store, actions } from '../store';
+import StartTrialModal from '../components/modals/startTrial';
 
 const styles = makeStyles((theme) => ({
   subHeader: {
@@ -110,6 +111,7 @@ export default function Home() {
     opacity: "0.87",
   })
   const [resumeSub, setResumeSub] = useState(false);
+  const [trialModal, setTrialModal] = useState(false);
 
   const med = useMediaQuery('(max-width:960px)');
 
@@ -160,7 +162,11 @@ export default function Home() {
   }
 
   function navSignup() {
-    history.push(path.signup);
+    if (user) {
+      setTrialModal(true);
+    } else {
+      history.push(path.signup);
+    }
   }
 
   function showResumeSubModal() {
@@ -169,6 +175,10 @@ export default function Home() {
 
   function closeResumeSubModal() {
     setResumeSub(false);
+  }
+
+  function closeStartTrialModal() {
+    setTrialModal(false);
   }
 
   let layout;
@@ -449,6 +459,11 @@ export default function Home() {
     resumeSubModal = <ResumeSubscriptionModal openModal={resumeSub} closeModalHandler={closeResumeSubModal} />
   }
 
+  let startTrialModal;
+  if (trialModal) {
+    startTrialModal = <StartTrialModal openModal={trialModal} closeModalHandler={closeStartTrialModal} />
+  }
+
   return (
     <Grid style={{position: "relative", width: "100%", height: "100%"}}>
       <BgShape color={bgShape.color} opacity={bgShape.opacity} />
@@ -464,6 +479,7 @@ export default function Home() {
           {how}
         </Zoom>
         {resumeSubModal}
+        {startTrialModal}
       </Container>
       {footer}
     </Grid>
