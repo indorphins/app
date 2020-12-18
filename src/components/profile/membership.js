@@ -85,7 +85,11 @@ export default function Membership (props) {
           ))
         }
       } else {
-        setMemStatus('Inactive');
+        if (subscription.status === 'PAYMENT_FAILED') {
+          setMemStatus('Inactive - Payment Failed');
+        } else {
+          setMemStatus('Inactive');
+        }
         setPayPeriod(null);
       }
 
