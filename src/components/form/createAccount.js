@@ -211,7 +211,6 @@ export default function(props) {
     try {
       await Firebase.createAccount(email, password);
     } catch(err) {
-			// TODO: display this error to the user
       setLoader(false);
       log.error("AUTH:: firebase account create", err);
 
@@ -259,13 +258,11 @@ export default function(props) {
     await store.dispatch(actions.user.set(user.data));
 
     setLoader(false);
-    
+
     if (redirectUrl) {
-      log.debug('CREATE ACCOUNT:: redirect to', redirectUrl);
-      history.push(redirectUrl);
+      history.push(path.addPayment + "?redirect=" + redirectUrl);
     } else {
-      log.debug('CREATE ACCOUNT:: redirect to home', path.home);
-      history.push(path.home);
+      history.push(path.addPayment);
     }
   };
   

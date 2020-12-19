@@ -8,7 +8,7 @@ import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 
 import { 
-  AvailableSpots, Cancel, Cost, Duration, JoinSession, Message,
+  AvailableSpots, Cancel, Duration, JoinSession, Message,
   OtherCourseInfo, Signup, StartTime, Participants 
 } from '../../components/courseInfo/index';
 import { store, actions } from '../../store';
@@ -17,7 +17,6 @@ import * as Stripe from '../../api/stripe';
 import { classJoined } from '../../api/message';
 import log from '../../log';
 import path from '../../routes/path';
-import CoursePayment from '../../components/form/coursePayment';
 import Instagram from '../../components/instagram';
 import EditorContent from '../../components/editorContent';
 import { format } from 'date-fns';
@@ -100,6 +99,10 @@ const campaignSelector = createSelector([state => state.campaign], (c) => {
   return c;
 });
 
+const subscriptionSelector = createSelector([state => state.user], user => {
+  return user.subscription;
+})
+
 const paymentDataSelector = createSelector([state => state.user], (data) => {
   return data.paymentData;
 });
@@ -122,10 +125,10 @@ export default function CourseInfo() {
   const paymentData = useSelector(state => paymentDataSelector(state));
   const courseData = useSelector(state => courseDataSelector(state))
   const defaultPaymentMethod = useSelector(state => selectDefaultPaymentMethod(state));
+  const subscription = useSelector(state => subscriptionSelector(state));
   const paymentMethod = useRef(defaultPaymentMethod);
   const campaign = useSelector(state => campaignSelector(state));
   const [course, setCourse] = useState('');
-  const [needsPaymentMethod, setNeedsPaymentMethod] = useState(false);
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [errMessage, setErrMessage] = useState(null);
   const [discountPrice, setDiscountPrice] = useState(null);
@@ -239,10 +242,6 @@ export default function CourseInfo() {
     }
   }
 
-  const showSignupForm = async function() {
-    setNeedsPaymentMethod(true);
-  }
-
   const cancelClassHandler = async function () {
     setPaymentProcessing(true);
     
@@ -262,33 +261,26 @@ export default function CourseInfo() {
 
     setErrMessage({severity: "info", message: "Processing..."});
     setPaymentProcessing(true);
-    setNeedsPaymentMethod(false);
 
     log.debug("local payment", paymentMethod);
 
     let defaultPaymentMethod = paymentMethod.current[0];
-    let paymentMethodId = defaultPaymentMethod ? defaultPaymentMethod.id : "none";
 
     if (course.cost && course.cost > 0 && !defaultPaymentMethod && currentUser.type === "standard") {
       setPaymentProcessing(false);
-      setNeedsPaymentMethod(true);
       setErrMessage({severity: "error", message: "No default payment method. Please add one below."});
       return;
     }
 
-    let campaignId = campaign.id;
-
-    Stripe.createPaymentIntent(paymentMethodId, course.id, campaignId)
+    Course.addParticipant(course.id)
       .then(result => {
         setCourse({...result.course});
         store.dispatch(actions.user.addScheduleItem(result.course));
         setPaymentProcessing(false);
-        setNeedsPaymentMethod(false);
         setErrMessage({severity: "success", message: result.message});
       })
       .catch(err => {
         setPaymentProcessing(false);
-        showSignupForm();
         setErrMessage({severity: "error", message: err.message});
         return err;
       })
@@ -498,23 +490,9 @@ export default function CourseInfo() {
     );
   }
 
-  let paymentContent = null;
-  if (needsPaymentMethod) {
-    let hideAdd = true;
-
-    if (!defaultPaymentMethod[0]) {
-      hideAdd = false;
-    }
-
-    paymentContent = (<CoursePayment onSubmit={courseSignupHandler} hideAddCard={hideAdd} classes={classes} />);
-  }
-
   let courseMetaData = (
     <Grid container direction="column" spacing={2}>
       <Grid item container direction="row" justify="flex-end" spacing={2}>
-        <Grid item xs={layout.costSize}>
-          <Cost course={course} classes={classes} discountPrice={discountPrice} />
-        </Grid>
         <Grid item xs={layout.costSize}>
           <Duration course={course} classes={classes} />
         </Grid>
@@ -571,7 +549,6 @@ export default function CourseInfo() {
           </Grid>
           <Grid item>
             {errorContent}
-            {paymentContent}
           </Grid>
           <Grid item container>
             <Grid container direction={layout.actionBtnDirection} justify="flex-end" spacing={2}>
@@ -581,8 +558,9 @@ export default function CourseInfo() {
                 course={course}
                 size={layout.actionBtnSize}
                 leaveHandler={courseLeaveHandler}
-                paidHandler={showSignupForm}
+                paidHandler={courseSignupHandler}
                 freeHandler={courseSignupHandler}
+                subscription={subscription}
               />
               <Cancel 
                 currentUser={currentUser}
