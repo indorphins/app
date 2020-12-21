@@ -202,6 +202,7 @@ export default function (props) {
       let first;
       created.data.forEach(c => {
         if (!first) first = c;
+        log.info("COURSE EDIT:: set current course ", c);
         store.dispatch(actions.user.addScheduleItem(c));
       })
 
