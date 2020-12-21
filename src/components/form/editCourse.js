@@ -193,7 +193,6 @@ export default function (props) {
         created = await Course.create(data)
       } catch (e) {
         setLoader(false);
-        // TODO: display error
         return log.error("COURSE EDIT:: course creation", e);
       }
 
