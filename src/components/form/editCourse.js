@@ -198,9 +198,15 @@ export default function (props) {
       }
 
 
-      store.dispatch(actions.user.addScheduleItem(created.data));
+      // Add all new classes to schedule
+      let first;
+      created.data.forEach(c => {
+        if (!first) first = c;
+        store.dispatch(actions.user.addScheduleItem(c));
+      })
+
       setLoader(false);
-      history.push(path.courses + "/" + created.data.id);
+      history.push(path.courses + "/" + first.id);
     }
   }
 
