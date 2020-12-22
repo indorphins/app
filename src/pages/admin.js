@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 import Analytics from '../utils/analytics';
 import * as Reporting from '../api/reporting';
+import { getParticipantEmails } from '../api/instructor';
 import log from '../log';
 
 const getUserSelector = createSelector([state => state.user.data], (user) => {
@@ -34,6 +35,7 @@ export default function Admin() {
       fetchReports();
       fetchInstructorReports();
       fetchPayoutData();
+      getParticipantEmails();
     }
   }, [user])
 
