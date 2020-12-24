@@ -162,7 +162,7 @@ export default function Home() {
   }
 
   function navSignup() {
-    if (user) {
+    if (user && Object.entries(user).length > 0) {
       setTrialModal(true);
     } else {
       history.push(path.signup);
