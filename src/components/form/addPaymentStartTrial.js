@@ -45,7 +45,13 @@ const useStyles = makeStyles((theme) => ({
     overflow: "hidden",
   },  
   btn: {
-    width: '100%'
+    width: '100%',
+    color: theme.palette.primaryColor.contrastText,
+    backgroundColor: theme.palette.primaryColor.main,
+    "&:hover": {
+      color: theme.palette.primary.contrastText,
+      backgroundColor: theme.palette.primary.main,
+    }
   },
   cardBg: {
     backgroundColor: '#e3e3e3',
