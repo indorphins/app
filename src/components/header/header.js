@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { IconButton, Button, Grid, Typography, Container, useMediaQuery } from '@material-ui/core';
-import { Brightness5Rounded, Brightness4Rounded } from '@material-ui/icons';
+import React from "react";
+import { Button, Grid, Typography, Container, useMediaQuery } from '@material-ui/core';
+// import { Brightness5Rounded, Brightness4Rounded } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
@@ -10,9 +10,6 @@ import { useHistory } from 'react-router-dom';
 import AppDrawer from './appDrawer';
 import UserAvatar from "./userAvatar";
 import Navigation from './nav';
-import Discount from '../campaign/discount';
-import { store, actions } from '../../store';
-
 
 let useStyles = makeStyles((theme) => ({
   logo: {
@@ -60,6 +57,7 @@ let useStyles = makeStyles((theme) => ({
     color: theme.palette.common.white,
     paddingLeft: theme.spacing(1),
     paddingRight: theme.spacing(1),
+    marginLeft: theme.spacing(2)
   }
 }));
 
@@ -76,9 +74,9 @@ function AppBar(props) {
   )
 }
 
-const getThemeSelector = createSelector([state => state.theme], (theme) => {
-  return theme;
-});
+// const getThemeSelector = createSelector([state => state.theme], (theme) => {
+//   return theme;
+// });
 
 const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
@@ -92,17 +90,18 @@ export default function Header(props) {
   const med = useMediaQuery('(max-width:900px)');
   const classes = useStyles();
   const history = useHistory();
-  const theme = useSelector(state => getThemeSelector(state));
   const currentUser = useSelector(state => getUserSelector(state));
-  const [themeButton, setThemeButton] = useState(null);
 
-  const toggleTheme = async function() {
-    if (theme === "light") {
-      await store.dispatch(actions.theme.setDarkMode());
-    } else {
-      await store.dispatch(actions.theme.setLightMode());
-    }
-  }
+  // const theme = useSelector(state => getThemeSelector(state));
+  // const [themeButton, setThemeButton] = useState(null);
+
+  // const toggleTheme = async function() {
+  //   if (theme === "light") {
+  //     await store.dispatch(actions.theme.setDarkMode());
+  //   } else {
+  //     await store.dispatch(actions.theme.setLightMode());
+  //   }
+  // }
 
   const goHomeHandler = () => {
     history.push(path.home);
@@ -112,16 +111,16 @@ export default function Header(props) {
     history.push(path.signup);
   }
 
-  let lightButton = (<Brightness4Rounded />);
-  let darkButton = (<Brightness5Rounded />);
+  // let lightButton = (<Brightness4Rounded />);
+  // let darkButton = (<Brightness5Rounded />);
 
-  useEffect(() => {
-    if (theme === 'light') {
-      setThemeButton(lightButton);
-    } else {
-      setThemeButton(darkButton);
-    }
-  }, [theme]);
+  // useEffect(() => {
+  //   if (theme === 'light') {
+  //     setThemeButton(lightButton);
+  //   } else {
+  //     setThemeButton(darkButton);
+  //   }
+  // }, [theme]);
 
   let layout = {
     appBarPosition: "sticky",
@@ -185,7 +184,7 @@ export default function Header(props) {
   );
 
   let trialButton;
-  if (!currentUser || Object.entries(currentUser).length === 0) {
+  if (!currentUser || Object.entries(currentUser).length === 0 && !med) {
     trialButton = (
       <Grid item>
         <Button variant="contained" className={classes.trialButton} onClick={goToSignup}>Start Free Trial</Button>
@@ -195,11 +194,11 @@ export default function Header(props) {
 
   let avatar = (
     <Grid container direction='row' alignItems="center">
-      <Grid item>
+      {/* <Grid item>
         <IconButton edge="end" onClick={toggleTheme} className={classes.themeButton}>
           {themeButton}
         </IconButton>
-      </Grid>
+      </Grid> */}
       <Grid item style={{paddingLeft: 10}}>
         <UserAvatar edge="end" user={currentUser} />
       </Grid>
@@ -222,7 +221,7 @@ export default function Header(props) {
 
   return (
     <Grid style={{height: "100%"}}>
-      <Discount />
+      {/* <Discount /> */}
       <AppBar className={classes.appbar}>
         {toolbar}
       </AppBar>
