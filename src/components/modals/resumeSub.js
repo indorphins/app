@@ -59,6 +59,8 @@ export default function ResumeSubscriptionModal (props) {
   const [pMethod, setPMethod] = useState('No Payment Method Added');
   const [needsPMethod, setNeedsPMethod] = useState(true);
   const [loader, setLoader] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const [sub, setSub] = useState();
   const classes = useStyles();
   const history = useHistory();
   const products = useSelector(state => getProductsSelector(state));
@@ -112,15 +114,20 @@ export default function ResumeSubscriptionModal (props) {
     create(products.product.id, products.price[0].id)
       .then(sub => {
         log.info("SUBSCRIPTION:: created ", sub);
-        store.dispatch(actions.user.setSubscription(sub));
         setErr(null);
         setLoader(false);
-        props.closeModalHandler();
+        setSuccess(true);
+        setSub(sub);
       }).catch(err => {
         log.warn("SUBSCRIPTION:: error creating ", err);
         setLoader(false);
         setErr(err.message);
       });
+  }
+
+  const subscriptionCreatedHandler = () => {
+    props.closeModalHandler();
+    store.dispatch(actions.user.setSubscription(sub));
   }
 
   let loaderContent = (
@@ -195,6 +202,32 @@ export default function ResumeSubscriptionModal (props) {
 
   if (loader) {
     content = loaderContent;
+  }
+
+  if (success) {
+    content = (
+      <Paper className={classes.modalContent}>
+        <Grid container id='modal-description' justify='center'>
+          <Typography 
+          variant="body1"
+          style={{ textAlign: 'center'}}
+          >
+            Successfully started your subscription!
+          </Typography>
+          <br />
+          <Grid container id='modal-buttons' justify='center'>
+            <Button 
+            onClick={subscriptionCreatedHandler} 
+            variant="contained" 
+            color="primary" 
+            className={classes.modalBtn}
+            >
+              {`Let's go`}
+            </Button>
+          </Grid>
+        </Grid>
+      </Paper>
+    )
   }
 
   return (
