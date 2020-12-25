@@ -36,6 +36,7 @@ export default function Signup(props) {
   const [ startSubscription, setStartSubscription] = useState(false);
   const [ subModal, setSubModal] = useState();
   const [ sub, setSub ] = useState();
+  const [ trialButton, setTrialButton ] = useState();
 
   useEffect(() => {
 
@@ -81,6 +82,7 @@ export default function Signup(props) {
           {label}
         </Button>
       );
+      setTrialButton(null);
     }
   }, [currentUser, course, isEnrolled, subscription]);
 
@@ -96,6 +98,7 @@ export default function Signup(props) {
           Leave Class
         </Button>
       );
+      setTrialButton(null);
     }
   }, [isEnrolled]);
 
@@ -112,6 +115,7 @@ export default function Signup(props) {
           Start Trial
         </Button>
       );
+      setTrialButton(null);
     } else if (currentUser && sub && sub.status !== 'ACTIVE' && sub.status !== 'TRIAL') {
       // Has had a prior subscription that is no longer active
       setSignup(
@@ -124,6 +128,7 @@ export default function Signup(props) {
           Resume Subscription
         </Button>
       );
+      setTrialButton(null);
     }
   }, [sub, currentUser])
 
@@ -140,6 +145,19 @@ export default function Signup(props) {
           Login to Book Class
         </Button>
       );
+
+      setTrialButton(
+        <Grid item xs={size}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => { startTrialHandler(); }}
+            style={{width:"100%"}}
+          >
+            Start Free Trial
+          </Button>
+        </Grid>
+      )
     }
 
     if (currentUser && course && currentUser.id === course.instructor.id) {
@@ -157,6 +175,10 @@ export default function Signup(props) {
 
   const goToLogin = async function() {
     history.push(`${path.login}?redirect=${path.courses}/${course.id}`);
+  }
+
+  const startTrialHandler = () => {
+    history.push(`${path.signup}?redirect=${path.courses}/${course.id}`);
   }
 
   const closeHandler = () => {
@@ -230,9 +252,12 @@ export default function Signup(props) {
 
   if (signupBtn) {
     content = (
-      <Grid item xs={size}>
-        {signupBtn}
-      </Grid>
+      <React.Fragment>
+        <Grid item xs={size}>
+          {signupBtn}
+        </Grid>
+        {trialButton}
+      </React.Fragment>
     )
   }
 
