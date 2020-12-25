@@ -159,6 +159,8 @@ export default function ResumeSubscriptionModal (props) {
       </Paper>
     )
   } else {
+    let addPMethodText = needsPMethod ? 
+      "Add payment method" : "Swap payment method";
     content = (
       <Paper className={classes.modalContent}>
         <Grid container id='modal-description' justify='center'>
@@ -179,7 +181,7 @@ export default function ResumeSubscriptionModal (props) {
             variant="contained"
             className={classes.modalBtn}
           >
-            Swap Payment Method
+            {addPMethodText}
           </Button>
           <Button onClick={resumeSubHandler}
             variant="contained" 
