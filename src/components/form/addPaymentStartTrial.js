@@ -187,8 +187,8 @@ export default function AddPaymentStartTrial (props) {
       log.debug('ADD_PAYMENT_START_TRIAL:: redirect to', redirectUrl);
       history.push(redirectUrl);
     } else {
-      log.debug('ADD_PAYMENT_START_TRIAL:: redirect to home', path.home);
-      history.push(path.home);
+      log.debug('ADD_PAYMENT_START_TRIAL:: redirect to home', path.courses);
+      history.push(path.courses);
     }
   };
 
