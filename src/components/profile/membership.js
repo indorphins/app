@@ -124,12 +124,16 @@ export default function Membership (props) {
   let modalContent = null;
 
   if (confirmLeave) {
-    modalContent = startTrial ? <StartTrialModal openModal={confirmLeave} closeModalHandler={closeHandler} /> 
-    : <ResumeSubscriptionModal 
-    openModal={confirmLeave} 
-    closeModalHandler={closeHandler} 
-    profilePageHandler={setNavTab}
-      />
+    modalContent = startTrial ? 
+      <StartTrialModal 
+      openModal={confirmLeave} 
+      closeModalHandler={closeHandler} 
+      /> 
+      : <ResumeSubscriptionModal 
+      openModal={confirmLeave} 
+      closeModalHandler={closeHandler} 
+      profilePageHandler={setNavTab}
+        />
 
     if (memStatus === 'Active' || refund) {
       modalContent = 
