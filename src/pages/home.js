@@ -258,8 +258,8 @@ export default function Home() {
           </Grid>
           <Grid item>
             <Typography variant="body1">
-              {`The easiest way to actually, consistently workout at home, 
-              led by an instructor and empowered by a community`}
+              {`The easiest way to workout at home, led by an 
+                instructor and empowered by a community.`}
             </Typography>
           </Grid>
           <Grid item>
@@ -401,7 +401,8 @@ export default function Home() {
           </Grid>
           <Grid item>
             <Typography variant="body1" align="center">
-              Our classes are live, two-way-streaming so that our instructors can motivate and form correct.
+              Our classes are live, two-way-streaming so that our instructors can motivate and form correct. 
+              Take unlimited classes for just $49.99/mo!
             </Typography>
           </Grid>
         </Grid>

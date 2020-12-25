@@ -108,20 +108,13 @@ export default function LoginContainer(props) {
         <Grid item className={classes.textContainer}>
           <Grid container direction='column' >
             <Grid item>
-              <Typography className={classes.header}>Move Together</Typography>
+              <Typography className={classes.header}>Get Started</Typography>
             </Grid>
             <Grid item>
-              <Typography variant='h3' className={classes.text}>Say bye to Zoom - move with friends & </Typography>
+              <Typography variant='h3' className={classes.text}>Hit us with the basics to start</Typography>
             </Grid>
             <Grid item>
-              <Grid container direction='row' alignItems='center' justify='flex-start'>
-                <Grid item>
-                  <Typography variant='h3' className={classes.text}>community on </Typography>
-                </Grid>
-                <Grid item>
-                  <Typography variant='h5' className={classes.logo}>INDOORPHINS</Typography>
-                </Grid>
-              </Grid>
+              <Typography variant='h3' className={classes.text}>your at-home journey.</Typography>
             </Grid>
           </Grid>
         </Grid>

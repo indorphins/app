@@ -327,7 +327,7 @@ export default function CourseList() {
           <Grid container direction="column" className={classes.content} spacing={3}>
             {myClassesContent}
             <Grid item>
-              <CourseFeature id="upcoming" header="Upcoming Classes" items={upcomingData} />
+              <CourseFeature id="upcoming" header="All Upcoming Classes" items={upcomingData} />
             </Grid>
             <Grid item>
               <CourseFeature id="monday" header="Monday Classes" items={mondayData} />
