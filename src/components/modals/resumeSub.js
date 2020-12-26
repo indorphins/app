@@ -214,7 +214,7 @@ export default function ResumeSubscriptionModal (props) {
           variant="body1"
           style={{ textAlign: 'center'}}
           >
-            Successfully started your subscription!
+            You’re set! Book a class and have the time of your life.
           </Typography>
           <br />
           <Grid container id='modal-buttons' justify='center'>
