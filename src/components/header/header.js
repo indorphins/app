@@ -184,7 +184,7 @@ export default function Header(props) {
   );
 
   let trialButton;
-  if (!currentUser || Object.entries(currentUser).length === 0 && !med) {
+  if ((!currentUser || Object.entries(currentUser).length === 0) && !med) {
     trialButton = (
       <Grid item>
         <Button variant="contained" className={classes.trialButton} onClick={goToSignup}>Start Free Trial</Button>
