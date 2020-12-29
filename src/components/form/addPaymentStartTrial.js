@@ -174,11 +174,11 @@ export default function AddPaymentStartTrial (props) {
       return;
     }
     
-    log.info("ADD_PAYMENT_START_TRIAL:: created ", sub);
+    log.debug("ADD_PAYMENT_START_TRIAL:: created ", sub);
     store.dispatch(actions.user.setSubscription(sub));
     setServerErr(null);
 
-    log.info("ADD_PAYMENT_START_TRIAL:: success ", paymentMethodRef);
+    log.debug("ADD_PAYMENT_START_TRIAL:: success ", paymentMethodRef);
     cardElement.clear();
     setLoader(false);
     if (props.onCreate) props.onCreate(paymentData);
