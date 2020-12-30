@@ -256,7 +256,7 @@ export default function Home() {
         >
           <Grid item>
             <Typography variant="h1" className={classes.heroText}>
-              Live, small group fitness classes - at home
+              Live, small group fitness classes
             </Typography>
           </Grid>
           <Grid item>
