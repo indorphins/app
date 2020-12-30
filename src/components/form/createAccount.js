@@ -53,8 +53,8 @@ const useStyles = makeStyles((theme) => ({
 export default function(props) {
   const classes = useStyles();
   const [username, setUsername] = useState(null);
-  const [firstName, setFirstName] = useState(null);
-  const [lastName, setLastName] = useState(null);
+  // const [firstName, setFirstName] = useState(null);
+  // const [lastName, setLastName] = useState(null);
   const [email, setEmail] = useState(null);
   const [password, setPassword] = useState(null);
   const [passwordErr, setPasswordErr] = useState(null);
@@ -82,13 +82,13 @@ export default function(props) {
     setUsername(event.target.value);
   };
 
-  const firstNameHandler = (event) => {
-    setFirstName(event.target.value);
-  };
+  // const firstNameHandler = (event) => {
+  //   setFirstName(event.target.value);
+  // };
 
-  const lastNameHandler = (event) => {
-    setLastName(event.target.value);
-  };
+  // const lastNameHandler = (event) => {
+  //   setLastName(event.target.value);
+  // };
 
   const emailHandler = (event) => {
     setEmail(event.target.value);
@@ -233,6 +233,9 @@ export default function(props) {
 
     log.debug("AUTH:: created new firebase account for user");
 
+    const firstName = null
+    const lastName = null;
+    
     try {
       user = await User.create( 
         username, 
@@ -427,7 +430,7 @@ export default function(props) {
         <Grid item>
           {passwordConfirmField}
         </Grid>
-        <Grid item>
+        {/* <Grid item>
           <TextField
           disabled={loader}
           color="primary"
@@ -452,7 +455,7 @@ export default function(props) {
           variant="outlined"
           onChange={lastNameHandler}
           />
-        </Grid>
+        </Grid> */}
         <Grid item>
           {phoneField}
         </Grid>
