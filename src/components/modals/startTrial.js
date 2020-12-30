@@ -1,3 +1,4 @@
+/* eslint complexity: ["error", { "max": 13 }]*/
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
@@ -67,16 +68,17 @@ export default function StartTrialModal (props) {
   const defaultPaymentMethod = useSelector(state => getDefaultPaymentMethod(state));
 
   useEffect(() => {
-    if (products && products.price && products.price.length > 0) {
-
-      let cost = getSubscriptionCostString(products.price);
-      if (cost !== -1) {
-        setCost(cost)
+    if (products) {
+      if (products.price && products.price.length > 0) {
+        let cost = getSubscriptionCostString(products.price);
+        if (cost !== -1) {
+          setCost(cost)
+        }
       }
-    }
-
-    if (products && products.product && products.product.trial_length) {
-      setTrialLength(products.product.trial_length);
+      
+      if (products.product && products.product.trial_length) {
+        setTrialLength(products.product.trial_length);
+      }
     }
   }, [products]);
 
@@ -127,8 +129,8 @@ export default function StartTrialModal (props) {
   }
 
   const subscriptionCreatedHandler = () => {
-    props.closeModalHandler();
     store.dispatch(actions.user.setSubscription(sub));
+    props.closeModalHandler();
   }
 
   let loaderContent = (
@@ -182,7 +184,7 @@ export default function StartTrialModal (props) {
           variant="contained"
           className={classes.modalBtn}
         >
-          Swap Payment Method
+          Add Payment Method
         </Button>
       );
     }
@@ -227,7 +229,6 @@ export default function StartTrialModal (props) {
     content = loaderContent;
   }
 
-
   if (success) {
     content = (
       <Paper className={classes.modalContent}>
@@ -254,10 +255,15 @@ export default function StartTrialModal (props) {
     )
   }
 
+  let closeHandler = props.closeModalHandler
+  if (sub) {
+    closeHandler = subscriptionCreatedHandler;
+  }
+
   return (
     <Modal
       open={props.openModal}
-      onClose={props.closeModalHandler}
+      onClose={closeHandler}
       className={classes.modal}
       aria-labelledby="modal-title"
       aria-describedby="modal-description"
