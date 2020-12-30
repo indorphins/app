@@ -75,7 +75,11 @@ const useStyles = makeStyles((theme) => ({
     width: '100%'
   },
   subHeader: {
-    marginBottom: theme.spacing(3)
+    marginBottom: theme.spacing(3),
+    display: 'none',
+    '@media (max-width: 900px)': {
+      display: 'block'
+    }
   }
 }));
 
