@@ -38,7 +38,6 @@ const styles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(2),
     paddingLeft: theme.spacing(3),
     paddingRight: theme.spacing(3),
-    margin: theme.spacing(1),
     fontWeight: 500,
     textTransform: "none",
     backgroundImage: "url(/img/buttonWave.svg)",
@@ -221,7 +220,12 @@ export default function Home() {
   );
 
   let schedule = (
-    <Button variant="contained" color="primary" className={classes.button} onClick={navClasses}>
+    <Button variant="contained"
+    color="primary" 
+    className={classes.button} 
+    style={{marginLeft: 10}} 
+    onClick={navClasses}
+    >
       View Schedule
     </Button>
   )
@@ -231,7 +235,13 @@ export default function Home() {
       let activeSub = subscription.status === 'ACTIVE' || subscription.status === 'TRIAL';
       let inactiveSub = subscription.status === 'CANCELED' || subscription.status === 'PAYMENT_FAILED';
       if (activeSub) {
-        signup = null;
+        schedule = null;
+        // remove margin if no other button is present
+        signup = (
+          <Button variant="contained" color="primary" className={classes.button} onClick={navClasses}>
+            View Schedule
+          </Button>
+        )
       } else if (inactiveSub) {
         signup = (
           <Button variant="contained" color="primary" className={classes.button} onClick={showResumeSubModal}>
@@ -265,14 +275,16 @@ export default function Home() {
                 instructor and empowered by a community.`}
             </Typography>
           </Grid>
-          <Grid container justify='center'>
-            <Grid item>
-              {signup}
+          <Grid item>
+            <Grid container>
+              <Grid item>
+                {signup}
+              </Grid>
+              <Grid item>
+                {schedule}
+              </Grid>
             </Grid>
-            <Grid item>
-              {schedule}
-            </Grid>
-          </Grid>
+          </Grid>    
         </Grid>
       </Slide>
       <Grid item xs={layout.size}>
@@ -450,7 +462,7 @@ export default function Home() {
 
   let footer = (
     <React.Fragment>
-      <Grid container direction="row" justify="center" alignItems="center" style={{paddingTop: 150, paddingBottom: 50}}>
+      <Grid container direction="row" justify="center" alignItems="center" style={{paddingTop: 50, paddingBottom: 50}}>
         <Grid item>
           {signup}
         </Grid>
