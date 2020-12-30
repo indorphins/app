@@ -126,8 +126,8 @@ export default function ResumeSubscriptionModal (props) {
   }
 
   const subscriptionCreatedHandler = () => {
-    props.closeModalHandler();
     store.dispatch(actions.user.setSubscription(sub));
+    props.closeModalHandler();
   }
 
   let loaderContent = (
@@ -232,10 +232,15 @@ export default function ResumeSubscriptionModal (props) {
     )
   }
 
+  let closeHandler = props.closeModalHandler
+  if (sub) {
+    closeHandler = subscriptionCreatedHandler;
+  }
+
   return (
     <Modal
       open={props.openModal}
-      onClose={props.closeModalHandler}
+      onClose={closeHandler}
       className={classes.modal}
       aria-labelledby="modal-title"
       aria-describedby="modal-description"
