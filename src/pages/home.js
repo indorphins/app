@@ -38,6 +38,7 @@ const styles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(2),
     paddingLeft: theme.spacing(3),
     paddingRight: theme.spacing(3),
+    margin: theme.spacing(1),
     fontWeight: 500,
     textTransform: "none",
     backgroundImage: "url(/img/buttonWave.svg)",
@@ -219,16 +220,18 @@ export default function Home() {
     </Button>
   );
 
+  let schedule = (
+    <Button variant="contained" color="primary" className={classes.button} onClick={navClasses}>
+      View Schedule
+    </Button>
+  )
+
   if (user && user.id) {
     if (subscription) {
       let activeSub = subscription.status === 'ACTIVE' || subscription.status === 'TRIAL';
       let inactiveSub = subscription.status === 'CANCELED' || subscription.status === 'PAYMENT_FAILED';
       if (activeSub) {
-        signup = (
-          <Button variant="contained" color="primary" className={classes.button} onClick={navClasses}>
-            View schedule
-          </Button>
-        )
+        signup = null;
       } else if (inactiveSub) {
         signup = (
           <Button variant="contained" color="primary" className={classes.button} onClick={showResumeSubModal}>
@@ -262,8 +265,13 @@ export default function Home() {
                 instructor and empowered by a community.`}
             </Typography>
           </Grid>
-          <Grid item>
-            {signup}
+          <Grid container justify='center'>
+            <Grid item>
+              {signup}
+            </Grid>
+            <Grid item>
+              {schedule}
+            </Grid>
           </Grid>
         </Grid>
       </Slide>
