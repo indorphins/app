@@ -52,7 +52,7 @@ export default function CancelSubscriptionModal (props) {
         store.dispatch(actions.user.setSubscription(result.sub));
         props.showRefund(true);
         setRefund(true);
-        if (result.refund === 0) {
+        if (result.refund <= 0) {
           setRefundCost(0);
         } else {
           let c = result.refund / 100;
@@ -80,17 +80,16 @@ export default function CancelSubscriptionModal (props) {
 
   let refundText;
   if (!refundCost) {
-    refundText = `We’ve gone ahead and removed you from any classes you were booked into.`
+    refundText = `We’ve removed you from any future classes.`
   } else {
-    refundText = `We’ve refunded you ${refundCost}
-    for the remaining days in your 
-    monthly subscription and removed you from any classes you were booked into.`
+    refundText = `We’ve removed you from any future classes 
+    and refunded you ${refundCost} for the rest of your month’s subscription.`
   }
 
   let refundContent = (
     <Paper className={classes.modalContent}>
       <Typography variant="body1">
-        We’re sorry to see you go. {refundText}
+        You really were for real. {refundText} Whenever you’re ready to talk, we’re here for you.
       </Typography>
       <br />
       <Grid container id='modal-description' justify='center'>
@@ -113,7 +112,10 @@ export default function CancelSubscriptionModal (props) {
 
   let cancelContent = (
     <Paper className={classes.modalContent}>
-      <Typography variant="body1">Are you sure you want to cancel your membership?</Typography>
+      <Typography variant="body1">
+        Sad to see you go!!! We’ll cancel you out of any classes you’re 
+        booked into and refund you for the rest of the month. Are you for real about cancelling?
+      </Typography>
       <br />
       <Grid container id='modal-description' justify='center'>
         <Button
@@ -122,9 +124,11 @@ export default function CancelSubscriptionModal (props) {
           color="primary"
           className={classes.modalBtn}
         >
-          No
+          {`I'm no quitter`}
         </Button>
-        <Button onClick={cancelSubHandler} variant="contained" className={classes.modalBtn}>Yes</Button>
+        <Button onClick={cancelSubHandler} variant="contained" className={classes.modalBtn}>
+          {`Yes, I'm for real`}
+        </Button>
       </Grid>
       <Grid container id='error-container' justify='center'>
         {err ? 
