@@ -73,6 +73,9 @@ const useStyles = makeStyles((theme) => ({
   },
   children: {
     width: '100%'
+  },
+  subHeader: {
+    marginBottom: theme.spacing(3)
   }
 }));
 
@@ -126,6 +129,11 @@ export default function Container (props) {
             <Grid container direction="column" alignItems='center' spacing={2}>
               <Grid item>
                 <Typography variant='h5' className={classes.logo2}>INDOORPHINS</Typography>
+              </Grid>
+              <Grid item className={classes.subHeader}>
+                <Typography variant='h4'>
+                  14 days to find instructors and classes made for you -- then pay just $49.99/mo. Cancel anytime.
+                </Typography>
               </Grid>
               <Grid item className={classes.children}>
                 {props.children}
