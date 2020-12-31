@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 import Analytics from '../utils/analytics';
 import * as Reporting from '../api/reporting';
+import { getParticipantEmails } from '../api/instructor';
 import log from '../log';
 
 const getUserSelector = createSelector([state => state.user.data], (user) => {
@@ -27,11 +28,14 @@ export default function Admin() {
   const user = useSelector(state => getUserSelector(state));
   const [reportData, setReportData] = useState([]);
   const [instructorReports, setInstructorReports] = useState([]);
+  const [payoutData, setPayoutData] = useState([]);
 
   useEffect(() => {
     if (user) {
       fetchReports();
       fetchInstructorReports();
+      fetchPayoutData();
+      getParticipantEmails();
     }
   }, [user])
 
@@ -49,6 +53,30 @@ export default function Admin() {
     }).catch(err => {
       log.warn("ADMIN:: Fetch Instructor Reports error ", err);
     })
+  }
+
+  const fetchPayoutData = () => {
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+    const middle = new Date(now.getFullYear(), now.getMonth(), 14);
+    const middle2 = new Date(now.getFullYear(), now.getMonth(), 15);
+    const lastDay = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+    let data = payoutData;
+    return Reporting.getPayouts(firstDay, middle)
+      .then(response => {
+        if (response && response.length > 0) {
+          data = data.concat(response);
+        }
+        return Reporting.getPayouts(middle2, lastDay);
+      }).then(response => {
+        if (response && response.length > 0) {
+          data = data.concat(response);
+        }
+        return setPayoutData(data);
+      }).catch(err => {
+        log.warn("error getting payouts ", err);
+      })
   }
 
   function createAdminData(week, year, newUsers, newInstructors, newAdmins,
@@ -125,6 +153,23 @@ export default function Admin() {
         report.averageClassRating, report.averageInstructorRating, report.averageVideoRating);
     })
   }
+
+  let pColumnTitles = ['Period Start', 'Period End', 'Instructor', 'Payout'];
+  let pColumnFields = ['startDate', 'endDate', 'name', 'payout'];
+  let payoutRows = [];
+  if (payoutData) {
+    payoutRows = payoutData.map(data => {
+      if (data.startDate) {
+        const date = new Date(data.startDate)
+        data.startDate = (date.getMonth()+1) + '/' + date.getDate();
+      }
+      if (data.endDate) {
+        const date = new Date(data.endDate)
+        data.endDate = (date.getMonth()+1) + '/' + date.getDate();
+      }
+      return data;
+    })
+  }
   
   let content;
   content = (
@@ -137,6 +182,11 @@ export default function Admin() {
       <Grid container>
         <Typography variant='h3'>Instructors</Typography>
         <TableComponent rows={instructorRows} columnTitles={iColumnTitles} fieldNames={iFieldNames} />
+      </Grid>
+      <br />
+      <Grid container>
+        <Typography variant='h3'>Subscription Payouts</Typography>
+        <TableComponent rows={payoutRows} columnTitles={pColumnTitles} fieldNames={pColumnFields} />
       </Grid>
     </Container>
   )

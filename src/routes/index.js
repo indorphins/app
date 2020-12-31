@@ -9,6 +9,7 @@ import loadable from '@loadable/component';
 import queryString from 'query-string';
 import Login from '../pages/login';
 import Signup from '../pages/signup';
+import AddPayment from '../pages/addPayment';
 import log from '../log';
 import CampaignParser from '../components/campaign/campaignParser';
 
@@ -63,6 +64,9 @@ export default function Routes() {
         </Route>
         <Route exact path={path.login}>
           <Login query={query} />
+        </Route>
+        <Route exact path={path.addPayment}>
+          <AddPayment query={query} />
         </Route>
         <Route exact path={path.courseJoinSession}>
           <AsyncPage page="course/session" />

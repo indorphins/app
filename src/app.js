@@ -12,6 +12,7 @@ import Routes from './routes/index';
 import * as User from './api/user';
 import * as Course from './api/course';
 import * as Session from './api/session';
+import * as Subscription from './api/subscription';
 import Notification from './components/notification';
 import { getAllMilestones } from './components/milestone';
 import { store, actions } from './store';
@@ -166,12 +167,38 @@ export default function App() {
     }
   }
 
+  async function getUserSubscription() {
+    let result;
+
+    try {
+      result = await Subscription.get();
+    } catch (err) {
+      throw err;
+    }
+    if (result) {
+      store.dispatch(actions.user.setSubscription(result))
+    }
+  }
+
+  async function getProducts() {
+    let result;
+
+    try {
+      result = await Subscription.getProducts();
+    } catch (err) {
+      log.warn("Error fetching stripe subscription ", err);
+    }
+
+    if (result) {
+      store.dispatch(actions.products.set(result));
+    }
+  }
+
   useEffect(() => {
     log.debug("MILESTONES:: session history", sessions);
     let all = getAllMilestones(sessions, currentUser);
     store.dispatch(actions.milestone.setHits(all));
   }, [sessions]);
-
 
   useEffect(() => {
     document.title="Indoorphins.fit";
@@ -183,9 +210,14 @@ export default function App() {
   });
 
   useEffect(() => {
+    getProducts();
+  }, []);
+
+  useEffect(() => {
     if (currentUser.id) {
       getUserSchedule(currentUser.id);
       getUserSessions();
+      getUserSubscription();
     }
   }, [currentUser]);
 

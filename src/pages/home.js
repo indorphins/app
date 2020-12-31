@@ -3,9 +3,13 @@ import { useHistory } from 'react-router-dom';
 import { Button, Container, Grid, makeStyles, useMediaQuery, Typography, Zoom, Slide } from '@material-ui/core';
 import { createSelector } from 'reselect';
 import { useSelector } from 'react-redux';
-
+import ResumeSubscriptionModal from '../components/modals/resumeSub';
 import path from '../routes/path';
 import BgShape from '../components/icon/bgShape';
+import * as Stripe from '../api/stripe';
+import log from '../log';
+import { store, actions } from '../store';
+import StartTrialModal from '../components/modals/startTrial';
 
 const styles = makeStyles((theme) => ({
   subHeader: {
@@ -86,16 +90,28 @@ const getThemeSelector = createSelector([state => state.theme], (t) => {
   return t;
 });
 
+const getSubscriptionSelector = createSelector([state => state.user.subscription], s => {
+  return s;
+});
+
+const paymentDataSelector = createSelector([state => state.user.paymentData], (p) => {
+  return p;
+});
+
 export default function Home() {
   const classes = styles();
   const history = useHistory();
   const user = useSelector(state => getUserSelector(state));
+  const paymentData = useSelector(state => paymentDataSelector(state));
+  const subscription = useSelector(state => getSubscriptionSelector(state));
   const [transition, setTranstion] = useState(false); 
   const theme = useSelector(state => getThemeSelector(state));
   const [bgShape, setBgShape] = useState({
     color: "#f5fbfc",
     opacity: "0.87",
   })
+  const [resumeSub, setResumeSub] = useState(false);
+  const [trialModal, setTrialModal] = useState(false);
 
   const med = useMediaQuery('(max-width:960px)');
 
@@ -122,12 +138,47 @@ export default function Home() {
     }
   }, [theme])
 
+  useEffect(() => {
+
+    if (!user.id) {
+      return;
+    }
+
+    if (paymentData.id) { 
+      return;
+    }
+
+    Stripe.getPaymentMethods().then(result => {
+      return store.dispatch(actions.user.setPaymentData(result));
+    })
+    .catch(err => {
+      log.error("HOME:: update user payment data", err);
+    });
+
+  }, [paymentData.id, user.id]);
+
   function navClasses() {
     history.push(path.courses);
   }
 
   function navSignup() {
-    history.push(path.signup);
+    if (user && Object.entries(user).length > 0) {
+      setTrialModal(true);
+    } else {
+      history.push(path.signup);
+    }
+  }
+
+  function showResumeSubModal() {
+    setResumeSub(true);
+  }
+
+  function closeResumeSubModal() {
+    setResumeSub(false);
+  }
+
+  function closeStartTrialModal() {
+    setTrialModal(false);
   }
 
   let layout;
@@ -162,6 +213,45 @@ export default function Home() {
     }
   }
 
+  let signup = (
+    <Button variant="contained" color="primary" className={classes.button} onClick={navSignup}>
+      Start Free Trial
+    </Button>
+  );
+
+  let schedule = (
+    <Button variant="contained"
+    color="primary" 
+    className={classes.button} 
+    style={{marginLeft: 10}} 
+    onClick={navClasses}
+    >
+      View Schedule
+    </Button>
+  )
+
+  if (user && user.id) {
+    if (subscription) {
+      let activeSub = subscription.status === 'ACTIVE' || subscription.status === 'TRIAL';
+      let inactiveSub = subscription.status === 'CANCELED' || subscription.status === 'PAYMENT_FAILED';
+      if (activeSub) {
+        schedule = null;
+        // remove margin if no other button is present
+        signup = (
+          <Button variant="contained" color="primary" className={classes.button} onClick={navClasses}>
+            View Schedule
+          </Button>
+        )
+      } else if (inactiveSub) {
+        signup = (
+          <Button variant="contained" color="primary" className={classes.button} onClick={showResumeSubModal}>
+            Resume Subscription
+          </Button>
+        )
+      }
+    }
+  }
+
   let section1 = (
     <Grid container direction={layout.direction} justify="center" alignItems="center" style={{paddingTop: 100}}>
       <Slide direction={layout.slideDirection} in={transition}>
@@ -176,20 +266,25 @@ export default function Home() {
         >
           <Grid item>
             <Typography variant="h1" className={classes.heroText}>
-              Live, small group fitness classes - at home
+              Live, small group fitness classes
             </Typography>
           </Grid>
           <Grid item>
             <Typography variant="body1">
-              {`The easiest way to actually, consistently workout at home, 
-              led by an instructor and empowered by a community`}
+              {`The easiest way to workout at home, led by an 
+                instructor and empowered by a community.`}
             </Typography>
           </Grid>
           <Grid item>
-            <Button variant="contained" color="primary" className={classes.button} onClick={navClasses}>
-              View schedule
-            </Button>
-          </Grid>
+            <Grid container>
+              <Grid item>
+                {signup}
+              </Grid>
+              <Grid item>
+                {schedule}
+              </Grid>
+            </Grid>
+          </Grid>    
         </Grid>
       </Slide>
       <Grid item xs={layout.size}>
@@ -326,7 +421,8 @@ export default function Home() {
           </Grid>
           <Grid item>
             <Typography variant="body1" align="center">
-              Our $10 classes are live, two-way-streaming so that our instructors can motivate and form correct.
+              Our classes are live, two-way-streaming so that our instructors can motivate and form correct. 
+              Take unlimited classes for just $49.99/mo!
             </Typography>
           </Grid>
         </Grid>
@@ -364,23 +460,9 @@ export default function Home() {
     </Grid>
   );
 
-  let signup = (
-    <Button variant="contained" color="primary" className={classes.button} onClick={navSignup}>
-      Sign up for free
-    </Button>
-  );
-
-  if (user && user.id) {
-    signup = (
-      <Button variant="contained" color="primary" className={classes.button} onClick={navClasses}>
-        View schedule
-      </Button>
-    )
-  }
-
   let footer = (
     <React.Fragment>
-      <Grid container direction="row" justify="center" alignItems="center" style={{paddingTop: 150, paddingBottom: 50}}>
+      <Grid container direction="row" justify="center" alignItems="center" style={{paddingTop: 50, paddingBottom: 50}}>
         <Grid item>
           {signup}
         </Grid>
@@ -392,6 +474,16 @@ export default function Home() {
       </Grid>
     </React.Fragment>
   );
+
+  let resumeSubModal;
+  if (resumeSub) {
+    resumeSubModal = <ResumeSubscriptionModal openModal={resumeSub} closeModalHandler={closeResumeSubModal} />
+  }
+
+  let startTrialModal;
+  if (trialModal) {
+    startTrialModal = <StartTrialModal openModal={trialModal} closeModalHandler={closeStartTrialModal} />
+  }
 
   return (
     <Grid style={{position: "relative", width: "100%", height: "100%"}}>
@@ -407,6 +499,8 @@ export default function Home() {
         <Zoom in={transition}>
           {how}
         </Zoom>
+        {resumeSubModal}
+        {startTrialModal}
       </Container>
       {footer}
     </Grid>

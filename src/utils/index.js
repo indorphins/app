@@ -1,4 +1,5 @@
 import * as later from 'later';
+import * as dateFns from 'date-fns';
 import { Component, Property } from 'immutable-ics';
 import path from '../routes/path';
 
@@ -13,6 +14,31 @@ const cronDayMap = {
   4: 4,
   5: 5,
   6: 6,
+}
+
+/**
+ * Takes in a date and returns the date numWeeks after
+ * If duration is passed, adds duration to the time of the new date
+ * @param {Date} start 
+ * @param {Number} numWeeks 
+ * @param {Number} duration (optional) duration of class
+ * @returns {Date}
+ */
+export function getDateWeeksLater(start, numWeeks, duration=0) {
+  let d = new Date(start);
+  d = dateFns.addWeeks(d, numWeeks);
+  d.setMinutes(d.getMinutes() + duration);
+  return d;
+}
+
+export function getClassDataOverWeeks(classData, seriesLength) {
+  let courses = [classData]
+  for (let i = 1; i < seriesLength; i++) {
+    let courseData = {...classData}
+    courseData.start_date = getDateWeeksLater(classData.start_date, i).toISOString();
+    courses.push(courseData);
+  }
+  return courses;
 }
 
 export function getWeeklyCronRule(date) {
@@ -139,4 +165,28 @@ export function createCalenderEvent(subject, organizer, id, begin, end, recurrin
   })
 
   return calendar;
+}
+
+function isInteger(n) {
+  return n === +n && n === (n|0);
+}
+
+/**
+ * Returns the cost string for input price like $XX.XX
+ * returns -1 if unable to grab price from input object
+ * @param {Object} price 
+ */
+export function getSubscriptionCostString(price) {
+  if (price && price.length > 0 && price[0].amount) {
+      
+    let c = price[0].amount / 100;
+    let costText = "$" + c.toFixed(2);
+
+    if (isInteger(c)) {
+      costText = "$" + c;
+    }
+    
+    return costText
+  }
+  return -1;
 }

@@ -11,8 +11,9 @@ import {
   Typography,
   InputAdornment,
   Switch,
-  LinearProgress
+  LinearProgress,
 } from '@material-ui/core';
+import Alert from '@material-ui/lab/Alert';
 import MonetizationOnRounded from '@material-ui/icons/MonetizationOnRounded';
 import { makeStyles } from '@material-ui/core/styles';
 import DateFnsUtils from '@date-io/date-fns';
@@ -71,6 +72,8 @@ export default function (props) {
   const [description, setDescription] = useState('');
   const [recurring, setRecurring] = useState(false);
   const [loader, setLoader] = useState(false);
+  const [seriesLength, setSeriesLength] = useState(null);
+  const [errorMsg, setErrorMsg] = useState(null); 
 
   useEffect(() => {
     if (props.courseTitle) setTitle(props.courseTitle);
@@ -125,6 +128,14 @@ export default function (props) {
     }
   }
 
+  const seriesLengthHandler = function(e) {
+    const weeks = e.target.value;
+
+    if (weeks && weeks > 0 && weeks < 13) {
+      setSeriesLength(weeks);
+    }    
+  }
+
   const editorSaveHandler = async function (e) {
     setLoader(true);
 
@@ -147,10 +158,12 @@ export default function (props) {
 
     if (!props.instructorId) {
       log.debug("COURSE EDIT:: no instructor set");
+      setErrorMsg("Login as an instructor to create a class");
       return;
     }
 
     setLoader(true);
+    setErrorMsg(null);
 
     let data = {
       instructor: props.instructorId,
@@ -167,9 +180,17 @@ export default function (props) {
       data.start_date = selectedDate.toISOString();
     }
 
-    if (recurring) {
-      let rule = utils.getWeeklyCronRule(data.start_date);
-      data.recurring = rule;
+    let coursesList;
+
+    if (recurring && seriesLength) {
+      if (seriesLength > 0) {
+        coursesList = utils.getClassDataOverWeeks(data, seriesLength);
+      } else {
+        log.debug("COURSE EDIT:: recurring class parameters not set");
+        setLoader(false);
+        setErrorMsg("Series length must be 1 week or more")
+        return;
+      }
     }
 
     if (props.courseId) {
@@ -178,7 +199,7 @@ export default function (props) {
         await Course.update(props.courseId, data)
       } catch (e) {
         setLoader(false);
-        // TODO: display error
+        setErrorMsg(e)
         return log.error("COURSE EDIT:: course update", e);
       }
 
@@ -189,14 +210,17 @@ export default function (props) {
 
       let created;
 
+      if (coursesList) {
+        data = coursesList
+      }
+
       try {
         created = await Course.create(data)
       } catch (e) {
         setLoader(false);
-        // TODO: display error
+        setErrorMsg(e)
         return log.error("COURSE EDIT:: course creation", e);
       }
-
 
       // Add all new classes to schedule
       let first;
@@ -274,6 +298,38 @@ export default function (props) {
         <LinearProgress color="primary" />
       </Grid>
     )
+  }
+
+  let seriesContent;
+
+  if (recurring) {
+    seriesContent = (
+      <Grid item xs={2}>
+        <TextField
+          disabled={loader}
+          className={classes.type}
+          color="primary"
+          required
+          id="seriesLength"
+          type="number"
+          label="Weeks?"
+          variant="outlined"
+          min={1}
+          max={12}
+          value={seriesLength}
+          onChange={seriesLengthHandler}
+        />
+      </Grid>
+    )
+  }
+
+  let infoContent = null;
+  if (errorMsg) {
+    infoContent = (
+      <Grid item>
+        <Alert severity="error">{errorMsg}</Alert>
+      </Grid>
+		)
   }
 
   let form = (
@@ -382,8 +438,10 @@ export default function (props) {
               <Grid item>
                 <Typography variant="body1">Weekly</Typography>
               </Grid>
+              {seriesContent}
             </Grid>
           </Grid>
+          {infoContent}
           <Grid item xs={12}>
             <Button
               disabled={loader}

@@ -46,19 +46,28 @@ export default function AppDrawer(props) {
     setDrawerOpen(!drawerOpen);
   };
 
-  let referFriend = null;
+  let milestones = null;
   if (user && user.id) {
-    referFriend = (
+    milestones = (
       <React.Fragment>
-        <Grid item className={classes.clickable} onClick={() => navigate(path.referFriend)}>
+        {/* <Grid item className={classes.clickable} onClick={() => navigate(path.referFriend)}>
           <Typography variant='h5' className={classes.drawerLink}>Refer &amp; Earn</Typography>
-        </Grid>
-        <Divider />
+        </Grid> */}
+        {/* <Divider /> */}
         <Grid item className={classes.clickable} onClick={() => navigate(path.milestone)}>
           <Typography variant='h5' className={classes.drawerLink}>Milestones</Typography>
         </Grid>
         <Divider />
       </React.Fragment>
+    )
+  }
+
+  let trialButton;
+  if (!user || Object.entries(user).length === 0) {
+    trialButton = (
+      <Grid item className={classes.clickable} onClick={() => navigate(path.signup)}>
+        <Typography variant='h5' className={classes.drawerLink}>Start Free Trial</Typography>
+      </Grid>
     )
   }
 
@@ -82,7 +91,8 @@ export default function AppDrawer(props) {
             <Typography variant='h5' className={classes.drawerLink}>Instructors</Typography>
           </Grid>
           <Divider />
-          {referFriend}
+          {milestones}
+          {trialButton}
         </Grid>
       </Drawer>
     </React.Fragment>

@@ -1,16 +1,14 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
 import { IconButton, makeStyles } from '@material-ui/core';
-import { ExitToApp } from '@material-ui/icons';
+import { CallEnd } from '@material-ui/icons';
 
 import path from '../../routes/path';
 
 const useStyles = makeStyles((theme) => ({
-  btn: {
-    '&:hover': {
-      backgroundColor: theme.palette.error.dark,
-    }
-  },
+  icon: {
+    color: "#FF0000",
+  }
 }));
 
 export default function LeaveSession(props) {
@@ -24,8 +22,8 @@ export default function LeaveSession(props) {
   }
 
   return (
-    <IconButton title="Leave class" onClick={end} className={classes.btn}>
-      <ExitToApp />
+    <IconButton title="Leave class" onClick={end}>
+      <CallEnd className={classes.icon} />
     </IconButton>
   )
 }

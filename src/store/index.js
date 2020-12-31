@@ -7,6 +7,7 @@ const userSlice = createSlice({
     data: {},
     paymentData: {methods: []},
     schedule: [],
+    subscription: {}
   },
   reducers: {
     set(state, action) {
@@ -51,6 +52,12 @@ const userSlice = createSlice({
       state.data = {};
       state.paymentData = { methods: []};
       state.schedule = [];
+      state.subscription = {};
+      return state;
+    },
+    setSubscription(state, action) {
+      log.debug("STORE:: set subscription ", action.payload);
+      state.subscription = Object.assign(state.subscription, action.payload);
       return state;
     }
   }
@@ -192,6 +199,18 @@ const themeSlice = createSlice({
   }
 });
 
+const productsSlice = createSlice({
+  name: 'products',
+  initialState: {},
+  reducers: {
+    set(state, action) {
+      log.debug("STORE:: set products");
+      state = Object.assign({}, state, action.payload);
+      return state;
+    }
+  }
+})
+
 const rootReducer = combineReducers({
   user: userSlice.reducer,
   theme: themeSlice.reducer,
@@ -201,6 +220,7 @@ const rootReducer = combineReducers({
   courseFeature: courseFeatureSlice.reducer,
   milestone: milestoneSlice.reducer,
   campaign: campaignSlice.reducer,
+  products: productsSlice.reducer
 });
 
 export const actions = {
@@ -212,6 +232,7 @@ export const actions = {
   courseFeature: courseFeatureSlice.actions,
   milestone: milestoneSlice.actions,
   campaign: campaignSlice.actions,
+  products: productsSlice.actions
 };
 
 export const store = configureStore({

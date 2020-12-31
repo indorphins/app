@@ -73,6 +73,13 @@ const useStyles = makeStyles((theme) => ({
   },
   children: {
     width: '100%'
+  },
+  subHeader: {
+    marginBottom: theme.spacing(3),
+    display: 'none',
+    '@media (max-width: 900px)': {
+      display: 'block'
+    }
   }
 }));
 
@@ -91,7 +98,7 @@ export function Legal() {
   )
 }
 
-export default function LoginContainer(props) {
+export default function Container (props) {
 
   const classes = useStyles();
 
@@ -108,13 +115,16 @@ export default function LoginContainer(props) {
         <Grid item className={classes.textContainer}>
           <Grid container direction='column' >
             <Grid item>
-              <Typography className={classes.header}>Get Started</Typography>
+              <Typography className={classes.header}>14 Days Free</Typography>
             </Grid>
             <Grid item>
-              <Typography variant='h3' className={classes.text}>Hit us with the basics to start</Typography>
+              <Typography variant='h3' className={classes.text}>14 days to find instructors and classes</Typography>
             </Grid>
             <Grid item>
-              <Typography variant='h3' className={classes.text}>your at-home journey.</Typography>
+              <Typography variant='h3' className={classes.text}>made for you -- then pay just $49.99/mo.</Typography>
+            </Grid>
+            <Grid item>
+              <Typography variant='h3' className={classes.text}>Cancel anytime.</Typography>
             </Grid>
           </Grid>
         </Grid>
@@ -123,6 +133,11 @@ export default function LoginContainer(props) {
             <Grid container direction="column" alignItems='center' spacing={2}>
               <Grid item>
                 <Typography variant='h5' className={classes.logo2}>INDOORPHINS</Typography>
+              </Grid>
+              <Grid item className={classes.subHeader}>
+                <Typography variant='h4'>
+                  14 days to find instructors and classes made for you -- then pay just $49.99/mo. Cancel anytime.
+                </Typography>
               </Grid>
               <Grid item className={classes.children}>
                 {props.children}
