@@ -190,7 +190,7 @@ export default function Default(props) {
   if (featureVid) {
     featureVidContent = (
       <VideoContainer
-        id={featureVid.user.id}
+        id={featureVid.user.user_id}
         username={featureVid.user.username}
         user={user}
         session={session}
@@ -209,7 +209,7 @@ export default function Default(props) {
         {regularVid.map(item => (
           <VideoContainer 
             key={item.user.id}
-            id={item.user.id}
+            id={item.user.user_id}
             username={item.user.username}
             user={user}
             session={session}

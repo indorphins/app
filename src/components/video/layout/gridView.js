@@ -109,7 +109,7 @@ export default function GridView(props) {
         {vids.map(item => (
           <VideoContainer 
             key={item.user.id}
-            id={item.user.id}
+            id={item.user.user_id}
             username={item.user.username}
             user={user}
             session={session}
