@@ -115,7 +115,7 @@ export default function ParticipantControls(props) {
                   <MuteButton name={item.user.id} checked={item.audio} onClick={audioHandler} />
                 </Grid>
                 <Grid item>
-                  <Emote userId={item.user.id} username={user.username} session={session} />
+                  <Emote userId={item.user.user_id} username={user.username} session={session} />
                 </Grid>                            
               </Grid>
             </Grid>
