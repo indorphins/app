@@ -422,7 +422,7 @@ export default function Home() {
           <Grid item>
             <Typography variant="body1" align="center">
               Our classes are live, two-way-streaming so that our instructors can motivate and form correct. 
-              Take unlimited classes for just $49.99/mo!
+              Pay $10 to drop in or $49.99 for unlimited access.
             </Typography>
           </Grid>
         </Grid>

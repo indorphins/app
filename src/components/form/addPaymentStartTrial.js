@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
-import { Grid, Button, LinearProgress, Typography } from '@material-ui/core';
+import { Grid, Button, LinearProgress, Typography, Link } from '@material-ui/core';
 import { CardElement, useElements, useStripe } from '@stripe/react-stripe-js';
 import Alert from '@material-ui/lab/Alert';
 import { makeStyles } from '@material-ui/core/styles';
@@ -67,6 +67,9 @@ const useStyles = makeStyles((theme) => ({
   txtField: {
     width: "100%",
   },
+  text: {
+    color: theme.palette.primary.main
+  },
 }));
 
 export default function AddPaymentStartTrial (props) {
@@ -112,6 +115,11 @@ export default function AddPaymentStartTrial (props) {
       setRedirectUrl(props.query.redirect);
     }
   }, [props, redirectUrl]);
+
+  const goHome = () => {
+    log.debug('ADD_PAYMENT_START_TRIAL:: skip to home', path.courses);
+    history.push(path.courses);
+  }
 
   const formHandler = async (event) => {
     event.preventDefault();
@@ -236,6 +244,11 @@ export default function AddPaymentStartTrial (props) {
             >
               Start Trial
             </Button>
+          </Grid>
+          <Grid item>
+            <Typography variant='body2' style={{textAlign: 'center'}}>
+              <Link color="secondary" className={classes.text} onClick={goHome}>Continue to view classes</Link>
+            </Typography>
           </Grid>
         </Grid>
       </form>
