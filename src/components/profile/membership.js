@@ -75,7 +75,8 @@ export default function Membership (props) {
   useEffect(() => {
     if (subscription && Object.entries(subscription).length > 0) {
       if (subscription.status === 'ACTIVE' || subscription.status === 'TRIAL') {
-        setMemStatus('Active');
+        subscription.cancel_at_period_end ? setMemStatus('Canceled') : setMemStatus('Active');
+
         if (subscription.period_end) {
           const end = new Date(subscription.period_end).toLocaleDateString();
           const trialOrSub = subscription.status === 'TRIAL' ? 'Trial' : 'Subscription';

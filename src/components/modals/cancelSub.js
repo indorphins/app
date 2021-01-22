@@ -70,8 +70,6 @@ export default function CancelSubscriptionModal (props) {
     </Paper>
   );
 
-
-
   let refundContent = (
     <Paper className={classes.modalContent}>
       <Typography variant="body1">
@@ -120,7 +118,7 @@ export default function CancelSubscriptionModal (props) {
           {`I'm no quitter`}
         </Button>
         <Button onClick={cancelSubHandler} variant="contained" className={classes.modalBtn}>
-          {`Yes, I'm for real`}
+          {`Yes, I'm sure`}
         </Button>
       </Grid>
       <Grid container id='error-container' justify='center'>
