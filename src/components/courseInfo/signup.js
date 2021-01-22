@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Grid, Modal, Fade, Paper, Typography, makeStyles } from '@material-ui/core';
 import { useHistory } from 'react-router-dom';
-
+import { getCostString } from '../../utils/index';
 import path from '../../routes/path';
 import StartTrialModal from '../modals/startTrial';
 import ResumeSubscriptionModal from '../modals/resumeSub';
@@ -36,6 +36,7 @@ export default function Signup(props) {
   const [ startSubscription, setStartSubscription] = useState(false);
   const [ subModal, setSubModal] = useState();
   const [ sub, setSub ] = useState();
+  const [ activeSub, setActiveSub ] = useState(false);
   const [ trialButton, setTrialButton ] = useState();
 
   useEffect(() => {
@@ -59,18 +60,32 @@ export default function Signup(props) {
   useEffect(() => {
     if (subscription) {
       setSub(subscription);
+      if (subscription.status === 'ACTIVE' || subscription.status === 'TRIAL') {
+        setActiveSub(true);
+      }
     }
   }, [subscription])
 
   useEffect(() => {
 
-    if (!course || !currentUser.id || isEnrolled || !subscription) return;
+    if (!course || !currentUser.id || isEnrolled) return;
 
-    if ((course.available_spots > 0 || currentUser.type !== "standard")
-    && (subscription && (subscription.status === 'ACTIVE' || subscription.status === 'TRIAL'))) {
-      let label = "Book Class";
-      // Free and paid now use the same handlers with subscriptions
-      let handler = props.paidHandler 
+    if (course.available_spots > 0 || currentUser.type !== "standard") {
+      let handler, label;
+
+      if (subscription && activeSub) {
+        label = "Book Class";
+        handler = props.freeHandler; 
+
+        setTrialButton(null);
+      } else {
+        label = `Book for $`
+        if (course.cost) {
+          let costString = getCostString(course.cost);
+          label = `Book for ${costString}`;
+        }
+        handler = props.paidHandler;
+      }
 
       setSignup(
         <Button
@@ -82,7 +97,6 @@ export default function Signup(props) {
           {label}
         </Button>
       );
-      setTrialButton(null);
     }
   }, [currentUser, course, isEnrolled, subscription]);
 
@@ -116,7 +130,7 @@ export default function Signup(props) {
         </Button>
       );
       setTrialButton(null);
-    } else if (currentUser && sub && sub.status !== 'ACTIVE' && sub.status !== 'TRIAL') {
+    } else if (currentUser && sub && !activeSub) {
       // Has had a prior subscription that is no longer active
       setSignup(
         <Button
@@ -195,6 +209,13 @@ export default function Signup(props) {
     setStartSubscription(false);
   }
 
+  let leaveText = 'Are you sure you want to leave this class?';
+  if (!activeSub) {
+    leaveText = `We can remove you from class to open up a spot for another participant, 
+    but in order to properly take care of our instructors, we require 24 hours notice for a refund to be made. 
+    Are you sure you want to leave the class?`;
+  }
+
   let modal = (
     <Modal
       open={confirmLeave}
@@ -205,7 +226,7 @@ export default function Signup(props) {
     >
       <Fade in={confirmLeave}>
         <Paper className={classes.modalContent}>
-          <Typography variant="body1">Are you sure you want to leave this class?</Typography>
+          <Typography variant="body1">{leaveText}</Typography>
           <Grid container id='modal-description' justify='center'>
             <Button
               onClick={closeHandler}
