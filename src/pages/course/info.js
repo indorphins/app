@@ -9,7 +9,7 @@ import { createSelector } from 'reselect';
 import CoursePayment from '../../components/form/coursePayment';
 import { 
   AvailableSpots, Cancel, Duration, JoinSession, Message,
-  OtherCourseInfo, Signup, StartTime, Participants 
+  OtherCourseInfo, Signup, StartTime, Participants, Cost
 } from '../../components/courseInfo/index';
 import { store, actions } from '../../store';
 import * as Course from '../../api/course';
@@ -272,7 +272,10 @@ export default function CourseInfo() {
     if (course.cost && course.cost > 0 && !defaultPaymentMethod && currentUser.type === "standard") {
       setPaymentProcessing(false);
       setNeedsPaymentMethod(true);
-      setErrMessage({severity: "error", message: "No default payment method. Please add one below."});
+      setErrMessage({
+        severity: "error",
+        message: "We'll need a payment method to make sure our instructors get paid. Please add one below!"
+      });
       return;
     }
 
@@ -354,14 +357,6 @@ export default function CourseInfo() {
     setPaymentProcessing(true);
 
     log.debug("local payment", paymentMethod);
-
-    let defaultPaymentMethod = paymentMethod.current[0];
-
-    if (course.cost && course.cost > 0 && !defaultPaymentMethod && currentUser.type === "standard") {
-      setPaymentProcessing(false);
-      setErrMessage({severity: "error", message: "No default payment method. Please add one below."});
-      return;
-    }
 
     Course.addParticipant(course.id)
       .then(result => {
@@ -588,6 +583,9 @@ export default function CourseInfo() {
   let courseMetaData = (
     <Grid container direction="column" spacing={2}>
       <Grid item container direction="row" justify="flex-end" spacing={2}>
+        <Grid item xs={layout.costSize}>
+          <Cost course={course} classes={classes} subscription={subscription} />
+        </Grid>
         <Grid item xs={layout.costSize}>
           <Duration course={course} classes={classes} />
         </Grid>

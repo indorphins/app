@@ -193,7 +193,7 @@ export default function StartTrialModal (props) {
       <Paper className={classes.modalContent}>
         <Grid container id='modal-description' justify='center'>
           <Typography variant="h3" style={{ textAlign: 'center'}}>
-            {trialContent}{cost}/mo for unlimited classes!
+            {trialContent}{cost}/mo to help support your instructors!
           </Typography>
         </Grid>
         <Grid container id='modal-description'>

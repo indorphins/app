@@ -121,7 +121,9 @@ export default function Container (props) {
               <Typography variant='h3' className={classes.text}>14 days to find instructors and classes</Typography>
             </Grid>
             <Grid item>
-              <Typography variant='h3' className={classes.text}>made for you -- then pay just $49.99/mo.</Typography>
+              <Typography variant='h3' className={classes.text}>
+                made for you -- then contribute $49.99/mo to help support your instructors
+              </Typography>
             </Grid>
             <Grid item>
               <Typography variant='h3' className={classes.text}>Cancel anytime.</Typography>

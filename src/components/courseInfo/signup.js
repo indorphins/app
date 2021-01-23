@@ -15,6 +15,7 @@ const useStyles = makeStyles((theme) => ({
   },
   modalContent: {
     padding: theme.spacing(4),
+    maxWidth: 600,
     outline: 0
   },
   modalBtn: {
@@ -119,17 +120,34 @@ export default function Signup(props) {
   useEffect(() => {
     // Has never has a subscription
     if (currentUser && (!sub || Object.entries(sub).length === 0)) {
+      let label = `Book for $`
+      if (course.cost) {
+        let costString = getCostString(course.cost);
+        label = `Book for ${costString}`;
+      }
+      const handler = props.paidHandler;
       setSignup(
         <Button
           variant="contained"
           color="primary"
-          onClick={() => { showSubscriptionModalHandler(true); }}
+          onClick={() => { handler(); setSignup(null);}}
           style={{width:"100%"}}
         >
-          Start Trial
+          {label}
         </Button>
       );
-      setTrialButton(null);
+      setTrialButton(
+        <Grid item xs={size}>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => { showSubscriptionModalHandler(true); }}
+            style={{width:"100%"}}
+          >
+            Start Trial
+          </Button>
+        </Grid>
+      );
     } else if (currentUser && sub && !activeSub) {
       // Has had a prior subscription that is no longer active
       setSignup(
