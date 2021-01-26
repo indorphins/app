@@ -167,7 +167,7 @@ export default function ResumeSubscriptionModal (props) {
     let addPMethodText = needsPMethod ? 
       "Add payment method" : "Swap payment method";
 
-    let offerText = `OFFER TERMS: take as many classes as you’d like across our platform for just {cost}/mo. 
+    let offerText = `OFFER TERMS: take as many classes as you’d like across our platform for just ${cost}/mo. 
     You’ll be billed automatically each month. Terms & Services apply across all classes.`
 
     if (subscription.cancel_at_period_end && subscription.status !== 'CANCELED') {
