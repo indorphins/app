@@ -128,9 +128,6 @@ export default function Container (props) {
             <Grid item>
               <Typography variant='h3' className={classes.text}>to help support your instructors.</Typography>
             </Grid>
-            <Grid item>
-              <Typography variant='h3' className={classes.text}>Cancel anytime.</Typography>
-            </Grid>
           </Grid>
         </Grid>
         <Zoom in={true}>      

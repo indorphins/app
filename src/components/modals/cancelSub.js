@@ -70,10 +70,24 @@ export default function CancelSubscriptionModal (props) {
     </Paper>
   );
 
+  let refundText = `Your membership will stop at the end of your billing period. 
+  You’ll have until then to take classes. 
+  If there’s anything else we can do, please email us at hello@indoorphins.fit`
+
+  let periodEndDate = activeSub ? new Date(activeSub.period_end).toLocaleDateString() : null;
+  let endDateText = '';
+  if (periodEndDate) {
+    endDateText = `We’ll stop your membership on ${periodEndDate}, 
+    so you’ll have until then to take unlimited classes.`
+
+    refundText = `Your membership will stop [period_end]. You’ll have until then to take classes. 
+    If there’s anything else we can do, please email us at hello@indoorphins.fit`;
+  }
+
   let refundContent = (
     <Paper className={classes.modalContent}>
       <Typography variant="body1">
-        You really were for real. Whenever you’re ready to talk, we’re here for you.
+        {refundText}
       </Typography>
       <br />
       <Grid container id='modal-description' justify='center'>
@@ -93,13 +107,6 @@ export default function CancelSubscriptionModal (props) {
       </Grid>
     </Paper>
   )
-
-  let periodEndDate = activeSub ? new Date(activeSub.period_end).toLocaleDateString() : null;
-  let endDateText = '';
-  if (periodEndDate) {
-    endDateText = `We’ll stop your membership on ${periodEndDate}, 
-    so you’ll have until then to take unlimited classes.`
-  }
 
   let cancelContent = (
     <Paper className={classes.modalContent}>

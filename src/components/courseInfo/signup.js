@@ -73,9 +73,10 @@ export default function Signup(props) {
 
     if (course.available_spots > 0 || currentUser.type !== "standard") {
       let handler, label;
+      let subEmpty = Object.entries(subscription).length === 0;
 
-      if (subscription && activeSub) {
-        label = "Book Class";
+      if (!subEmpty && activeSub) {
+        label = "Book Class Free";
         handler = props.freeHandler; 
 
         setTrialButton(null);
@@ -86,6 +87,34 @@ export default function Signup(props) {
           label = `Book for ${costString}`;
         }
         handler = props.paidHandler;
+
+        if (!subEmpty && !activeSub) {
+          setTrialButton(
+            <Grid item xs={size}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => { showSubscriptionModalHandler(false); }}
+                style={{width:"100%"}}
+              >
+                Resume Subscription
+              </Button>
+            </Grid>
+          );
+        } else {
+          setTrialButton(
+            <Grid item xs={size}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => { showSubscriptionModalHandler(true); }}
+                style={{width:"100%"}}
+              >
+                View Trial Details
+              </Button>
+            </Grid>
+          );
+        }
       }
 
       setSignup(
@@ -130,7 +159,7 @@ export default function Signup(props) {
         <Button
           variant="contained"
           color="primary"
-          onClick={() => { handler(); setSignup(null);}}
+          onClick={() => { handler(); setSignup(null); }}
           style={{width:"100%"}}
         >
           {label}
@@ -144,7 +173,7 @@ export default function Signup(props) {
             onClick={() => { showSubscriptionModalHandler(true); }}
             style={{width:"100%"}}
           >
-            Start Trial
+            View Trial Details
           </Button>
         </Grid>
       );
@@ -186,7 +215,7 @@ export default function Signup(props) {
             onClick={() => { startTrialHandler(); }}
             style={{width:"100%"}}
           >
-            Start Free Trial
+            Create Account
           </Button>
         </Grid>
       )
@@ -229,9 +258,18 @@ export default function Signup(props) {
 
   let leaveText = 'Are you sure you want to leave this class?';
   if (!activeSub) {
-    leaveText = `We can remove you from class to open up a spot for another participant, 
-    but in order to properly take care of our instructors, we require 24 hours notice for a refund to be made. 
-    Are you sure you want to leave the class?`;
+    let refundWindow = new Date(course.start_date);
+    refundWindow.setDate(refundWindow.getDate() - 1);
+    const now = new Date();
+
+    leaveText = `Since you’re canceling 24 hours+ ahead of the class start time, 
+    we can offer you a full refund for this class. Are you sure you want to leave?`
+
+    if (now >= refundWindow && now.toISOString() < course.start_date) {
+      leaveText = `We can remove you from class to open up a spot for another participant, 
+      but in order to properly take care of our instructors, we require 24 hours notice for a refund to be made. 
+      Are you sure you want to leave the class?`;
+    }
   }
 
   let modal = (
