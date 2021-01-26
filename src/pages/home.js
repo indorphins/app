@@ -47,7 +47,29 @@ const styles = makeStyles((theme) => ({
     "&:hover": {
       backgroundColor: theme.palette.primaryColor.main,
       color: theme.palette.primaryColor.contrastText,
-    }
+    },
+  },
+  button2: {
+    paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(2),
+    paddingLeft: theme.spacing(3),
+    paddingRight: theme.spacing(3),
+    fontWeight: 500,
+    textTransform: "none",
+    backgroundImage: "url(/img/buttonWave.svg)",
+    backgroundPosition: "0px 0px",
+    backgroundSize: "cover",
+    backgroundRepeat: "no-repeat",
+    marginLeft: 10,
+    marginTop: 0,
+    "&:hover": {
+      backgroundColor: theme.palette.primaryColor.main,
+      color: theme.palette.primaryColor.contrastText,
+    },
+    '@media (max-width: 960px)': {
+      marginLeft: 0,
+      marginTop: 10
+    },
   },
   testimonial: {
     textAlign: "center",
@@ -222,8 +244,7 @@ export default function Home() {
   let schedule = (
     <Button variant="contained"
     color="primary" 
-    className={classes.button} 
-    style={{marginLeft: 10}} 
+    className={classes.button2} 
     onClick={navClasses}
     >
       View Schedule
