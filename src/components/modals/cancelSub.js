@@ -80,7 +80,7 @@ export default function CancelSubscriptionModal (props) {
     endDateText = `We’ll stop your membership on ${periodEndDate}, 
     so you’ll have until then to take unlimited classes.`
 
-    refundText = `Your membership will stop [period_end]. You’ll have until then to take classes. 
+    refundText = `Your membership will stop ${periodEndDate}. You’ll have until then to take classes. 
     If there’s anything else we can do, please email us at hello@indoorphins.fit`;
   }
 
