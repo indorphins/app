@@ -263,6 +263,9 @@ export default function Signup(props) {
     setStartSubscription(false);
     subscription = s;
     setSub(s);
+    if (subscription.status === 'ACTIVE' || subscription.status === 'TRIAL') {
+      setActiveSub(true);
+    }
   }
 
   let leaveText = 'Are you sure you want to leave this class?';
