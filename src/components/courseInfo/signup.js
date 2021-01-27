@@ -262,6 +262,7 @@ export default function Signup(props) {
   const closeSubModalHandler = (s) => {
     setStartSubscription(false);
     subscription = s;
+    setSub(s);
   }
 
   let leaveText = 'Are you sure you want to leave this class?';
