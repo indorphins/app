@@ -273,7 +273,7 @@ export default function CourseInfo() {
       setPaymentProcessing(false);
       setNeedsPaymentMethod(true);
       setErrMessage({
-        severity: "error",
+        severity: "info",
         message: "We'll need a payment method to make sure our instructors get paid. Please add one below!"
       });
       return;

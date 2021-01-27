@@ -138,7 +138,8 @@ export default function Container (props) {
               </Grid>
               <Grid item className={classes.subHeader}>
                 <Typography variant='h4'>
-                  14 days to find instructors and classes made for you -- then pay just $49.99/mo. Cancel anytime.
+                  14 days to find instructors and classes made for you -- 
+                  then pay just $49.99/mo to help support your instructors.
                 </Typography>
               </Grid>
               <Grid item className={classes.children}>
