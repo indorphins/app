@@ -34,6 +34,7 @@ const styles = makeStyles((theme) => ({
     width: "100%"
   },
   button: {
+    marginBottom: 10,
     paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(2),
     paddingLeft: theme.spacing(3),
@@ -44,6 +45,8 @@ const styles = makeStyles((theme) => ({
     backgroundPosition: "0px 0px",
     backgroundSize: "cover",
     backgroundRepeat: "no-repeat",
+    marginLeft: 5,
+    marginRight: 5,
     "&:hover": {
       backgroundColor: theme.palette.primaryColor.main,
       color: theme.palette.primaryColor.contrastText,
@@ -60,15 +63,11 @@ const styles = makeStyles((theme) => ({
     backgroundPosition: "0px 0px",
     backgroundSize: "cover",
     backgroundRepeat: "no-repeat",
-    marginLeft: 10,
-    marginTop: 0,
+    marginLeft: 5,
+    marginRight: 5,
     "&:hover": {
       backgroundColor: theme.palette.primaryColor.main,
       color: theme.palette.primaryColor.contrastText,
-    },
-    '@media (max-width: 960px)': {
-      marginLeft: 0,
-      marginTop: 10
     },
   },
   testimonial: {
@@ -101,6 +100,11 @@ const styles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(4),
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
+  },
+  subHeroText: {
+    '@media (max-width: 960px)': {
+      textAlign: "center",
+    },
   }
 }));
 
@@ -125,7 +129,6 @@ export default function Home() {
   const history = useHistory();
   const user = useSelector(state => getUserSelector(state));
   const paymentData = useSelector(state => paymentDataSelector(state));
-  const subscription = useSelector(state => getSubscriptionSelector(state));
   const [transition, setTranstion] = useState(false); 
   const theme = useSelector(state => getThemeSelector(state));
   const [bgShape, setBgShape] = useState({
@@ -134,6 +137,7 @@ export default function Home() {
   })
   const [resumeSub, setResumeSub] = useState(false);
   const [trialModal, setTrialModal] = useState(false);
+  let subscription = useSelector(state => getSubscriptionSelector(state));
 
   const med = useMediaQuery('(max-width:960px)');
 
@@ -195,12 +199,14 @@ export default function Home() {
     setResumeSub(true);
   }
 
-  function closeResumeSubModal() {
+  function closeResumeSubModal(sub) {
     setResumeSub(false);
+    subscription = sub;
   }
 
-  function closeStartTrialModal() {
+  function closeStartTrialModal(sub) {
     setTrialModal(false);
+    subscription = sub;
   }
 
   let layout;
@@ -291,13 +297,13 @@ export default function Home() {
             </Typography>
           </Grid>
           <Grid item>
-            <Typography variant="body1">
+            <Typography variant="body1" className={classes.subHeroText}>
               {`The easiest way to workout at home, led by an 
                 instructor and empowered by a community.`}
             </Typography>
           </Grid>
           <Grid item>
-            <Grid container>
+            <Grid container justify='space-evenly' className={classes.buttonCtn}>
               <Grid item>
                 {signup}
               </Grid>

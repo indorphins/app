@@ -5,6 +5,8 @@ import { getCostString } from '../../utils/index';
 import path from '../../routes/path';
 import StartTrialModal from '../modals/startTrial';
 import ResumeSubscriptionModal from '../modals/resumeSub';
+import { useSelector } from 'react-redux';
+import { createSelector } from 'reselect';
 
 const useStyles = makeStyles((theme) => ({
   modal: {
@@ -26,9 +28,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+const subscriptionSelector = createSelector([state => state.user], user => {
+  return user.subscription;
+})
+
 export default function Signup(props) {
 
-  const { currentUser, course, size, subscription } = props;
+  const { currentUser, course, size } = props;
   const classes = useStyles();
   const history = useHistory();
   const [ signupBtn, setSignup ] = useState(null);
@@ -39,6 +45,7 @@ export default function Signup(props) {
   const [ sub, setSub ] = useState();
   const [ activeSub, setActiveSub ] = useState(false);
   const [ trialButton, setTrialButton ] = useState();
+  let subscription = useSelector(state => subscriptionSelector(state));
 
   useEffect(() => {
 
@@ -252,8 +259,9 @@ export default function Signup(props) {
     setStartSubscription(true);
   }
 
-  const closeSubModalHandler = () => {
+  const closeSubModalHandler = (s) => {
     setStartSubscription(false);
+    subscription = s;
   }
 
   let leaveText = 'Are you sure you want to leave this class?';

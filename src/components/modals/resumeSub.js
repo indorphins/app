@@ -132,7 +132,7 @@ export default function ResumeSubscriptionModal (props) {
 
   const subscriptionCreatedHandler = () => {
     store.dispatch(actions.user.setSubscription(sub));
-    props.closeModalHandler();
+    props.closeModalHandler(sub);
   }
 
   let loaderContent = (
