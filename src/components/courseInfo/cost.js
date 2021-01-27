@@ -40,7 +40,7 @@ export default function Cost(props) {
 
   let content = null;
 
-  if (course.cost && course.cost > 0) {
+  if (course.cost !== undefined && course.cost >= 0) {
 
     let costText = "$" + course.cost.toFixed(2);
 

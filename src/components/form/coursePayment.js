@@ -54,7 +54,7 @@ export default function CoursePayment(props) {
               color="primary"
               onClick={props.onSubmit}
             >
-              Submit Payment
+              Book Class Now
             </Button>
           </Grid>
         </Grid>

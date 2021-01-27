@@ -89,7 +89,7 @@ export default function Signup(props) {
         setTrialButton(null);
       } else {
         label = `Book for $`
-        if (course.cost) {
+        if (course.cost !== undefined && course.cost >= 0) {
           let costString = getCostString(course.cost);
           label = `Book for ${costString}`;
         }
