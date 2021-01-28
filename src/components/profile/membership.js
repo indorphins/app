@@ -67,15 +67,16 @@ export default function Membership (props) {
   const [confirmLeave, setConfirmLeave] = useState(false);
   const [startTrial, setStartTrial] = useState(true);
   const [refund, setRefund] = useState(false);
-  const subscription = useSelector(state => getSubscriptionSelector(state));
   const defaultPaymentMethod = useSelector(state => getDefaultPaymentMethod(state));
   const products = useSelector(state => getProductsSelector(state));
   const classes = useStyles();
+  let subscription = useSelector(state => getSubscriptionSelector(state));
 
   useEffect(() => {
     if (subscription && Object.entries(subscription).length > 0) {
       if (subscription.status === 'ACTIVE' || subscription.status === 'TRIAL') {
-        setMemStatus('Active');
+        subscription.cancel_at_period_end ? setMemStatus('Canceled') : setMemStatus('Active');
+
         if (subscription.period_end) {
           const end = new Date(subscription.period_end).toLocaleDateString();
           const trialOrSub = subscription.status === 'TRIAL' ? 'Trial' : 'Subscription';
@@ -112,9 +113,12 @@ export default function Membership (props) {
     }
   }, [defaultPaymentMethod]);
 
-  const closeHandler = () => {
+  const closeHandler = (sub) => {
     setRefund(false);
     setConfirmLeave(false);
+    if (sub && Object.entries(sub).length > 0) {
+      subscription = sub;
+    }
   }
 
   const openModalHandler = () => {

@@ -3,6 +3,8 @@ import { Grid, Modal, Fade, Paper, Typography, Button, CircularProgress, makeSty
 import * as Subscription from '../../api/subscription';
 import log from '../../log';
 import { store, actions } from '../../store';
+import { useSelector } from 'react-redux';
+import { createSelector } from 'reselect';
 
 const useStyles = makeStyles((theme) => ({
   modal: {
@@ -29,6 +31,10 @@ const useStyles = makeStyles((theme) => ({
   },
 }))
 
+const getSubscriptionSelector = createSelector([state => state.user], data => {
+  return data.subscription;
+});
+
 /**
  * Cancels a user's subscription and displays their refund amount after
  * requires props - openModal, closeModalHandler, showRefund
@@ -36,14 +42,10 @@ const useStyles = makeStyles((theme) => ({
  */
 export default function CancelSubscriptionModal (props) {
   const [refund, setRefund] = useState(false);
-  const [refundCost, setRefundCost] = useState();
   const [loader, setLoader] = useState(false);
   const [err, setErr] = useState();
   const classes = useStyles();
-
-  const isInteger = (n) => {
-    return n === +n && n === (n|0);
-  }
+  const activeSub = useSelector(state => getSubscriptionSelector(state));
 
   const cancelSubHandler = () => {
     setLoader(true);
@@ -52,16 +54,6 @@ export default function CancelSubscriptionModal (props) {
         store.dispatch(actions.user.setSubscription(result.sub));
         props.showRefund(true);
         setRefund(true);
-        if (result.refund <= 0) {
-          setRefundCost(0);
-        } else {
-          let c = result.refund / 100;
-          setRefundCost("$" + c.toFixed(2) + ' ');
-
-          if (isInteger(c)) {
-            setRefundCost("$" + c + ' ');
-          }
-        }
         setLoader(false);
       }).catch(err => {
         log.warn("CANCEL SUB:: error ", err);
@@ -78,18 +70,24 @@ export default function CancelSubscriptionModal (props) {
     </Paper>
   );
 
-  let refundText;
-  if (!refundCost) {
-    refundText = `We’ve removed you from any future classes.`
-  } else {
-    refundText = `We’ve removed you from any future classes 
-    and refunded you ${refundCost} for the rest of your month’s subscription.`
+  let refundText = `Your membership will stop at the end of your billing period. 
+  You’ll have until then to take classes. 
+  If there’s anything else we can do, please email us at hello@indoorphins.fit`
+
+  let periodEndDate = activeSub ? new Date(activeSub.period_end).toLocaleDateString() : null;
+  let endDateText = '';
+  if (periodEndDate) {
+    endDateText = `We’ll stop your membership on ${periodEndDate}, 
+    so you’ll have until then to take unlimited classes.`
+
+    refundText = `Your membership will stop ${periodEndDate}. You’ll have until then to take classes. 
+    If there’s anything else we can do, please email us at hello@indoorphins.fit`;
   }
 
   let refundContent = (
     <Paper className={classes.modalContent}>
       <Typography variant="body1">
-        You really were for real. {refundText} Whenever you’re ready to talk, we’re here for you.
+        {refundText}
       </Typography>
       <br />
       <Grid container id='modal-description' justify='center'>
@@ -113,8 +111,8 @@ export default function CancelSubscriptionModal (props) {
   let cancelContent = (
     <Paper className={classes.modalContent}>
       <Typography variant="body1">
-        Sad to see you go!!! We’ll cancel you out of any classes you’re 
-        booked into and refund you for the rest of the month. Are you for real about cancelling?
+        {`Sad to see you go! ${endDateText} 
+         Are you sure you’d like to stop your membership then?`}
       </Typography>
       <br />
       <Grid container id='modal-description' justify='center'>
@@ -127,7 +125,7 @@ export default function CancelSubscriptionModal (props) {
           {`I'm no quitter`}
         </Button>
         <Button onClick={cancelSubHandler} variant="contained" className={classes.modalBtn}>
-          {`Yes, I'm for real`}
+          {`Yes, I'm sure`}
         </Button>
       </Grid>
       <Grid container id='error-container' justify='center'>

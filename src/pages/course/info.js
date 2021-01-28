@@ -6,10 +6,10 @@ import { Photo, RecordVoiceOver } from '@material-ui/icons';
 import Alert from '@material-ui/lab/Alert';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-
+import CoursePayment from '../../components/form/coursePayment';
 import { 
   AvailableSpots, Cancel, Duration, JoinSession, Message,
-  OtherCourseInfo, Signup, StartTime, Participants 
+  OtherCourseInfo, Signup, StartTime, Participants, Cost
 } from '../../components/courseInfo/index';
 import { store, actions } from '../../store';
 import * as Course from '../../api/course';
@@ -132,6 +132,7 @@ export default function CourseInfo() {
   const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [errMessage, setErrMessage] = useState(null);
   const [discountPrice, setDiscountPrice] = useState(null);
+  const [needsPaymentMethod, setNeedsPaymentMethod] = useState(false);
 
   const sml = useMediaQuery('(max-width:600px)');
   const med = useMediaQuery('(max-width:900px)');
@@ -257,20 +258,105 @@ export default function CourseInfo() {
     history.push(path.home);
   }
 
-  const courseSignupHandler = function () {
+  const courseBookNowHandler = function () {
+
+    setErrMessage({severity: "info", message: "Processing..."});
+    setPaymentProcessing(true);
+    setNeedsPaymentMethod(false);
+
+    log.debug("local payment", paymentMethod);
+
+    let defaultPaymentMethod = paymentMethod.current[0];
+    let paymentMethodId = defaultPaymentMethod ? defaultPaymentMethod.id : "none";
+
+    if (course.cost && course.cost > 0 && !defaultPaymentMethod && currentUser.type === "standard") {
+      setPaymentProcessing(false);
+      setNeedsPaymentMethod(true);
+      setErrMessage({
+        severity: "info",
+        message: "We'll need a payment method to make sure our instructors get paid. Please add one below!"
+      });
+      return;
+    }
+
+    let campaignId = campaign.id;
+
+    Stripe.createPaymentIntent(paymentMethodId, course.id, campaignId)
+      .then(result => {
+        setCourse({...result.course});
+        store.dispatch(actions.user.addScheduleItem(result.course));
+        setPaymentProcessing(false);
+        setNeedsPaymentMethod(false);
+        setErrMessage({severity: "success", message: result.message});
+      })
+      .catch(err => {
+        setPaymentProcessing(false);
+        showSignupForm();
+        setErrMessage({severity: "error", message: err.message});
+        return err;
+      })
+      .then((err) => {
+        if (err) return;
+        let user = Object.assign({}, currentUser);
+        let saved = user.campaigns ? user.campaigns : [];
+        let updated;
+
+        if (campaign.id && (campaign.discountAmount || campaign.discountRate)) {
+          let exists = saved.find(item => item.campaignId === campaign.id);
+
+          if (exists) {
+            let data = {
+              campaignId: exists.campaignId,
+              remaining: exists.remaining - 1,
+            }
+            updated = saved.map(item => {
+              if (item.campaignId === data.campaignId) {
+                return data;
+              }
+              return item;
+            });
+
+          } else {
+            updated = [...saved, {
+              campaignId: campaign.id,
+              remaining: campaign.multiplier - 1,
+            }];
+          }
+
+          user.campaigns = updated;
+          store.dispatch(actions.user.update(user));
+        }
+
+        // Send class joined email
+        const start = format(new Date(course.start_date), "iiii, MMMM do");
+        const s = new Date(course.start_date);
+        let end = new Date(course.start_date);
+        end.setMinutes(end.getMinutes() + course.duration);
+
+        const regex = /[^\w\s\d-!*$#()&^@]/g;
+        const cal = createCalenderEvent(course.title.replace(regex, ""), 'indoorphins.fit', course.id, s, end, false)
+
+        let emailAttachment = null;
+
+        try {
+          emailAttachment = btoa(cal.toString());
+        } catch(e) {
+          log.error("create buffer error", e);
+        }
+        
+        return classJoined(start, course.id, emailAttachment);
+      }).catch(err => {
+        setPaymentProcessing(false);
+        setErrMessage({severity: "error", message: err.message});
+      })
+  }
+
+  const courseSignupWithSubHandler = function () {
 
     setErrMessage({severity: "info", message: "Processing..."});
     setPaymentProcessing(true);
 
     log.debug("local payment", paymentMethod);
-
-    let defaultPaymentMethod = paymentMethod.current[0];
-
-    if (course.cost && course.cost > 0 && !defaultPaymentMethod && currentUser.type === "standard") {
-      setPaymentProcessing(false);
-      setErrMessage({severity: "error", message: "No default payment method. Please add one below."});
-      return;
-    }
 
     Course.addParticipant(course.id)
       .then(result => {
@@ -344,6 +430,10 @@ export default function CourseInfo() {
         setPaymentProcessing(false);
         setErrMessage({severity: "error", message: err.message});
       })
+  }
+
+  const showSignupForm = async function() {
+    setNeedsPaymentMethod(true);
   }
 
   const courseLeaveHandler = async function () {
@@ -494,6 +584,9 @@ export default function CourseInfo() {
     <Grid container direction="column" spacing={2}>
       <Grid item container direction="row" justify="flex-end" spacing={2}>
         <Grid item xs={layout.costSize}>
+          <Cost course={course} classes={classes} subscription={subscription} />
+        </Grid>
+        <Grid item xs={layout.costSize}>
           <Duration course={course} classes={classes} />
         </Grid>
         <Grid item xs={layout.spotsSize}>
@@ -540,6 +633,17 @@ export default function CourseInfo() {
     </Grid>
   );
 
+  let paymentContent = null;
+  if (needsPaymentMethod) {
+    let hideAdd = true;
+
+    if (!defaultPaymentMethod[0]) {
+      hideAdd = false;
+    }
+
+    paymentContent = (<CoursePayment onSubmit={courseBookNowHandler} hideAddCard={hideAdd} classes={classes} />);
+  }
+
   return (
     <Analytics title={course.title}>
       <Container className={classes.root}>
@@ -549,6 +653,7 @@ export default function CourseInfo() {
           </Grid>
           <Grid item>
             {errorContent}
+            {paymentContent}
           </Grid>
           <Grid item container>
             <Grid container direction={layout.actionBtnDirection} justify="flex-end" spacing={2}>
@@ -558,8 +663,8 @@ export default function CourseInfo() {
                 course={course}
                 size={layout.actionBtnSize}
                 leaveHandler={courseLeaveHandler}
-                paidHandler={courseSignupHandler}
-                freeHandler={courseSignupHandler}
+                paidHandler={courseBookNowHandler}
+                freeHandler={courseSignupWithSubHandler}
                 subscription={subscription}
               />
               <Cancel 

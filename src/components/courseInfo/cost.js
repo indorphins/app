@@ -13,6 +13,12 @@ const useStyles = makeStyles((theme) => ({
     display: "inline",
     width: "100%",
   },
+  costStrike: {
+    fontWeight: "bold",
+    display: "inline",
+    width: "100%",
+    textDecoration: 'line-through'
+  },
   spotsContainer: {
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
@@ -25,7 +31,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Cost(props) {
   const classes = useStyles();
-  const { course, discountPrice } = props;
+  const { course, discountPrice, subscription } = props;
 
 
   function isInteger(n) {
@@ -34,7 +40,7 @@ export default function Cost(props) {
 
   let content = null;
 
-  if (course.cost && course.cost > 0) {
+  if (course.cost !== undefined && course.cost >= 0) {
 
     let costText = "$" + course.cost.toFixed(2);
 
@@ -42,9 +48,14 @@ export default function Cost(props) {
       costText = "$" + course.cost;
     }
 
+    let style = classes.cost;
+    if (subscription && (subscription.status === 'ACTIVE' || subscription.status === 'TRIAL')) {
+      style = classes.costStrike;
+    }
+
     content = (
       <Grid item>
-        <Typography className={classes.cost} variant="h2">
+        <Typography className={style} variant="h2">
           {costText}
         </Typography>
       </Grid>

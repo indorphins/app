@@ -130,7 +130,7 @@ export default function StartTrialModal (props) {
 
   const subscriptionCreatedHandler = () => {
     store.dispatch(actions.user.setSubscription(sub));
-    props.closeModalHandler();
+    props.closeModalHandler(sub);
   }
 
   let loaderContent = (
@@ -155,7 +155,11 @@ export default function StartTrialModal (props) {
         </Grid>
         <br />
         <Grid container id='modal-buttons' justify='center'>
-          <Button onClick={props.closeModalHandler} variant="contained" color="primary" className={classes.modalBtn}>
+          <Button 
+            onClick={() => props.closeModalHandler(null)} 
+            variant="contained" color="primary" 
+            className={classes.modalBtn}
+          >
             Go Back
           </Button>
         </Grid>
@@ -193,7 +197,7 @@ export default function StartTrialModal (props) {
       <Paper className={classes.modalContent}>
         <Grid container id='modal-description' justify='center'>
           <Typography variant="h3" style={{ textAlign: 'center'}}>
-            {trialContent}{cost}/mo for unlimited classes!
+            {trialContent}{cost}/mo to help support your instructors!
           </Typography>
         </Grid>
         <Grid container id='modal-description'>
@@ -255,7 +259,7 @@ export default function StartTrialModal (props) {
     )
   }
 
-  let closeHandler = props.closeModalHandler
+  let closeHandler = () => props.closeModalHandler(null);
   if (sub) {
     closeHandler = subscriptionCreatedHandler;
   }
