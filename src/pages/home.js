@@ -201,12 +201,16 @@ export default function Home() {
 
   function closeResumeSubModal(sub) {
     setResumeSub(false);
-    subscription = sub;
+    if (sub && Object.entries(sub).length > 0) {
+      subscription = sub;
+    }
   }
 
   function closeStartTrialModal(sub) {
     setTrialModal(false);
-    subscription = sub;
+    if (sub && Object.entries(sub).length > 0) {
+      subscription = sub;
+    }
   }
 
   let layout;

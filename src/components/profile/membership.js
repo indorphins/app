@@ -116,7 +116,9 @@ export default function Membership (props) {
   const closeHandler = (sub) => {
     setRefund(false);
     setConfirmLeave(false);
-    subscription = sub;
+    if (sub && Object.entries(sub).length > 0) {
+      subscription = sub;
+    }
   }
 
   const openModalHandler = () => {
