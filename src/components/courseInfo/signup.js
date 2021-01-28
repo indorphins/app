@@ -259,12 +259,14 @@ export default function Signup(props) {
     setStartSubscription(true);
   }
 
-  const closeSubModalHandler = (s) => {
+  const closeSubModalHandler = (s = null) => {
     setStartSubscription(false);
-    subscription = s;
-    setSub(s);
-    if (subscription.status === 'ACTIVE' || subscription.status === 'TRIAL') {
-      setActiveSub(true);
+    if (s && Object.entries(s).length > 0) {
+      subscription = s;
+      setSub(s);
+      if (s.status === 'ACTIVE' || s.status === 'TRIAL') {
+        setActiveSub(true);
+      }
     }
   }
 

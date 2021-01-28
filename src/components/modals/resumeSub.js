@@ -157,7 +157,12 @@ export default function ResumeSubscriptionModal (props) {
         </Grid>
         <br />
         <Grid container id='modal-buttons' justify='center'>
-          <Button onClick={props.closeModalHandler} variant="contained" color="primary" className={classes.modalBtn}>
+          <Button 
+            onClick={() => props.closeModalHandler(null)} 
+            variant="contained" 
+            color="primary" 
+            className={classes.modalBtn}
+          >
             Go Back
           </Button>
         </Grid>
@@ -245,7 +250,7 @@ export default function ResumeSubscriptionModal (props) {
     )
   }
 
-  let closeHandler = props.closeModalHandler
+  let closeHandler = () => props.closeModalHandler(null);
   if (sub) {
     closeHandler = subscriptionCreatedHandler;
   }
