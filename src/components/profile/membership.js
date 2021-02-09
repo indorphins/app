@@ -78,9 +78,10 @@ export default function Membership (props) {
         subscription.cancel_at_period_end ? setMemStatus('Canceled') : setMemStatus('Active');
 
         if (subscription.period_end) {
-          const end = new Date(subscription.period_end).toLocaleDateString();
+          const end = new Date(subscription.period_end);
+          const dateStr = getPeriodEndString(end);
           const trialOrSub = subscription.status === 'TRIAL' ? 'Trial' : 'Subscription';
-          const text = `Current Period: ${trialOrSub} active until ${end}`;
+          const text = `Current Period: ${trialOrSub} active until ${dateStr}`;
           setPayPeriod((
             <Typography variant='body2' className={classes.text}>{text}</Typography>
           ))
@@ -112,6 +113,17 @@ export default function Membership (props) {
       ))
     }
   }, [defaultPaymentMethod]);
+
+  /**
+   * Gets the formatted date string for displaying subscription period end
+   * @param {Date} periodEndDate 
+   */
+  const getPeriodEndString = (periodEndDate) => {
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"];
+    
+    return `${monthNames[periodEndDate.getMonth()]} ${periodEndDate.getDate()}, ${periodEndDate.getFullYear()}`
+  };
 
   const closeHandler = (sub) => {
     setRefund(false);
