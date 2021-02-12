@@ -43,6 +43,13 @@ const useStyles = makeStyles((theme) => ({
     height: 6,
     background: theme.palette.secondaryColor.main,
   },
+  pubWindowCtn: {
+    width: "100%",
+    minHeight:240,
+    maxHeight: 320,
+    position: "relative",
+    background: "black",
+  },
   noDevicesItem: {
     marginTop: theme.spacing(1),
     marginBottom: theme.spacing(1)
@@ -355,7 +362,10 @@ export default function DevicePicker(props) {
   if (!onJoined) {
     return (
       <Grid container>
-        <Grid container>
+        <Grid
+          container
+          className={classes.pubWindowCtn}
+        >
           {pubWindow}
           <Grid container justify="center" style={{position: "absolute", bottom: 0}}>
             <PublisherControls publisher={publisher} user={user} course={course} session={session} />

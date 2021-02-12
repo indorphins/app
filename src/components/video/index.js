@@ -75,12 +75,6 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 600,
     color: "inherit",
   },
-  mobileContainer: {
-    display: 'block',
-    '@media (max-width: 900px)': {
-      display: 'none'
-    },
-  }
 }));
 
 const loopTime = 20000;
@@ -125,7 +119,6 @@ export default function Video(props) {
   const [tab, setTab] = useState(0);
   const [chatHistory, setChatHistory] = useState([]);
   const [noDevices, setNoDevices] = useState(false);
-  //const [cover, setCover] = useState(true);
   const cover = true;
   const subsRef = useRef();
   const sessionRef = useRef();
@@ -1089,24 +1082,21 @@ export default function Video(props) {
   }
 
   let accor = (
-    <div className={classes.mobileContainer}>
-      <ThemeProvider theme={light}>
-        <Tabs
-          value={tab}
-          onChange={(evt, newValue) => setTab(newValue)}
-          variant="fullWidth"
-          textColor="primary"
-          indicatorColor="primary"
-          className={classes.tabs}
-        >
-          <Tab label="Group" value={0} classes={{root: classes.tab, selected: classes.selectedTab}} />
-          <Tab label="Chat" value={1} classes={{root: classes.tab, selected: classes.selectedTab}} />
-          <Tab label="Settings" value={2} classes={{root: classes.tab, selected: classes.selectedTab}} />
-        </Tabs>
-        {tabContent}
-      </ThemeProvider>
-    </div>
-
+    <ThemeProvider theme={light}>
+      <Tabs
+        value={tab}
+        onChange={(evt, newValue) => setTab(newValue)}
+        variant="fullWidth"
+        textColor="primary"
+        indicatorColor="primary"
+        className={classes.tabs}
+      >
+        <Tab label="Group" value={0} classes={{root: classes.tab, selected: classes.selectedTab}} />
+        <Tab label="Chat" value={1} classes={{root: classes.tab, selected: classes.selectedTab}} />
+        <Tab label="Settings" value={2} classes={{root: classes.tab, selected: classes.selectedTab}} />
+      </Tabs>
+      {tabContent}
+    </ThemeProvider>
   )
 
   let displayMsgContent = null;
@@ -1148,7 +1138,15 @@ export default function Video(props) {
   } else {
 
     let vidsLayout = (
-      <Default user={user} subs={subs} session={session} max={maxStreams} layout={videoLayout} />
+      <Default 
+        user={user} 
+        subs={subs} 
+        session={session} 
+        max={maxStreams} 
+        layout={videoLayout} 
+        isIOS={isIOS()} 
+        course={course}
+      />
     )
 
     if (videoLayout === "grid") {
