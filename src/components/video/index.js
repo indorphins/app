@@ -75,6 +75,12 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 600,
     color: "inherit",
   },
+  mobileContainer: {
+    display: 'block',
+    '@media (max-width: 900px)': {
+      display: 'none'
+    },
+  }
 }));
 
 const loopTime = 20000;
@@ -118,6 +124,7 @@ export default function Video(props) {
   const [joined, setJoined] = useState(false);
   const [tab, setTab] = useState(0);
   const [chatHistory, setChatHistory] = useState([]);
+  const [noDevices, setNoDevices] = useState(false);
   //const [cover, setCover] = useState(true);
   const cover = true;
   const subsRef = useRef();
@@ -154,6 +161,15 @@ export default function Video(props) {
           message: `Network connection slow.
           Try moving closer to your router if possible, or check your internet speed, and then refresh this page.`
         });
+      }
+
+      if (err.name === 'OT_CONSTRAINTS_NOT_SATISFIED') {
+        setNoDevices(true);
+        return;
+        // return setDisplayMsg({
+        //   severity: "info",
+        //   message: `No streaming hardware accessible on this device***`,
+        // });
       }
     }
   }
@@ -212,6 +228,18 @@ export default function Video(props) {
       accessDenied: () => setPermissionsError(true),
       videoElementCreated: publisherVideoElementCreated,
     });
+  }
+
+  function isIOS() {
+    return [
+      'iPad Simulator',
+      'iPhone Simulator',
+      'iPod Simulator',
+      'iPad',
+      'iPhone',
+      'iPod'
+    ].includes(navigator.platform) 
+    || (navigator.userAgent.includes("Mac") && "ontouchend" in document);
   }
 
   // Start archiving the session, if user is instructor
@@ -897,7 +925,6 @@ export default function Video(props) {
   );*/
 
 
-
   const [vidSettings, setVidSettings] = useState([
     {
       value: "community",
@@ -947,6 +974,15 @@ export default function Video(props) {
   useEffect(() => {
 
     let set = vidSettings.filter(item => item.selected)[0];
+    if (isIOS()) {
+      set = {
+        value: "instructor",
+        className: classes.videoSetting,
+        selected: false,
+        title: "1:1",
+        subTitle: "View just the instructor.",
+      };
+    }
 
     if (set) {
       if (set.value === 'community' || set.value === 'class') {
@@ -1053,28 +1089,31 @@ export default function Video(props) {
   }
 
   let accor = (
-    <ThemeProvider theme={light}>
-      <Tabs
-        value={tab}
-        onChange={(evt, newValue) => setTab(newValue)}
-        variant="fullWidth"
-        textColor="primary"
-        indicatorColor="primary"
-        className={classes.tabs}
-      >
-        <Tab label="Group" value={0} classes={{root: classes.tab, selected: classes.selectedTab}} />
-        <Tab label="Chat" value={1} classes={{root: classes.tab, selected: classes.selectedTab}} />
-        <Tab label="Settings" value={2} classes={{root: classes.tab, selected: classes.selectedTab}} />
-      </Tabs>
-      {tabContent}
-    </ThemeProvider>
+    <div className={classes.mobileContainer}>
+      <ThemeProvider theme={light}>
+        <Tabs
+          value={tab}
+          onChange={(evt, newValue) => setTab(newValue)}
+          variant="fullWidth"
+          textColor="primary"
+          indicatorColor="primary"
+          className={classes.tabs}
+        >
+          <Tab label="Group" value={0} classes={{root: classes.tab, selected: classes.selectedTab}} />
+          <Tab label="Chat" value={1} classes={{root: classes.tab, selected: classes.selectedTab}} />
+          <Tab label="Settings" value={2} classes={{root: classes.tab, selected: classes.selectedTab}} />
+        </Tabs>
+        {tabContent}
+      </ThemeProvider>
+    </div>
+
   )
 
   let displayMsgContent = null;
   
   if (displayMsg) {
     displayMsgContent = (
-      <Alert severity={displayMsg.severity}>{displayMsg.message}</Alert>
+      <Alert severity={displayMsg.severity} closeText='CLOSE'>{displayMsg.message}</Alert>
     )
   }
 
@@ -1090,6 +1129,7 @@ export default function Video(props) {
           videoElement={videoElement}
           initPublisher={initPublisher}
           onJoined={handleJoin}
+          noDevices={noDevices}
         />
       </Grid>
     );
@@ -1129,7 +1169,7 @@ export default function Video(props) {
             style={{height: "100%", overflow: "hidden"}}
           >
             {vidsLayout}
-            <Drawer>
+            <Drawer mobile={isIOS()}>
               <Grid container direction="row" justify="flex-start" alignItems="flex-start">
                 <DevicePicker
                   session={session}

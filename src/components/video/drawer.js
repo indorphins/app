@@ -35,8 +35,10 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Drawer(props) {
 
+  const { mobile = false } = props;
   const classes = useStyles();
-  const [drawer, setDrawer] = useState(true);
+  const [drawer, setDrawer] = useState(!mobile);
+
   function toggleDrawer() {
     if (drawer) {
       setDrawer(false);
@@ -53,7 +55,6 @@ export default function Drawer(props) {
 
   let drawerClasses = `${classes.drawer} ${classes.hidden}`;
 
-
   if (drawer) {
     drawerClasses = classes.drawer;
     drawerBtn = (
@@ -61,6 +62,10 @@ export default function Drawer(props) {
         <ChevronRight />
       </IconButton>
     );
+  }
+
+  if (mobile) {
+    drawerBtn = null;
   }
 
   return (
