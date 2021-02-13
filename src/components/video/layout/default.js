@@ -61,6 +61,12 @@ const verticalStyles = makeStyles((theme) => ({
     zIndex: 999,
     bottom: "10px",
     right: "10px"
+  },
+  endCallBtn: {
+    position: 'absolute',
+    zIndex: 999,
+    bottom: "10px",
+    left: "10px"
   }
 }));
 
@@ -115,6 +121,12 @@ const horizontalStyles = makeStyles((theme) => ({
     zIndex: 999,
     bottom: "10px",
     right: "10px"
+  },
+  endCallBtn: {
+    position: 'absolute',
+    zIndex: 999,
+    bottom: "10px",
+    left: "10px"
   }
 }));
 
@@ -122,7 +134,7 @@ export default function Default(props) {
 
   const horizontalClasses = horizontalStyles();
   const verticalClasses = verticalStyles();
-  const { session, subs, user } = props;
+  const { session, subs, user, isIOS, course } = props;
   const [ classes, setClasses ]  = useState(horizontalClasses);
   const [ featureVid, setFeatureVid ] = useState(null);
   const [ regularVid, setRegularVid ] = useState([]);
@@ -196,6 +208,8 @@ export default function Default(props) {
         session={session}
         className={featureClasses}
         classes={classes}
+        isIOS={isIOS}
+        course={course}
       >
         <VideoDOMElement element={featureVid.videoElement} />
       </VideoContainer>
@@ -215,6 +229,8 @@ export default function Default(props) {
             session={session}
             className={regularClasses}
             classes={classes}
+            isIOS={isIOS}
+            course={course}
           >
             <VideoDOMElement element={item.videoElement} />
           </VideoContainer>

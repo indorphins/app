@@ -42,6 +42,17 @@ const useStyles = makeStyles((theme) => ({
   audioLvl: {
     height: 6,
     background: theme.palette.secondaryColor.main,
+  },
+  pubWindowCtn: {
+    width: "100%",
+    minHeight:240,
+    maxHeight: 320,
+    position: "relative",
+    background: "black",
+  },
+  noDevicesItem: {
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1)
   }
 }));
 
@@ -60,7 +71,7 @@ const pubSettings = {
 
 export default function DevicePicker(props) {
   const classes = useStyles();
-  const { course, session, publisher, user, videoElement, initPublisher, onJoined } = props;
+  const { course, session, publisher, user, videoElement, initPublisher, onJoined, noDevices } = props;
   const [displayMsg, setDisplayMsg] = useState(null);
   const [ videoDevices, setVideoDevices ] = useState([]);
   const [ audioDevices, setAudioDevices ] = useState([]);
@@ -77,7 +88,6 @@ export default function DevicePicker(props) {
   async function handleError(err) {
     if (err) {
       log.error("OPENTOK::", err);
-
       if (err.name === 'OT_HARDWARE_UNAVAILABLE') {
         return setDisplayMsg({
           severity: "error",
@@ -94,6 +104,13 @@ export default function DevicePicker(props) {
           severity: "warning",
           message: `Network connection slow.
           Try moving closer to your router if possible, or check your internet speed, and then refresh this page.`
+        });
+      }
+
+      if (err.name === 'OT_CONSTRAINTS_NOT_SATISFIED') {
+        return setDisplayMsg({
+          severity: "info",
+          message: `No streaming hardware accessible on this device`
         });
       }
     }
@@ -307,11 +324,39 @@ export default function DevicePicker(props) {
       </Grid>
     )
   } else {
-    content = (
-      <Grid item>
-        <Typography color="primary" variant="h5">Accessing camera and microphone...</Typography>
-      </Grid>
-    )
+    if (noDevices) {
+      // Display enter room without having a vid feed for user
+      content = (
+        <Grid container direction='column' justify='center' alignItems='center' style={{height:"100%"}}>
+          <Grid item className={classes.noDevicesItem}>
+            <Typography variant="h3" align="center">Just so you know</Typography>
+          </Grid>
+          <Grid item className={classes.noDevicesItem}>
+            <Typography variant="subtitle1">
+              {`You'll still see the instructor, and the class sees your username, 
+              but to get the full community experience 
+              we recommend taking class on a laptop/computer. In any case, enjoy!`}
+            </Typography>
+          </Grid>
+          <Grid item className={classes.noDevicesItem}>
+            <Fab
+              onClick={joinSession}
+              color="primary"
+              className={classes.btn}
+              variant="extended"
+            >
+              Enter room
+            </Fab>
+          </Grid>
+        </Grid>
+      )
+    } else {
+      content = (
+        <Grid item>
+          <Typography color="primary" variant="h5">Accessing camera and microphone...</Typography>
+        </Grid>
+      )
+    }
   }
 
   if (!onJoined) {
@@ -319,13 +364,7 @@ export default function DevicePicker(props) {
       <Grid container>
         <Grid
           container
-          style={{
-            width: "100%",
-            minHeight:240,
-            maxHeight: 320,
-            position: "relative",
-            background: "black"
-          }}
+          className={classes.pubWindowCtn}
         >
           {pubWindow}
           <Grid container justify="center" style={{position: "absolute", bottom: 0}}>
@@ -335,7 +374,6 @@ export default function DevicePicker(props) {
       </Grid>
     )
   } else {
-
     return (
       <ThemeProvider theme={light}>
         <IconButton onClick={back} style={{position: "absolute", top: 5, left: 5}}>
