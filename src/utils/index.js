@@ -172,6 +172,21 @@ function isInteger(n) {
 }
 
 /**
+ * Takes in a number and converts it to a dollar string
+ * like $10 or $12.50
+ * @param {Number} c 
+ * @returns {String}
+ */
+export function getCostString(c) {
+  let costText = "$" + c.toFixed(2);
+
+  if (isInteger(c)) {
+    costText = "$" + c;
+  }
+  return costText
+}
+
+/**
  * Returns the cost string for input price like $XX.XX
  * returns -1 if unable to grab price from input object
  * @param {Object} price 

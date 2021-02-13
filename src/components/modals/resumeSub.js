@@ -46,6 +46,10 @@ const getDefaultPaymentMethod = createSelector(
   pd => pd.methods.filter(item => item.default)
 );
 
+const subscriptionSelector = createSelector([state => state.user], user => {
+  return user.subscription;
+})
+
 /**
  * Modal that will create a subscription without free trial if user chooses to resume subscription
  * Also has button to "switch payment method" that sends the user to their profile page
@@ -65,6 +69,7 @@ export default function ResumeSubscriptionModal (props) {
   const history = useHistory();
   const products = useSelector(state => getProductsSelector(state));
   const defaultPaymentMethod = useSelector(state => getDefaultPaymentMethod(state));
+  const subscription = useSelector(state => subscriptionSelector(state));
 
   useEffect(() => {
     if (products && products.price && products.price.length > 0 && products.price[0].amount) {
@@ -127,7 +132,7 @@ export default function ResumeSubscriptionModal (props) {
 
   const subscriptionCreatedHandler = () => {
     store.dispatch(actions.user.setSubscription(sub));
-    props.closeModalHandler();
+    props.closeModalHandler(sub);
   }
 
   let loaderContent = (
@@ -152,7 +157,12 @@ export default function ResumeSubscriptionModal (props) {
         </Grid>
         <br />
         <Grid container id='modal-buttons' justify='center'>
-          <Button onClick={props.closeModalHandler} variant="contained" color="primary" className={classes.modalBtn}>
+          <Button 
+            onClick={() => props.closeModalHandler(null)} 
+            variant="contained" 
+            color="primary" 
+            className={classes.modalBtn}
+          >
             Go Back
           </Button>
         </Grid>
@@ -161,6 +171,15 @@ export default function ResumeSubscriptionModal (props) {
   } else {
     let addPMethodText = needsPMethod ? 
       "Add payment method" : "Swap payment method";
+
+    let offerText = `OFFER TERMS: Take as many classes as you’d like across our platform for just ${cost}/mo. 
+    You’ll be billed automatically each month. Terms & Services apply across all classes.`
+
+    if (subscription.cancel_at_period_end && subscription.status !== 'CANCELED') {
+      const endDate = new Date(subscription.period_end).toLocaleDateString();
+      offerText = `If you want to restart your subscription, great! 
+      We’ll resume your billing cycle on ${endDate}, and you’ll be fully back in business`
+    }
     content = (
       <Paper className={classes.modalContent}>
         <Grid container id='modal-description' justify='center'>
@@ -168,8 +187,7 @@ export default function ResumeSubscriptionModal (props) {
           <br />
           <br />
           <Typography variant="body2">
-            OFFER TERMS: take as many classes as you’d like across our platform for just {cost}/mo. 
-            You’ll be billed automatically each month. Terms & Services apply across all classes.
+            {offerText}
           </Typography>
         </Grid>
         <br />
@@ -232,7 +250,7 @@ export default function ResumeSubscriptionModal (props) {
     )
   }
 
-  let closeHandler = props.closeModalHandler
+  let closeHandler = () => props.closeModalHandler(null);
   if (sub) {
     closeHandler = subscriptionCreatedHandler;
   }

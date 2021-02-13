@@ -67,19 +67,21 @@ export default function Membership (props) {
   const [confirmLeave, setConfirmLeave] = useState(false);
   const [startTrial, setStartTrial] = useState(true);
   const [refund, setRefund] = useState(false);
-  const subscription = useSelector(state => getSubscriptionSelector(state));
   const defaultPaymentMethod = useSelector(state => getDefaultPaymentMethod(state));
   const products = useSelector(state => getProductsSelector(state));
   const classes = useStyles();
+  let subscription = useSelector(state => getSubscriptionSelector(state));
 
   useEffect(() => {
     if (subscription && Object.entries(subscription).length > 0) {
       if (subscription.status === 'ACTIVE' || subscription.status === 'TRIAL') {
-        setMemStatus('Active');
+        subscription.cancel_at_period_end ? setMemStatus('Canceled') : setMemStatus('Active');
+
         if (subscription.period_end) {
-          const end = new Date(subscription.period_end).toLocaleDateString();
+          const end = new Date(subscription.period_end);
+          const dateStr = getPeriodEndString(end);
           const trialOrSub = subscription.status === 'TRIAL' ? 'Trial' : 'Subscription';
-          const text = `Current Period: ${trialOrSub} active until ${end}`;
+          const text = `Current Period: ${trialOrSub} active until ${dateStr}`;
           setPayPeriod((
             <Typography variant='body2' className={classes.text}>{text}</Typography>
           ))
@@ -112,9 +114,23 @@ export default function Membership (props) {
     }
   }, [defaultPaymentMethod]);
 
-  const closeHandler = () => {
+  /**
+   * Gets the formatted date string for displaying subscription period end
+   * @param {Date} periodEndDate 
+   */
+  const getPeriodEndString = (periodEndDate) => {
+    const monthNames = ["January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"];
+    
+    return `${monthNames[periodEndDate.getMonth()]} ${periodEndDate.getDate()}, ${periodEndDate.getFullYear()}`
+  };
+
+  const closeHandler = (sub) => {
     setRefund(false);
     setConfirmLeave(false);
+    if (sub && Object.entries(sub).length > 0) {
+      subscription = sub;
+    }
   }
 
   const openModalHandler = () => {
