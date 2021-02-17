@@ -5,6 +5,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import VideoContainer from './videoContainer';
 import VideoDOMElement from './videoDOMElement';
 import log from '../../../log';
+import useWindowSize from '../../../hooks/useWindowSize';
 
 const verticalStyles = makeStyles((theme) => ({
   root: {
@@ -17,6 +18,23 @@ const verticalStyles = makeStyles((theme) => ({
     width: "100%",
     position: "relative",
     background: theme.palette.grey[50],
+  },
+  mobileFullClass: {
+    height: "100%",
+    width: "100%",
+    position: "relative",
+    '@media (max-width: 900px)': {
+      height: '75vw',
+      width: '100%'
+    }
+  },
+  rootChild: {
+    height:"100%",
+    overflow: "hidden",
+    '@media (max-width: 900px)': {
+      justifyContent: 'center',
+      alignContent: 'center'
+    }
   },
   split: {
     height: "50%",
@@ -81,6 +99,23 @@ const horizontalStyles = makeStyles((theme) => ({
     width: "100%",
     position: "relative",
   },
+  mobileFullClass: {
+    height: "100%",
+    width: "100%",
+    position: "relative",
+    '@media (max-width: 900px)': {
+      height: '10%%',
+      width: '133vh'
+    }
+  },
+  rootChild: {
+    height:"100%",
+    overflow: "hidden",
+    '@media (max-width: 900px)': {
+      justifyContent: 'center',
+      alignContent: 'center'
+    }
+  },
   split: {
     height: "100%",
     width: "50%",
@@ -134,12 +169,15 @@ export default function Default(props) {
 
   const horizontalClasses = horizontalStyles();
   const verticalClasses = verticalStyles();
-  const { session, subs, user, isIOS, course } = props;
-  const [ classes, setClasses ]  = useState(horizontalClasses);
+  const { session, subs, user, isMobile, course } = props;
   const [ featureVid, setFeatureVid ] = useState(null);
   const [ regularVid, setRegularVid ] = useState([]);
   const [ direction, setDirection ] = useState("column");
   const [ max, setMax ] = useState(4);
+  const [ classes, setClasses ]  = useState(horizontalClasses);
+  const [ featureClasses, setFeatureClasses ] = useState(null);
+  const [ regularClasses, setRegularClasses ] = useState(null);
+  const [ screenWidth, screenHeight ] = useWindowSize();
 
   useEffect(() => {
     if (props.max) {
@@ -181,22 +219,28 @@ export default function Default(props) {
     }
   }, [subs]);
 
-  let featureClasses = null;
-  let regularClasses = null;
-
-  if (featureVid && regularVid.length === 0) {
-    featureClasses = classes.full;
-  } else if (regularVid.length === 1) {
-    featureClasses = classes.split;
-    regularClasses = classes.split;
-  } else if (regularVid.length === 2) {
-    featureClasses = classes.subscriberFeatureAlt;
-    regularClasses = classes.subscriberItemAlt;
-  } else {
-    featureClasses = classes.subscriberFeature;
-    regularClasses = classes.subscriberItem;
-  }
-
+  useEffect(() => {
+    if (isMobile) {
+      if (screenWidth > screenHeight) {
+        setFeatureClasses(horizontalClasses.mobileFullClass);
+      } else {
+        setFeatureClasses(verticalClasses.mobileFullClass);
+      }
+    } else {
+      if (featureVid && regularVid.length === 0) {
+        setFeatureClasses(classes.full);
+      } else if (regularVid.length === 1) {
+        setFeatureClasses(classes.split);
+        setRegularClasses(classes.split);
+      } else if (regularVid.length === 2) {
+        setFeatureClasses(classes.subscriberFeatureAlt);
+        setRegularClasses(classes.subscriberItemAlt);
+      } else {
+        setFeatureClasses(classes.subscriberFeature);
+        setRegularClasses(classes.subscriberItem);
+      } 
+    }
+  }, [screenWidth, screenHeight, featureVid, regularVid]);
 
   let featureVidContent = null;
   if (featureVid) {
@@ -208,13 +252,13 @@ export default function Default(props) {
         session={session}
         className={featureClasses}
         classes={classes}
-        isIOS={isIOS}
+        isMobile={isMobile}
         course={course}
       >
         <VideoDOMElement element={featureVid.videoElement} />
       </VideoContainer>
     )
-  }
+  }  
 
   let videoContent = null;
   if (regularVid) {
@@ -229,7 +273,7 @@ export default function Default(props) {
             session={session}
             className={regularClasses}
             classes={classes}
-            isIOS={isIOS}
+            isMobile={isMobile}
             course={course}
           >
             <VideoDOMElement element={item.videoElement} />
@@ -245,7 +289,7 @@ export default function Default(props) {
         container
         direction={direction}
         justify="flex-start"
-        style={{height:"100%", overflow: "hidden"}}
+        className={classes.rootChild}
       >
         {featureVidContent}
         {videoContent}

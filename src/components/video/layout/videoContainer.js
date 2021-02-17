@@ -9,14 +9,14 @@ import LeaveSession from '../leaveSession';
 import Emote from '../emote';
 
 export default function VideoContainer(props) {
-  const { classes, style, isIOS = false, course } = props;
+  const { classes, style, isMobile = false, course, className} = props;
 
   let styles = Object.assign({
     backgroundColor: "black",
   }, style)
 
   let endCallButton;
-  if (isIOS) {
+  if (isMobile) {
     endCallButton = (
       <Grid className={classes.endCallBtn}>
         <LeaveSession course={course} />
@@ -25,7 +25,7 @@ export default function VideoContainer(props) {
   }
 
   return (
-    <Grid item className={props.className} style={styles}>
+    <Grid item className={className} style={styles}>
       {props.children}
       <Box className={classes.subscriberLabelBox}>
         <Typography

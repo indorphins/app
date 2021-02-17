@@ -247,7 +247,7 @@ export default function DevicePicker(props) {
 
   let content = null;
 
-  let text = `Thanks for joining us, ${user.username}`;
+  let text = `Let's get that bread, ${user.username}`;
 
   if (user.id === course.instructor.id) {
     text = `Let's get that bread, ${user.username}`;
@@ -281,9 +281,6 @@ export default function DevicePicker(props) {
           <Grid item container direction="row" spacing={4} justify="center" alignItems="center" alignContent="center">
             <Grid item>
               <Typography variant="h3" align="center">{text}</Typography>
-            </Grid>
-            <Grid item>
-              <Typography variant="subtitle1">First, make sure you&apos;re good to go</Typography>
             </Grid>
           </Grid>
           <Grid item style={{maxWidth:400, width: "100%"}}>
