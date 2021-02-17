@@ -223,6 +223,23 @@ export default function Video(props) {
     });
   }
 
+  /**
+   * Determine the mobile operating system.
+   * This function returns true for 'iOS', 'Android', 'Windows Phone',
+   * or false for 'unknown'.
+   * @returns {Boolean}
+   */
+  function isMobile() {
+    var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+    // Windows Phone must come first because its UA also contains "Android"
+    if (/windows phone/i.test(userAgent) || /android/i.test(userAgent)) {
+      return "Windows Phone";
+    }
+
+    return isIOS();
+  }
+
   function isIOS() {
     return [
       'iPad Simulator',
@@ -230,7 +247,7 @@ export default function Video(props) {
       'iPod Simulator',
       'iPad',
       'iPhone',
-      'iPod'
+      'iPod',
     ].includes(navigator.platform) 
     || (navigator.userAgent.includes("Mac") && "ontouchend" in document);
   }
@@ -967,7 +984,7 @@ export default function Video(props) {
   useEffect(() => {
 
     let set = vidSettings.filter(item => item.selected)[0];
-    if (isIOS()) {
+    if (isMobile()) {
       set = {
         value: "instructor",
         className: classes.videoSetting,
@@ -1144,7 +1161,7 @@ export default function Video(props) {
         session={session} 
         max={maxStreams} 
         layout={videoLayout} 
-        isIOS={isIOS()} 
+        isMobile={isMobile()} 
         course={course}
       />
     )
@@ -1167,7 +1184,7 @@ export default function Video(props) {
             style={{height: "100%", overflow: "hidden"}}
           >
             {vidsLayout}
-            <Drawer mobile={isIOS()}>
+            <Drawer mobile={isMobile()}>
               <Grid container direction="row" justify="flex-start" alignItems="flex-start">
                 <DevicePicker
                   session={session}
