@@ -145,6 +145,9 @@ export default function Video(props) {
       }
 
       if (err.name === 'OT_NOT_SUPPORTED') {
+        if (isMobile()) {
+          return setNoDevices(true);
+        }
         return setDisplayMsg({severity: "error", message: "Device not supported."});
       }
 
@@ -157,12 +160,13 @@ export default function Video(props) {
       }
 
       if (err.name === 'OT_CONSTRAINTS_NOT_SATISFIED') {
-        setNoDevices(true);
-        return;
-        // return setDisplayMsg({
-        //   severity: "info",
-        //   message: `No streaming hardware accessible on this device***`,
-        // });
+        if (isMobile()) {
+          return setNoDevices(true);
+        }
+        return setDisplayMsg({
+          severity: "info",
+          message: `No streaming hardware accessible on this device***`,
+        });
       }
     }
   }
