@@ -330,9 +330,10 @@ export default function DevicePicker(props) {
           </Grid>
           <Grid item className={classes.noDevicesItem}>
             <Typography variant="subtitle1">
-              {`You'll still see the instructor, and the class sees your username, 
-              but to get the full community experience 
-              we recommend taking class on a laptop/computer. In any case, enjoy!`}
+              {`Our mobile experience is in beta! 
+              You’ll see the instructor and the instructor will see you, 
+              but for the best experience, we recommend taking class on a laptop/computer. 
+              In any case, enjoy!`}
             </Typography>
           </Grid>
           <Grid item className={classes.noDevicesItem}>
