@@ -14,7 +14,7 @@ export default function OtherCourseInfo(props) {
     <Grid container direction='column' className={classes.content}>
       <Typography variant="body2">Other things to know:</Typography>
       <Typography variant="body2">
-        - Join class from your computer or mobile device, ideally using the Google Chrome browser
+        - For the best experience, join class from your computer using the Google Chrome browser
       </Typography>
       <Typography variant="body2"> - Login to indoorphins.fit and join from this page</Typography>
       <Typography variant="body2"> 
