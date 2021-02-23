@@ -71,11 +71,12 @@ const pubSettings = {
 
 export default function DevicePicker(props) {
   const classes = useStyles();
-  const { course, session, publisher, user, videoElement, initPublisher, onJoined, noDevices } = props;
+  const { course, session, publisher, user, videoElement, initPublisher, onJoined, noDevices, isMobile } = props;
   const [displayMsg, setDisplayMsg] = useState(null);
   const [ videoDevices, setVideoDevices ] = useState([]);
   const [ audioDevices, setAudioDevices ] = useState([]);
   const [ audioLevel, setAudioLevel ] = useState(0);
+  const [ betaAcknowledged, setBetaAcknowledged] = useState(false)
   const history = useHistory();
 
   const med = useMediaQuery('(max-width:900px)');
@@ -154,6 +155,14 @@ export default function DevicePicker(props) {
 
   function joinSession() {
     onJoined();
+  }
+
+  function mobileJoinHandler() {
+    if (noDevices) {
+      onJoined();
+    } else {
+      setBetaAcknowledged(true);
+    }
   }
 
   function audioLevelHandler(event) {
@@ -265,63 +274,63 @@ export default function DevicePicker(props) {
     layout.align = "flex-start";
   }
 
-  if (pubWindow) {
-    content = (
-      <Grid item container direction={layout.direction} spacing={2}>
-        <Grid
-          item
-          xs={layout.width}
-          container
-          direction='column'
-          spacing={2}
-          justify="center"
-          alignItems="center"
-          alignContent="center"
-        >
-          <Grid item container direction="row" spacing={4} justify="center" alignItems="center" alignContent="center">
-            <Grid item>
-              <Typography variant="h3" align="center">{text}</Typography>
-            </Grid>
-          </Grid>
-          <Grid item style={{maxWidth:400, width: "100%"}}>
-            {videoContent}
-          </Grid>
-          <Grid item style={{maxWidth:400, width: "100%"}}>
-            {audioContent}
-          </Grid>
+  let pubContent = (
+    <Grid item container direction={layout.direction} spacing={2}>
+      <Grid
+        item
+        xs={layout.width}
+        container
+        direction='column'
+        spacing={2}
+        justify="center"
+        alignItems="center"
+        alignContent="center"
+      >
+        <Grid item container direction="row" spacing={4} justify="center" alignItems="center" alignContent="center">
           <Grid item>
-            <Fab
-              onClick={joinSession}
-              color="primary"
-              className={classes.btn}
-              variant="extended"
-            >
-              Enter room
-            </Fab>
+            <Typography variant="h3" align="center">{text}</Typography>
           </Grid>
         </Grid>
-        <Grid
-          item
-          xs={layout.width}
-          container 
-          direction={layout.direction}
-          spacing={1}
-          justify="center"
-          alignContent="center"
-        >
-          <Grid item>
-            {pubWindow}
-          </Grid>
-          <Grid item>
-            <Typography variant="subtitle1" align="center" style={{fontWeight: "bold"}}>
-              Try to be seen head to toe!
-            </Typography>
-          </Grid>
+        <Grid item style={{maxWidth:400, width: "100%"}}>
+          {videoContent}
+        </Grid>
+        <Grid item style={{maxWidth:400, width: "100%"}}>
+          {audioContent}
+        </Grid>
+        <Grid item>
+          <Fab
+            onClick={joinSession}
+            color="primary"
+            className={classes.btn}
+            variant="extended"
+          >
+            Enter room
+          </Fab>
         </Grid>
       </Grid>
-    )
-  } else {
-    if (noDevices) {
+      <Grid
+        item
+        xs={layout.width}
+        container 
+        direction={layout.direction}
+        spacing={1}
+        justify="center"
+        alignContent="center"
+      >
+        <Grid item>
+          {pubWindow}
+        </Grid>
+        <Grid item>
+          <Typography variant="subtitle1" align="center" style={{fontWeight: "bold"}}>
+            Try to be seen head to toe!
+          </Typography>
+        </Grid>
+      </Grid>
+    </Grid>
+  )
+
+  if (isMobile) {
+    if (!betaAcknowledged) {
       // Display enter room without having a vid feed for user
       content = (
         <Grid container direction='column' justify='center' alignItems='center' style={{height:"100%"}}>
@@ -338,16 +347,22 @@ export default function DevicePicker(props) {
           </Grid>
           <Grid item className={classes.noDevicesItem}>
             <Fab
-              onClick={joinSession}
+              onClick={mobileJoinHandler}
               color="primary"
               className={classes.btn}
               variant="extended"
             >
-              Enter room
+              Got it
             </Fab>
           </Grid>
         </Grid>
       )
+    } else {
+      content = pubContent;
+    }
+  } else {
+    if (pubWindow) {
+      content = pubContent;
     } else {
       content = (
         <Grid item>
