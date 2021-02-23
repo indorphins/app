@@ -118,7 +118,7 @@ export default function Video(props) {
   const [joined, setJoined] = useState(false);
   const [tab, setTab] = useState(0);
   const [chatHistory, setChatHistory] = useState([]);
-  //const [cover, setCover] = useState(true);
+  const [noDevices, setNoDevices] = useState(false);
   const cover = true;
   const subsRef = useRef();
   const sessionRef = useRef();
@@ -153,6 +153,16 @@ export default function Video(props) {
           severity: "warning",
           message: `Network connection slow.
           Try moving closer to your router if possible, or check your internet speed, and then refresh this page.`
+        });
+      }
+
+      if (err.name === 'OT_CONSTRAINTS_NOT_SATISFIED') {
+        if (isMobile()) {
+          return setNoDevices(true);
+        }
+        return setDisplayMsg({
+          severity: "info",
+          message: `No streaming hardware accessible on this device`,
         });
       }
     }
@@ -212,6 +222,35 @@ export default function Video(props) {
       accessDenied: () => setPermissionsError(true),
       videoElementCreated: publisherVideoElementCreated,
     });
+  }
+
+  /**
+   * Determine the mobile operating system.
+   * This function returns true for 'iOS', 'Android', 'Windows Phone',
+   * or false for 'unknown'.
+   * @returns {Boolean}
+   */
+  function isMobile() {
+    var userAgent = navigator.userAgent || navigator.vendor || window.opera;
+
+    // Windows Phone must come first because its UA also contains "Android"
+    if (/windows phone/i.test(userAgent) || /android/i.test(userAgent)) {
+      return "Windows Phone";
+    }
+
+    return isIOS();
+  }
+
+  function isIOS() {
+    return [
+      'iPad Simulator',
+      'iPhone Simulator',
+      'iPod Simulator',
+      'iPad',
+      'iPhone',
+      'iPod',
+    ].includes(navigator.platform) 
+    || (navigator.userAgent.includes("Mac") && "ontouchend" in document);
   }
 
   // Start archiving the session, if user is instructor
@@ -897,7 +936,6 @@ export default function Video(props) {
   );*/
 
 
-
   const [vidSettings, setVidSettings] = useState([
     {
       value: "community",
@@ -947,6 +985,15 @@ export default function Video(props) {
   useEffect(() => {
 
     let set = vidSettings.filter(item => item.selected)[0];
+    if (isMobile()) {
+      set = {
+        value: "instructor",
+        className: classes.videoSetting,
+        selected: false,
+        title: "1:1",
+        subTitle: "View just the instructor.",
+      };
+    }
 
     if (set) {
       if (set.value === 'community' || set.value === 'class') {
@@ -1074,7 +1121,7 @@ export default function Video(props) {
   
   if (displayMsg) {
     displayMsgContent = (
-      <Alert severity={displayMsg.severity}>{displayMsg.message}</Alert>
+      <Alert severity={displayMsg.severity} closeText='CLOSE'>{displayMsg.message}</Alert>
     )
   }
 
@@ -1090,6 +1137,8 @@ export default function Video(props) {
           videoElement={videoElement}
           initPublisher={initPublisher}
           onJoined={handleJoin}
+          noDevices={noDevices}
+          isMobile={isMobile()}
         />
       </Grid>
     );
@@ -1108,7 +1157,15 @@ export default function Video(props) {
   } else {
 
     let vidsLayout = (
-      <Default user={user} subs={subs} session={session} max={maxStreams} layout={videoLayout} />
+      <Default 
+        user={user} 
+        subs={subs} 
+        session={session} 
+        max={maxStreams} 
+        layout={videoLayout} 
+        isMobile={isMobile()} 
+        course={course}
+      />
     )
 
     if (videoLayout === "grid") {
@@ -1129,7 +1186,7 @@ export default function Video(props) {
             style={{height: "100%", overflow: "hidden"}}
           >
             {vidsLayout}
-            <Drawer>
+            <Drawer mobile={isMobile()}>
               <Grid container direction="row" justify="flex-start" alignItems="flex-start">
                 <DevicePicker
                   session={session}

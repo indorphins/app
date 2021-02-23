@@ -13,7 +13,9 @@ export default function OtherCourseInfo(props) {
   return (
     <Grid container direction='column' className={classes.content}>
       <Typography variant="body2">Other things to know:</Typography>
-      <Typography variant="body2"> - Join class from your computer, ideally using the Google Chrome browser</Typography>
+      <Typography variant="body2">
+        - For the best experience, join class from your computer using the Google Chrome browser
+      </Typography>
       <Typography variant="body2"> - Login to indoorphins.fit and join from this page</Typography>
       <Typography variant="body2"> 
         - Drop-ins can receive full refunds as long as they cancel more than 24 hours before the class time

@@ -42,6 +42,17 @@ const useStyles = makeStyles((theme) => ({
   audioLvl: {
     height: 6,
     background: theme.palette.secondaryColor.main,
+  },
+  pubWindowCtn: {
+    width: "100%",
+    minHeight:240,
+    maxHeight: 320,
+    position: "relative",
+    background: "black",
+  },
+  noDevicesItem: {
+    marginTop: theme.spacing(1),
+    marginBottom: theme.spacing(1)
   }
 }));
 
@@ -60,11 +71,12 @@ const pubSettings = {
 
 export default function DevicePicker(props) {
   const classes = useStyles();
-  const { course, session, publisher, user, videoElement, initPublisher, onJoined } = props;
+  const { course, session, publisher, user, videoElement, initPublisher, onJoined, noDevices, isMobile } = props;
   const [displayMsg, setDisplayMsg] = useState(null);
   const [ videoDevices, setVideoDevices ] = useState([]);
   const [ audioDevices, setAudioDevices ] = useState([]);
   const [ audioLevel, setAudioLevel ] = useState(0);
+  const [ betaAcknowledged, setBetaAcknowledged] = useState(false)
   const history = useHistory();
 
   const med = useMediaQuery('(max-width:900px)');
@@ -77,7 +89,6 @@ export default function DevicePicker(props) {
   async function handleError(err) {
     if (err) {
       log.error("OPENTOK::", err);
-
       if (err.name === 'OT_HARDWARE_UNAVAILABLE') {
         return setDisplayMsg({
           severity: "error",
@@ -94,6 +105,13 @@ export default function DevicePicker(props) {
           severity: "warning",
           message: `Network connection slow.
           Try moving closer to your router if possible, or check your internet speed, and then refresh this page.`
+        });
+      }
+
+      if (err.name === 'OT_CONSTRAINTS_NOT_SATISFIED') {
+        return setDisplayMsg({
+          severity: "info",
+          message: `No streaming hardware accessible on this device`
         });
       }
     }
@@ -137,6 +155,14 @@ export default function DevicePicker(props) {
 
   function joinSession() {
     onJoined();
+  }
+
+  function mobileJoinHandler() {
+    if (noDevices) {
+      onJoined();
+    } else {
+      setBetaAcknowledged(true);
+    }
   }
 
   function audioLevelHandler(event) {
@@ -230,7 +256,7 @@ export default function DevicePicker(props) {
 
   let content = null;
 
-  let text = `Thanks for joining us, ${user.username}`;
+  let text = `Let's get that bread, ${user.username}`;
 
   if (user.id === course.instructor.id) {
     text = `Let's get that bread, ${user.username}`;
@@ -248,70 +274,102 @@ export default function DevicePicker(props) {
     layout.align = "flex-start";
   }
 
-  if (pubWindow) {
-    content = (
-      <Grid item container direction={layout.direction} spacing={2}>
-        <Grid
-          item
-          xs={layout.width}
-          container
-          direction='column'
-          spacing={2}
-          justify="center"
-          alignItems="center"
-          alignContent="center"
-        >
-          <Grid item container direction="row" spacing={4} justify="center" alignItems="center" alignContent="center">
-            <Grid item>
-              <Typography variant="h3" align="center">{text}</Typography>
-            </Grid>
-            <Grid item>
-              <Typography variant="subtitle1">First, make sure you&apos;re good to go</Typography>
-            </Grid>
-          </Grid>
-          <Grid item style={{maxWidth:400, width: "100%"}}>
-            {videoContent}
-          </Grid>
-          <Grid item style={{maxWidth:400, width: "100%"}}>
-            {audioContent}
-          </Grid>
+  let pubContent = (
+    <Grid item container direction={layout.direction} spacing={2}>
+      <Grid
+        item
+        xs={layout.width}
+        container
+        direction='column'
+        spacing={2}
+        justify="center"
+        alignItems="center"
+        alignContent="center"
+      >
+        <Grid item container direction="row" spacing={4} justify="center" alignItems="center" alignContent="center">
           <Grid item>
+            <Typography variant="h3" align="center">{text}</Typography>
+          </Grid>
+        </Grid>
+        <Grid item style={{maxWidth:400, width: "100%"}}>
+          {videoContent}
+        </Grid>
+        <Grid item style={{maxWidth:400, width: "100%"}}>
+          {audioContent}
+        </Grid>
+        <Grid item>
+          <Fab
+            onClick={joinSession}
+            color="primary"
+            className={classes.btn}
+            variant="extended"
+          >
+            Enter room
+          </Fab>
+        </Grid>
+      </Grid>
+      <Grid
+        item
+        xs={layout.width}
+        container 
+        direction={layout.direction}
+        spacing={1}
+        justify="center"
+        alignContent="center"
+      >
+        <Grid item>
+          {pubWindow}
+        </Grid>
+        <Grid item>
+          <Typography variant="subtitle1" align="center" style={{fontWeight: "bold"}}>
+            Try to be seen head to toe!
+          </Typography>
+        </Grid>
+      </Grid>
+    </Grid>
+  )
+
+  if (isMobile) {
+    if (!betaAcknowledged) {
+      // Display enter room without having a vid feed for user
+      content = (
+        <Grid container direction='column' justify='center' alignItems='center' style={{height:"100%"}}>
+          <Grid item className={classes.noDevicesItem}>
+            <Typography variant="h3" align="center">Just so you know</Typography>
+          </Grid>
+          <Grid item className={classes.noDevicesItem}>
+            <Typography variant="subtitle1">
+              {`Our mobile experience is in beta! 
+              You’ll see the instructor and the instructor will see you, 
+              but for the best experience, we recommend taking class on a laptop/computer. 
+              In any case, enjoy!`}
+            </Typography>
+          </Grid>
+          <Grid item className={classes.noDevicesItem}>
             <Fab
-              onClick={joinSession}
+              onClick={mobileJoinHandler}
               color="primary"
               className={classes.btn}
               variant="extended"
             >
-              Enter room
+              Got it
             </Fab>
           </Grid>
         </Grid>
-        <Grid
-          item
-          xs={layout.width}
-          container 
-          direction={layout.direction}
-          spacing={1}
-          justify="center"
-          alignContent="center"
-        >
-          <Grid item>
-            {pubWindow}
-          </Grid>
-          <Grid item>
-            <Typography variant="subtitle1" align="center" style={{fontWeight: "bold"}}>
-              Try to be seen head to toe!
-            </Typography>
-          </Grid>
-        </Grid>
-      </Grid>
-    )
+      )
+    } else {
+      content = pubContent;
+    }
   } else {
-    content = (
-      <Grid item>
-        <Typography color="primary" variant="h5">Accessing camera and microphone...</Typography>
-      </Grid>
-    )
+    if (pubWindow) {
+      content = pubContent;
+    } else {
+      content = (
+        <Grid item>
+          <Typography color="primary" variant="h5">Accessing camera and microphone...</Typography>
+        </Grid>
+      )
+    }
   }
 
   if (!onJoined) {
@@ -319,13 +377,7 @@ export default function DevicePicker(props) {
       <Grid container>
         <Grid
           container
-          style={{
-            width: "100%",
-            minHeight:240,
-            maxHeight: 320,
-            position: "relative",
-            background: "black"
-          }}
+          className={classes.pubWindowCtn}
         >
           {pubWindow}
           <Grid container justify="center" style={{position: "absolute", bottom: 0}}>
@@ -335,7 +387,6 @@ export default function DevicePicker(props) {
       </Grid>
     )
   } else {
-
     return (
       <ThemeProvider theme={light}>
         <IconButton onClick={back} style={{position: "absolute", top: 5, left: 5}}>

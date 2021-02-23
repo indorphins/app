@@ -1,5 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Grid, Modal, Paper, IconButton, Typography, makeStyles } from '@material-ui/core';
+import {
+  Grid, 
+  Modal, 
+  Paper, 
+  IconButton, 
+  Typography, 
+  makeStyles,
+  useMediaQuery
+ } from '@material-ui/core';
 import { Close } from '@material-ui/icons';
 import { useRouteMatch } from 'react-router-dom';
 import { useSelector } from 'react-redux';
@@ -17,6 +25,10 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: theme.spacing(4),
     paddingRight: theme.spacing(4),
     paddingLeft: theme.spacing(4),
+  },
+  modalCtn: {
+    overflowY: 'scroll',
+    width: '95%'
   }
 }));
 
@@ -36,6 +48,7 @@ export default function Feedback() {
   const classes = useStyles();
   const showFeedback = useSelector((state) => courseFeedbackSelector(state));
   const [ showFeedbackForm, setShowFeedbackForm ] = useState(false);
+  const small = useMediaQuery('(max-width:600px)');
   const course = useSelector((state) => courseSelector(state));
   const sessionId = useSelector((state) => sessionIdSelector(state));
   let match = useRouteMatch({
@@ -83,18 +96,33 @@ export default function Feedback() {
   );
 
   let content = null;
+  let widthContent = (
+    <Grid item xs={5}>
+      <Grid container direction="column" justify="center" className={classes.container}>
+        <Grid item>
+          {formContent}
+        </Grid>
+      </Grid>
+    </Grid>
+  );
+
+  if (small) {
+    widthContent = (
+      <Grid item style={{width: '95%'}}>
+        <Grid container direction="column" justify="center" className={classes.container}>
+          <Grid item>
+            {formContent}
+          </Grid>
+        </Grid>
+      </Grid>
+    )
+  }
 
   if (showFeedbackForm) {
     content = (
-      <Modal open={showFeedbackForm} style={{overflowY: "scroll"}}>
+      <Modal open={showFeedbackForm} className={classes.modalCtn}>
         <Grid container direction="row" justify="center" className={classes.container}>
-          <Grid item xs={5}>
-            <Grid container direction="column" justify="center" className={classes.container}>
-              <Grid item>
-                {formContent}
-              </Grid>
-            </Grid>
-          </Grid>
+          {widthContent}
         </Grid>
       </Modal>
     );
