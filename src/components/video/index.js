@@ -1138,6 +1138,7 @@ export default function Video(props) {
           initPublisher={initPublisher}
           onJoined={handleJoin}
           noDevices={noDevices}
+          isMobile={isMobile()}
         />
       </Grid>
     );
