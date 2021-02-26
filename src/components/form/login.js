@@ -105,7 +105,7 @@ export default function Login(props) {
         history.push(redirectUrl);
       } else {
         log.debug('LOGIN:: redirect to home', path.home);
-        history.push(path.home);
+        history.push(path.courses);
       }
     } 
   }, [currentUser, redirectUrl]);
@@ -176,7 +176,7 @@ export default function Login(props) {
           history.push(redirectUrl);
         } else {
           log.debug('LOGIN:: redirect to home', path.home);
-          history.push(path.home);
+          history.push(path.courses);
         }
       })
       .catch((error) => {

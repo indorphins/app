@@ -12,7 +12,8 @@ const appConfig = {
     "messagingSenderId": "657572658567",
     "appId": "1:657572658567:web:9a1d85d6b627dce06da722"
   },
-  "stripe_public_key": "pk_test_51H2NeZHzihS8qPjDKwePiT0VjnatoR5LUTiqaseMcO2a9Pl40caQlEQGVJfg47adBGSltFKjtZBCbvkTtHmKsVn300wJRnD5lF"
+  "stripe_public_key": "pk_test_51H2NeZHzihS8qPjDKwePiT0VjnatoR5LUTiqaseMcO2a9Pl40caQlEQGVJfg47adBGSltFKjtZBCbvkTtHmKsVn300wJRnD5lF",
+  "homepage_url": "www.indoorphins.com"
 }
 
 window.appConfig = appConfig;
