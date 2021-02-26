@@ -255,7 +255,7 @@ export default function CourseInfo() {
     }
 
     setPaymentProcessing(false);
-    history.push(path.home);
+    history.push(path.courses);
   }
 
   const courseBookNowHandler = function () {
