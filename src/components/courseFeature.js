@@ -1,19 +1,17 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Link } from "react-router-dom";
 import { 
   Grid,
-  GridList,
-  GridListTile,
-  GridListTileBar,
   Typography,
   Fab,
-  useMediaQuery
+  useMediaQuery,
+  Button
 } from '@material-ui/core';
 import { ArrowForward, ArrowBack } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { format, isTomorrow, isToday, differenceInDays } from 'date-fns';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
+import { useHistory } from 'react-router-dom';
 
 import path from '../routes/path';
 import { getNextDate } from '../utils';
@@ -21,12 +19,11 @@ import { store, actions } from '../store';
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    overflow: 'hidden',
     width: "100%",
   },
   container: {
     position: 'relative',
-    width: '100%,'
+    width: '100%'
   },
   nextPageBtn: {
     position: 'absolute',
@@ -67,13 +64,12 @@ const useStyles = makeStyles((theme) => ({
   gridList: {
     flexWrap: 'nowrap',
     transform: 'translateZ(0)',
-
   },
   loader: {
     minHeight: 300,
   },
   photo: {
-    height: 400,
+    height: 93,
     width: "100%",
     objectFit: "cover",
     '@media (max-width: 600px)': {
@@ -117,10 +113,76 @@ const useStyles = makeStyles((theme) => ({
       lineHeight: '1.1em'
     }
   },
-  padding: {},
   header: {
-    paddingBottom: theme.spacing(2)
-  }
+    paddingBottom: theme.spacing(3)
+  },
+  listContainer: {
+    background: theme.palette.common.background,
+    borderRadius: 7,
+    border: '0.5px solid ' + theme.palette.common.border,
+    width: 'inherit',
+    flexWrap: 'nowrap',
+    transform: 'translateZ(0)',
+  },
+  listLabel: {
+    paddingBottom: theme.spacing(2),
+  },
+  listTile: {
+    width: 'inherit',
+    height: 116,
+    flexWrap: 'nowrap',
+    alignItems: 'center',
+    borderBottom: '0.5px solid ' + theme.palette.common.border,
+  },
+  listTileNoBottom: {
+    width: 'inherit',
+    height: 116,
+    flexWrap: 'nowrap',
+    alignItems: 'center',
+  },
+  listButton: {
+    background: theme.palette.secondary.contrastText,
+    color: theme.palette.secondary.main,
+    height: 40,
+    width: 128,
+    borderRadius: 2,
+    marginRight: theme.spacing(3),
+    marginLeft: theme.spacing(2),
+    '@media (max-width: 600px)': {
+      width: 50,
+      height: 40,
+    },
+  },
+  classTime: {
+    marginLeft: theme.spacing(3),
+    marginRight: theme.spacing(3),
+    width: 170,
+    textAlign: 'center',
+    '@media (max-width: 600px)': {
+      marginLeft: 0,
+    },
+  },
+  imageCtn: {
+    marginRight: theme.spacing(3),
+    width: 63,
+    height: 93
+  },
+  image: {
+    maxWidth: 63,
+    maxHeight: 93,
+    borderRadius: 7,
+    '@media (max-width: 600px)': {
+      maxWidth: 49,
+      maxHeight: 70,
+    },
+  },
+  tileTextColumn: {
+    flexWrap: 'nowrap',
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    width: 'inherit'
+  },
 }));
 
 
@@ -131,19 +193,20 @@ const dataSelector = createSelector([(state) => state.courseFeature], (data) => 
 export default function CourseFeature(props) {
 
   const { id } = props;
-  const small = useMediaQuery('(max-width:600px)');
-  const med = useMediaQuery('(max-width:950px)');
+  // const small = useMediaQuery('(max-width:600px)');
+  // const med = useMediaQuery('(max-width:950px)');
   const classes = useStyles();
   const cached = useSelector((state) => dataSelector(state));
   const [data, setData] = useState(null);
   const [formatted, setFormatted] = useState([]);
   const [header, setHeader] = useState(null);
-  const [cols, setCols] = useState(4);
-  const [height, setHeight] = useState(400);
+  // const [cols, setCols] = useState(4);
+  // const [height, setHeight] = useState(400);
   const [displayNumber, setDisplayNumber] = useState(4);
   const [displayIndex, setDisplayIndex] = useState(0);
   const [displayData, setDisplayData] = useState([]);
-
+  
+  const history = useHistory();
   const formattedRef = useRef();
   const displayNumberRef = useRef();
   const indexRef = useRef();
@@ -165,21 +228,23 @@ export default function CourseFeature(props) {
     }
   }, [props]);
 
-  useEffect(() => {
-    if (small) {
-      setCols(2);
-      setDisplayNumber(2);
-      setHeight(275)
-    } else if (med) {
-      setCols(3);
-      setDisplayNumber(3);
-      setHeight(325);
-    }else {
-      setCols(4);
-      setDisplayNumber(4);
-      setHeight(400);
-    }
-  }, [small, med]);
+  // Commented code to limit tiles seen based on screen size
+
+  // useEffect(() => {
+  //   if (small) {
+  //     setCols(2);
+  //     setDisplayNumber(2);
+  //     setHeight(275)
+  //   } else if (med) {
+  //     setCols(3);
+  //     setDisplayNumber(3);
+  //     setHeight(325);
+  //   }else {
+  //     setCols(4);
+  //     setDisplayNumber(4);
+  //     setHeight(400);
+  //   }
+  // }, [small, med]);
 
   useEffect(() => {
     let disp = formatted.slice(displayIndex, displayIndex + displayNumber);
@@ -206,60 +271,76 @@ export default function CourseFeature(props) {
 
   useEffect(() => {
     if (data && data.length > 0) {
-      let items = []
-      data.forEach(function(course) {
-        let data = {
-          title: course.title,
-          url: path.courses + "/" + course.id,
-          id: course.id,
-        };
-
-        if (course.photo_url) {
-          data.photo_url = course.photo_url;
-        }
-
-        let now = new Date();
-        let d = new Date(course.start_date);
-
-        if (now > d && course.recurring) {
-          d = getNextDate(course.recurring, 1);
-        }
-
-        data.date = d.getTime();
-
-        let dt = format(d, "iiii");
-        let time = format(d, "h:mma");
-
-        if (differenceInDays(d, now) >= 7) {
-          dt += " " + format(d, "M/d");
-        }
-
-        if (isTomorrow(d)) {
-          dt = "Tomorrow";
-        }
-  
-        if (isToday(d)) {
-          dt = "Today";
-        }
-
-        data.label = dt + " @ " + time + '\n' + course.type;
-
-        if (course.available_spots === 0) {
-          data.label += '\nSOLD OUT';
-        } else if (course.available_spots <= 5) {
-          data.label += '\n' + course.available_spots + ' spots left!';
-        } else {
-          data.label += '\n ';
-        }
-
-        items.push(data);
-      });
-
-      setFormatted(items.sort(function(a,b) {
-        return a.date - b.date;
-      }).concat([]));
+      getCourseDataItems();
     }
   }, [data]);
+
+  function getCourseDataItems () {
+    let items = []
+    data.forEach(function(course) {
+      let data = {
+        title: course.title,
+        url: path.courses + "/" + course.id,
+        id: course.id,
+        duration: course.duration + " minutes",
+        cost: '$' + course.cost,
+        type: course.type
+      };
+
+      if (course.photo_url) {
+        data.photo_url = course.photo_url;
+      }
+
+      let now = new Date();
+      let d = new Date(course.start_date);
+
+      if (now > d && course.recurring) {
+        d = getNextDate(course.recurring, 1);
+      }
+
+      data.date = d.getTime();
+
+      let dt = format(d, "iiii");
+      let time = format(d, "h:mma");
+      data.time = time;
+
+      // if (differenceInDays(d, now) >= 7) {
+      //   dt += " " + format(d, "M/d");
+      // }
+
+      // if (isTomorrow(d)) {
+      //   dt = "Tomorrow";
+      // }
+
+      // if (isToday(d)) {
+      //   dt = "Today";
+      // }
+
+      // data.label = dt + " @ " + time;
+
+      if (course.available_spots === 0) {
+        data.label += '\nSOLD OUT';
+      } else if (course.available_spots <= 5) {
+        data.label += '\n' + course.available_spots + ' spots left!';
+      } else {
+        data.label += '\n ';
+      }
+
+      if (course.instructor_name) {
+        data.instructor = course.instructor_name;
+      }
+
+      items.push(data);
+    });
+
+    setFormatted(items.sort(function(a,b) {
+      return a.date - b.date;
+    }).concat([]));
+  }
+
+  function viewClassHandler(url) {
+    history.push(url);
+  }
 
   function getNext() {
     let index = indexRef.current + displayNumberRef.current;
@@ -319,7 +400,7 @@ export default function CourseFeature(props) {
   if(header) {
     headerContent = (
       <Grid>
-        <Typography className={classes.header} variant="h5">
+        <Typography className={classes.header} variant="body2">
           {header}
         </Typography>
       </Grid>
@@ -346,35 +427,88 @@ export default function CourseFeature(props) {
     );
   }
 
+  let courseListContent;
+  if (displayData) {
+    const lastClass = displayData[displayData.length - 1];
+    const listContent = displayData.map(course => {
+
+      let nameContent;
+      // Only necessary while courses are starting to be created with name 3/1/21
+      if (course.instructor) {
+        nameContent = (
+          <Typography variant='body2' noWrap={true} style={{paddingRight: 5}}>{course.instructor} </Typography> 
+        );
+      }
+      let typeContent;
+      // likely will need more logic for classes with multi types
+      if (course.type) {
+        typeContent = (
+          <Typography variant='body1' noWrap={true}>| Strength, Cardio</Typography>
+        );
+      }
+      let durationContent;
+      if (course.duration) {
+        durationContent = (
+          <Typography variant='body1' noWrap={true} style={{paddingRight: 5}}>{course.duration} </Typography>
+        )
+      }
+      let costContent;
+      if (course.cost) {
+        costContent = (
+          <Typography variant='body1' noWrap={true}>| {course.cost}</Typography>
+        );
+      }
+      let timeContent;
+      if (course.time) {
+        timeContent = (
+          <Grid item className={classes.classTime}>
+            <Typography variant='h4'>{course.time}</Typography>
+          </Grid>
+        )
+      }
+      return (
+        <Grid container className={course.id === lastClass.id ? classes.listTileNoBottom : classes.listTile} key={course.id}>
+            {timeContent}
+            <Grid item className={classes.imageCtn}>
+              <img className={classes.image} src={course.photo_url} alt='Class'/>
+            </Grid>
+            <Grid item className={classes.tileTextColumn}> 
+              <Grid container className={classes.tileTextColumn} direction='column'>
+                <Grid item className={classes.tileTextColumn}>
+                  <Typography noWrap={true} variant='h4' style={{fontWeight: '300'}}>{course.title}</Typography>
+                </Grid>
+                <Grid item className={classes.tileTextColumn} style={{display: 'inline-flex', alignItems: 'center'}}>
+                  {nameContent}
+                  {typeContent}
+                </Grid>
+                <Grid item className={classes.tileTextColumn} style={{display: 'inline-flex', alignItems: 'center', minWidth: 0}}>
+                  {durationContent}
+                  {costContent}
+                </Grid>
+              </Grid>
+            </Grid>
+            <Grid item>
+              <Button variant='contained' className={classes.listButton} onClick={() => viewClassHandler(course.url)}>
+                VIEW CLASS
+              </Button>
+            </Grid>
+        </Grid>
+      )
+    });
+
+    courseListContent = (
+      <Grid item className={classes.listContainer}>
+        {listContent}
+      </Grid>
+    )
+  }
+
   formContent = (
     <Grid container direction="column" style={{width: "100%"}}>
       <Grid item>
         {headerContent}
       </Grid>
-      <Grid item className={classes.root}>
-        {prevBtn}
-        <GridList cellHeight={height} className={classes.gridList} cols={cols} spacing={10}>
-          {displayData.map(course => (
-            <GridListTile key={course.id} cols={1}>
-              <Link className={classes.anchor} to={course.url}>
-                <Grid container>
-                  <img alt={course.title} className={classes.photo} src={course.photo_url} />
-                  <GridListTileBar
-                  title={course.title}
-                  subtitle={course.label}
-                  className={classes.desc}
-                  classes={{
-                    title: classes.noWrap,
-                    subtitle: classes.textWrap
-                  }}
-                  />
-                </Grid>
-              </Link>
-            </GridListTile>
-        ))}
-        </GridList>
-        {nextBtn}
-      </Grid>
+      {courseListContent}
     </Grid>
   );
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { Container, Grid, Fab, Grow, Divider, Typography, Fade }  from '@material-ui/core';
+import { Container, Grid, Fab, Grow, Divider, Typography, Fade, Paper }  from '@material-ui/core';
 import { Add, Clear } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -29,6 +29,8 @@ const courseSelector = createSelector([state => state.course], (items) => {
 const useStyles = makeStyles((theme) => ({
   root: {
     paddingTop: theme.spacing(2),
+    paddingRight: theme.spacing(5),
+    paddingLeft: theme.spacing(5)
   },
   extendedBtn: {
     marginRight: theme.spacing(1),
@@ -45,6 +47,19 @@ const useStyles = makeStyles((theme) => ({
   emptySched: {
     paddingTop: theme.spacing(2),
     paddingBottom: theme.spacing(2),
+  },
+  listContainer: {
+    background: theme.palette.common.background,
+    borderRadius: 7,
+    border: '0.5px solid ' + theme.palette.common.border
+  },
+  listLabel: {
+    paddingBottom: theme.spacing(2),
+  },
+  listItem: {
+    width: '100%',
+    paddingRight: theme.spacing(4),
+    paddingLeft: theme.spacing(4)
   }
 }));
 
@@ -295,28 +310,18 @@ export default function CourseList() {
   }
 
 
-  let myClassesContent;
-
-  if (scheduleData && scheduleData.length > 0) {
-    myClassesContent = (
-      <Grid item>
-        <CourseFeature id="schedule" header="My Classes" items={scheduleData} />
-      </Grid>
-    );    
-  } else {
-    myClassesContent = (
-      <Grid item>
-        <Typography variant="h5">
-          My Classes
-        </Typography>
-        <Grid container direction="column" justify="center" alignItems="center" spacing={1}>
-          <Grid item>
-            <Typography className={classes.emptySched} variant='h3'>Book a class below to get started</Typography>
-          </Grid>
+  let myClassesContent = (
+    <Grid item>
+      {/* <Typography variant="body2" className={classes.listLabel}>
+        This will be the date string
+      </Typography>
+      <Grid container direction="column" justify="center" alignItems="center" spacing={1} className={classes.listContainer}>
+        <Grid item>
+          <Typography className={classes.emptySched} variant='h3'>Book a class below to get started</Typography>
         </Grid>
-      </Grid>
-    );
-  }
+      </Grid> */}
+    </Grid>
+  );
 
   return (
     <Analytics title="Indoorphins.fit">
@@ -324,31 +329,28 @@ export default function CourseList() {
         {createButton}
         {createContent}
         <Fade in={true}>
-          <Grid container direction="column" className={classes.content} spacing={3}>
+          <Grid container direction="column" spacing={3}>
             {myClassesContent}
-            <Grid item>
+            <Grid className={classes.listItem}>
               <CourseFeature id="upcoming" header="All Upcoming Classes" items={upcomingData} />
             </Grid>
-            <Grid item>
+            <Grid className={classes.listItem}>
               <CourseFeature id="monday" header="Monday Classes" items={mondayData} />
             </Grid>
-            <Grid item>
+            <Grid className={classes.listItem}>
               <CourseFeature id="tuesday" header="Tuesday Classes" items={tuesdayData} />
             </Grid>
-            <Grid item>
+            <Grid className={classes.listItem}>
               <CourseFeature id="wednesday" header="Wednesday Classes" items={wednesdayData} />
             </Grid>
-            <Grid item>
+            <Grid className={classes.listItem}>
               <CourseFeature id="thursday" header="Thursday Classes" items={thursdayData} />
             </Grid>
-            <Grid item>
+            <Grid className={classes.listItem}>
               <CourseFeature id="friday" header="Friday Classes" items={fridayData} />
             </Grid>
-            <Grid item>
+            <Grid className={classes.listItem}>
               <CourseFeature id="saturday" header="Saturday Classes" items={saturdayData} />
-            </Grid>
-            <Grid item>
-              <CourseFeature id="sunday" header="Sunday Classes" items={sundayData} />
             </Grid>
           </Grid>
         </Fade>

@@ -10,7 +10,8 @@ const colors = {
   salmon: "#ff877e",
   cream: "#ffc772",
   white: "#ffffff",
-  darkGrey: '#757575'
+  darkGrey: '#757575',
+  borderGrey: '#979797'
 }
 
 const lightPalette = {
@@ -19,6 +20,7 @@ const lightPalette = {
     white: colors.offwhite,
     black: colors.black,
     background: colors.white,
+    border: colors.borderGrey
   },
   primary: {
     main: colors.black,
