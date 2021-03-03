@@ -11,8 +11,9 @@ import { getNextSession } from '../../utils';
 import CreateCourse from '../../components/form/editCourse';
 import CourseFeature from '../../components/courseFeature';
 import { store, actions } from '../../store';
-import { isMonday, isSunday, isSaturday, isFriday, isThursday, isWednesday, isTuesday } from 'date-fns';
+import { isMonday, isSunday, isSaturday, isFriday, isThursday, isWednesday, isSameDay } from 'date-fns';
 import Analytics from '../../utils/analytics';
+import * as constants from '../../utils/constants';
 
 const getUserSelector = createSelector([(state) => state.user.data], (user) => {
   return user;
@@ -30,7 +31,8 @@ const useStyles = makeStyles((theme) => ({
   root: {
     paddingTop: theme.spacing(2),
     paddingRight: theme.spacing(5),
-    paddingLeft: theme.spacing(5)
+    paddingLeft: theme.spacing(5),
+    paddingBottom: theme.spacing(3),
   },
   extendedBtn: {
     marginRight: theme.spacing(1),
@@ -70,16 +72,15 @@ export default function CourseList() {
   const courseList = useSelector(state => courseSelector(state));
   const [allowCreate, setAllowCreate] = useState(false);
   const [courseData, setCourseData] = useState([]);
-  const [upcomingData, setUpcomingData] = useState([]);
-  const [scheduleData, setScheduleData] = useState([]);
-  const [mondayData, setMondayData] = useState([]);
-  const [tuesdayData, setTuesdayData] = useState([])
-  const [wednesdayData, setWednesdayData] = useState([]);
-  const [thursdayData, setThursdayData] = useState([]);
-  const [fridayData, setFridayData] = useState([]);
-  const [saturdayData, setSaturdayData] = useState([]);
-  const [sundayData, setSundayData] = useState([]);
+  const [selectedData, setSelectedData] = useState([]);
+  const [selectPlus1Data, setSelectPlus1Data] = useState([]);
+  const [selectPlus2Data, setSelectPlus2Data] = useState([]);
+  const [selectPlus3Data, setSelectPlus3Data] = useState([]);
+  const [selectPlus4Data, setSelectPlus4Data] = useState([]);
+  const [selectPlus5Data, setSelectPlus5Data] = useState([]);
+  const [selectPlus6Data, setSelectPlus6Data] = useState([]);
   const [showForm, setShowForm] = useState(false);
+  const [selectedDate, setSelectedDate] = useState();
 
   async function init() {
     let now = new Date();
@@ -101,6 +102,7 @@ export default function CourseList() {
       return log.error("COURSE WIDGET:: query for courses", filter, order, err);
     }
 
+    setSelectedDate(now);
     store.dispatch(actions.course.set(result.data))
   }
 
@@ -115,23 +117,26 @@ export default function CourseList() {
     init();
   }, []);
 
-  useEffect(() => {
+                                          // TODO DATE PICKER! use setSelectedDate setter
 
-    if (schedule && schedule.length <= 0) {
-      return setScheduleData([]);
-    }
 
-    let now = new Date();
-    let filtered = schedule.filter(item => {
-      if(getNextSession(now, item)) {
-        return true;
-      }
-      return false;
-    });
+  // useEffect(() => {
 
-    setScheduleData([].concat(filtered));
+  //   if (schedule && schedule.length <= 0) {
+  //     return setScheduleData([]);
+  //   }
 
-  }, [schedule]);
+  //   let now = new Date();
+  //   let filtered = schedule.filter(item => {
+  //     if(getNextSession(now, item)) {
+  //       return true;
+  //     }
+  //     return false;
+  //   });
+
+  //   setScheduleData([].concat(filtered));
+
+  // }, [schedule]);
 
   useEffect(() => {
 
@@ -143,13 +148,12 @@ export default function CourseList() {
       return !item.recurring;
     });
     
-    let mondays = courseData.filter(item => {
+    let selected = courseData.filter(item => {
       let next = getNextSession(now, item);
 
       if (next && next.date) {
-        
         const d = new Date(next.date);
-        if (isMonday(d)) {
+        if (isSameDay(d, selectedDate)) {
           return true;
         }
       }
@@ -157,12 +161,14 @@ export default function CourseList() {
       return false;
     })
 
-    let tuesdays = courseData.filter(item => {
+    let selectedPlus1 = courseData.filter(item => {
       let next = getNextSession(now, item);
 
       if (next && next.date) {
         const d = new Date(next.date);
-        if (isTuesday(d)) {
+        let datePlus = new Date(selectedDate);
+        datePlus.setDate(datePlus.getDate() + 1)
+        if (isSameDay(d, datePlus)) {
           return true;
         }
       }
@@ -170,12 +176,14 @@ export default function CourseList() {
       return false;
     })
 
-    let wednesdays = courseData.filter(item => {
+    let selectedPlus2 = courseData.filter(item => {
       let next = getNextSession(now, item);
 
       if (next && next.date) {
         const d = new Date(next.date);
-        if (isWednesday(d)) {
+        let datePlus = new Date(selectedDate);
+        datePlus.setDate(datePlus.getDate() + 2)
+        if (isSameDay(d, datePlus)) {
           return true;
         }
       }
@@ -183,12 +191,14 @@ export default function CourseList() {
       return false;
     })
 
-    let thursdays = courseData.filter(item => {
+    let selectedPlus3 = courseData.filter(item => {
       let next = getNextSession(now, item);
 
       if (next && next.date) {
         const d = new Date(next.date);
-        if (isThursday(d)) {
+        let datePlus = new Date(selectedDate);
+        datePlus.setDate(datePlus.getDate() + 3)
+        if (isSameDay(d, datePlus)) {
           return true;
         }
       }
@@ -196,12 +206,14 @@ export default function CourseList() {
       return false;
     })
 
-    let fridays = courseData.filter(item => {
+    let selectedPlus4 = courseData.filter(item => {
       let next = getNextSession(now, item);
 
       if (next && next.date) {
         const d = new Date(next.date);
-        if (isFriday(d)) {
+        let datePlus = new Date(selectedDate);
+        datePlus.setDate(datePlus.getDate() + 4)
+        if (isSameDay(d, datePlus)) {
           return true;
         }
       }
@@ -209,12 +221,14 @@ export default function CourseList() {
       return false;
     })
 
-    let saturdays = courseData.filter(item => {
+    let selectedPlus5 = courseData.filter(item => {
       let next = getNextSession(now, item);
 
       if (next && next.date) {
         const d = new Date(next.date);
-        if (isSaturday(d)) {
+        let datePlus = new Date(selectedDate);
+        datePlus.setDate(datePlus.getDate() + 5)
+        if (isSameDay(d, datePlus)) {
           return true;
         }
       }
@@ -222,12 +236,14 @@ export default function CourseList() {
       return false;
     })
 
-    let sundays = courseData.filter(item => {
+    let selectedPlus6 = courseData.filter(item => {
       let next = getNextSession(now, item);
 
       if (next && next.date) {
         const d = new Date(next.date);
-        if (isSunday(d)) {
+        let datePlus = new Date(selectedDate);
+        datePlus.setDate(datePlus.getDate() + 6)
+        if (isSameDay(d, datePlus)) {
           return true;
         }
       }
@@ -235,16 +251,15 @@ export default function CourseList() {
       return false;
     })
 
-    setUpcomingData([].concat(upcoming));
-    setMondayData([].concat(mondays));
-    setTuesdayData([].concat(tuesdays));
-    setWednesdayData([].concat(wednesdays));
-    setThursdayData([].concat(thursdays));
-    setFridayData([].concat(fridays));
-    setSaturdayData([].concat(saturdays));
-    setSundayData([].concat(sundays));
+    setSelectedData([].concat(selected));
+    setSelectPlus1Data([].concat(selectedPlus1));
+    setSelectPlus2Data([].concat(selectedPlus2));
+    setSelectPlus3Data([].concat(selectedPlus3));
+    setSelectPlus4Data([].concat(selectedPlus4));
+    setSelectPlus5Data([].concat(selectedPlus5));
+    setSelectPlus6Data([].concat(selectedPlus6));
 
-  }, [courseData])
+  }, [courseData, selectedDate])
 
   useEffect(() => {
     if (currentUser.type && currentUser.type !== 'standard') {
@@ -254,13 +269,27 @@ export default function CourseList() {
     }
   }, [currentUser]);
 
-  const toggleCreateForm = function() {
+  const selectDateHandler = (dateStr) => {
+    const newDate = new Date(dateStr);
+    console.log("SELECT DATE HANDLER WITH DATE ", newDate);
+    setSelectedDate(newDate);
+  }
+
+  const toggleCreateForm = () => {
     if (showForm) {
       setShowForm(false);
     } else {
       setShowForm(true);
     }
   };
+
+  // Creates the Date header based on selected date and index from it
+  const createHeader = (index) => {
+    let d = new Date(selectedDate);
+    d.setDate(d.getDate() + index);
+    const zone = d.toLocaleTimeString('en-us',{timeZoneName:'short'}).split(' ')[2]
+    return `${constants.daysLarge[d.getDay()]}, ${constants.monthsLarge[d.getMonth()]} ${d.getDate()} (${zone})`;
+  }
 
   let createButton = null;
   if (allowCreate) {
@@ -309,20 +338,6 @@ export default function CourseList() {
     );
   }
 
-
-  let myClassesContent = (
-    <Grid item>
-      {/* <Typography variant="body2" className={classes.listLabel}>
-        This will be the date string
-      </Typography>
-      <Grid container direction="column" justify="center" alignItems="center" spacing={1} className={classes.listContainer}>
-        <Grid item>
-          <Typography className={classes.emptySched} variant='h3'>Book a class below to get started</Typography>
-        </Grid>
-      </Grid> */}
-    </Grid>
-  );
-
   return (
     <Analytics title="Indoorphins.fit">
       <Container justify='center' className={classes.root}>
@@ -330,27 +345,26 @@ export default function CourseList() {
         {createContent}
         <Fade in={true}>
           <Grid container direction="column" spacing={3}>
-            {myClassesContent}
             <Grid className={classes.listItem}>
-              <CourseFeature id="upcoming" header="All Upcoming Classes" items={upcomingData} />
+              <CourseFeature id="todays" header={createHeader(0)} items={selectedDate} />
             </Grid>
             <Grid className={classes.listItem}>
-              <CourseFeature id="monday" header="Monday Classes" items={mondayData} />
+              <CourseFeature id="todays-plus1" header={createHeader(1)} items={selectPlus1Data} />
             </Grid>
             <Grid className={classes.listItem}>
-              <CourseFeature id="tuesday" header="Tuesday Classes" items={tuesdayData} />
+              <CourseFeature id="todays-plus2" header={createHeader(2)} items={selectPlus2Data} />
             </Grid>
             <Grid className={classes.listItem}>
-              <CourseFeature id="wednesday" header="Wednesday Classes" items={wednesdayData} />
+              <CourseFeature id="todays-plus3" header={createHeader(3)} items={selectPlus3Data} />
             </Grid>
             <Grid className={classes.listItem}>
-              <CourseFeature id="thursday" header="Thursday Classes" items={thursdayData} />
+              <CourseFeature id="todays-plus4" header={createHeader(4)} items={selectPlus4Data} />
             </Grid>
             <Grid className={classes.listItem}>
-              <CourseFeature id="friday" header="Friday Classes" items={fridayData} />
+              <CourseFeature id="todays-plus5" header={createHeader(5)} items={selectPlus5Data} />
             </Grid>
             <Grid className={classes.listItem}>
-              <CourseFeature id="saturday" header="Saturday Classes" items={saturdayData} />
+              <CourseFeature id="todays-plus6" header={createHeader(6)} items={selectPlus6Data} />
             </Grid>
           </Grid>
         </Fade>

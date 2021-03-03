@@ -301,7 +301,7 @@ export default function CourseFeature(props) {
       data.date = d.getTime();
 
       let dt = format(d, "iiii");
-      let time = format(d, "h:mma");
+      let time = format(d, "h:mm a");
       data.time = time;
 
       // if (differenceInDays(d, now) >= 7) {
@@ -477,11 +477,11 @@ export default function CourseFeature(props) {
                 <Grid item className={classes.tileTextColumn}>
                   <Typography noWrap={true} variant='h4' style={{fontWeight: '300'}}>{course.title}</Typography>
                 </Grid>
-                <Grid item className={classes.tileTextColumn} style={{display: 'inline-flex', alignItems: 'center'}}>
+                <Grid item className={classes.tileTextColumn} style={{display: 'inline-flex', alignItems: 'baseline'}}>
                   {nameContent}
                   {typeContent}
                 </Grid>
-                <Grid item className={classes.tileTextColumn} style={{display: 'inline-flex', alignItems: 'center', minWidth: 0}}>
+                <Grid item className={classes.tileTextColumn} style={{display: 'inline-flex', alignItems: 'baseline', minWidth: 0}}>
                   {durationContent}
                   {costContent}
                 </Grid>

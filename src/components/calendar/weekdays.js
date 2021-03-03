@@ -1,5 +1,6 @@
 import React from 'react';
 import { Grid, Typography, useMediaQuery } from '@material-ui/core';
+import { daysMed, daysSmall, daysLarge } from '../../utils/constants';
 
 export default function Weekdays(props) {
   const { classes } = props;
@@ -11,11 +12,11 @@ export default function Weekdays(props) {
   let i = 0
 
   if (sm) {
-    days = ["S", "M", "T", "W", "T", "F", "S"];
+    days = daysSmall;
   } else if (med) {
-    days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    days = daysMed;
   } else {
-    days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    days = daysLarge;
   }
 
   content = (
