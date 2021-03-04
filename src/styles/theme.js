@@ -11,7 +11,9 @@ const colors = {
   cream: "#ffc772",
   white: "#ffffff",
   darkGrey: '#757575',
-  borderGrey: '#979797'
+  borderGrey: '#979797',
+  footerGrey: '#111',
+  pureBlack: '#000'
 }
 
 const lightPalette = {
@@ -20,7 +22,8 @@ const lightPalette = {
     white: colors.offwhite,
     black: colors.black,
     background: colors.white,
-    border: colors.borderGrey
+    border: colors.borderGrey,
+    footerGrey: colors.footerGrey
   },
   primary: {
     main: colors.black,
@@ -43,7 +46,13 @@ const lightPalette = {
     contrastText: colors.black
   },
   header: {
-    background: colors.black,
+    background: colors.white,
+  },
+  footer: {
+    main: colors.footerGrey,
+    secondary: colors.pureBlack,
+    text: colors.white,
+    contrastText: colors.darkGrey
   },
   text: {
     primary: '#616161',
@@ -141,7 +150,13 @@ const darkPalette = {
     default: colors.black2
   },
   header: {
-    background: colors.black,
+    background: colors.white,
+  },
+  footer: {
+    main: colors.footerGrey,
+    secondary: colors.pureBlack,
+    text: colors.white,
+    contrastText: colors.darkGrey
   },
   text: {
     primary: '#eeeeee',

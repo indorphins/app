@@ -20,13 +20,13 @@ let useStyles = makeStyles((theme) => ({
     cursor: "pointer"
   },
   appbar: {
-    backgroundColor: theme.palette.common.background,
+    backgroundColor: theme.palette.header.background,
     position: "sticky",
     top: 0,
     zIndex: 5,
   },
   appBarFiller: {
-    backgroundColor: theme.palette.common.background,
+    backgroundColor: theme.palette.header.background,
     position: "sticky",
     top: -1,
     height: 1,

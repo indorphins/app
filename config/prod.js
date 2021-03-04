@@ -13,7 +13,7 @@ const appConfig = {
   },
   "stripe_public_key": "pk_live_3C7lhYxV5IMIUDOoCNceChIU00BTRQ5kPn",
   "googleAnalytics": "UA-180085152-2",
-  "homepage_url": "www.indoorphins.fit"
+  "homepage_url": "https://www.indoorphins.fit"
 }
 
 window.appConfig = appConfig;

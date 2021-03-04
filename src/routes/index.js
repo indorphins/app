@@ -5,6 +5,7 @@ import { Container, Grid } from '@material-ui/core';
 
 import path from './path';
 import Header from '../components/header/header';
+import Footer from '../components/footer/footer';
 import loadable from '@loadable/component';
 import queryString from 'query-string';
 import Login from '../pages/login';
@@ -100,6 +101,7 @@ export default function Routes() {
           <Route exact path="/">
             <AsyncPage page="home" />
           </Route>
+          <Footer />
         </Header>
       </Switch>
     </CampaignParser>
