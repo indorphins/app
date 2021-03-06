@@ -88,7 +88,7 @@ export default function Header(props) {
   const currentUser = useSelector(state => getUserSelector(state));
 
   const goHomeHandler = () => {
-    history.push(path.home);
+    history.push(path.courses);
   }
 
   const goToSignup = () => {
