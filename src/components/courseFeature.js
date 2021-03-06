@@ -2,13 +2,10 @@ import React, { useEffect, useState, useRef } from 'react';
 import { 
   Grid,
   Typography,
-  Fab,
-  useMediaQuery,
   Button
 } from '@material-ui/core';
-import { ArrowForward, ArrowBack } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
-import { format, isTomorrow, isToday, differenceInDays } from 'date-fns';
+import { format} from 'date-fns';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 import { useHistory } from 'react-router-dom';
@@ -23,6 +20,7 @@ const useStyles = makeStyles((theme) => ({
   },
   container: {
     position: 'relative',
+    paddingBottom: theme.spacing(3),
     width: '100%'
   },
   nextPageBtn: {
@@ -193,25 +191,18 @@ const dataSelector = createSelector([(state) => state.courseFeature], (data) => 
 export default function CourseFeature(props) {
 
   const { id } = props;
-  // const small = useMediaQuery('(max-width:600px)');
-  // const med = useMediaQuery('(max-width:950px)');
   const classes = useStyles();
   const cached = useSelector((state) => dataSelector(state));
   const [data, setData] = useState(null);
   const [formatted, setFormatted] = useState([]);
   const [header, setHeader] = useState(null);
-  // const [cols, setCols] = useState(4);
-  // const [height, setHeight] = useState(400);
-  const [displayNumber, setDisplayNumber] = useState(4);
   const [displayIndex, setDisplayIndex] = useState(0);
   const [displayData, setDisplayData] = useState([]);
   
   const history = useHistory();
   const formattedRef = useRef();
-  const displayNumberRef = useRef();
   const indexRef = useRef();
   formattedRef.current = formatted;
-  displayNumberRef.current = displayNumber;
   indexRef.current = displayIndex;
 
   let content = null;
@@ -228,28 +219,10 @@ export default function CourseFeature(props) {
     }
   }, [props]);
 
-  // Commented code to limit tiles seen based on screen size
-
-  // useEffect(() => {
-  //   if (small) {
-  //     setCols(2);
-  //     setDisplayNumber(2);
-  //     setHeight(275)
-  //   } else if (med) {
-  //     setCols(3);
-  //     setDisplayNumber(3);
-  //     setHeight(325);
-  //   }else {
-  //     setCols(4);
-  //     setDisplayNumber(4);
-  //     setHeight(400);
-  //   }
-  // }, [small, med]);
-
   useEffect(() => {
-    let disp = formatted.slice(displayIndex, displayIndex + displayNumber);
+    let disp = formatted.slice(displayIndex);
     setDisplayData(disp.concat([]));
-  }, [formatted, displayIndex, displayNumber]);
+  }, [formatted, displayIndex]);
 
   useEffect(() => {
     if (!cached.filter || formatted.length > 0) return;
@@ -270,7 +243,7 @@ export default function CourseFeature(props) {
   }, [formatted, displayIndex]);
 
   useEffect(() => {
-    if (data && data.length > 0) {
+    if (data) {
       getCourseDataItems();
     }
   }, [data]);
@@ -342,61 +315,6 @@ export default function CourseFeature(props) {
     history.push(url);
   }
 
-  function getNext() {
-    let index = indexRef.current + displayNumberRef.current;
-
-    if (index > formatted.length - 1) {
-      return;
-    }
-
-    let outer = index + displayNumberRef.current - 1;
-
-    let display = formatted.slice(index, outer);
-    if (outer > formatted.length - 1) {
-      display = formatted.slice(index);
-    }
-
-    setDisplayData(display.concat([]));
-    setDisplayIndex(index)
-  }
-
-  function showNext() {
-
-    let index = indexRef.current + displayNumberRef.current - 1;
-
-    if (formattedRef.current.length > index + 1) {
-      return true;
-    }
-
-    return false;
-  }
-
-  function getPrev() {
-    let index = indexRef.current - displayNumberRef.current;
-
-    if (index < 0) {
-      index = 0;
-    }
-
-    let outer = index + displayNumberRef.current;
-
-    let display = formatted.slice(index, outer);
-    if (outer > formatted.length - 1) {
-      display = formatted.slice(index);
-    }
-
-    setDisplayData(display.concat([]));
-    setDisplayIndex(index)
-  }
-
-  function showPrev() {
-    if (indexRef.current > 0) {
-      return true;
-    }
-
-    return false;
-  }
-
   if(header) {
     headerContent = (
       <Grid>
@@ -405,26 +323,6 @@ export default function CourseFeature(props) {
         </Typography>
       </Grid>
     )
-  }
-
-  let nextBtn = null;
-
-  if (showNext()) {
-    nextBtn = (
-      <Fab onClick={getNext} className={classes.nextPageBtn}>
-        <ArrowForward />
-      </Fab>
-    );
-  }
-
-  let prevBtn = null;
-
-  if (showPrev()) {
-    prevBtn = (
-      <Fab onClick={getPrev} className={classes.prevPageBtn}>
-        <ArrowBack />
-      </Fab>
-    );
   }
 
   let courseListContent;
@@ -516,7 +414,7 @@ export default function CourseFeature(props) {
     if (props.altContent) {
       formContent = props.altContent;
     } else {
-      formContent = null;
+      return null;
     }
   }
 
