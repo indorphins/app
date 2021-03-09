@@ -9,7 +9,7 @@ import path from '../../routes/path';
 
 const tabStyles = makeStyles((theme) => ({
   selected: {
-    color: theme.palette.common.white,
+    color: theme.palette.common.black,
     minWidth: 0,
     paddingLeft: theme.spacing(2),
     paddingRight: theme.spacing(2),
@@ -26,8 +26,8 @@ const tabStyles = makeStyles((theme) => ({
   badge: {
     fontSize: '.6rem',
     fontWeight: "bold",
-    color: theme.palette.secondaryColor.contrastText,
-    backgroundColor: theme.palette.secondaryColor.main,
+    color: theme.palette.secondaryColor.main,
+    backgroundColor: theme.palette.common.black,
   }
 }));
 
@@ -127,10 +127,6 @@ export default function(props) {
     history.push(path.admin);
   }
 
-  // async function navRefer() {
-  //   history.push(path.referFriend);
-  // }
-
   let adminTab = null;
 
   if (user && user.type === 'admin') {
@@ -145,32 +141,6 @@ export default function(props) {
   }
 
   let referFriend = null;
-
-  // if (user && user.id) {
-
-  //   if (user.referrerId) {
-  //     referFriend = (
-  //       <TabItem
-  //         tab={tab}
-  //         value="Refer"
-  //         label="Refer &amp; Earn"
-  //         onClick={navRefer}
-  //       />
-  //     );
-  //   } else {
-
-  //     referFriend = (
-  //       <TabItem
-  //         badge="NEW"
-  //         tab={tab}
-  //         value="Refer"
-  //         label="Refer &amp; Earn"
-  //         onClick={navRefer}
-  //       />
-  //     );
-  //   }
-  // }
-
   let msContent;
 
   if (user && user.id) {

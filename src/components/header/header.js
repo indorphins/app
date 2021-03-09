@@ -1,6 +1,5 @@
 import React from "react";
 import { Button, Grid, Typography, Container, useMediaQuery } from '@material-ui/core';
-// import { Brightness5Rounded, Brightness4Rounded } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
@@ -14,20 +13,20 @@ import Navigation from './nav';
 let useStyles = makeStyles((theme) => ({
   logo: {
     display: 'inline',
-    color: theme.palette.common.white,
+    color: theme.palette.common.black,
     '@media (max-width: 400px)': {
       fontSize: '1.1rem',
     },
     cursor: "pointer"
   },
   appbar: {
-    backgroundColor: theme.palette.common.black,
+    backgroundColor: theme.palette.header.background,
     position: "sticky",
     top: 0,
     zIndex: 5,
   },
   appBarFiller: {
-    backgroundColor: theme.palette.common.black,
+    backgroundColor: theme.palette.header.background,
     position: "sticky",
     top: -1,
     height: 1,
@@ -53,8 +52,8 @@ let useStyles = makeStyles((theme) => ({
     color: theme.palette.common.white,
   },
   trialButton: {
-    backgroundColor: theme.palette.text.salmon,
-    color: theme.palette.common.white,
+    backgroundColor: theme.palette.common.background,
+    color: theme.palette.common.black,
     paddingLeft: theme.spacing(1),
     paddingRight: theme.spacing(1),
     marginLeft: theme.spacing(2)
@@ -74,10 +73,6 @@ function AppBar(props) {
   )
 }
 
-// const getThemeSelector = createSelector([state => state.theme], (theme) => {
-//   return theme;
-// });
-
 const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
 });
@@ -92,17 +87,6 @@ export default function Header(props) {
   const history = useHistory();
   const currentUser = useSelector(state => getUserSelector(state));
 
-  // const theme = useSelector(state => getThemeSelector(state));
-  // const [themeButton, setThemeButton] = useState(null);
-
-  // const toggleTheme = async function() {
-  //   if (theme === "light") {
-  //     await store.dispatch(actions.theme.setDarkMode());
-  //   } else {
-  //     await store.dispatch(actions.theme.setLightMode());
-  //   }
-  // }
-
   const goHomeHandler = () => {
     history.push(path.courses);
   }
@@ -110,17 +94,6 @@ export default function Header(props) {
   const goToSignup = () => {
     history.push(path.signup);
   }
-
-  // let lightButton = (<Brightness4Rounded />);
-  // let darkButton = (<Brightness5Rounded />);
-
-  // useEffect(() => {
-  //   if (theme === 'light') {
-  //     setThemeButton(lightButton);
-  //   } else {
-  //     setThemeButton(darkButton);
-  //   }
-  // }, [theme]);
 
   let layout = {
     appBarPosition: "sticky",
@@ -187,18 +160,13 @@ export default function Header(props) {
   if ((!currentUser || Object.entries(currentUser).length === 0) && !med) {
     trialButton = (
       <Grid item>
-        <Button variant="contained" className={classes.trialButton} onClick={goToSignup}>Start Free Trial</Button>
+        <Button className={classes.trialButton} onClick={goToSignup}>Create Account</Button>
       </Grid>
     )
   }
 
   let avatar = (
     <Grid container direction='row' alignItems="center">
-      {/* <Grid item>
-        <IconButton edge="end" onClick={toggleTheme} className={classes.themeButton}>
-          {themeButton}
-        </IconButton>
-      </Grid> */}
       <Grid item style={{paddingLeft: 10}}>
         <UserAvatar edge="end" user={currentUser} />
       </Grid>
@@ -221,7 +189,6 @@ export default function Header(props) {
 
   return (
     <Grid style={{height: "100%"}}>
-      {/* <Discount /> */}
       <AppBar className={classes.appbar}>
         {toolbar}
       </AppBar>
