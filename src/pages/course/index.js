@@ -20,12 +20,12 @@ const getUserSelector = createSelector([(state) => state.user.data], (user) => {
   return user;
 });
 
-const userSchedSelector = createSelector([state => state.user.schedule], (items) => {
+const courseSelector = createSelector([state => state.course], (items) => {
   return items;
 });
 
-const courseSelector = createSelector([state => state.course], (items) => {
-  return items;
+const userScheduleIDsSelector = createSelector([state => state.user.schedule], (items) => {
+  return items.map(item => item.id);
 });
 
 const useStyles = makeStyles((theme) => ({
@@ -63,6 +63,10 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     paddingRight: theme.spacing(4),
     paddingLeft: theme.spacing(4),
+    '@media (max-width: 600px)': {
+      paddingRight: theme.spacing(0),
+      paddingLeft: theme.spacing(0),
+    },
   }
 }));
 
@@ -81,6 +85,8 @@ export default function CourseList() {
   const [selectPlus6Data, setSelectPlus6Data] = useState([]);
   const [showForm, setShowForm] = useState(false);
   const [selectedDate, setSelectedDate] = useState();
+  const [userSchedule, setUserSchedule] = useState([]);
+  const schedule = useSelector(state => userScheduleIDsSelector(state));
 
   async function init() {
     let now = new Date();
@@ -122,7 +128,6 @@ export default function CourseList() {
     if (courseData.length <= 0) return;
 
     let now = new Date();
-    console.log("INDEX selectedDate - ", selectedDate);
     let selected = courseData.filter(item => {
       let next = getNextSession(now, item);
 
@@ -135,7 +140,6 @@ export default function CourseList() {
 
       return false;
     })
-    console.log("INDEX Selected array ", selected)
 
     let selectedPlus1 = courseData.filter(item => {
       let next = getNextSession(now, item);
@@ -245,9 +249,14 @@ export default function CourseList() {
     }
   }, [currentUser]);
 
+  useEffect(() => {
+    if (schedule) {
+      setUserSchedule(schedule);
+    }
+  }, [schedule])
+
   const selectDateHandler = (d) => {
     const newDate = new Date(d);
-    console.log("SELECT DATE HANDLER WITH DATE ", newDate);
     setSelectedDate(newDate);
   }
 
@@ -314,69 +323,6 @@ export default function CourseList() {
     );
   }
 
-  // let dataContent
-  // if (selectedData && selectedData.length > 0) {
-  //   dataContent = (
-  //     <Grid className={classes.listItem}>
-  //       <CourseFeature id="todays" header={createHeader(0)} items={selectedData} />
-  //     </Grid>
-  //   )
-  // }
-
-  // let data1Content;
-  // if (selectPlus1Data && selectPlus1Data.length > 0) {
-  //   data1Content = (
-  //     <Grid className={classes.listItem}>
-  //       <CourseFeature id="todays" header={createHeader(1)} items={selectPlus1Data} />
-  //     </Grid>
-  //   )
-  // }
-
-  // let data2Content;
-  // if (selectPlus2Data && selectPlus2Data.length > 0) {
-  //   data2Content = (
-  //     <Grid className={classes.listItem}>
-  //       <CourseFeature id="todays-plus2" header={createHeader(2)} items={selectPlus2Data} />
-  //     </Grid>
-  //   )
-  // }
-
-  // let data3Content;
-  // if (selectPlus3Data && selectPlus3Data.length > 0) {
-  //   data3Content = (
-  //     <Grid className={classes.listItem}>
-  //       <CourseFeature id="todays-plus3" header={createHeader(3)} items={selectPlus3Data} />
-  //     </Grid>
-  //   )
-  // }
-
-  // let data4Content;
-  // if (selectPlus4Data && selectPlus4Data.length > 0) {
-  //   data4Content = (
-  //     <Grid className={classes.listItem}>
-  //       <CourseFeature id="todays-plus4" header={createHeader(4)} items={selectPlus4Data} />
-  //     </Grid>
-  //   )
-  // }
-
-  // let data5Content;
-  // if (selectPlus5Data && selectPlus5Data.length > 0) {
-  //   data5Content = (
-  //     <Grid className={classes.listItem}>
-  //       <CourseFeature id="todays-plus5" header={createHeader(5)} items={selectPlus5Data} />
-  //     </Grid>
-  //   )
-  // }
-
-  // let data6Content;
-  // if (selectPlus6Data && selectPlus6Data.length > 0) {
-  //   data6Content = (
-  //     <Grid className={classes.listItem}>
-  //       <CourseFeature id="todays-plus6" header={createHeader(6)} items={selectPlus6Data} />
-  //     </Grid>
-  //   )
-  // }
-
   return (
     <Analytics title="Indoorphins.fit">
       <Container justify='center' className={classes.root}>
@@ -386,25 +332,25 @@ export default function CourseList() {
         <Fade in={true}>
           <Grid container direction="column" spacing={3}>
             <Grid className={classes.listItem}>
-              <CourseFeature id="todays-plus1" header={createHeader(0)} items={selectedData} />
+              <CourseFeature id="todays-plus1" header={createHeader(0)} items={selectedData} schedule={userSchedule} />
             </Grid> 
             <Grid className={classes.listItem}>
-              <CourseFeature id="todays-plus1" header={createHeader(1)} items={selectPlus1Data} />
+              <CourseFeature id="todays-plus1" header={createHeader(1)} items={selectPlus1Data} schedule={userSchedule} />
             </Grid>
             <Grid className={classes.listItem}>
-              <CourseFeature id="todays-plus2" header={createHeader(2)} items={selectPlus2Data} />
+              <CourseFeature id="todays-plus2" header={createHeader(2)} items={selectPlus2Data} schedule={userSchedule} />
             </Grid>
             <Grid className={classes.listItem}>
-              <CourseFeature id="todays-plus3" header={createHeader(3)} items={selectPlus3Data} />
+              <CourseFeature id="todays-plus3" header={createHeader(3)} items={selectPlus3Data} schedule={userSchedule} />
             </Grid>
             <Grid className={classes.listItem}>
-              <CourseFeature id="todays-plus4" header={createHeader(4)} items={selectPlus4Data} />
+              <CourseFeature id="todays-plus4" header={createHeader(4)} items={selectPlus4Data} schedule={userSchedule} />
             </Grid>
             <Grid className={classes.listItem}>
-              <CourseFeature id="todays-plus5" header={createHeader(5)} items={selectPlus5Data} />
+              <CourseFeature id="todays-plus5" header={createHeader(5)} items={selectPlus5Data} schedule={userSchedule} />
             </Grid>
             <Grid className={classes.listItem}>
-              <CourseFeature id="todays-plus6" header={createHeader(6)} items={selectPlus6Data} />
+              <CourseFeature id="todays-plus6" header={createHeader(6)} items={selectPlus6Data} schedule={userSchedule} />
             </Grid>
           </Grid>
         </Fade>

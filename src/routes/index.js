@@ -99,7 +99,7 @@ export default function Routes() {
             <ClassRouter />
           </Route>
           <Route exact path="/">
-            <AsyncPage page="home" />
+            <ClassRouter />
           </Route>
           <Footer />
         </Header>

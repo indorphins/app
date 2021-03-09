@@ -2,13 +2,15 @@ import React, { useEffect, useState, useRef } from 'react';
 import { 
   Grid,
   Typography,
-  Button
+  Button,
+  useMediaQuery
 } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { format} from 'date-fns';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 import { useHistory } from 'react-router-dom';
+import { RibbonContainer,  LeftCornerRibbon } from "react-ribbons";
 
 import path from '../routes/path';
 import { getNextDate } from '../utils';
@@ -154,7 +156,7 @@ const useStyles = makeStyles((theme) => ({
   classTime: {
     marginLeft: theme.spacing(3),
     marginRight: theme.spacing(3),
-    width: 170,
+    width: 180,
     textAlign: 'center',
     '@media (max-width: 600px)': {
       marginLeft: 0,
@@ -162,17 +164,17 @@ const useStyles = makeStyles((theme) => ({
   },
   imageCtn: {
     marginRight: theme.spacing(3),
+    marginLeft: 0,
     width: 63,
-    height: 93
+    height: 93,
+    '@media (max-width: 600px)': {
+      marginLeft: theme.spacing(3),
+    },
   },
   image: {
     maxWidth: 63,
     maxHeight: 93,
     borderRadius: 7,
-    '@media (max-width: 600px)': {
-      maxWidth: 49,
-      maxHeight: 70,
-    },
   },
   tileTextColumn: {
     flexWrap: 'nowrap',
@@ -183,14 +185,13 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-
 const dataSelector = createSelector([(state) => state.courseFeature], (data) => {
   return data;
 });
 
 export default function CourseFeature(props) {
 
-  const { id } = props;
+  const { id, schedule } = props;
   const classes = useStyles();
   const cached = useSelector((state) => dataSelector(state));
   const [data, setData] = useState(null);
@@ -198,10 +199,12 @@ export default function CourseFeature(props) {
   const [header, setHeader] = useState(null);
   const [displayIndex, setDisplayIndex] = useState(0);
   const [displayData, setDisplayData] = useState([]);
-  
+  const small = useMediaQuery('(max-width:600px)');
   const history = useHistory();
   const formattedRef = useRef();
   const indexRef = useRef();
+
+
   formattedRef.current = formatted;
   indexRef.current = displayIndex;
 
@@ -246,7 +249,7 @@ export default function CourseFeature(props) {
     if (data) {
       getCourseDataItems();
     }
-  }, [data]);
+  }, [data, schedule]);
 
   function getCourseDataItems () {
     let items = []
@@ -273,30 +276,17 @@ export default function CourseFeature(props) {
 
       data.date = d.getTime();
 
-      let dt = format(d, "iiii");
       let time = format(d, "h:mm a");
       data.time = time;
 
-      // if (differenceInDays(d, now) >= 7) {
-      //   dt += " " + format(d, "M/d");
-      // }
-
-      // if (isTomorrow(d)) {
-      //   dt = "Tomorrow";
-      // }
-
-      // if (isToday(d)) {
-      //   dt = "Today";
-      // }
-
-      // data.label = dt + " @ " + time;
-
       if (course.available_spots === 0) {
-        data.label += '\nSOLD OUT';
+        data.banner = 'SOLD OUT';
       } else if (course.available_spots <= 5) {
-        data.label += '\n' + course.available_spots + ' spots left!';
-      } else {
-        data.label += '\n ';
+        data.banner = course.available_spots + ' spots left!';
+      }  
+      
+      if (schedule.length > 0 && schedule.includes(course.id)) {
+        data.banner = "Your're in!";
       }
 
       if (course.instructor_name) {
@@ -356,22 +346,45 @@ export default function CourseFeature(props) {
           <Typography variant='body1' noWrap={true}>| {course.cost}</Typography>
         );
       }
-      let timeContent;
+      let timeContent, timeContentMobile;
       if (course.time) {
-        timeContent = (
-          <Grid item className={classes.classTime}>
-            <Typography variant='h4'>{course.time}</Typography>
-          </Grid>
+        if (small) {
+          timeContent = null;
+          timeContentMobile = (
+            <Grid item className={classes.tileTextColumn}>
+              <Typography variant='h4'>{course.time}</Typography>
+            </Grid>
+          );
+        } else {
+          timeContentMobile = null;
+          timeContent = (
+            <Grid item className={classes.classTime}>
+              <Typography variant='h4'>{course.time}</Typography>
+            </Grid>
+          )
+        }
+      }
+      let bannerContent;
+      if (course.banner || course.label) {
+        bannerContent = (
+          <RibbonContainer>
+            <LeftCornerRibbon backgroundColor="#8BA173" color="#f0f0f0">
+              {course.banner}
+            </LeftCornerRibbon>
+          </RibbonContainer>
         )
       }
+      const timeType = small ? 'View' : 'View Class'
       return (
         <Grid container className={course.id === lastClass.id ? classes.listTileNoBottom : classes.listTile} key={course.id}>
+            {bannerContent}
             {timeContent}
             <Grid item className={classes.imageCtn}>
               <img className={classes.image} src={course.photo_url} alt='Class'/>
             </Grid>
             <Grid item className={classes.tileTextColumn}> 
               <Grid container className={classes.tileTextColumn} direction='column'>
+                {timeContentMobile}
                 <Grid item className={classes.tileTextColumn}>
                   <Typography noWrap={true} variant='h4' style={{fontWeight: '300'}}>{course.title}</Typography>
                 </Grid>
@@ -387,7 +400,7 @@ export default function CourseFeature(props) {
             </Grid>
             <Grid item>
               <Button variant='contained' className={classes.listButton} onClick={() => viewClassHandler(course.url)}>
-                VIEW CLASS
+                {timeType}
               </Button>
             </Grid>
         </Grid>

@@ -12,7 +12,7 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     flexWrap: 'nowrap',
     paddingBottom: theme.spacing(4),
-    },
+  },
   dateCtn: {
     display: 'inline-flex',
     width: 'auto',
@@ -101,7 +101,8 @@ export default function DatePicker(props) {
 
   const getNext = () => {
     const d = new Date(referenceDate);
-    d.setDate(d.getDate() + 7);
+    d.setDate(d.getDate() + displayNumber);
+
     setReferenceDate(d)
     setDateIndex(0);
     selectDateHandler(d);
@@ -109,10 +110,16 @@ export default function DatePicker(props) {
 
   const getPrev = () => {
     const d = new Date(referenceDate);
-    d.setDate(d.getDate() - 7);
-    setReferenceDate(d)
+    d.setDate(d.getDate() - displayNumber);
+
+    if (isAfter(dayZero, d)) {
+      setReferenceDate(dayZero)
+      selectDateHandler(dayZero);
+    } else {
+      setReferenceDate(d)
+      selectDateHandler(d);
+    }
     setDateIndex(0);
-    selectDateHandler(d);
   }
 
   const getLabel = (index) => {
@@ -120,9 +127,6 @@ export default function DatePicker(props) {
     d.setDate(d.getDate() + index);
     return `${constants.daysMed[d.getDay()]} ${d.getDate()}`;
   }
-
-
-                          //    Make mobile date picker go to two rows
 
   const dateButtons = [];
   for (let i = 0; i < displayNumber; i++) {
@@ -148,62 +152,6 @@ export default function DatePicker(props) {
       </Grid>
       <Grid container className={classes.dateCtn} direction='row'>
         {dateButtons}
-        {/* <Grid item>
-          <Button variant='contained'
-            onClick={() => dateClickedHandler(0)} 
-            className={dateIndex === 0 ? classes.dateBtnSelected : classes.dateBtn}
-          >
-            <Typography variant='body1'>{getLabel(0)}</Typography>
-          </Button>
-        </Grid>
-        <Grid item>
-          <Button variant='contained'
-            onClick={() => dateClickedHandler(1)} 
-            className={dateIndex === 1 ? classes.dateBtnSelected : classes.dateBtn}
-          >
-            <Typography variant='body1'>{getLabel(1)}</Typography>
-          </Button>
-        </Grid>
-        <Grid item>
-          <Button variant='contained'
-            onClick={() => dateClickedHandler(2)} 
-            className={dateIndex === 2 ? classes.dateBtnSelected : classes.dateBtn}
-          >
-            <Typography variant='body1'>{getLabel(2)}</Typography>
-          </Button>       
-        </Grid>
-        <Grid item>
-          <Button variant='contained'
-            onClick={() => dateClickedHandler(3)} 
-            className={dateIndex === 3 ? classes.dateBtnSelected : classes.dateBtn}
-          >
-            <Typography variant='body1'>{getLabel(3)}</Typography>
-          </Button>        
-        </Grid>
-        <Grid item>
-          <Button variant='contained'
-            onClick={() => dateClickedHandler(4)} 
-            className={dateIndex === 4 ? classes.dateBtnSelected : classes.dateBtn}
-          >
-            <Typography variant='body2'>{getLabel(4)}</Typography>
-          </Button>
-        </Grid>
-        <Grid item>
-          <Button variant='contained'
-            onClick={() => dateClickedHandler(5)} 
-            className={dateIndex === 5 ? classes.dateBtnSelected : classes.dateBtn}
-          >
-            <Typography variant='body2'>{getLabel(5)}</Typography>
-          </Button>
-        </Grid>
-        <Grid item>
-          <Button variant='contained'
-            onClick={() => dateClickedHandler(6)} 
-            className={dateIndex === 6 ? classes.dateBtnSelected : classes.dateBtn}
-          >
-            <Typography variant='body2'>{getLabel(6)}</Typography>
-          </Button>
-        </Grid> */}
       </Grid>
       <Grid item>
         <IconButton className={classes.navBtn} onClick={getNext}>
