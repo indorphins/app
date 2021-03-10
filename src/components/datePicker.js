@@ -22,11 +22,13 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 8,
     backgroundColor: theme.palette.common.background,
     color: theme.palette.common.black,
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1),
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
+    marginLeft: theme.spacing(1.5),
+    marginRight: theme.spacing(1.5),
+    paddingTop: theme.spacing(1.5),
+    paddingBottom: theme.spacing(1.5),
     width: 110,
+    textTransform: 'capitalize',
+    boxShadow: 'none',
     '@media (max-width: 730px)': {
       marginLeft: 1,
       marginRight: 1,
@@ -39,11 +41,13 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 8,
     color: theme.palette.common.background,
     backgroundColor: theme.palette.common.black,
-    marginLeft: theme.spacing(1),
-    marginRight: theme.spacing(1),
-    paddingTop: theme.spacing(1),
-    paddingBottom: theme.spacing(1),
+    marginLeft: theme.spacing(1.5),
+    marginRight: theme.spacing(1.5),
+    paddingTop: theme.spacing(1.5),
+    paddingBottom: theme.spacing(1.5),
     width: 110,
+    textTransform: 'capitalize',
+    boxShadow: 'none',
     '@media (max-width: 730px)': {
       marginLeft: 1,
       marginRight: 1,
@@ -75,7 +79,7 @@ const useStyles = makeStyles((theme) => ({
 export default function DatePicker(props) {
   const { selectDateHandler, startDate } = props;
   const small = useMediaQuery('(max-width:475px)');
-  const med = useMediaQuery('(max-width:950px)');
+  const med = useMediaQuery('(max-width:1005px)');
   const [dateIndex, setDateIndex] = useState(0);
   const [displayNumber, setDisplayNumber] = useState(7);
   const [referenceDate, setReferenceDate] = useState(startDate); // the first day in the date picker each time
@@ -131,7 +135,7 @@ export default function DatePicker(props) {
   const dateButtons = [];
   for (let i = 0; i < displayNumber; i++) {
     const btn = (
-      <Grid item>
+      <Grid item key={`dateBtn-${i}`}>
         <Button variant='contained'
           onClick={() => dateClickedHandler(i)} 
           className={dateIndex === i ? classes.dateBtnSelected : classes.dateBtn}
@@ -155,7 +159,7 @@ export default function DatePicker(props) {
       </Grid>
       <Grid item>
         <IconButton className={classes.navBtn} onClick={getNext}>
-          <NavigateNext/>
+          <NavigateNext />
         </IconButton>
       </Grid>
     </Grid>

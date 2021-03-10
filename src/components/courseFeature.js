@@ -168,7 +168,8 @@ const useStyles = makeStyles((theme) => ({
     width: 63,
     height: 93,
     '@media (max-width: 600px)': {
-      marginLeft: theme.spacing(3),
+      marginLeft: theme.spacing(1),
+      marginRight: theme.spacing(1),
     },
   },
   image: {
@@ -181,8 +182,12 @@ const useStyles = makeStyles((theme) => ({
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    width: 'inherit'
+    width: 'inherit',
+    color: theme.palette.primary.main
   },
+  ribbonCtn: {
+    left: 8
+  }
 }));
 
 const dataSelector = createSelector([(state) => state.courseFeature], (data) => {
@@ -286,7 +291,7 @@ export default function CourseFeature(props) {
       }  
       
       if (schedule.length > 0 && schedule.includes(course.id)) {
-        data.banner = "Your're in!";
+        data.banner = "You're in!";
       }
 
       if (course.instructor_name) {
@@ -367,42 +372,51 @@ export default function CourseFeature(props) {
       let bannerContent;
       if (course.banner || course.label) {
         bannerContent = (
-          <RibbonContainer>
-            <LeftCornerRibbon backgroundColor="#8BA173" color="#f0f0f0">
+          <RibbonContainer className={classes.ribbonCtn}>
+            <LeftCornerRibbon backgroundColor="#8BA173" color="#f0f0f0" fontFamily='Lato'>
               {course.banner}
             </LeftCornerRibbon>
           </RibbonContainer>
         )
       }
-      const timeType = small ? 'View' : 'View Class'
+      const timeType = small ? 'View' : 'View Class';
       return (
-        <Grid container className={course.id === lastClass.id ? classes.listTileNoBottom : classes.listTile} key={course.id}>
-            {bannerContent}
-            {timeContent}
-            <Grid item className={classes.imageCtn}>
-              <img className={classes.image} src={course.photo_url} alt='Class'/>
-            </Grid>
-            <Grid item className={classes.tileTextColumn}> 
-              <Grid container className={classes.tileTextColumn} direction='column'>
-                {timeContentMobile}
-                <Grid item className={classes.tileTextColumn}>
-                  <Typography noWrap={true} variant='h4' style={{fontWeight: '300'}}>{course.title}</Typography>
-                </Grid>
-                <Grid item className={classes.tileTextColumn} style={{display: 'inline-flex', alignItems: 'baseline'}}>
-                  {nameContent}
-                  {typeContent}
-                </Grid>
-                <Grid item className={classes.tileTextColumn} style={{display: 'inline-flex', alignItems: 'baseline', minWidth: 0}}>
-                  {durationContent}
-                  {costContent}
-                </Grid>
+        <Grid 
+          container 
+          className={course.id === lastClass.id ? classes.listTileNoBottom : classes.listTile} 
+          key={course.id}
+          onClick={() => viewClassHandler(course.url)}
+        >
+          {bannerContent}
+          {timeContent}
+          <Grid item className={classes.imageCtn}>
+            <img className={classes.image} src={course.photo_url} alt='Class' />
+          </Grid>
+          <Grid item className={classes.tileTextColumn}> 
+            <Grid container className={classes.tileTextColumn} direction='column'>
+              {timeContentMobile}
+              <Grid item className={classes.tileTextColumn}>
+                <Typography noWrap={true} variant='h4' style={{fontWeight: '300'}}>{course.title}</Typography>
+              </Grid>
+              <Grid item className={classes.tileTextColumn} style={{display: 'inline-flex', alignItems: 'baseline'}}>
+                {nameContent}
+                {typeContent}
+              </Grid>
+              <Grid 
+                item 
+                className={classes.tileTextColumn} 
+                style={{display: 'inline-flex', alignItems: 'baseline', minWidth: 0}}
+              >
+                {durationContent}
+                {costContent}
               </Grid>
             </Grid>
-            <Grid item>
-              <Button variant='contained' className={classes.listButton} onClick={() => viewClassHandler(course.url)}>
-                {timeType}
-              </Button>
-            </Grid>
+          </Grid>
+          <Grid item>
+            <Button variant='contained' className={classes.listButton} onClick={() => viewClassHandler(course.url)}>
+              {timeType}
+            </Button>
+          </Grid>
         </Grid>
       )
     });

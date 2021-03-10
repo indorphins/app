@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
-import { Container, Grid, Fab, Grow, Divider, Typography, Fade, Paper }  from '@material-ui/core';
+import { Container, Grid, Fab, Grow, Divider, Fade }  from '@material-ui/core';
 import { Add, Clear } from '@material-ui/icons';
 import { makeStyles } from '@material-ui/core/styles';
 
@@ -30,6 +30,7 @@ const userScheduleIDsSelector = createSelector([state => state.user.schedule], (
 
 const useStyles = makeStyles((theme) => ({
   root: {
+    backgroundColor: theme.palette.common.backgroundGrey,
     paddingTop: theme.spacing(2),
     paddingRight: theme.spacing(5),
     paddingLeft: theme.spacing(5),
@@ -61,6 +62,7 @@ const useStyles = makeStyles((theme) => ({
   },
   listItem: {
     width: '100%',
+    maxWidth: 950,
     paddingRight: theme.spacing(4),
     paddingLeft: theme.spacing(4),
     '@media (max-width: 600px)': {
@@ -330,27 +332,62 @@ export default function CourseList() {
         {createContent}
         <DatePicker selectDateHandler={selectDateHandler} startDate={new Date()} />
         <Fade in={true}>
-          <Grid container direction="column" spacing={3}>
+          <Grid container direction="column" alignContent='center' spacing={3}>
             <Grid className={classes.listItem}>
-              <CourseFeature id="todays-plus1" header={createHeader(0)} items={selectedData} schedule={userSchedule} />
+              <CourseFeature 
+              id="todays" 
+              header={createHeader(0)} 
+              items={selectedData} 
+              schedule={userSchedule} 
+              />
             </Grid> 
             <Grid className={classes.listItem}>
-              <CourseFeature id="todays-plus1" header={createHeader(1)} items={selectPlus1Data} schedule={userSchedule} />
+              <CourseFeature 
+              id="todays-plus1" 
+              header={createHeader(1)} 
+              items={selectPlus1Data} 
+              schedule={userSchedule} 
+              />
             </Grid>
             <Grid className={classes.listItem}>
-              <CourseFeature id="todays-plus2" header={createHeader(2)} items={selectPlus2Data} schedule={userSchedule} />
+              <CourseFeature 
+              id="todays-plus2" 
+              header={createHeader(2)} 
+              items={selectPlus2Data} 
+              schedule={userSchedule} 
+              />
             </Grid>
             <Grid className={classes.listItem}>
-              <CourseFeature id="todays-plus3" header={createHeader(3)} items={selectPlus3Data} schedule={userSchedule} />
+              <CourseFeature 
+              id="todays-plus3" 
+              header={createHeader(3)} 
+              items={selectPlus3Data} 
+              schedule={userSchedule} 
+              />
             </Grid>
             <Grid className={classes.listItem}>
-              <CourseFeature id="todays-plus4" header={createHeader(4)} items={selectPlus4Data} schedule={userSchedule} />
+              <CourseFeature 
+              id="todays-plus4" 
+              header={createHeader(4)} 
+              items={selectPlus4Data} 
+              schedule={userSchedule} 
+              />
             </Grid>
             <Grid className={classes.listItem}>
-              <CourseFeature id="todays-plus5" header={createHeader(5)} items={selectPlus5Data} schedule={userSchedule} />
+              <CourseFeature 
+              id="todays-plus5" 
+              header={createHeader(5)} 
+              items={selectPlus5Data} 
+              schedule={userSchedule} 
+              />
             </Grid>
             <Grid className={classes.listItem}>
-              <CourseFeature id="todays-plus6" header={createHeader(6)} items={selectPlus6Data} schedule={userSchedule} />
+              <CourseFeature 
+              id="todays-plus6" 
+              header={createHeader(6)} 
+              items={selectPlus6Data} 
+              schedule={userSchedule} 
+              />
             </Grid>
           </Grid>
         </Fade>

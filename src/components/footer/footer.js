@@ -93,36 +93,36 @@ function FooterLegal() {
   }
 
   const instaIcon = (
-    <IconButton>
-      <Instagram className={classes.socialIcon} onClick={() => navToUrl(instaUrl)} />
+    <IconButton onClick={() => navToUrl(instaUrl)}>
+      <Instagram className={classes.socialIcon} />
     </IconButton>
   )
 
   const fbIcon = (
-    <IconButton>
-      <Facebook className={classes.socialIcon} onClick={() => navToUrl(fbUrl)} />
+    <IconButton onClick={() => navToUrl(fbUrl)}>
+      <Facebook className={classes.socialIcon} />
     </IconButton>
   )
 
   const iconContent = (
     <Grid container className={classes.socialCtn}>
-        {fbIcon}
-        {instaIcon}
+      {fbIcon}
+      {instaIcon}
     </Grid>
   )
 
   const legalContent = small ? null :
     (
       <Grid item>
-        <Typography className={classes.legalText}>Copyright 2020</Typography>
+        <Typography variant='body2' className={classes.legalText}>Copyright 2020</Typography>
       </Grid>
     );
 
   const mobileLegalContent = small ? (
-      <Grid item>
-        <Typography className={classes.legalTextMobile}>Copyright 2020</Typography>
-      </Grid>
-    ) : null;
+    <Grid item>
+      <Typography variant='body2' className={classes.legalTextMobile}>Copyright 2020</Typography>
+    </Grid>
+  ) : null;
 
   return (
     <React.Fragment>
@@ -142,7 +142,6 @@ export default function FooterNav(props) {
   const history = useHistory();
 
   function navToPage(page) {
-    console.log("Nav to page ", page)
     history.push(page);
   }
 
@@ -153,26 +152,62 @@ export default function FooterNav(props) {
 
   const logoContent = (
     <Grid item className={classes.logoCtn}>
-      <Link variant='h4' className={classes.logo} underline='none' onClick={() => navToPage(path.courses)}>INDOORPHINS</Link>
+      <Link variant='body2' 
+      className={classes.logo} 
+      underline='none' 
+      onClick={() => redirectToPage(webflowPaths.home)}
+      >
+        INDOORPHINS
+      </Link>
     </Grid>
   )
 
   const linksContent = (
     <Grid container direction='column' className={classes.linksCtn}>
       <Grid item>
-        <Link variant='h4' className={classes.link} underline='none' onClick={() => navToPage(path.courses)}>SCHEDULE</Link>
+        <Link variant='body2' 
+        className={classes.link} 
+        underline='none' 
+        onClick={() => navToPage(path.courses)}
+        >
+          SCHEDULE
+        </Link>
       </Grid>
       <Grid item>
-        <Link variant='h4' className={classes.link} underline='none' onClick={() => navToPage(path.instructors)}>INSTRUCTORS</Link>
+        <Link variant='body2' 
+        className={classes.link} 
+        underline='none' 
+        onClick={() => navToPage(path.instructors)}
+        >
+          INSTRUCTORS
+        </Link>
       </Grid>
       <Grid item>
-        <Link variant='h4' className={classes.link} underline='none' onClick={() => redirectToPage(webflowPaths.faq)}>FAQ</Link>
+        <Link variant='body2' 
+        className={classes.link} 
+        underline='none' 
+        onClick={() => redirectToPage(webflowPaths.faq)}
+        >
+          FAQ
+        </Link>
       </Grid>
       <Grid item>
-        <Link variant='h4' className={classes.link} underline='none' onClick={() => redirectToPage(webflowPaths.blog)}>BLOG</Link>
+        <Link variant='body2'
+        className={classes.link} 
+        underline='none' 
+        onClick={() => redirectToPage(webflowPaths.blog)}
+        >
+          BLOG
+        </Link>
       </Grid>
       <Grid item>
-        <Link variant='h4' className={classes.link} underline='none' onClick={() => redirectToPage(webflowPaths.contact)}>CONTACT</Link>
+        <Link variant='body2' 
+        className={classes.link} 
+        underline='none' 
+        onClick={() => redirectToPage(webflowPaths.contact)}
+        >
+          CONTACT
+        </Link>
       </Grid>
     </Grid>
   )

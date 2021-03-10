@@ -11,8 +11,9 @@ const colors = {
   cream: "#ffc772",
   white: "#ffffff",
   darkGrey: '#757575',
-  borderGrey: '#979797',
+  borderGrey: '#D7D7D7',
   footerGrey: '#111',
+  lightGrey: '#F2F2F4',
   pureBlack: '#000'
 }
 
@@ -23,7 +24,8 @@ const lightPalette = {
     black: colors.black,
     background: colors.white,
     border: colors.borderGrey,
-    footerGrey: colors.footerGrey
+    footerGrey: colors.footerGrey,
+    backgroundGrey: colors.lightGrey
   },
   primary: {
     main: colors.black,
@@ -82,27 +84,27 @@ const lightTypography = {
   h1: {
     fontSize: '2.5rem',
     fontWeight: 900,
-    color: lightPalette.grey[700],
+    color: lightPalette.grey[900],
   },
   h2: {
     fontSize: '2.2rem',
     fontWeight: 900,
-    color: lightPalette.grey[700],
+    color: lightPalette.grey[900],
   },
   h3: {
     fontSize: '1.8rem',
     fontWeight: 500,
-    color: lightPalette.grey[600],
+    color: lightPalette.grey[900],
   },
   h4: {
     fontSize: '1.5rem',
     fontWeight: 900,
-    color: lightPalette.grey[800],
+    color: lightPalette.grey[900],
   },
   h5: {
     fontSize: '1.3rem',
     fontWeight: 300,
-    color: lightPalette.grey[800],
+    color: lightPalette.grey[900],
   },
   h6: {
     fontSize: '1.1rem',
@@ -124,6 +126,9 @@ const darkPalette = {
     white: colors.offwhite,
     black: colors.black,
     background: colors.black2,
+    border: colors.borderGrey,
+    footerGrey: colors.footerGrey,
+    backgroundGrey: colors.lightGrey
   },
   primary: {
     main: colors.offwhite,
