@@ -57,11 +57,11 @@ const lightPalette = {
     contrastText: colors.darkGrey
   },
   text: {
-    primary: '#616161',
-    secondary: '#9e9e9e',
+    primary: '#212121',
+    secondary: '#212121',
     disabled: '#e0e0e0',
     hint: '#eeeeee',
-    salmon: colors.salmon
+    salmon: colors.salmon,
   },
   grey: {
     50: '#fafafa',

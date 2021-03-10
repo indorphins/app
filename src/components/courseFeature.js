@@ -22,7 +22,7 @@ const useStyles = makeStyles((theme) => ({
   },
   container: {
     position: 'relative',
-    paddingBottom: theme.spacing(3),
+    paddingBottom: theme.spacing(4),
     width: '100%'
   },
   nextPageBtn: {
@@ -114,7 +114,7 @@ const useStyles = makeStyles((theme) => ({
     }
   },
   header: {
-    paddingBottom: theme.spacing(3)
+    paddingBottom: theme.spacing(2)
   },
   listContainer: {
     background: theme.palette.common.background,
@@ -364,7 +364,7 @@ export default function CourseFeature(props) {
           timeContentMobile = null;
           timeContent = (
             <Grid item className={classes.classTime}>
-              <Typography variant='h4'>{course.time}</Typography>
+              <Typography variant='body2'>{course.time}</Typography>
             </Grid>
           )
         }

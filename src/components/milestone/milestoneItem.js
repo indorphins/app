@@ -8,7 +8,9 @@ const useStyles = makeStyles((theme) => ({
     borderColor: theme.palette.grey[400] + ' !important',
     borderBottom: '1px solid',
     paddingBottom: theme.spacing(3),
-    paddingTop: theme.spacing(3)
+    paddingTop: theme.spacing(3),
+    backgroundColor: theme.palette.common.background,
+    borderRadius: 4,
   },
   text: {
     paddingBottom: theme.spacing(1)

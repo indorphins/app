@@ -26,6 +26,7 @@ const getProductsSelector = createSelector([state => state.products], products =
 const useStyles = makeStyles((theme) => ({
   container: {
     display: 'block',
+    height: '73vh'
   },
   text: {
     paddingBottom: 5,
