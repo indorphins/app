@@ -88,7 +88,7 @@ export default function Header(props) {
   const currentUser = useSelector(state => getUserSelector(state));
 
   const goHomeHandler = () => {
-    history.push(path.courses);
+    history.push(path.home);
   }
 
   const goToSignup = () => {
@@ -149,7 +149,7 @@ export default function Header(props) {
       >
         {drawer}
         <Grid item>
-          <Typography variant="h2" className={classes.logo} onClick={goHomeHandler}>INDOORPHINS</Typography>
+          <Typography variant="h4" className={classes.logo} onClick={goHomeHandler}>INDOORPHINS</Typography>
         </Grid>
         {tabs}
       </Grid>

@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import { useRouteMatch, useHistory } from 'react-router-dom';
-import { Badge, Button, Grid } from '@material-ui/core';
+import { Badge, Button, Grid, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import { createSelector } from 'reselect';
 import { useSelector } from 'react-redux';
@@ -15,13 +15,14 @@ const tabStyles = makeStyles((theme) => ({
     paddingRight: theme.spacing(2),
     whiteSpace: "nowrap",
     fontSize: '1rem',
+    textTransform: 'capitalize',
     '@media (max-width: 900px)': {
       fontSize: ".8rem",
     },
   },
   unselected: {
-    color: theme.palette.grey[400],
-    fontWeight: 400,
+    color: theme.palette.grey[900],
+    fontWeight: 300,
   },
   badge: {
     fontSize: '.6rem',
@@ -46,7 +47,7 @@ function TabItem(props) {
     return (
       <Badge badgeContent={props.badge} classes={{badge:classes.badge}}>
         <Button onClick={props.onClick} className={style}>
-          {props.label}
+          <Typography variant='body1'>{props.label}</Typography>
         </Button>
       </Badge>
     )
@@ -81,7 +82,7 @@ export default function(props) {
 
   useEffect(() => {
     if (home && home.isExact) {
-      return setTab(0);
+      return setTab('Classes');
     }
     
     if (courses && courses.isExact) {
