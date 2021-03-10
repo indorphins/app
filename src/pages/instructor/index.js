@@ -6,6 +6,9 @@ import Analytics from '../../utils/analytics';
 const useStyles = makeStyles((theme) => ({
   content: {
     paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(4),
+    backgroundColor: theme.palette.common.backgroundGrey,
+    maxWidth: 'inherit',
   }
 }));
 

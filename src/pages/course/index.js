@@ -31,6 +31,7 @@ const userScheduleIDsSelector = createSelector([state => state.user.schedule], (
 const useStyles = makeStyles((theme) => ({
   root: {
     backgroundColor: theme.palette.common.backgroundGrey,
+    maxWidth: 'inherit',
     paddingTop: theme.spacing(2),
     paddingRight: theme.spacing(5),
     paddingLeft: theme.spacing(5),

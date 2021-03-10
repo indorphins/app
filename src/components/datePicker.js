@@ -134,13 +134,14 @@ export default function DatePicker(props) {
 
   const dateButtons = [];
   for (let i = 0; i < displayNumber; i++) {
+    const selected = dateIndex === i ? { fontWeight: 500 } : {};
     const btn = (
       <Grid item key={`dateBtn-${i}`}>
         <Button variant='contained'
           onClick={() => dateClickedHandler(i)} 
           className={dateIndex === i ? classes.dateBtnSelected : classes.dateBtn}
         >
-          <Typography variant='body1'>{getLabel(i)}</Typography>
+          <Typography variant='body1' style={selected}>{getLabel(i)}</Typography>
         </Button>
       </Grid>
     )

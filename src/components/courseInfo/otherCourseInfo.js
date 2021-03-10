@@ -3,7 +3,7 @@ import { Grid, Typography, makeStyles } from '@material-ui/core'
 
 const useStyles = makeStyles((theme) => ({
   content: {
-    color: theme.palette.text.secondary
+    color: theme.palette.primary.main
   }
 }));
 
