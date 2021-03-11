@@ -336,7 +336,7 @@ export default function CourseFeature(props) {
       // likely will need more logic for classes with multi types
       if (course.type) {
         typeContent = (
-          <Typography variant='body1' noWrap={true}>| Strength, Cardio</Typography>
+          <Typography variant='body1' noWrap={true}>| {course.type}</Typography>
         );
       }
       let durationContent;
