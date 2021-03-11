@@ -21,6 +21,9 @@ import path from '../routes/path';
 const useStyles = makeStyles((theme) => ({
   content: {
     paddingTop: theme.spacing(2),
+    paddingBottom: theme.spacing(4),
+    backgroundColor: theme.palette.common.backgroundGrey,
+    maxWidth: 'inherit',
   },
   divider: {
     margin: theme.spacing(2),

@@ -76,7 +76,7 @@ export default function JoinSession(props) {
         if (sessionTime) {
           if (now > sessionTime.start && now < sessionTime.end) {
             disabled = false;
-          } else if (now < sessionTime.end) {
+          } else {
             disabled = true;
           }
         }

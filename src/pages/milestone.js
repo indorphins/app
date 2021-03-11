@@ -15,7 +15,12 @@ const getUserSelector = createSelector([state => state.user.data], (user) => {
 
 const useStyles = makeStyles((theme) => ({
   container: {
-    paddingBottom: theme.spacing(4)
+    paddingBottom: theme.spacing(4),
+    backgroundColor: theme.palette.common.backgroundGrey,
+    maxWidth: 'inherit',
+    paddingTop: theme.spacing(2),
+    paddingLeft: theme.spacing(6),
+    paddingRight: theme.spacing(6)
   }
 }))
 

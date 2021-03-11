@@ -14,6 +14,9 @@ export default function CourseRoutes() {
       <Route exact path={path.courses}>
         <CourseList />
       </Route>
+      <Route exact path={path.home}>
+        <CourseList />
+      </Route>
     </Switch>
   );
 }

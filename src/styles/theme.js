@@ -10,7 +10,11 @@ const colors = {
   salmon: "#ff877e",
   cream: "#ffc772",
   white: "#ffffff",
-  darkGrey: '#757575'
+  darkGrey: '#757575',
+  borderGrey: '#D7D7D7',
+  footerGrey: '#111',
+  lightGrey: '#F2F2F4',
+  pureBlack: '#000'
 }
 
 const lightPalette = {
@@ -19,6 +23,9 @@ const lightPalette = {
     white: colors.offwhite,
     black: colors.black,
     background: colors.white,
+    border: colors.borderGrey,
+    footerGrey: colors.footerGrey,
+    backgroundGrey: colors.lightGrey
   },
   primary: {
     main: colors.black,
@@ -41,14 +48,20 @@ const lightPalette = {
     contrastText: colors.black
   },
   header: {
-    background: colors.black,
+    background: colors.white,
+  },
+  footer: {
+    main: colors.footerGrey,
+    secondary: colors.pureBlack,
+    text: colors.white,
+    contrastText: colors.darkGrey
   },
   text: {
-    primary: '#616161',
-    secondary: '#9e9e9e',
+    primary: '#212121',
+    secondary: '#212121',
     disabled: '#e0e0e0',
     hint: '#eeeeee',
-    salmon: colors.salmon
+    salmon: colors.salmon,
   },
   grey: {
     50: '#fafafa',
@@ -71,27 +84,27 @@ const lightTypography = {
   h1: {
     fontSize: '2.5rem',
     fontWeight: 900,
-    color: lightPalette.grey[700],
+    color: lightPalette.grey[900],
   },
   h2: {
     fontSize: '2.2rem',
     fontWeight: 900,
-    color: lightPalette.grey[700],
+    color: lightPalette.grey[900],
   },
   h3: {
     fontSize: '1.8rem',
     fontWeight: 500,
-    color: lightPalette.grey[600],
+    color: lightPalette.grey[900],
   },
   h4: {
     fontSize: '1.5rem',
     fontWeight: 900,
-    color: lightPalette.grey[800],
+    color: lightPalette.grey[900],
   },
   h5: {
     fontSize: '1.3rem',
     fontWeight: 300,
-    color: lightPalette.grey[800],
+    color: lightPalette.grey[900],
   },
   h6: {
     fontSize: '1.1rem',
@@ -113,6 +126,9 @@ const darkPalette = {
     white: colors.offwhite,
     black: colors.black,
     background: colors.black2,
+    border: colors.borderGrey,
+    footerGrey: colors.footerGrey,
+    backgroundGrey: colors.lightGrey
   },
   primary: {
     main: colors.offwhite,
@@ -139,7 +155,13 @@ const darkPalette = {
     default: colors.black2
   },
   header: {
-    background: colors.black,
+    background: colors.white,
+  },
+  footer: {
+    main: colors.footerGrey,
+    secondary: colors.pureBlack,
+    text: colors.white,
+    contrastText: colors.darkGrey
   },
   text: {
     primary: '#eeeeee',

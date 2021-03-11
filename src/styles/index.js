@@ -34,27 +34,27 @@ const useStyles = makeStyles((theme) => ({
       height: '100%',
     },
     '#wysiwygContent > h2': {
-      color: theme.palette.text.secondary, 
+      color: theme.palette.grey[900],
       fontSize: "1.5rem"
     },
     '#wysiwygContent > p': {
       fontSize: "1.1rem",
-      color: theme.palette.text.secondary,
+      color: theme.palette.grey[900],
     },
     '#wysiwygContent > ol': {
       fontSize: "1.1rem",
-      color: theme.palette.text.secondary,
+      color: theme.palette.grey[900],
     },
     '#wysiwygContent > ul': {
       fontSize: "1.1rem",
-      color: theme.palette.text.secondary,
+      color: theme.palette.grey[900],
     },
     '#wysiwygContent > blockquote': {
       borderLeft: "3px solid grey",
       paddingLeft: "2em",
       fontStyle: "italic",
       fontWeight: "bold",
-      color: theme.palette.text.secondary,
+      color: theme.palette.grey[900],
     }
   }
 }));

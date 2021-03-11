@@ -19,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
   },
   loginBtn: {
     backgroundImage: "none",
-    color: theme.palette.common.white,
+    color: theme.palette.common.black,
   }
 }));
 

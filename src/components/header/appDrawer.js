@@ -16,7 +16,7 @@ let useStyles = makeStyles((theme) => ({
     overflow: "hidden",
   },
   button: {
-    color: theme.palette.common.white,
+    color: theme.palette.common.black,
   },
   drawerLink: {
     fontWeight: 400,
