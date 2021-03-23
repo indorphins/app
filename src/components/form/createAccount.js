@@ -263,9 +263,9 @@ export default function(props) {
     setLoader(false);
 
     if (redirectUrl) {
-      history.push(path.addPayment + "?redirect=" + redirectUrl);
+      history.push(path.home + "?redirect=" + redirectUrl);
     } else {
-      history.push(path.addPayment);
+      history.push(path.home);
     }
   };
   
