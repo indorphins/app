@@ -74,6 +74,7 @@ export default function (props) {
   const [loader, setLoader] = useState(false);
   const [seriesLength, setSeriesLength] = useState(null);
   const [errorMsg, setErrorMsg] = useState(null); 
+  const [privateClass, setPrivateClass] = useState(false);
 
   useEffect(() => {
     if (props.courseTitle) setTitle(props.courseTitle);
@@ -82,6 +83,7 @@ export default function (props) {
     if (props.spots) setSpots(props.spots);
     if (props.selectedDate) setSelectedDate(props.date);
     if (props.recurring) setRecurring(true);
+    if (props.private) setPrivateClass(true);
   }, [props]);
 
   const titleHandler = function (e) {
@@ -126,6 +128,10 @@ export default function (props) {
     } else {
       setRecurring(true);
     }
+  }
+
+  const handlePrivateCheckbox = function (e) {
+    setPrivateClass(!privateClass)
   }
 
   const seriesLengthHandler = function(e) {
@@ -174,6 +180,7 @@ export default function (props) {
       cost: cost,
       total_spots: spots,
       duration: duration,
+      private_class: privateClass
     }
 
     if (selectedDate && selectedDate.toISOString) {
@@ -439,6 +446,20 @@ export default function (props) {
                 <Typography variant="body1">Weekly</Typography>
               </Grid>
               {seriesContent}
+            </Grid>
+          </Grid>
+          <Grid item xs={12}>
+            <Grid container direction="row" justify="flex-start" alignItems="center" spacing={1}>
+              <Grid item>
+                <Switch
+                    color='primary'
+                    checked={privateClass}
+                    onChange={handlePrivateCheckbox}
+                />
+              </Grid>
+              <Grid item>
+                <Typography variant="body1">Private? (Will not show up in the class schedule)</Typography>
+              </Grid>
             </Grid>
           </Grid>
           {infoContent}

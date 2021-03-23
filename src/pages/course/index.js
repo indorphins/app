@@ -98,6 +98,9 @@ export default function CourseList() {
         { start_date: { $gte: now.toISOString() } },
         { end_date: { $gte: now.toISOString() } },
         { recurring: { $exists: true } }
+      ],
+      $and: [
+        { private: false }
       ]
     };
     let order = {
