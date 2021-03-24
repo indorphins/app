@@ -100,7 +100,12 @@ export default function CourseList() {
         { recurring: { $exists: true } }
       ],
       $and: [
-        { private: false }
+        {
+          $or: [
+            { private : { "$exists" : false } },
+            { private : false },
+          ]
+        }
       ]
     };
     let order = {
