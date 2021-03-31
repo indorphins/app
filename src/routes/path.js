@@ -10,7 +10,8 @@ const base = {
   instructors: '/instructors',
   admin: '/admin',
   referFriend: '/refer',
-  addPayment: '/payment'
+  addPayment: '/payment',
+  reports: '/reports'
 };
 
 let params = Object.assign({}, base);

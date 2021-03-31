@@ -53,3 +53,20 @@ export async function getPayouts(startDate, endDate) {
 
   return callAPI(u, options, true);
 }
+
+/**
+ * Fetches a report of all users and classes taken by users with 
+ * the input domain in their emails
+ * @param {String} domain 
+ */
+export async function getReportByDomain(domain) {
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+
+  const u = url + '/domain/' + domain;
+  return callAPI(u, options, true);
+}

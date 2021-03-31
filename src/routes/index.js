@@ -91,6 +91,9 @@ export default function Routes() {
           <Route exact path={path.admin}>
             <AsyncPage page='admin' />
           </Route>
+          <Route exact path={path.reports}>
+            <AsyncPage page='reports' />
+          </Route>
           <Route exact path={path.referFriend}>
             <AsyncPage page='referBonus' />
           </Route>

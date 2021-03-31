@@ -78,6 +78,7 @@ export default function(props) {
   let milestone = useRouteMatch(path.milestone);
   let admin = useRouteMatch(path.admin);
   let refer = useRouteMatch(path.referFriend);
+  let reports = useRouteMatch(path.reports);
 
 
   useEffect(() => {
@@ -101,12 +102,25 @@ export default function(props) {
       return setTab("Refer");
     }
     
+    if (admin && admin.isExact) {
+      return setTab("Admin");
+    }
+    if (reports && reports.isExact) {
+      return setTab("Reports");
+    }
+
     setTab(0);
   }, [home, courses, milestone, admin, refer]);
 
   useEffect(() => {
-    if (admin && admin.isExact && user && user.type === 'admin') {
-      return setTab("Admin");
+    if (user && user.type === 'admin') {
+      if (admin && admin.isExact) {
+        return setTab("Admin");
+      }
+      
+      if (reports && reports.isExact) {
+        return setTab("Reports");
+      }
     }
 
   }, [user, admin]);
@@ -128,7 +142,11 @@ export default function(props) {
     history.push(path.admin);
   }
 
-  let adminTab = null;
+  async function navReports() {
+    history.push(path.reports);
+  }
+
+  let adminTab, reportsTab = null;
 
   if (user && user.type === 'admin') {
     adminTab = (
@@ -137,6 +155,14 @@ export default function(props) {
         value="Admin"
         label="Admin"
         onClick={navAdmin}
+      />
+    )
+    reportsTab = (
+      <TabItem
+        tab={tab}
+        value="Reports"
+        label="Reports"
+        onClick={navReports}
       />
     )
   }
@@ -171,6 +197,7 @@ export default function(props) {
       />
       {msContent}
       {referFriend}
+      {reportsTab}
       {adminTab}
     </Grid>
   )
