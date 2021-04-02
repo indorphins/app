@@ -10,7 +10,7 @@ const url = config.host + '/user/';
  * @param {string} email 
  * @param {string} phone
  */
-export async function create(username, firstName, lastName, email, phone, birthday) {
+export async function create(username, firstName, lastName, email, phone, birthday, firebaseUid) {
 
   let properties = {
     username: username,
@@ -19,6 +19,10 @@ export async function create(username, firstName, lastName, email, phone, birthd
     email: email,
     birthday: birthday
   };
+
+  if (firebaseUid) {
+    properties.firebase_uid = firebaseUid;
+  }
 
   if (phone) {
     properties.phone_number = phone;
