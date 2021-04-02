@@ -43,7 +43,7 @@ export default function Reports() {
     Reporting.get().then(response => {
       if (response) setReportData(response);
     }).catch(err => {
-      log.warn("ADMIN:: Fetch Reports error ", err);
+      log.warn("REPORTS:: Fetch Reports error ", err);
     })
   }
 
@@ -51,7 +51,7 @@ export default function Reports() {
     Reporting.getInstructors().then(response => {
       if (response) setInstructorReports(response);
     }).catch(err => {
-      log.warn("ADMIN:: Fetch Instructor Reports error ", err);
+      log.warn("REPORTS:: Fetch Instructor Reports error ", err);
     })
   }
 
@@ -75,7 +75,7 @@ export default function Reports() {
         }
         return setPayoutData(data);
       }).catch(err => {
-        log.warn("error getting payouts ", err);
+        log.warn("REPORTS:: error getting payouts ", err);
       })
   }
 

@@ -25,3 +25,23 @@ export async function classJoined(datetime, classId, calendar) {
 
   return callAPI(u, options, true);
 }
+
+export async function accountCreated(email, pw) {
+  let data = {
+    email: email,
+    password: pw
+  };
+
+  const options = {
+    method: 'POST',
+
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data)
+  };
+
+  const u = url + 'accountCreated';
+
+  return callAPI(u, options, true);
+}

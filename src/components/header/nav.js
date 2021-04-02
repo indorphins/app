@@ -81,6 +81,7 @@ export default function(props) {
   let reports = useRouteMatch(path.reports);
 
 
+  /*eslint-disable */
   useEffect(() => {
     if (home && home.isExact) {
       return setTab('Classes');
@@ -111,13 +112,14 @@ export default function(props) {
 
     setTab(0);
   }, [home, courses, milestone, admin, refer]);
+  /*eslint-enable */
 
   useEffect(() => {
     if (user && user.type === 'admin') {
       if (admin && admin.isExact) {
         return setTab("Admin");
       }
-      
+
       if (reports && reports.isExact) {
         return setTab("Reports");
       }
