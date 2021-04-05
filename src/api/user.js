@@ -9,6 +9,8 @@ const url = config.host + '/user/';
  * @param {string} lastName 
  * @param {string} email 
  * @param {string} phone
+ * @param {string} birthday
+ * @param {string} firebaseUid
  */
 export async function create(username, firstName, lastName, email, phone, birthday, firebaseUid) {
 

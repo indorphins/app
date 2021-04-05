@@ -67,3 +67,27 @@ export async function create(sku, price) {
 
   return callAPI(url, options, true);
 }
+
+/**
+ * Create a subscription on trial that will cancel at period end for input user ID. 
+ * Requires a valid firebase token.
+ * @param {string} sku
+ * @param {string} price 
+ */
+export async function createAsAdmin(sku, price, userId) {
+
+  const options = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      sku: sku,
+      price: price,
+      user_id: userId
+    }),
+  }
+
+  const u = url + '/admin'
+  return callAPI(u, options, true);
+}
