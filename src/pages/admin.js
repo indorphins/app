@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Grid, makeStyles, TextField, Typography, LinearProgress } from '@material-ui/core';
 import Alert from '@material-ui/lab/Alert';
 import { useSelector } from 'react-redux';
@@ -7,12 +7,17 @@ import Analytics from '../utils/analytics';
 // import * as Reporting from '../api/reporting';
 import {create} from '../api/user';
 import {accountCreated} from '../api/message';
+import {createAsAdmin} from '../api/subscription';
 import Firebase from '../Firebase';
 import log from '../log';
 import { nanoid } from 'nanoid'
 
 const getUserSelector = createSelector([state => state.user.data], (user) => {
   return user;
+});
+
+const getProductsSelector = createSelector([state => state.products], products => {
+  return products;
 });
 
 const useStyles = makeStyles((theme) => ({
@@ -35,17 +40,31 @@ const useStyles = makeStyles((theme) => ({
 export default function Admin() {
   const classes = useStyles();
   const user = useSelector(state => getUserSelector(state));
+  const products = useSelector(state => getProductsSelector(state));
   // const [domain, setDomain] = useState('');
   // const [reportData, setReportData] = useState([]);
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [error, setError] = useState();
   const [loader, setLoader] = useState(false);
+  const [productId, setProductId] = useState();
+  const [priceId, setPriceId] = useState();
 
   // function submitDomainHandler(e) {
   //   e.preventDefault();
   //   fetchReportByDomain(domain)
   // }
+
+  useEffect(() => {
+    if (products && products.product && products.product.trial_length 
+      && products.price && products.price.length > 0 && products.price[0].amount) {
+
+      if (products.product.id && products.price[0].id) {
+        setProductId(products.product.id);
+        setPriceId(products.price[0].id);
+      }
+    }
+  }, [products]);
 
   async function submitAccountHandler(e) {
     e.preventDefault();
@@ -77,8 +96,9 @@ export default function Admin() {
     }
 
     // create user
+    let user;
     try {
-      await create(username, '', '', email, '', '', firebaseUser.user.uid);
+      user = await create(username, '', '', email, '', '', firebaseUser.user.uid);
     } catch (err) {
       log.warn("ADMIN:: Error creating user ", err);
       return setError({
@@ -87,22 +107,41 @@ export default function Admin() {
       });
     }
 
-    // send acct created email
-    const hashedPassword = btoa(password);
-    try {
-      await accountCreated(email, hashedPassword);
-    } catch (err) {
-      log.warn("ADMIN:: Error sending email ", err);
+    if (user && user.data && user.data.id) {
+      // create subscription for user
+      try {
+        await createAsAdmin(productId, priceId, user.data.id);
+      } catch (err) {
+        log.warn("ADMIN:: Error creating subscription ", err);
+        return setError({
+          severity: "error",
+          message: err.message,
+        });
+      }
+
+      // send acct created email
+      const hashedPassword = btoa(password);
+      try {
+        await accountCreated(email, hashedPassword);
+      } catch (err) {
+        log.warn("ADMIN:: Error sending email ", err);
+        return setError({
+          severity: "error",
+          message: err.message,
+        });
+      }
+    } else {
+      log.warn("ADMIN:: User wasn't created");
       return setError({
         severity: "error",
-        message: err.message,
+        message: "User wasn't created",
       });
     }
 
     setLoader(false);
     setError({
       severity: "info",
-      message: "Account created successfully for " + username,
+      message: "Account + free trial subscription created successfully for " + username,
     })
   }
 
