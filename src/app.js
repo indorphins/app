@@ -96,6 +96,11 @@ export default function App() {
       return;
     }
 
+    // Don't log out admins when new accounts are created (admin tool)
+    if (currentUser && currentUser.type === 'admin') {
+      return;
+    }
+
     log.debug('AUTH:: got firebase user data', firebaseUserData);
     let user;
 
