@@ -70,3 +70,19 @@ export async function getReportByDomain(domain) {
   const u = url + '/domain/' + domain;
   return callAPI(u, options, true);
 }
+
+/**
+ * Fetches a report of a user and classes taken by the user with given email
+ * @param {String} userEmail 
+ */
+export async function getReportByUserEmail(userEmail) {
+  const options = {
+    method: 'GET',
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  }
+
+  const u = url + '/user/' + userEmail;
+  return callAPI(u, options, true);
+}
