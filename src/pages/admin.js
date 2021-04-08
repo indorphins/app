@@ -4,7 +4,7 @@ import Alert from '@material-ui/lab/Alert';
 import { useSelector } from 'react-redux';
 import { createSelector } from 'reselect';
 import Analytics from '../utils/analytics';
-// import * as Reporting from '../api/reporting';
+import * as Reporting from '../api/reporting';
 import {create} from '../api/user';
 import {accountCreated} from '../api/message';
 import {createAsAdmin} from '../api/subscription';
@@ -41,19 +41,20 @@ export default function Admin() {
   const classes = useStyles();
   const user = useSelector(state => getUserSelector(state));
   const products = useSelector(state => getProductsSelector(state));
-  // const [domain, setDomain] = useState('');
-  // const [reportData, setReportData] = useState([]);
+  const [domain, setDomain] = useState('');
+  const [reportData, setReportData] = useState([]);
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [error, setError] = useState();
   const [loader, setLoader] = useState(false);
   const [productId, setProductId] = useState();
   const [priceId, setPriceId] = useState();
+  const [userEmail, setUserEmail] = useState('');
 
-  // function submitDomainHandler(e) {
-  //   e.preventDefault();
-  //   fetchReportByDomain(domain)
-  // }
+  function submitDomainHandler(e) {
+    e.preventDefault();
+    fetchReportByDomain(domain)
+  }
 
   useEffect(() => {
     if (products && products.product && products.product.trial_length 
@@ -145,9 +146,9 @@ export default function Admin() {
     })
   }
 
-  // function domainChangeHandler(e) {
-  //   setDomain(e.target.value);
-  // }
+  function domainChangeHandler(e) {
+    setDomain(e.target.value);
+  }
 
   function usernameHandler(e) {
     setUsername(e.target.value);
@@ -157,18 +158,83 @@ export default function Admin() {
     setEmail(e.target.value);
   }
 
-  // function fetchReportByDomain(domain) {
-  //   return Reporting.getReportByDomain(domain)
-  //     .then(report => {
-  //       log.debug("ADMIN:: Fetched reports by domain ", report);
-  //       setReportData(report);
-  //       log.info('report data ' , reportData);
-  //     })
-  //     .catch(err => {
-  //       log.warn("ADMIN:: Error fetching report by domain ", err);
-  //       return;
-  //     }) 
-  // }
+  function fetchReportByDomain(domain) {
+    setError(null);
+    return Reporting.getReportByDomain(domain)
+      .then(report => {
+        log.debug("ADMIN:: Fetched reports by domain ", report);
+        setReportData(report);
+        setError({
+          message: `Found classes for domain ${domain}`,
+          severity: 'info'
+        })
+        log.info('report data ' , reportData);
+      })
+      .catch(err => {
+        log.warn("ADMIN:: Error fetching report by domain ", err);
+        return;
+      }) 
+  }
+
+  function submitUserSearchHandler(e) {
+    e.preventDefault();
+    setError(null);
+    return Reporting.getReportByUserEmail(userEmail)
+      .then(report => {
+        log.debug("ADMIN:: Fetched reports by userEmail ", report);
+        setReportData(report);
+        setError({
+          message: `Found classes for user ${userEmail}`,
+          severity: 'info'
+        })
+        log.info('report data ' , reportData);
+      })
+      .catch(err => {
+        log.warn("ADMIN:: Error fetching report by userEmail ", err);
+        return;
+      }) 
+  }
+
+  function userEmailHandler(e) {
+    setUserEmail(e.target.value);
+  }
+
+  let reportContent
+  if (reportData) {
+    // Currently this is set up for data to be an array of Objects with key value pairs of {email: [class array]}
+    let content = reportData.map(data => {
+      let key;
+      
+      const classContent = Object.keys(data).map(email => {
+        const classes = data[email];
+        key = email
+
+        return classes.map(c => {
+          const startDate = new Date(c.start_date).toLocaleDateString()
+          return (
+            <Typography 
+              key={`${email}-${c.id}`} 
+              variant='body2'
+            >
+              {`${email}: class "${c.title}" on ${startDate} with ${c.instructor_name}`}
+            </Typography>
+          )
+        })
+      })
+
+      return (
+        <Grid container key={`${key}-container`}>
+          {classContent}
+        </Grid>
+      )
+    })
+    
+    reportContent = (
+      <Grid container>
+        {content}
+      </Grid>
+    )
+  }
 
   let progress;
   if (loader) {
@@ -209,12 +275,19 @@ export default function Admin() {
         </form>
         {progress}
         <br />
-        {/* <Typography variant='h4'>Search reports by domain (ex. "@indoorphins.fit")</Typography>
+        <Typography variant='h4'>{`Search reports by domain (ex. "indoorphins.fit")`}</Typography>
         <form onSubmit={submitDomainHandler} className={classes.container}>
           <Typography variant='h3'>Domain:</Typography>
           <TextField onChange={domainChangeHandler} />
           <Button type='submit' variant="contained" color="primary">Search</Button>
-        </form> */}
+        </form>
+        <Typography variant='h4'>{'Search reports by user email (ex. "alex@indoorphins.fit")'}</Typography>
+        <form onSubmit={submitUserSearchHandler} className={classes.container}>
+          <Typography variant='h3'>Email:</Typography>
+          <TextField onChange={userEmailHandler} />
+          <Button type='submit' variant="contained" color="primary">Search</Button>
+        </form>
+        {reportContent}
       </Analytics>
     );
   }
